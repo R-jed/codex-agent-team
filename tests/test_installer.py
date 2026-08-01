@@ -41,12 +41,10 @@ def test_skill_only_installer_does_not_install_profiles(tmp_path):
     assert not (target / "agents").exists()
 
 
-def test_readmes_make_locked_profiles_the_default_install_path():
+def test_readmes_document_default_and_skill_only_install_paths():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
-    assert "python scripts/install.py" in zh
-    assert "默认安装器会一次完成两件事" in zh
-    assert "--skill-only" in zh
-    assert "python scripts/install.py" in en
-    assert "default installer places the Skill" in en
-    assert "--skill-only" in en
+    for text in [zh, en]:
+        assert "python scripts/install.py" in text
+        assert "--skill-only" in text
+        assert "~/.codex/agents/" in text
