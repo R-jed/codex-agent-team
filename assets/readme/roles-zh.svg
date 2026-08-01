@@ -13,7 +13,7 @@
     <text x="112" y="370" font-size="28" font-weight="400" fill="#fafaf8">控制风险与范围</text>
     <text x="112" y="410" font-size="28" font-weight="400" fill="#fafaf8">验证证据</text>
     <text x="112" y="450" font-size="28" font-weight="400" fill="#fafaf8">负责最终回答</text>
-    <text x="112" y="510" font-size="22" font-weight="500" fill="#737373">Skill 不会暗中替换 Root</text>
+    <text x="112" y="510" font-size="22" font-weight="500" fill="#737373">本技能不会暗中替换 Root</text>
 
     <rect x="626" y="144" width="894" height="120" fill="#002FA7"/>
     <text x="658" y="194" font-family="Inter, Helvetica, Arial, sans-serif" font-size="46" font-weight="200" fill="#ffffff">LUNA</text>
