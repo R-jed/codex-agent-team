@@ -99,6 +99,8 @@ Codex Agent Team therefore governs the native engine rather than replacing it.
 
 This is a core review point for the Skill. The policy keeps “which route we want” separate from “which configuration Codex actually accepted.”
 
+> **Assurance scope:** Route Assurance applies to model-specific Subagents created by the Skill. The Root model and reasoning effort remain the user's active-session choice; the Skill never silently switches the Root.
+
 When the current runtime supports the required surface, the Skill recognizes only two exact forms of **configuration-level Route Assurance**. A model-specific Subagent is created only when one of these paths is available. If the runtime does not expose effective post-spawn model/effort telemetry, the Skill records `observed_route = not_exposed` instead of presenting configuration assurance as runtime observation.
 
 ### 1. Profile Locked
@@ -226,7 +228,9 @@ Explicit invocation:
 $codex-agent-team
 ```
 
-### Optional locked Agent profiles
+### Recommended: install the model-locked Agent profiles
+
+The Skill can run in Portable Mode without profiles. If exact child model/reasoning selection matters most, install the bundled profiles so Route Assurance can prefer `profile_locked`.
 
 ```bash
 mkdir -p ~/.codex/agents
@@ -242,7 +246,7 @@ terra_reviewer
 sol_judge
 ```
 
-Profiles are optional. Zero-configuration use still works through Native Explicit Validated routes when the current `spawn_agent` surface exposes model/effort overrides.
+The profiles require no hand-written configuration. Without them, zero-configuration use still works through Native Explicit Validated when the live `spawn_agent` surface exposes exact model/effort overrides. If neither path can prove the exact route, the task stays in Root.
 
 ## Example
 
