@@ -57,9 +57,9 @@ flowchart LR
 
 The team is role-routed rather than built as a model difficulty ladder. Luna Max owns high-token, high-tool-use work that can eventually return to Root as a compact evidence packet.
 
-When OpenAI launched GPT-5.6 on 2026-07-09, standard Luna pricing was **$1 input / $6 output** per million tokens. The OpenAI API Pricing page reviewed on 2026-08-01 lists standard short-context Luna at **$0.20 input / $1.20 output**, an **80% reduction** from launch pricing. Terra moved from **$2.50 / $15** to **$2 / $12**, while Sol remains **$5 / $30**.
+When OpenAI launched GPT-5.6 on 2026-07-09, standard Luna pricing was **$1 input / $6 output** per million tokens. The OpenAI API Pricing page reviewed on 2026-08-02 lists standard short-context Luna at **$0.20 input / $1.20 output**, an **80% reduction** from launch pricing. Terra moved from **$2.50 / $15** to **$2 / $12**, while Sol remains **$5 / $30**.
 
-| Model | 2026-07-09 launch | 2026-08-01 current* | Role in this Skill |
+| Model | 2026-07-09 launch | 2026-08-02 current* | Role in this Skill |
 | --- | ---: | ---: | --- |
 | Sol | $5 / $30 | $5 / $30 | Root or one-time Senior Judge |
 | Terra | $2.50 / $15 | $2 / $12 | Independent Critic / synthesis |
