@@ -1,10 +1,10 @@
 # Architecture
 
-Codex Agent Team is a root-aware native Subagent policy layer.
+Codex Agent Team is a Root-aware policy layer over Codex Native Subagents.
 
 ## Control model
 
-The current Codex session is always the Root Controller. The Skill never requires Sol as the root model.
+The current user-facing Codex session is always the Root Controller. The Skill never requires a Sol Root and never creates a second orchestration runtime.
 
 Logical roles:
 
@@ -15,85 +15,88 @@ Logical roles:
 | INDEPENDENT_CRITIC | GPT-5.6 Terra XHigh | detached review, synthesis, conflicting evidence, assumption challenge |
 | SENIOR_JUDGE | GPT-5.6 Sol High | one-off high-consequence adjudication when Root is not Sol and the user consents |
 
+## Native runtime, not a parallel thread system
+
+The Skill calls Codex Native `spawn_agent`.
+
+Internally, Codex backs each Subagent with a child thread and a canonical Agent path such as `/root/auth_fix`. That child thread is the Subagent's runtime container. Codex Agent Team does not call an App Thread `create_thread` API, manage an external DAG, or maintain a separate scheduler.
+
+See [`native-subagent-runtime.md`](native-subagent-runtime.md) for the runtime distinction and the policy differences from plain native Subagent usage.
+
 ## Decision sequence
 
 ```text
 Root task
   -> Delegation Gate
-  -> Capability Gate
+  -> Route Assurance Gate
   -> Role Router
   -> Consent Gate when a material boundary changes
-  -> Execute
+  -> Execute Native Subagent
   -> Evidence Gate
-  -> Close Workers
+  -> Close Subagent
   -> Root integration
 ```
 
-## Why role routing
+## Route assurance
 
-A difficulty ladder creates unstable behavior as model pricing and capabilities change. Codex Agent Team routes by the cognitive role the task needs.
-
-Luna Max handles execution depth and high-context work. Terra XHigh adds detached judgment. Sol remains focused on high-value control and adjudication.
-
-## Two mutually exclusive spawn modes
-
-### Portable Mode
-
-Use built-in native roles and explicit model/effort overrides when the current `spawn_agent` schema exposes them.
+Model-specific children use only provable routes. The Skill keeps these facts separate:
 
 ```text
-agent_type = worker
-model = gpt-5.6-luna
-reasoning_effort = max
-fork_turns = none
+preferred_route
+configured_route
+route_assurance
+observed_route
 ```
+
+A successful exact spawn can establish a configuration-level assured route. Current MultiAgentV2 does not expose a universal post-spawn model/effort receipt, so `observed_route = not_exposed` is valid. The architecture never upgrades configuration assurance into a claim of runtime-observed telemetry.
 
 ### Profile Mode
 
-Use a custom Agent profile that pins model/effort. Do not also send competing explicit model/effort overrides.
+Preferred when an installed custom Agent role pins the intended model and reasoning effort and the live role guidance confirms the lock.
 
 ```text
-agent_type = luna_worker
-fork_turns = none
+route_assurance = profile_locked
 ```
 
-This separation matters because Codex applies Agent role/profile configuration after explicit spawn model overrides. A route-pinning profile can therefore become the effective source of model/effort.
+### Portable Mode
 
-## Runtime portability
+Uses a built-in role plus explicit model/effort only when the live `agent_type` and `fork_turns` surface is available, model/effort overrides are exposed, and the selected role is not locked to an incompatible route. Current Codex validates the requested model and supported effort before spawn.
 
-The Skill does not assume that every Codex build exposes the same `spawn_agent` schema. Role-specific delegation requires the live `agent_type` and `fork_turns` surface; Portable Mode also requires the exact model/effort override surface when it depends on those fields.
+```text
+route_assurance = native_explicit_validated
+```
 
-Route resolution:
+### No exact inheritance assumption
 
-1. required live role/context-fork surface, then explicit live model/effort override for Portable Mode
-2. exact parent inheritance when the target equals the current Root route and inheritance is documented by the runtime
-3. optional custom Agent profile that pins the exact route
-4. otherwise return the task to Root
+The Skill does not treat omitted model/effort as exact assurance because Codex can apply configured default Subagent model/effort values. If no exact profile or explicit route is provable, the child task returns to Root.
 
-Semantic probes, stale documentation, and model catalogs do not override the current native tool contract.
+Current MultiAgentV2 spawn and list output do not expose a universal child model/effort receipt, so `observed_route = not_exposed` remains valid unless a future runtime adds that telemetry.
+
+See `model-route-assurance.md` for details.
 
 ## Context strategy
 
-Role-specific spawns always set `fork_turns` explicitly because current MultiAgentV2 defaults omitted `fork_turns` to full history.
+Role-specific spawns always set `fork_turns` explicitly.
 
-- Explorer: `fork_turns = "none"`
-- Worker: `fork_turns = "none"` by default; recent positive integer only when task-local re-packing would lose material decisions
-- Critic: `fork_turns = "none"`
-- Never combine `fork_turns = "all"` with `agent_type` on MultiAgentV2
+- Explorer: `none`
+- Critic: `none`
+- Worker: `none` by default, positive recent-N only when required
+
+This avoids accidental full-history inheritance and preserves detached review.
 
 ## Permission semantics
 
-Custom Agent profiles can declare sandbox defaults, but the live parent Turn's effective permission profile and approval policy are runtime-owned values. The Skill therefore treats actual child permissions as runtime facts.
+Custom Agent profiles may declare sandbox defaults, but effective child permissions are runtime facts. A profile declaring `sandbox_mode = "read-only"` is useful intent metadata; it is not proof of effective runtime enforcement.
 
-A profile saying `sandbox_mode = "read-only"` is useful intent metadata, but it is not sufficient evidence for `permission_guarantee = runtime_enforced`.
+When safety depends on enforced read-only access, the Skill requires runtime evidence before delegation.
 
 ## Lifecycle
 
 ```text
-spawn -> work -> gather -> verify -> close
+spawn -> work -> gather -> verify -> optional focused follow-up -> close
 ```
 
-At most one focused follow-up is allowed for incomplete evidence. A completed Worker should be closed promptly so it does not continue consuming a concurrency slot.
+At most one focused follow-up is allowed for incomplete evidence. Completed Subagents are closed promptly.
 
 ## Scope boundary
 
