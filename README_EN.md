@@ -218,6 +218,8 @@ See [OpenAI design references](docs/openai-references.md) for exact sources and 
 
 ### Recommended installation: Skill + model-locked Agent profiles
 
+**Recommended: install the model-locked Agent profiles.** Route Assurance can prefer `profile_locked`.
+
 The default installer places the Skill under `~/.codex/skills/` and all four locked Agent profiles under `~/.codex/agents/`. Beginners do not need to edit Codex configuration by hand.
 
 ```bash
