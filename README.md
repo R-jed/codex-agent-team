@@ -1,7 +1,7 @@
 # Codex Agent Team
 
 <p align="center">
-  <img src="assets/readme/hero.svg" alt="Codex Agent Team" width="100%">
+  <img src="assets/readme/hero-zh.svg" alt="Codex Agent Team" width="100%">
 </p>
 
 <p align="center">
@@ -59,7 +59,7 @@ $codex-agent-team
 ## 它怎么工作
 
 <p align="center">
-  <img src="assets/readme/workflow.svg" alt="Codex Agent Team 工作流程" width="100%">
+  <img src="assets/readme/workflow-zh.svg" alt="Codex Agent Team 工作流程" width="100%">
 </p>
 
 Root 先判断委派有没有具体收益。需要执行或探索时交给 Luna，需要独立复核时交给 Terra。所有结果都回到 Root 验证和整合。
@@ -69,7 +69,7 @@ Root 先判断委派有没有具体收益。需要执行或探索时交给 Luna�
 ## 角色分工
 
 <p align="center">
-  <img src="assets/readme/roles.svg" alt="Codex Agent Team 角色分工" width="100%">
+  <img src="assets/readme/roles-zh.svg" alt="Codex Agent Team 角色分工" width="100%">
 </p>
 
 | 角色 | 默认路由 | 负责什么 |
