@@ -246,6 +246,8 @@ OpenAI 发布页还公开了 GPT-5.6 的 coding / terminal eval：
 
 ### 推荐安装：Skill + 锁定模型的 Agent profiles
 
+**推荐：同时安装锁定模型的 Agent profiles。** 这样 Route Assurance 可以优先走 `profile_locked`。
+
 默认安装器会一次完成两件事：把 Skill 安装到 `~/.codex/skills/`，并把 4 个 model-locked Agent profiles 安装到 `~/.codex/agents/`。普通用户无需自己编辑 Codex 配置。
 
 ```bash
