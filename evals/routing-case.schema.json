@@ -72,7 +72,8 @@
                     "workspace",
                     "fork_turns",
                     "route_mode",
-                    "agent_type"
+                    "agent_type",
+                    "route_assurance"
                   ],
                   "properties": {
                     "responsibility": {
@@ -117,6 +118,13 @@
                     "agent_type": {
                       "type": "string",
                       "minLength": 1
+                    },
+                    "route_assurance": {
+                      "type": "string",
+                      "enum": [
+                        "native_explicit_validated",
+                        "profile_locked"
+                      ]
                     }
                   },
                   "additionalProperties": true
