@@ -80,7 +80,21 @@ These are OpenAI model-family evaluations, not Codex Agent Team benchmarks. They
 
 ## Codex Native Subagent runtime contract
 
-Codex is open source, so the Skill also checks the current implementation instead of treating prose docs as a substitute for the live tool schema.
+### Official Codex Subagents documentation
+
+https://developers.openai.com/codex/subagents
+
+Used for:
+
+- the official distinction between a Subagent and the Agent thread where it works
+- local Codex being able to delegate because applicable Skill instructions request it
+- built-in roles such as `default`, `worker`, and `explorer`
+- custom Agent files under `~/.codex/agents/` or `.codex/agents/`
+- exact model / reasoning precedence: custom Agent file, explicit spawn value, `[agents]` default, then parent value
+- parent live permission overrides being reapplied to spawned children
+- why this project is a policy layer over Codex Native Subagents rather than a second orchestration runtime
+
+Codex is open source, so the Skill checks current implementation details in addition to prose documentation. These implementation details are version-sensitive and are never treated as a substitute for the live tool contract exposed in the user's session.
 
 ### MultiAgentV2 spawn handler
 
@@ -92,33 +106,27 @@ Used for:
 - `fork_turns` accepting `none`, `all`, or a positive integer string
 - omitted `fork_turns` defaulting to `all`
 - full-history forks rejecting an `agent_type` override
-- why Codex Agent Team explicitly sets `fork_turns` on every role-specific spawn
+- creating `SessionSource::SubAgent(SubAgentSource::ThreadSpawn { ... })` with parent thread, depth, Agent path, role, and task name
+- why role-specific spawns always set `fork_turns` explicitly
 
-### Multi-agent common runtime configuration
+### Native model / effort validation and runtime-owned child state
 
 https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_common.rs
 
 Used for:
 
-- parent model/effort inheritance
-- exact model availability and reasoning-effort validation
-- Agent role/profile application order
-- runtime-owned permission/approval state being applied to child configuration
-- why a profile's sandbox declaration is treated as a default, not proof of effective runtime enforcement
+- explicit model requests being validated against models available to the active MultiAgent backend
+- explicit reasoning effort being validated against the resolved model
+- configured `[agents].default_subagent_model` / `[agents].default_subagent_reasoning_effort` being able to affect omitted values
+- why omitted model/effort is not accepted as proof of an exact model-specific route
+- runtime-owned approval/permission state being reapplied to child configuration
+- why a profile sandbox declaration is a default intent, not proof of effective runtime enforcement
 
-### Multi-agent tool specification
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs
-
-Used for:
-
-- the fact that model/reasoning overrides can be hidden from the V2 tool schema by runtime configuration
-- close-agent lifecycle semantics, including completed Agents continuing to occupy concurrency until closed
-- why the Capability Gate uses the live native contract and the lifecycle ends with explicit close
-
-### Custom Agent role discovery and precedence
+### Agent roles, profile locks, and precedence
 
 https://github.com/openai/codex/blob/main/codex-rs/core/src/config/agent_roles.rs
+
+https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs
 
 https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role_tests.rs
 
@@ -126,9 +134,34 @@ Used for:
 
 - discovery of custom role files from configuration-layer `agents/` directories
 - the role-file format (`name`, `description`, `nickname_candidates`, plus normal Codex config keys)
-- validating that a custom role can provide model, reasoning, sandbox, and developer-instruction defaults
-- custom role values taking precedence over earlier same-key session/config values
-- why Portable Mode and Profile Mode are treated as mutually exclusive route-configuration paths
+- role layers preserving caller model/reasoning unless the role itself sets them
+- role-level model/reasoning values taking high precedence when explicitly pinned
+- live spawn role guidance surfacing locked model/reasoning settings as settings that cannot be changed
+- user-defined roles being able to shadow built-in role names
+- why Portable Mode rejects a conflicting role lock and Profile Mode treats a confirmed lock as its Route Assurance source
+
+### Multi-agent tool surface and observability
+
+https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs
+
+Used for:
+
+- model/reasoning overrides being hideable from the V2 tool schema by runtime configuration
+- `spawn_agent` / `list_agents` not providing a universal effective child model/effort receipt
+- why the Skill records `observed_route = not_exposed` instead of relabeling requested/configured settings as observed settings
+- native Agent messaging, wait, interrupt, follow-up, list, and close lifecycle tools
+- completed Agents continuing to occupy concurrency until closed
+
+### Agent thread creation
+
+https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/control/spawn.rs
+
+Used for:
+
+- `spawn_agent` creating a new Agent thread with its own thread identity
+- a spawned child being represented as `SubAgent / ThreadSpawn` inside the Root multi-agent tree
+- fresh spawns and history forks both remaining Native Subagent threads
+- the child thread being the runtime container for the Subagent, rather than an App Thread or external task-session backend created by this project
 
 ## Codex Skill structure
 
