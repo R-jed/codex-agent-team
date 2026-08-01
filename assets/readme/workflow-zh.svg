@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500" role="img" aria-labelledby="title desc">
+  <title id="title">Codex Agent Team 工作流程</title>
+  <desc id="desc">任务进入 Root，按需要交给 Luna 执行或 Terra 独立复核，结果回到 Root 验证；高后果分歧可在用户同意后增加 Sol 裁决。</desc>
+  <rect width="1600" height="500" fill="#fafaf8"/>
+  <text x="80" y="54" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="600" letter-spacing="1.5" fill="#737373">任务如何流转</text>
+  <line x1="80" y1="78" x2="1520" y2="78" stroke="#0a0a0a" stroke-width="1"/>
+
+  <g font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+    <rect x="80" y="170" width="210" height="112" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
+    <text x="108" y="211" font-size="16" font-weight="600" letter-spacing="1.5" fill="#737373">01</text>
+    <text x="108" y="252" font-size="25" font-weight="400" fill="#0a0a0a">用户任务</text>
+
+    <rect x="390" y="150" width="230" height="152" fill="#0a0a0a"/>
+    <text x="420" y="194" font-size="16" font-weight="600" letter-spacing="1.5" fill="#fafaf8">02 · ROOT</text>
+    <text x="420" y="238" font-size="26" font-weight="400" fill="#fafaf8">判断委派</text>
+    <text x="420" y="270" font-size="26" font-weight="400" fill="#fafaf8">是否有收益</text>
+
+    <rect x="740" y="118" width="230" height="112" fill="#002FA7"/>
+    <text x="768" y="160" font-size="16" font-weight="600" letter-spacing="1.5" fill="#ffffff">03A · LUNA</text>
+    <text x="768" y="199" font-size="23" font-weight="400" fill="#ffffff">执行与探索</text>
+
+    <rect x="740" y="260" width="230" height="112" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
+    <text x="768" y="302" font-size="16" font-weight="600" letter-spacing="1.5" fill="#737373">03B · TERRA</text>
+    <text x="768" y="341" font-size="23" font-weight="400" fill="#0a0a0a">独立复核</text>
+
+    <rect x="1090" y="150" width="230" height="152" fill="#0a0a0a"/>
+    <text x="1120" y="194" font-size="16" font-weight="600" letter-spacing="1.5" fill="#fafaf8">04 · ROOT</text>
+    <text x="1120" y="238" font-size="26" font-weight="400" fill="#fafaf8">验证证据</text>
+    <text x="1120" y="270" font-size="26" font-weight="400" fill="#fafaf8">整合并决定</text>
+
+    <rect x="1380" y="338" width="140" height="78" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
+    <text x="1404" y="369" font-size="14" font-weight="600" letter-spacing="1.2" fill="#737373">SOL</text>
+    <text x="1404" y="397" font-size="16" font-weight="500" fill="#0a0a0a">经用户授权</text>
+
+    <text x="1382" y="176" font-size="14" font-weight="600" letter-spacing="1.2" fill="#002FA7">交付</text>
+  </g>
+
+  <g fill="none" stroke="#0a0a0a" stroke-width="2">
+    <path d="M290 226 H390"/>
+    <path d="M620 226 H680 V174 H740"/>
+    <path d="M680 226 V316 H740"/>
+    <path d="M970 174 H1030 V226 H1090"/>
+    <path d="M970 316 H1030 V226"/>
+    <path d="M1320 210 H1460"/>
+    <path d="M1320 248 H1450 V338" stroke-dasharray="8 8"/>
+    <path d="M1380 377 H1348 V292 H1320" stroke-dasharray="8 8"/>
+  </g>
+  <g fill="#0a0a0a">
+    <path d="M382 220 l12 6 -12 6z"/>
+    <path d="M732 168 l12 6 -12 6z"/>
+    <path d="M732 310 l12 6 -12 6z"/>
+    <path d="M1082 220 l12 6 -12 6z"/>
+    <path d="M1452 204 l12 6 -12 6z"/>
+    <path d="M1328 286 l-12 6 12 6z"/>
+  </g>
+  <text x="80" y="444" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="600" letter-spacing="1" fill="#737373">没有明确收益 → ROOT · 路由无法证明 → ROOT · 高影响操作 → ROOT + 用户授权</text>
+</svg>
