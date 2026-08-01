@@ -69,7 +69,10 @@
                     "model",
                     "effort",
                     "write_intent",
-                    "workspace"
+                    "workspace",
+                    "fork_turns",
+                    "route_mode",
+                    "agent_type"
                   ],
                   "properties": {
                     "responsibility": {
@@ -99,6 +102,21 @@
                     },
                     "workspace": {
                       "type": "string"
+                    },
+                    "fork_turns": {
+                      "type": "string",
+                      "pattern": "^(none|[1-9][0-9]*)$"
+                    },
+                    "route_mode": {
+                      "type": "string",
+                      "enum": [
+                        "portable",
+                        "profile"
+                      ]
+                    },
+                    "agent_type": {
+                      "type": "string",
+                      "minLength": 1
                     }
                   },
                   "additionalProperties": true
