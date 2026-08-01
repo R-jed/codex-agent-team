@@ -1,190 +1,218 @@
 # Codex Agent Team
 
 <p align="center">
-  <strong>Give your Codex session a small AI team that knows when to work, when to review, and when to ask you first.</strong>
+  <strong>A small Native Subagent team for Codex, with explicit model roles, detached review, and bounded escalation.</strong>
 </p>
 
 <p align="center">
   <a href="README.md">中文 README</a> ·
-  <a href="docs/architecture.md">Architecture</a> ·
-  <a href="docs/openai-references.md">OpenAI design references</a>
+  <a href="docs/native-subagent-runtime.md">Native Subagent runtime</a> ·
+  <a href="docs/model-route-assurance.md">Model route assurance</a> ·
+  <a href="docs/openai-references.md">OpenAI references</a>
 </p>
 
 <p align="center">
-  <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+  <img alt="MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
   <img alt="Codex Native Subagents" src="https://img.shields.io/badge/Codex-Native%20Subagents-black">
-  <img alt="Luna Max Worker" src="https://img.shields.io/badge/Worker-Luna%20Max-6f42c1">
-  <img alt="Terra XHigh Critic" src="https://img.shields.io/badge/Critic-Terra%20XHigh-0969da">
+  <img alt="Luna Max" src="https://img.shields.io/badge/Worker-Luna%20Max-6f42c1">
+  <img alt="Terra XHigh" src="https://img.shields.io/badge/Critic-Terra%20XHigh-0969da">
   <img alt="Root aware" src="https://img.shields.io/badge/Root-aware-2da44e">
 </p>
 
-Codex Agent Team is a lightweight policy Skill for **Codex Native Subagents**. It keeps the current session in control, routes context-heavy and tool-heavy execution to **GPT-5.6 Luna Max**, routes important detached review to **GPT-5.6 Terra XHigh**, and asks for plain-language one-time consent before a material capability, permission, scope, cost, or external-impact escalation.
+Codex Agent Team is a lightweight policy Skill built directly on **Codex Native Subagents**. The current session stays in control. **GPT-5.6 Luna Max** handles context-heavy execution, **GPT-5.6 Terra XHigh** provides detached review, and material capability, permission, scope, cost, or external-impact escalation requires plain-language consent.
 
-> **The Root owns intent and final decisions. Luna Max handles deep execution. Terra XHigh provides a second opinion. Simple tasks stay simple; complex tasks get the smallest useful team.**
+> **Simple work stays in Root. Luna Max handles bounded heavy execution. Terra XHigh supplies a second opinion. Root still makes the final decision.**
 
-## What it does at a glance
+## 30-second overview
 
 ```mermaid
 flowchart LR
-    U[Normal Codex request] --> R[Current Root<br/>Your active session]
-    R --> G{Delegation useful?}
+    U[Normal Codex request] --> R[Current Root<br/>Active session]
+    R --> G{Concrete delegation benefit?}
     G -- No --> D[Root handles it]
     G -- Heavy execution / context isolation --> L[Luna Max<br/>Explorer / Worker]
-    G -- Independent review --> T[Terra XHigh<br/>Independent Critic]
+    G -- Detached review --> T[Terra XHigh<br/>Independent Critic]
     L --> V[Evidence + validation]
     T --> V
     V --> R2[Root integrates and decides]
-    R2 --> C{Material cost / permission / scope / risk escalation?}
-    C -- No --> O[Deliver result]
-    C -- Yes --> H[Ask for one-time consent in plain language]
+    R2 --> C{Material cost / permission / scope / risk boundary?}
+    C -- No --> O[Deliver]
+    C -- Yes --> H[Ask for one-time consent]
     H --> O
 ```
 
-### What improves after installation
+## Why use it
 
-| Typical Codex workflow | With Codex Agent Team |
+| Benefit | Practical effect |
 | --- | --- |
-| Search, logs, and tests accumulate in Root context | Noisy work is isolated in Luna Max and returns as compact evidence |
-| The same model investigates, implements, and reviews | Terra XHigh can provide detached review |
-| The user manually decides when to spawn | The Skill applies a Delegation Gate first |
-| Available concurrency tends to become used concurrency | Default 0-1 children, normal max 2, hard max 4 |
-| Child history inheritance may be implicit | Role-specific spawns explicitly control `fork_turns` |
-| Unavailable routes encourage improvised fallback | Exact route unavailable returns work to Root |
-| Beginners must understand policy switches | Material escalation is explained in plain language only when needed |
-| One reasoning path can reinforce itself | A clean-context Terra review adds independent judgment |
+| **Cleaner Root context** | Search, logs, and test noise stay in Luna's child context and return as evidence |
+| **Stable model responsibilities** | Luna executes, Terra reviews independently, Sol is reserved for rare adjudication |
+| **Route assurance** | A model-specific child is created only when model + reasoning effort can be established exactly |
+| **Controlled fan-out** | Default 0-1 child, normal max 2, hard max 4 |
+| **Detached review** | Terra defaults to a clean context instead of inheriting the producer's full history |
+| **Understandable consent** | Users are asked only when cost, permission, scope, external impact, or risk materially expands |
 
-## Why Luna Max is the execution engine now
+## What does it actually create?
 
-The team is role-routed rather than built as a model difficulty ladder. Luna Max owns high-token, high-tool-use work that can eventually return to Root as a compact evidence packet.
-
-When OpenAI launched GPT-5.6 on 2026-07-09, standard Luna pricing was **$1 input / $6 output** per million tokens. The OpenAI API Pricing page reviewed on 2026-08-02 lists standard short-context Luna at **$0.20 input / $1.20 output**, an **80% reduction** from launch pricing. Terra moved from **$2.50 / $15** to **$2 / $12**, while Sol remains **$5 / $30**.
-
-| Model | 2026-07-09 launch | 2026-08-02 current* | Role in this Skill |
-| --- | ---: | ---: | --- |
-| Sol | $5 / $30 | $5 / $30 | Root or one-time Senior Judge |
-| Terra | $2.50 / $15 | $2 / $12 | Independent Critic / synthesis |
-| Luna | $1 / $6 | **$0.20 / $1.20** | Default Explorer / Execution Worker |
-
-\* Standard, short-context, per 1M input/output tokens. Pricing is time-sensitive; use OpenAI's current pricing page as the source of truth.
-
-Pricing is a design input, not a routing invariant. The Core Policy routes by responsibility and runtime capability so future price changes do not require a policy rewrite.
-
-### Beyond price: why Luna can carry a large share of Worker tasks
-
-OpenAI's GPT-5.6 launch evaluations show relatively small gaps between Luna and Terra on several coding and terminal benchmarks:
-
-| OpenAI-published eval | Sol | Terra | Luna |
-| --- | ---: | ---: | ---: |
-| SWE-Bench Pro | 64.6% | 63.4% | 62.7% |
-| DeepSWE v1.1 | 72.7% | 69.6% | 67.2% |
-| Terminal-Bench 2.1 | 88.8% | 87.4% | 84.7% |
-
-These figures support the design direction of using Luna for a large amount of bounded coding and tool-heavy work, but **they are not benchmarks of this Skill and do not prove Luna Max will outperform Terra XHigh on your workload**. Routing still depends on responsibility, independence requirements, live capability, and actual verification.
-
-OpenAI's current model guidance positions Sol for frontier capability, Terra for intelligence/cost balance, and Luna for efficient high-volume workloads. GPT-5.6 supports `max` reasoning effort. See [`docs/openai-references.md`](docs/openai-references.md) for the official sources and exactly how each one informed this project.
-
-## Team architecture
+Codex Agent Team calls the native `spawn_agent` tool. OpenAI defines a Subagent as a delegated agent started for a specific task, and an Agent thread as the thread where that Subagent does its work.
 
 ```mermaid
 flowchart TB
-    R[ROOT_CONTROLLER<br/>Current user-facing session<br/>Intent · architecture · risk · integration · final answer]
-    L[LUNA MAX<br/>Execution Engine<br/>Explore · implement · debug · test · logs]
-    T[TERRA XHIGH<br/>Independent Critic<br/>Detached review · synthesis · counterexamples · ambiguity]
-    S[SOL HIGH<br/>Senior Judge<br/>Only when Root is non-Sol + high consequence + user consent]
-
-    R -->|Context-heavy bounded execution| L
-    R -->|Independent judgment has concrete value| T
-    L --> R
-    T --> R
-    R -. one-time Consent Gate .-> S
-    S --> R
+    R[Root Codex Session]
+    R -->|spawn_agent| A[Native Subagent<br/>/root/auth_fix]
+    A --> T[Internal child Codex thread/session]
+    A --> E[Independent context + native tools]
+    A --> X[Result returns to Root]
 ```
 
-### Root Controller
+Current Codex records that child as `SubAgent / ThreadSpawn`. The Subagent and the child task thread are therefore not competing mechanisms: **the Subagent is the delegated agent; the Agent thread is its runtime thread.** Root still collects the child result and owns final integration.
 
-The current user-facing session always owns final control. The Skill does not require a Sol Root.
+The phrase “child task session” can be misleading, so the runtime distinction is explicit:
 
-- **Sol Root**: Medium / High are common main-session settings and the typical pattern is `Sol Root + Luna Max`; add Terra XHigh only when independent judgment has concrete value. A stronger-effort Sol Root still does not automatically spawn another Sol child.
-- **Luna Max Root**: another Luna Max is still useful for context isolation and real parallelism; consequential review prefers Terra XHigh; only rare unresolved high-consequence cases should propose a Sol Senior Judge.
-- **Terra XHigh Root**: do not spawn another Terra solely to claim model diversity. A Terra child is valid when detached clean-context review itself has value. If stronger independent model diversity is required for a high-consequence decision, use the Consent Gate before proposing Sol.
+| Form | Meaning | Used by Codex Agent Team |
+| --- | --- | --- |
+| Separate user session | Another Codex conversation opened independently by the user | No |
+| App Thread / external task thread | A separate thread or orchestration surface with its own lifecycle | No |
+| Native Subagent child thread | Created by Root through `spawn_agent`, inside the same Agent Tree with parent/path/native messaging/lifecycle | **Yes** |
 
-### Luna Max: Execution Engine
+The project does not create App Threads, a second user-facing chat system, a custom DAG, or an external scheduler. See [Native Subagent Runtime Contract](docs/native-subagent-runtime.md) and the official [OpenAI Codex Subagents](https://developers.openai.com/codex/subagents) documentation.
 
-Default execution route: `gpt-5.6-luna` + `max`.
+### How does this differ from Codex using Subagents by itself?
 
-Use it for repository exploration, call-path tracing, large file/log/test scans, bounded implementation and fixes, bug reproduction, test design and failure analysis, local refactors, and other tool-heavy or context-heavy work that should return as concise evidence.
+The engine is the same. The additional value is the policy contract.
 
-### Terra XHigh: Independent Critic
+| Native Codex capability | Codex Agent Team policy |
+| --- | --- |
+| Generic `spawn_agent` | Delegation Gate requires a concrete benefit |
+| Model inheritance / override | Exact Route Assurance for Luna / Terra / Sol roles |
+| Generic roles | Stable execution / critic / judge responsibilities |
+| Full-history fork is available | Role-specific spawns explicitly minimize context inheritance |
+| Codex can orchestrate multiple Agent threads | Delegation depth is fixed to 1 and all child results return to Root |
+| Multiple children are possible | Minimum Team controls fan-out |
+| Runtime permissions control tools | One Writer and permission guarantees add stricter boundaries |
+| Child result returns to parent | Evidence contract and deterministic verification gate acceptance |
+| Powerful actions are possible | Consent Gate keeps high-impact behavior with Root |
 
-Default critic route: `gpt-5.6-terra` + `xhigh`.
+Codex Agent Team therefore governs the native engine rather than replacing it.
 
-Use it for independent verification, cross-module synthesis, conflicting evidence, consequential assumption challenges, and material requirement ambiguity. Terra review defaults to `fork_turns = "none"` so it receives the objective, acceptance criteria, evidence, and artifact without inheriting the producer's full history.
+## How model and reasoning settings are made reliable
 
-### Sol Senior Judge
+This is a core review point for the Skill. The policy keeps “which route we want” separate from “which configuration Codex actually accepted.”
 
-Sol is not a routine Worker. When Root is non-Sol and lower routes leave a high-consequence decision materially unresolved, the Skill may propose one `gpt-5.6-sol` + `high` Senior Judge pass. It receives a compressed decision packet, does not perform routine repository work, and requires one-time user consent first.
+When the current runtime supports the required surface, the Skill recognizes only two exact forms of **configuration-level Route Assurance**. A model-specific Subagent is created only when one of these paths is available. If the runtime does not expose effective post-spawn model/effort telemetry, the Skill records `observed_route = not_exposed` instead of presenting configuration assurance as runtime observation.
+
+### 1. Profile Locked
+
+Optional custom roles pin the exact model and effort:
+
+| Profile | Model | Effort |
+| --- | --- | --- |
+| `luna_explorer` | `gpt-5.6-luna` | `max` |
+| `luna_worker` | `gpt-5.6-luna` | `max` |
+| `terra_reviewer` | `gpt-5.6-terra` | `xhigh` |
+| `sol_judge` | `gpt-5.6-sol` | `high` |
+
+Current Codex role handling applies these settings at high precedence and can describe them as locked in the live spawn role guidance.
+
+```text
+route_assurance = profile_locked
+```
+
+### 2. Native Explicit Validated
+
+Without profiles, Portable Mode explicitly requests the tuple:
+
+```text
+agent_type = worker
+model = gpt-5.6-luna
+reasoning_effort = max
+fork_turns = none
+```
+
+Current Codex validates the model against the active MultiAgent model set and validates the requested effort against that model before spawning. The Skill also rejects a role that the live tool reports as locked to an incompatible route.
+
+```text
+route_assurance = native_explicit_validated
+```
+
+### The route binding is fixed; team composition is dynamic
+
+| Layer | Policy |
+| --- | --- |
+| Role → Model / Effort | **Fixed**: Explorer / Worker → Luna Max; Critic → Terra XHigh; Judge → Sol High |
+| Whether to spawn | **Dynamic**: based on context isolation, real parallelism, and independent verification |
+| Whether to add Terra | **Dynamic**: only when independent judgment has concrete value |
+| Whether to propose Sol Judge | **Dynamic**: non-Sol Root + high consequence + unresolved evidence + Consent Gate |
+| Current Root model / effort | **Preserved**: the Skill does not silently rewrite the user's active Root route |
+
+This separates predictability from intelligence. Once a responsibility is selected, its target model and effort are fixed; whether that responsibility is needed is decided from the current task and live runtime.
+
+OpenAI's current Subagents documentation also defines the effective precedence: when a custom agent file sets `model` or `model_reasoning_effort`, that file wins; otherwise Codex resolves each setting from the explicit spawn value, then the corresponding `[agents]` default, then the parent. Codex Agent Team therefore keeps Profile Mode and Portable Mode as separate route-configuration paths instead of mixing both sources.
+
+### Why not use implicit inheritance as proof?
+
+Codex supports configured default Subagent model and reasoning-effort values. Omitting model/effort therefore does not prove an exact inherited route.
+
+When explicit overrides are unavailable and no exact locked profile exists, the child task returns to Root.
+
+Current MultiAgentV2 spawn/list outputs also do not expose the final child model/effort. The Skill records `observed_route = not_exposed` instead of pretending requested values were observed. See [Model Route Assurance](docs/model-route-assurance.md).
+
+## Team roles
+
+| Role | Default route | Responsibility |
+| --- | --- | --- |
+| **Root Controller** | current session | intent, planning, architecture, risk, integration, final answer |
+| **Execution Worker** | Luna Max | exploration, implementation, debugging, tests, logs, context-heavy work |
+| **Independent Critic** | Terra XHigh | detached review, synthesis, conflicting evidence, consequential assumptions |
+| **Senior Judge** | Sol High | rare high-consequence adjudication from a non-Sol Root, after consent |
 
 ## The three gates
 
 ```mermaid
 flowchart LR
-    A[Delegation Gate<br/>Should we delegate?] --> B[Capability Gate<br/>Can this runtime execute the exact route?]
+    A[Delegation Gate<br/>Is a child useful?] --> B[Route Assurance Gate<br/>Can exact model + effort be established?]
     B --> C[Consent Gate<br/>Does the next step cross a material boundary?]
     C --> D[Execute + Evidence Gate]
     D --> E[Root Final]
 ```
 
-**Delegation Gate** accepts only context isolation, real parallelism, or independent verification as concrete benefits. Task length, file count, spare concurrency, or Luna's lower cost do not justify delegation by themselves.
+**Delegation Gate** accepts context isolation, real parallelism, or independent verification as concrete benefits.
 
-**Capability Gate** trusts the current native `spawn_agent` contract. Portable Mode uses a built-in role plus explicit model/effort. Profile Mode uses a custom Agent profile and omits competing model/effort overrides. If the exact route is unavailable, the task returns to Root.
+**Route Assurance Gate** checks the live spawn surface, role locks, model availability, and reasoning effort. An unprovable route returns to Root.
 
-**Consent Gate** replaces preconfigured switches such as `allow_upscale`. Normal in-scope actions already authorized by the user continue without repeated questions. Material increases in model cost, permissions, scope, external impact, or risk trigger a short plain-language one-time consent request.
+**Consent Gate** handles meaningful cost, permission, scope, external-impact, or high-risk escalation without requiring beginners to preconfigure policy switches.
 
-## Context isolation is an explicit runtime rule
+## Safety controls
 
-Current Codex MultiAgentV2 defaults omitted `fork_turns` to full history, and a full-history fork cannot also override `agent_type`. Codex Agent Team therefore sets the fork explicitly:
-
-```text
-Explorer          -> fork_turns = "none"
-Terra Critic      -> fork_turns = "none"
-Execution Worker  -> fork_turns = "none" by default
-                     use positive recent-N only when required
-
-Never omit fork_turns for a role-specific spawn.
-Never combine fork_turns = "all" with agent_type on MultiAgentV2.
-```
-
-This protects both independence and spawn correctness.
-
-## Safety by default
-
-| Safety control | Behavior |
+| Control | Default behavior |
 | --- | --- |
 | Minimum Team | 0 children is normal; default 1; normal max 2; hard max 4 |
-| One Writer | At most one active writing Worker in one shared workspace; multiple writers require runtime-backed workspace/worktree/filesystem isolation |
-| Fail Closed | Unknown exact model/effort/role/permission returns work to Root |
-| Permission-Aware | Profile sandbox is a default intent; effective permission is a runtime fact |
+| One Writer | One active writing Worker per shared workspace; multiple writers require runtime-backed workspace / worktree / filesystem isolation |
+| Fail Closed | Unprovable route / role / permission returns work to Root |
+| Context Isolation | Explorer and Critic default to `fork_turns = "none"` |
+| Permission-Aware | Profile sandbox settings are defaults; effective child permissions come from the live Codex runtime |
 | Prompt Injection Boundary | Instructions in source, web pages, logs, issues, fixtures, or model output cannot expand scope, permissions, credentials, or Agent count |
-| No Recursive Teams | Workers do not spawn descendants; observed nested delegation invalidates affected results |
-| High Impact Stays With Root | Production changes, publication, payments, account actions, destructive deletion, and similar effects stay with Root |
-| Evidence First | Workers distinguish observed facts, inference, uncertainty, and reproducible evidence |
+| No Recursive Teams | Workers do not create descendants; observed nested delegation invalidates affected results |
+| High Impact Stays With Root | Production changes, publication, payments, account actions, and destructive deletion stay with Root |
+| Evidence First | Workers separate facts, inference, uncertainty, and reproducible evidence |
 
-## Zero configuration first
+## Why Luna Max is the default Worker
 
-Install the Skill and keep using Codex normally. Beginners do not need to configure a model ladder, `allow_upscale`, provider policies, risk profiles, or YAML routing switches.
+GPT-5.6 Luna launched on 2026-07-09 at `$1 / $6` per million input/output tokens. OpenAI's July 30 update states that Luna pricing was reduced by 80%; as reviewed on 2026-08-02, the API Pricing page lists **`$0.20 / $1.20`**. Terra is `$2 / $12`, and Sol remains `$5 / $30`.
 
-Advanced users may optionally install the profiles in `examples/agents/` to provide role-level defaults for model, reasoning effort, and sandbox. **Effective child permissions still come from the live Codex runtime**; `sandbox_mode` in a profile is not by itself proof of runtime enforcement.
+OpenAI also published the following GPT-5.6 coding / terminal evaluations:
 
-Current Codex source discovers custom Agent roles from `agents/` directories associated with configuration layers. With the default global configuration directory, the optional profiles can be installed with:
+| Eval | Sol | Terra | Luna |
+| --- | ---: | ---: | ---: |
+| SWE-Bench Pro | 64.6% | 63.4% | 62.7% |
+| DeepSWE v1.1 | 72.7% | 69.6% | 67.2% |
+| Terminal-Bench 2.1 | 88.8% | 87.4% | 84.7% |
 
-```bash
-mkdir -p ~/.codex/agents
-cp examples/agents/*.toml ~/.codex/agents/
-```
+Pricing and benchmark results are design context, not routing invariants. The Core Policy still routes by responsibility, independence requirements, live capability, and verification.
 
-When profiles are installed, Profile Mode uses roles such as `luna_explorer`, `luna_worker`, and `terra_reviewer` while omitting competing explicit model/effort overrides. Without profiles, Portable Mode continues to work with no extra user configuration.
+See [OpenAI design references](docs/openai-references.md) for exact sources and caveats.
 
-## Install
+## Quick start
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
@@ -192,87 +220,69 @@ mkdir -p ~/.codex/skills
 cp -R codex-agent-team/skill/codex-agent-team ~/.codex/skills/codex-agent-team
 ```
 
-For development, a symlink also works:
-
-```bash
-ln -s "$(pwd)/skill/codex-agent-team" ~/.codex/skills/codex-agent-team
-```
-
-The Skill supports implicit invocation and can also be invoked explicitly:
+Explicit invocation:
 
 ```text
 $codex-agent-team
 ```
 
-## Example workflow
+### Optional locked Agent profiles
 
-User:
+```bash
+mkdir -p ~/.codex/agents
+cp examples/agents/*.toml ~/.codex/agents/
+```
 
-> Fix this authentication issue, check the related tests, and verify that existing session behavior is not broken.
+Profiles installed by this command:
+
+```text
+luna_explorer
+luna_worker
+terra_reviewer
+sol_judge
+```
+
+Profiles are optional. Zero-configuration use still works through Native Explicit Validated routes when the current `spawn_agent` surface exposes model/effort overrides.
+
+## Example
+
+User request:
+
+> Fix this authentication issue, run the related tests, and check whether existing Session behavior is affected.
 
 Possible team:
 
 ```text
 Root
-├─ Luna Max Worker
-│  ├─ trace auth flow
-│  ├─ implement bounded fix
-│  └─ run tests
-└─ Terra XHigh Critic
-   └─ independently review session compatibility
+├── Luna Max Worker
+│   ├── trace auth flow
+│   ├── implement bounded fix
+│   └── run tests
+└── Terra XHigh Critic
+    └── independently review session compatibility
 ```
 
-Root inspects the diff, validation evidence, and critic findings before delivering the result. If the task is a simple local change, the Skill may choose zero Subagents and let Root handle it directly.
+Root reviews the diff, validation evidence, and critic findings before delivery. A simple local change may use zero Subagents.
 
-## Official OpenAI design references
+## Documentation
 
-All OpenAI sources that materially influenced the Skill are recorded in [`docs/openai-references.md`](docs/openai-references.md), including:
-
-- the GPT-5.6 launch announcement and tier positioning
-- **the Luna pricing change from $1/$6 to $0.20/$1.20**, plus the Terra change
-- GPT-5.6 model guidance and `max` reasoning effort
-- official Luna / Terra / Sol model pages
-- Codex MultiAgentV2 source for `fork_turns`, role handling, and model/effort overrides
-- Codex custom Agent role discovery and configuration precedence
-- Codex child runtime permission behavior
-- OpenAI-published SWE-Bench Pro, DeepSWE, and Terminal-Bench 2.1 coding evaluations
-- the official Skill Creator progressive-disclosure and packaging guidance
-- the official `agents/openai.yaml` field reference
-
-The Luna/Terra/Sol roles, team limits, One Writer rule, fail-closed behavior, and Consent Gate are opinionated policies of this project, not claims that OpenAI recommends one universal team layout.
-
-## Repository layout
-
-```text
-codex-agent-team/
-├── README.md                 # Chinese default
-├── README_EN.md              # English
-├── LICENSE
-├── CONTRIBUTING.md
-├── SECURITY.md
-├── docs/
-│   ├── architecture.md
-│   └── openai-references.md
-├── examples/agents/
-├── evals/
-├── tests/
-└── skill/
-    └── codex-agent-team/
-        ├── SKILL.md
-        ├── agents/openai.yaml
-        └── references/
-```
-
-Only `skill/codex-agent-team/` is installed into Codex. README files, tests, evals, and development docs remain at repository level so they do not consume Skill runtime context.
+- [Architecture](docs/architecture.md)
+- [Native Subagent Runtime Contract](docs/native-subagent-runtime.md)
+- [Model Route Assurance](docs/model-route-assurance.md)
+- [OpenAI design references](docs/openai-references.md)
+- [Safety Policy](skill/codex-agent-team/references/safety-policy.md)
+- [Consent Policy](skill/codex-agent-team/references/consent-policy.md)
 
 ## Validation status
 
-- Static policy consistency tests: included in `tests/`
-- Routing behavior cases: included in `evals/`
-- Native runtime smoke tests: still required on representative Codex builds before claiming universal runtime verification
+The project separates static policy validation from real runtime verification.
 
-The project intentionally separates “static policy tests pass” from “real Codex runtime behavior has been verified.”
+- Policy regression tests: included
+- Routing eval cases: included
+- Native runtime smoke matrix: still required across representative Codex builds
+
+The project does not claim universal runtime verification until that matrix exists.
 
 ## License
 
-MIT
+[MIT](LICENSE)
