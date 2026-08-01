@@ -216,11 +216,25 @@ See [OpenAI design references](docs/openai-references.md) for exact sources and 
 
 ## Quick start
 
+### Recommended installation: Skill + model-locked Agent profiles
+
+The default installer places the Skill under `~/.codex/skills/` and all four locked Agent profiles under `~/.codex/agents/`. Beginners do not need to edit Codex configuration by hand.
+
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
-mkdir -p ~/.codex/skills
-cp -R codex-agent-team/skill/codex-agent-team ~/.codex/skills/codex-agent-team
+cd codex-agent-team
+python scripts/install.py
 ```
+
+Restart or reopen Codex after installation so the new Agent profiles are discovered.
+
+If you intentionally want Skill-only Portable Mode, use:
+
+```bash
+python scripts/install.py --skill-only
+```
+
+That mode can establish `native_explicit_validated` only when the live `spawn_agent` surface exposes exact model/effort overrides.
 
 Explicit invocation:
 
@@ -228,16 +242,11 @@ Explicit invocation:
 $codex-agent-team
 ```
 
-### Recommended: install the model-locked Agent profiles
+### Locked profiles installed by default
 
-The Skill can run in Portable Mode without profiles. If exact child model/reasoning selection matters most, install the bundled profiles so Route Assurance can prefer `profile_locked`.
+The default installer already installs these profiles. They are omitted only when you explicitly use `--skill-only`.
 
-```bash
-mkdir -p ~/.codex/agents
-cp examples/agents/*.toml ~/.codex/agents/
-```
-
-Profiles installed by this command:
+Profiles installed by default:
 
 ```text
 luna_explorer
@@ -259,9 +268,9 @@ Possible team:
 ```text
 Root
 ├── Luna Max Worker
-│   ├─ trace auth flow
-│   ├─ implement bounded fix
-│   └─ run tests
+│   ├── trace auth flow
+│   ├── implement bounded fix
+│   └── run tests
 └── Terra XHigh Critic
     └── independently review session compatibility
 ```
