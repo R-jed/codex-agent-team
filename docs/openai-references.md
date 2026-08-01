@@ -2,7 +2,7 @@
 
 This page records the OpenAI sources that materially influenced the Skill's design. It separates stable design facts from time-sensitive pricing and runtime implementation details.
 
-Last reviewed: 2026-08-01.
+Last reviewed: 2026-08-02.
 
 ## GPT-5.6 model family and role design
 
@@ -27,11 +27,13 @@ Historical launch pricing on 2026-07-09, per 1M standard tokens:
 | GPT-5.6 Terra | $2.50 | $15.00 |
 | GPT-5.6 Luna | $1.00 | $6.00 |
 
+OpenAI's launch page now carries a July 30 update explicitly stating that Luna was reduced by 80% and Terra by 20%.
+
 ### Current OpenAI API pricing
 
 https://developers.openai.com/api/docs/pricing
 
-Used for the current economics behind the default Worker choice. As reviewed on 2026-08-01, standard short-context pricing per 1M tokens is:
+Used for the current economics behind the default Worker choice. As reviewed on 2026-08-02, standard short-context pricing per 1M tokens is:
 
 | Model | Input | Output | Change vs. 2026-07-09 launch |
 | --- | ---: | ---: | ---: |
@@ -41,7 +43,7 @@ Used for the current economics behind the default Worker choice. As reviewed on 
 
 This price movement is a design input, not a routing invariant. Codex Agent Team routes by responsibility and runtime capability so future pricing changes do not require a policy rewrite.
 
-The current pricing page is the source of truth for price-sensitive documentation. Individual model pages or older launch posts can lag behind pricing updates.
+The current pricing page is the source of truth for price-sensitive documentation. Individual model pages or older catalog entries can lag behind pricing updates.
 
 ### GPT-5.6 model guidance
 
@@ -53,7 +55,7 @@ Used for:
 - `gpt-5.6-terra` for intelligence/cost balance
 - `gpt-5.6-luna` for efficient high-volume workloads
 - GPT-5.6 reasoning efforts including `max`
-- the recommendation to compare `max` and `xhigh` on representative workloads instead of assuming the highest effort is always optimal
+- the recommendation to compare reasoning settings on representative workloads instead of assuming the highest effort is always optimal
 - explicit autonomy/approval boundaries for normal local actions vs. destructive, external, costly, or scope-expanding actions
 
 ### Individual model pages
@@ -62,7 +64,7 @@ Used for:
 - Terra: https://developers.openai.com/api/docs/models/gpt-5.6-terra
 - Sol: https://developers.openai.com/api/docs/models/gpt-5.6-sol
 
-Used for model identity, capability-tier descriptions, reasoning support, context/output limits, and tool support. For live prices, prefer the central pricing page above.
+Used for model identity, capability-tier descriptions, reasoning support, context/output limits, and tool support. For live prices, prefer the central pricing page above because some individual model/catalog pages can lag current pricing.
 
 ### OpenAI-published coding evaluations
 
