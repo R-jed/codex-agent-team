@@ -311,17 +311,31 @@ def test_official_subagent_terms_and_precedence_are_documented():
         assert "parent value" in text
 
 
-def test_readmes_are_concise_skill_overviews_with_local_svg_visuals():
+def test_readmes_are_concise_skill_overviews_with_localized_svg_visuals():
     zh = read("README.md")
     en = read("README_EN.md")
     assert "README_EN.md" in zh
     assert "README.md" in en
-    for asset in ["hero.svg", "workflow.svg", "roles.svg"]:
+
+    zh_assets = ["hero-zh.svg", "workflow-zh.svg", "roles-zh.svg"]
+    en_assets = ["hero.svg", "workflow.svg", "roles.svg"]
+
+    for asset in zh_assets:
         path = ROOT / "assets" / "readme" / asset
-        assert path.exists()
-        assert path.read_text().lstrip().startswith("<svg")
+        svg = path.read_text()
+        assert svg.lstrip().startswith("<svg")
+        assert re.search(r"[\u4e00-\u9fff]", svg)
         assert f"assets/readme/{asset}" in zh
+        assert f"assets/readme/{asset}" not in en
+
+    for asset in en_assets:
+        path = ROOT / "assets" / "readme" / asset
+        svg = path.read_text()
+        assert svg.lstrip().startswith("<svg")
+        assert not re.search(r"[\u4e00-\u9fff]", svg)
         assert f"assets/readme/{asset}" in en
+        assert f"assets/readme/{asset}" not in zh
+
     for text in [zh, en]:
         assert "```mermaid" not in text
         assert not re.search(r"assets/readme/[^)\"']+\.(png|jpe?g|webp|gif)", text, re.I)
