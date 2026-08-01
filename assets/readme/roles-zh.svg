@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="title desc">
+  <title id="title">Codex Agent Team 角色分工</title>
+  <desc id="desc">Root、Luna、Terra 和 Sol 的角色职责与默认路由。</desc>
+  <rect width="1600" height="520" fill="#fafaf8"/>
+  <text x="80" y="54" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="600" letter-spacing="1.5" fill="#737373">角色分工 · 固定职责，动态组队</text>
+  <line x1="80" y1="78" x2="1520" y2="78" stroke="#0a0a0a" stroke-width="1"/>
+  <g stroke="#d4d4d2" stroke-width="1">
+    <line x1="440" y1="78" x2="440" y2="458"/>
+    <line x1="800" y1="78" x2="800" y2="458"/>
+    <line x1="1160" y1="78" x2="1160" y2="458"/>
+  </g>
+  <g font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+    <rect x="80" y="112" width="12" height="12" fill="#0a0a0a"/>
+    <text x="80" y="210" font-family="Inter, Helvetica, Arial, sans-serif" font-size="58" font-weight="200" letter-spacing="-2" fill="#0a0a0a">ROOT</text>
+    <text x="80" y="250" font-size="20" font-weight="500" fill="#0a0a0a">主控</text>
+    <text x="80" y="300" font-size="17" fill="#737373">规划 · 决策 · 整合</text>
+    <text x="80" y="330" font-size="17" fill="#737373">负责最终回答</text>
+
+    <rect x="480" y="112" width="12" height="12" fill="#002FA7"/>
+    <text x="480" y="210" font-family="Inter, Helvetica, Arial, sans-serif" font-size="58" font-weight="200" letter-spacing="-2" fill="#002FA7">LUNA</text>
+    <text x="480" y="250" font-size="20" font-weight="500" fill="#0a0a0a">探索 / 执行</text>
+    <text x="480" y="300" font-size="17" fill="#737373">搜索 · 实现 · 测试</text>
+    <text x="480" y="330" font-size="17" fill="#737373">GPT-5.6 Luna / max</text>
+
+    <rect x="840" y="112" width="12" height="12" fill="#0a0a0a"/>
+    <text x="840" y="210" font-family="Inter, Helvetica, Arial, sans-serif" font-size="58" font-weight="200" letter-spacing="-2" fill="#0a0a0a">TERRA</text>
+    <text x="840" y="250" font-size="20" font-weight="500" fill="#0a0a0a">独立复核</text>
+    <text x="840" y="300" font-size="17" fill="#737373">脱离实现路径检查</text>
+    <text x="840" y="330" font-size="17" fill="#737373">GPT-5.6 Terra / xhigh</text>
+
+    <rect x="1200" y="112" width="12" height="12" fill="#0a0a0a"/>
+    <text x="1200" y="210" font-family="Inter, Helvetica, Arial, sans-serif" font-size="58" font-weight="200" letter-spacing="-2" fill="#0a0a0a">SOL</text>
+    <text x="1200" y="250" font-size="20" font-weight="500" fill="#0a0a0a">高级裁决</text>
+    <text x="1200" y="300" font-size="17" fill="#737373">高后果问题复核</text>
+    <text x="1200" y="330" font-size="17" fill="#737373">需要用户明确授权</text>
+  </g>
+  <rect x="80" y="458" width="1440" height="7" fill="#002FA7"/>
+</svg>
