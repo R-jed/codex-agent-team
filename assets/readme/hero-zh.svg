@@ -1,22 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team 中文介绍</title>
-  <desc id="desc">当前 Codex 主会话控制下的小型原生子代理团队策略。</desc>
-  <rect width="1600" height="560" fill="#fafaf8"/>
-  <rect width="16" height="560" fill="#002FA7"/>
-  <g stroke="#d4d4d2" stroke-width="1">
-    <line x1="96" y1="88" x2="1504" y2="88"/>
-    <line x1="96" y1="456" x2="1504" y2="456"/>
-    <line x1="1120" y1="88" x2="1120" y2="456"/>
-  </g>
-  <text x="96" y="58" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="600" letter-spacing="2" fill="#737373">CODEX NATIVE SUBAGENTS · 团队策略 SKILL</text>
-  <text x="96" y="228" font-family="Inter, Helvetica, Arial, sans-serif" font-size="92" font-weight="200" letter-spacing="-4" fill="#0a0a0a">CODEX</text>
-  <text x="96" y="312" font-family="Inter, Helvetica, Arial, sans-serif" font-size="92" font-weight="200" letter-spacing="-4" fill="#002FA7">AGENT TEAM</text>
-  <text x="101" y="368" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="24" font-weight="400" fill="#737373">小团队 · 明确分工 · Root 始终掌控</text>
-  <rect x="1170" y="150" width="278" height="64" fill="#0a0a0a"/>
-  <text x="1197" y="190" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#fafaf8">ROOT · 控制与决策</text>
-  <rect x="1170" y="232" width="278" height="64" fill="#002FA7"/>
-  <text x="1197" y="272" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#ffffff">LUNA · 执行与探索</text>
-  <rect x="1170" y="314" width="278" height="64" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
-  <text x="1197" y="354" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#0a0a0a">TERRA · 独立复核</text>
-  <text x="96" y="505" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="600" letter-spacing="1" fill="#737373">最小团队 · 单层委派 · 单写入者 · 证据优先</text>
+  <desc id="desc">Codex Agent Team 的瑞士风格中文标题视觉。</desc>
+  <rect width="1600" height="520" fill="#fafaf8"/>
+  <line x1="80" y1="92" x2="1520" y2="92" stroke="#d4d4d2" stroke-width="1"/>
+  <text x="80" y="62" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="600" fill="#737373">CODEX 原生子代理 · 团队策略</text>
+  <text x="80" y="240" font-family="Inter, Helvetica, Arial, sans-serif" font-size="112" font-weight="200" letter-spacing="-5" fill="#0a0a0a">CODEX</text>
+  <text x="80" y="342" font-family="Inter, Helvetica, Arial, sans-serif" font-size="112" font-weight="200" letter-spacing="-5" fill="#002FA7">AGENT TEAM</text>
+  <text x="85" y="418" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="30" font-weight="400" fill="#0a0a0a">复杂任务需要时组队，Root 始终掌控。</text>
+  <text x="80" y="482" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="500" fill="#737373">原生子代理 · 有界委派 · 证据验收</text>
 </svg>
