@@ -1,77 +1,234 @@
 # Codex Agent Team
 
 <p align="center">
-  <strong>让你的 Codex 会话拥有一支会自动分工、会独立复核、会在越界前先问你的 AI 团队。</strong>
+  <strong>给 Codex 一支会分工、会复核、会控制成本与风险的 Native Subagent 小队。</strong>
 </p>
 
 <p align="center">
   <a href="README_EN.md">English README</a> ·
-  <a href="docs/architecture.md">Architecture</a> ·
-  <a href="docs/openai-references.md">OpenAI 官方设计依据</a>
+  <a href="docs/native-subagent-runtime.md">Native Subagent 原理</a> ·
+  <a href="docs/model-route-assurance.md">模型路由保证</a> ·
+  <a href="docs/openai-references.md">OpenAI 官方依据</a>
 </p>
 
 <p align="center">
-  <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+  <img alt="MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
   <img alt="Codex Native Subagents" src="https://img.shields.io/badge/Codex-Native%20Subagents-black">
-  <img alt="Luna Max Worker" src="https://img.shields.io/badge/Worker-Luna%20Max-6f42c1">
-  <img alt="Terra XHigh Critic" src="https://img.shields.io/badge/Critic-Terra%20XHigh-0969da">
+  <img alt="Luna Max" src="https://img.shields.io/badge/Worker-Luna%20Max-6f42c1">
+  <img alt="Terra XHigh" src="https://img.shields.io/badge/Critic-Terra%20XHigh-0969da">
   <img alt="Root aware" src="https://img.shields.io/badge/Root-aware-2da44e">
 </p>
 
-Codex Agent Team 是一个面向 **Codex Native Subagents** 的轻量 Skill。它保留当前主会话的控制权，把高上下文、重工具调用的执行工作交给 **GPT-5.6 Luna Max**，把关键的独立复核交给 **GPT-5.6 Terra XHigh**；当确实需要更强能力、更高权限、更大作用范围或高风险操作时，再用普通人能理解的话向用户申请一次性授权。
+Codex Agent Team 是一个面向 **Codex Native Subagents** 的轻量 Skill。
 
-> **主会话负责目标和最终决策，Luna Max 负责重活，Terra XHigh 负责第二意见。简单任务不组队，复杂任务才组最小团队。**
+它保留当前主会话的控制权，把高上下文、重工具调用的工作交给 **GPT-5.6 Luna Max**，把关键独立复核交给 **GPT-5.6 Terra XHigh**。遇到需要更高能力、更高权限、更大范围或高风险操作时，再用大白话向用户申请一次性授权。
 
-## 一眼看懂它在做什么
+> **简单任务留在 Root。重活交给 Luna Max。关键第二意见交给 Terra XHigh。最终决定仍由当前主会话负责。**
+
+## 30 秒看懂
 
 ```mermaid
 flowchart LR
-    U[用户正常给 Codex 任务] --> R[Current Root<br/>当前主会话]
-    R --> G{值得委派吗?}
-    G -- 否 --> D[Root 直接完成]
+    U[用户给 Codex 任务] --> R[Current Root<br/>当前主会话]
+    R --> G{委派有明确收益吗？}
+    G -- 没有 --> D[Root 直接完成]
     G -- 重执行 / 上下文隔离 --> L[Luna Max<br/>Explorer / Worker]
     G -- 独立复核 --> T[Terra XHigh<br/>Independent Critic]
-    L --> V[证据与验证]
+    L --> V[证据 + 验证]
     T --> V
     V --> R2[Root 整合与最终判断]
-    R2 --> C{跨越成本 / 权限 / 范围 / 高风险边界?}
+    R2 --> C{跨越成本 / 权限 / 范围 / 风险边界？}
     C -- 否 --> O[交付结果]
-    C -- 是 --> H[用大白话向用户申请一次性授权]
+    C -- 是 --> H[向用户申请一次性授权]
     H --> O
 ```
 
-### 装上之后，Codex 主要提升什么
+## 为什么值得装
 
-| 日常 Codex 工作流 | 使用 Codex Agent Team |
+| 你会得到什么 | 实际效果 |
 | --- | --- |
-| 大量搜索、日志、测试都进入主上下文 | 高噪声工作交给 Luna Max，Root 只接收证据摘要 |
-| 主模型调查、实现、再自己审查 | 关键结果可由 Terra XHigh 做 detached review |
-| 用户自己判断什么时候开 Subagent | Skill 先过 Delegation Gate，再决定是否组队 |
-| 并发容易越开越多 | 默认 0-1 个，通常不超过 2 个，硬上限 4 个 |
-| 子任务默认可能继承完整历史 | Role-specific spawn 显式控制 `fork_turns` |
-| 模型路线不可用时容易临时换模型 | exact route 不可用就安全回 Root |
-| 小白要理解复杂开关 | 真正越界时才用自然语言申请一次性授权 |
-| 同一路径容易出现确认偏差 | Terra XHigh 提供干净上下文的独立判断 |
+| **更干净的主上下文** | 大量搜索、日志、测试输出留在 Luna 子上下文，Root 只接收证据摘要 |
+| **更稳定的模型分工** | Luna Max 负责执行，Terra XHigh 负责 detached review，Sol 只处理极少数高级裁决 |
+| **更可靠的模型落地** | Skill 先确认 model + reasoning effort 的精确路径，无法证明就回 Root |
+| **更克制的多 Agent** | 默认 0 到 1 个子 Agent，通常最多 2 个，硬上限 4 个 |
+| **更独立的复核** | Terra 默认使用干净上下文，减少同一路径自我确认 |
+| **更容易理解的安全授权** | 真正跨成本、权限、范围或外部影响边界时，才向用户解释并询问 |
 
-## 为什么现在重点使用 Luna Max
+## 它实际创建的是什么？
 
-这套 Team 放弃“难度阶梯”式逐级升级，改用**角色分工**。Luna Max 的角色是 Execution Engine，它负责那些需要大量 token、工具调用、搜索、测试和日志处理，但最后可以压缩成少量证据交给 Root 的工作。
+**Codex Agent Team 直接使用 Codex 原生 `spawn_agent`。** OpenAI 官方把这类工作定义为 Subagent workflow：Subagent 是 Codex 为具体任务启动的 delegated agent，Agent thread 是这个 Subagent 执行工作的线程。
 
-OpenAI 在 2026-07-09 发布 GPT-5.6 时，Luna 的标准价格是 **$1 输入 / $6 输出** 每百万 token。OpenAI 当前 API Pricing 页面在 2026-08-02 显示，Luna 标准短上下文价格已经调整为 **$0.20 输入 / $1.20 输出**，相对发布价下降 **80%**。同期 Terra 从 **$2.50 / $15** 调整为 **$2 / $12**，Sol 保持 **$5 / $30**。
+```mermaid
+flowchart TB
+    R[Root Codex Session]
+    R -->|spawn_agent| A[Native Subagent<br/>/root/auth_fix]
+    A --> T[内部 child Codex thread/session]
+    A --> E[独立上下文 + Native tools]
+    A --> X[完成后回 Root 验收]
+```
 
-| 模型 | 2026-07-09 发布价 | 2026-08-02 当前价* | 在本 Skill 中的角色 |
-| --- | ---: | ---: | --- |
-| Sol | $5 / $30 | $5 / $30 | Root 或一次性 Senior Judge |
-| Terra | $2.50 / $15 | $2 / $12 | 独立 Critic / Synthesis |
-| Luna | $1 / $6 | **$0.20 / $1.20** | 默认 Explorer / Execution Worker |
+Codex 会在内部为 Subagent 建立 child thread/session，并把它记录为 `SubAgent / ThreadSpawn`。因此，「Subagent」和「子任务线程」不是两套机制：**Subagent 是角色，Agent thread 是它的运行线程。** 用户看到的仍是同一个 Root 工作流，由 Root 收集结果并完成最终整合。
 
-\* 标准、短上下文、每百万 input/output tokens。价格会变化，请以 OpenAI 当前 Pricing 页面为准。
+这里最容易混淆的是「子任务会话」这个说法。可以按下面的方式理解：
 
-价格变化只是设计背景。**Core Policy 不把价格写成路由条件**：即使以后再次调价，Skill 仍按执行、独立判断和高后果裁决这些角色来组队。
+| 形态 | 它是什么 | Codex Agent Team 是否使用 |
+| --- | --- | --- |
+| 独立用户会话 | 用户单独开启的另一个 Codex conversation | 否 |
+| App Thread / 外部任务线程 | 另一套线程或编排表面，需要单独管理生命周期 | 否 |
+| Native Subagent child thread | Root 通过 `spawn_agent` 创建，位于同一 Agent Tree，具备 parent、Agent path、Native 消息与生命周期 | **是** |
 
-### 价格之外，为什么 Luna 适合承担大量 Worker 工作
+因此，本项目没有额外创建 App Thread，也没有维护另一套 Task DAG、后台调度器或外部 Agent Runtime。完整说明见 [Native Subagent Runtime Contract](docs/native-subagent-runtime.md)。官方概念定义见 [OpenAI Codex Subagents](https://developers.openai.com/codex/subagents)。
 
-OpenAI 在 GPT-5.6 发布页公开的 coding eval 中，Luna 与 Terra 在若干 coding / terminal 任务上的差距相对有限：
+### 和 Codex 自己调用 Subagents 有什么区别？
+
+底层引擎相同，区别集中在**策略层**。
+
+| Codex Native 能力 | Codex Agent Team 加上的策略 |
+| --- | --- |
+| 提供通用 `spawn_agent` | 先过 Delegation Gate，确认委派真的有收益 |
+| 子 Agent 可以继承或覆盖模型 | 只允许有 Route Assurance 的精确模型 / 思考强度 |
+| 提供 `explorer`、`worker`、`default` 等 role | 固定 Luna Execution、Terra Critic、Sol Judge 的职责 |
+| `fork_turns` 可继承完整历史 | Role-specific spawn 显式设置最小上下文 |
+| Codex Native runtime 可以组织多个 Agent thread | 本 Skill 把 delegation depth 固定为 1，所有子结果回到 Root 汇总 |
+| 可以同时创建多个 child | Minimum Team 控制 fan-out |
+| Runtime 决定实际权限 | One Writer、read-only guarantee、Consent Gate 进一步约束 |
+| Child 返回结果 | Root 还要检查证据、测试、Diff 和 policy violation |
+
+所以，这个 Skill 的价值来自**可重复的团队策略和安全边界**。它直接建立在 Codex Native Subagents 之上。
+
+## 模型和思考强度，怎么保证真的落地？
+
+这是当前 Skill 的核心检查项。目标是让「策略想用哪个模型」和「Codex 实际接受了什么配置」分开记录。
+
+当当前 Runtime 支持对应能力时，Skill 只承认两种精确的**配置级 Route Assurance**。只有其中一种成立时，才创建 model-specific Subagent。运行后如果 Codex 没有暴露 effective model/effort telemetry，Skill 会明确记录 `observed_route = not_exposed`，不会把配置级保证冒充成运行时观测。
+
+### 1. Profile Locked，推荐给长期使用者
+
+可选 profile 把 model 和 reasoning effort 固定在 Agent role 里：
+
+| Agent profile | 固定模型 | 固定思考强度 |
+| --- | --- | --- |
+| `luna_explorer` | `gpt-5.6-luna` | `max` |
+| `luna_worker` | `gpt-5.6-luna` | `max` |
+| `terra_reviewer` | `gpt-5.6-terra` | `xhigh` |
+| `sol_judge` | `gpt-5.6-sol` | `high` |
+
+当前 Codex 会把这类 role 的 model / reasoning effort 作为高优先级配置，并能在 `spawn_agent` role guidance 中标注这些设置已锁定、不能通过 spawn 参数修改。
+
+Skill 记录：
+
+```text
+route_assurance = profile_locked
+```
+
+### 2. Native Explicit Validated，零配置默认路径
+
+没有安装 profile 时，Skill 显式请求精确 tuple：
+
+```text
+agent_type = worker
+model = gpt-5.6-luna
+reasoning_effort = max
+fork_turns = none
+```
+
+当前 Codex Native handler 会在 spawn 前：
+
+1. 检查目标模型是否属于当前 MultiAgent backend 的可用模型；
+2. 检查目标 reasoning effort 是否被该模型支持；
+3. 应用 role 配置；
+4. 如果 exact tuple 被拒绝，本 Skill 直接回 Root。
+
+Skill 记录：
+
+```text
+route_assurance = native_explicit_validated
+```
+
+### 固化的是 Route，动态的是 Team
+
+| 层面 | 策略 |
+| --- | --- |
+| Role → Model / Effort | **固定**：Explorer / Worker → Luna Max；Critic → Terra XHigh；Judge → Sol High |
+| 是否创建 Subagent | **动态**：看 Context isolation、Real parallelism、Independent verification |
+| 是否加入 Terra | **动态**：看独立判断是否有具体价值 |
+| 是否请求 Sol Judge | **动态**：只在非 Sol Root、高后果、证据仍不足时触发 Consent Gate |
+| 当前 Root 模型 / Effort | **保持用户当前会话设置**，Skill 不偷偷改 Root |
+
+这种设计把模型选择的可预测性和 Team selection 的智能性分开：角色一旦确定，目标模型和思考强度就确定；是否需要这个角色，由当前任务和 Runtime 决定。
+
+### 为什么不靠“默认继承 Root”来证明模型？
+
+Codex 支持 `[agents]` 下的 `default_subagent_model` 和 `default_subagent_reasoning_effort`。因此，省略 model / effort 后的实际结果可能受到用户配置影响。
+
+本 Skill 不把这种继承当作 model-specific route 的精确保证。显式 override 不可用、精确 profile 也不存在时，任务留在 Root。
+
+另外，当前 MultiAgentV2 的 `spawn_agent` / `list_agents` 不返回 child 的最终 model 和 effort。Skill 会记录 `observed_route = not_exposed`，不会把「请求值」伪装成「运行时观测值」。详细说明见 [Model Route Assurance](docs/model-route-assurance.md)。
+
+## Team 阵容
+
+| 角色 | 默认模型 | 主要工作 |
+| --- | --- | --- |
+| **Root Controller** | 用户当前主会话 | 目标、规划、架构、风险、整合、最终回答 |
+| **Execution Worker** | Luna Max | 探索、实现、调试、测试、日志、重上下文工作 |
+| **Independent Critic** | Terra XHigh | detached review、跨模块综合、冲突证据、重大假设检查 |
+| **Senior Judge** | Sol High | Root 非 Sol 时的极少数高后果一次性裁决，需要用户授权 |
+
+### Root 是 Sol
+
+常见模式：
+
+```text
+Sol Root + Luna Max Worker
+```
+
+需要真正独立判断时，再加入 Terra XHigh。Root 已经是 Sol 时，不自动创建第二个 Sol Worker。
+
+### Root 是 Luna Max
+
+额外 Luna Max 仍可用于上下文隔离和真正并行。重要复核优先交给 Terra XHigh。
+
+只有高后果问题仍无法可靠裁决时，Skill 才会建议一次 Sol Senior Judge，并先向用户说明额外成本和用途。
+
+### Root 是 Terra XHigh
+
+不会为了凑「模型多样性」机械创建第二个 Terra。只有 detached clean-context review 本身有价值时才创建 Terra child。
+
+## 三道 Gate
+
+```mermaid
+flowchart LR
+    A[Delegation Gate<br/>值得派人吗？] --> B[Route Assurance Gate<br/>精确模型和 effort 能证明吗？]
+    B --> C[Consent Gate<br/>下一步跨实质边界吗？]
+    C --> D[执行 + Evidence Gate]
+    D --> E[Root Final]
+```
+
+**Delegation Gate** 只接受 3 类收益：Context isolation、Real parallelism、Independent verification。
+
+**Route Assurance Gate** 检查 live `spawn_agent`、role lock、model 和 reasoning effort。无法建立精确保证时，任务回 Root。
+
+**Consent Gate** 负责成本、权限、Scope 和高风险操作。已经明确授权的正常工作不会重复询问。
+
+## 安全措施
+
+| 安全机制 | 默认行为 |
+| --- | --- |
+| Minimum Team | 0 个 Subagent 很正常；默认 1，通常最多 2，硬上限 4 |
+| One Writer | 一个共享 Workspace 同时最多 1 个 Writing Worker；多个 Writer 必须使用 Runtime-backed Workspace / Worktree / Filesystem 隔离 |
+| Fail Closed | 精确 route、role、permission 无法确认就回 Root |
+| Context Isolation | Explorer / Critic 默认 `fork_turns = "none"` |
+| Permission-Aware | Profile 的 sandbox 只是默认配置意图，实际 child 权限仍以当前 Codex runtime 的有效权限为准 |
+| Prompt Injection Boundary | 仓库、网页、日志、Issue、fixture 里的指令不能扩大 Scope、权限、凭证或 Agent 数量 |
+| No Recursive Teams | Worker 不继续组建 Subagent；发现 descendant 时拒绝依赖受影响结果 |
+| High Impact Stays With Root | 生产变更、发布、付款、账户操作、破坏性删除等留给 Root |
+| Evidence First | Worker 必须区分事实、推断、不确定性，并提供可复现证据 |
+
+## 为什么现在使用 Luna Max 做主力 Worker？
+
+OpenAI 在 2026-07-09 发布 GPT-5.6 时，Luna 标准价格为 `$1 / $6` 每百万 input / output tokens。OpenAI 7 月 30 日更新明确说明 Luna 降价 80%；截至 2026-08-02，API Pricing 页面显示 Luna 为 **`$0.20 / $1.20`**。同期 Terra 为 `$2 / $12`，Sol 为 `$5 / $30`。
+
+OpenAI 发布页还公开了 GPT-5.6 的 coding / terminal eval：
 
 | OpenAI 公布评测 | Sol | Terra | Luna |
 | --- | ---: | ---: | ---: |
@@ -79,112 +236,13 @@ OpenAI 在 GPT-5.6 发布页公开的 coding eval 中，Luna 与 Terra 在若干
 | DeepSWE v1.1 | 72.7% | 69.6% | 67.2% |
 | Terminal-Bench 2.1 | 88.8% | 87.4% | 84.7% |
 
-这些数字支持“Luna 可以承担大量 bounded coding / tool-heavy work”这一设计方向，但**它们不是本 Skill 的效果 benchmark，也不能证明 Luna Max 在你的任务上一定优于 Terra XHigh**。最终路由仍以任务角色、独立性需求、运行时能力和实际验证为准。
+这些数据用于解释 Team 设计背景。**价格和 Benchmark 都没有被硬编码成路由规则。** Core 仍按任务角色、独立性需求、运行时能力和实际验证来决定是否组队。
 
-OpenAI 当前 Model Guidance 也把 Sol 定位为 flagship capability、Terra 定位为 intelligence/cost balance、Luna 定位为 efficient high-volume workloads；GPT-5.6 支持到 `max` reasoning effort。完整来源和我们从每份资料中采用了什么，见 [`docs/openai-references.md`](docs/openai-references.md)。
+完整官方资料与用途见 [OpenAI 官方设计依据](docs/openai-references.md)。
 
-## Team 架构
+## 快速开始
 
-```mermaid
-flowchart TB
-    R[ROOT_CONTROLLER<br/>用户当前主会话<br/>目标 · 架构 · 风险 · 整合 · 最终回答]
-    L[LUNA MAX<br/>Execution Engine<br/>探索 · 实现 · 调试 · 测试 · 日志]
-    T[TERRA XHIGH<br/>Independent Critic<br/>独立 Review · 综合 · 反例 · 歧义]
-    S[SOL HIGH<br/>Senior Judge<br/>仅 Root 非 Sol + 高后果 + 用户授权]
-
-    R -->|重上下文 / bounded execution| L
-    R -->|独立判断有明确价值| T
-    L --> R
-    T --> R
-    R -. 一次性 Consent Gate .-> S
-    S --> R
-```
-
-### Root Controller
-
-当前主会话永远拥有最终控制权，Skill 不要求 Root 必须是 Sol。
-
-- **Sol Root**：Medium / High 是常见主会话设置，典型模式是 `Sol Root + Luna Max`；必要时加入 Terra XHigh。若 Root 已经是更高 effort 的 Sol，同样不自动再创建 Sol child，高风险最终判断留在当前 Root。
-- **Luna Max Root**：额外 Luna Max 主要用于 context isolation 和真正并行；重要复核优先 Terra XHigh；极少数高后果冲突才建议一次 Sol Senior Judge。
-- **Terra XHigh Root**：不会为了“模型多样性”再机械开一个 Terra；只有 detached clean-context review 本身有价值才开 Terra child。需要更强异构复核时，可以通过 Consent Gate 建议一次 Sol Judge。
-
-### Luna Max: Execution Engine
-
-默认执行层使用 `gpt-5.6-luna` + `max`。
-
-适合代码库探索、调用链追踪、大量文件/日志/测试扫描、边界清楚的实现与修复、Bug 复现、测试设计与失败分析、局部重构，以及任何高工具调用、高上下文消耗、最终只需压缩成证据摘要的工作。
-
-### Terra XHigh: Independent Critic
-
-独立审查层使用 `gpt-5.6-terra` + `xhigh`。它只在 independent verification、跨模块综合、证据冲突、重大假设挑战、实质性需求歧义等场景出现。
-
-Terra Reviewer 默认使用 `fork_turns = "none"`，只拿目标、验收条件、关键证据和产物，尽量避免先继承生成者已经形成的结论。
-
-### Sol Senior Judge
-
-Sol 不进入常规 Worker 池。当 Root 非 Sol，并且 Luna/Terra 对一个高后果问题仍有实质冲突或证据不足时，Skill 可以建议一次 `gpt-5.6-sol` + `high` 的 Senior Judge。它只做压缩后的高级判断，不承担普通仓库扫描和实现工作，而且必须先得到用户一次性授权。
-
-## 三道核心 Gate
-
-```mermaid
-flowchart LR
-    A[Delegation Gate<br/>要不要派人?] --> B[Capability Gate<br/>当前 runtime 真支持这条路线吗?]
-    B --> C[Consent Gate<br/>下一步有没有跨实质边界?]
-    C --> D[Execute + Evidence Gate]
-    D --> E[Root Final]
-```
-
-**Delegation Gate** 只承认三类具体收益：context isolation、real parallelism、independent verification。文件多、任务难、Luna便宜、还有空闲并发，都不能单独成为派 Agent 的理由。
-
-**Capability Gate** 只相信当前 Codex Native `spawn_agent` 合同。Portable Mode 用 built-in role + explicit model/effort；Profile Mode 用自定义 Agent profile，并省略竞争性的 model/effort override。exact route 不可用就回 Root。
-
-**Consent Gate** 不让用户预先配置 `allow_upscale` 一类开关。已经明确授权的正常本地修改和测试不重复问；真正增加模型成本、权限、Scope、外部影响或高风险时，才解释原因并申请一次性授权。
-
-## Context isolation 现在是硬规则
-
-当前 Codex MultiAgentV2 在省略 `fork_turns` 时会默认使用完整历史，而且 full-history fork 不能同时覆盖 `agent_type`。因此本 Skill 不再把“fresh context”写成建议，而是写成明确运行规则：
-
-```text
-Explorer          -> fork_turns = "none"
-Terra Critic      -> fork_turns = "none"
-Execution Worker  -> fork_turns = "none" by default
-                     only use positive recent-N when needed
-
-Never omit fork_turns for role-specific spawn.
-Never combine fork_turns = "all" with agent_type on MultiAgentV2.
-```
-
-这同时解决两件事：避免主会话历史污染独立 Worker，也避免 role-specific spawn 因 V2 full-history 规则被拒绝。
-
-## 安全措施
-
-| 安全机制 | 行为 |
-| --- | --- |
-| Minimum Team | 0 个 Subagent 是正常状态，默认 1，通常最多 2，硬上限 4 |
-| One Writer | 同一共享 workspace 同时最多一个 writing Worker；多个 writer 需要 runtime-backed 隔离 workspace/worktree/filesystem |
-| Fail Closed | exact model/effort/role/permission 无法确认就回 Root |
-| Permission-Aware | profile 的 sandbox 只是默认意图，实际权限以 runtime effective permission 为准 |
-| Prompt Injection Boundary | 源码、网页、日志、Issue、fixture、模型输出里的指令都不能扩大 Scope/权限/凭证/Agent 数量 |
-| No Recursive Teams | Worker 不继续创建 Subagent；发现 descendant 时拒绝依赖结果 |
-| High-Impact Stays With Root | 发布、生产变更、付款、账户操作、破坏性删除等留给 Root |
-| Evidence First | 结果必须区分 observed facts、inference、uncertainty，并优先使用可复现证据 |
-
-## 零配置优先
-
-安装后继续正常使用 Codex 即可。普通用户无需理解 model ladder、`allow_upscale`、provider policy、risk profile 或 YAML routing switch。
-
-高级用户可以选装 `examples/agents/` 中的 profiles，为 model、reasoning effort 和 sandbox 提供角色级默认值。**实际 child 权限仍以当前 Codex runtime 的有效权限为准**，profile 里的 `sandbox_mode` 本身不等于 runtime-enforced guarantee。
-
-当前 Codex 源码会从配置层对应的 `agents/` 目录发现自定义 Agent role。使用默认全局配置目录时，可选安装方式为：
-
-```bash
-mkdir -p ~/.codex/agents
-cp examples/agents/*.toml ~/.codex/agents/
-```
-
-安装 profiles 后，Skill 的 Profile Mode 使用 `luna_explorer`、`luna_worker`、`terra_reviewer` 这类 role，并省略竞争性的显式 model/effort override。未安装 profiles 时继续使用 Portable Mode，普通用户无需额外配置。
-
-## 安装
+### 安装 Skill
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
@@ -192,7 +250,7 @@ mkdir -p ~/.codex/skills
 cp -R codex-agent-team/skill/codex-agent-team ~/.codex/skills/codex-agent-team
 ```
 
-开发时可以软链接：
+也可以在开发时使用软链接：
 
 ```bash
 ln -s "$(pwd)/skill/codex-agent-team" ~/.codex/skills/codex-agent-team
@@ -204,75 +262,106 @@ Skill 支持隐式调用，也可以显式使用：
 $codex-agent-team
 ```
 
-## 一个典型工作流
+### 可选：安装锁定模型的 Agent profiles
 
-用户：
+```bash
+mkdir -p ~/.codex/agents
+cp examples/agents/*.toml ~/.codex/agents/
+```
 
-> 帮我修复这个认证问题，检查相关测试，并确认有没有影响现有 session 行为。
+安装后会提供：
 
-可能的 Team：
+```text
+luna_explorer
+luna_worker
+terra_reviewer
+sol_judge
+```
+
+普通用户不需要先配置这些 profile。零配置模式依然可以通过 Native Explicit Validated 路径工作。
+
+## 一个实际例子
+
+用户说：
+
+> 帮我修复这个认证问题，检查相关测试，并确认有没有影响现有 Session 行为。
+
+Skill 可能组建：
 
 ```text
 Root
-├─ Luna Max Worker
-│  ├─ trace auth flow
-│  ├─ implement bounded fix
-│  └─ run tests
-└─ Terra XHigh Critic
-   └─ independently review session compatibility
+├── Luna Max Worker
+│   ├── trace auth flow
+│   ├── implement bounded fix
+│   └── run tests
+└── Terra XHigh Critic
+    └── independently review session compatibility
 ```
 
-Root 最后检查 Diff、测试证据和 Reviewer finding，再向用户交付结果。如果任务只是一处简单修改，Skill 会选择 0 个 Subagent，Root 直接完成。
+Root 最后检查 Diff、测试证据和 Reviewer finding，再交付结果。
 
-## OpenAI 官方设计依据
+如果问题已经定位到一处简单修改，Skill 会使用 0 个 Subagent，让 Root 直接完成。
 
-我们把所有真正影响设计的官方资料集中记录在 [`docs/openai-references.md`](docs/openai-references.md)，包括：
+## 文档
 
-- GPT-5.6 发布公告与三档模型定位
-- **Luna 从 $1/$6 到 $0.20/$1.20 的当前价格变化**，以及 Terra 同期价格变化
-- GPT-5.6 Model Guidance 与 `max` reasoning effort
-- Luna / Terra / Sol 官方模型页
-- Codex MultiAgentV2 `spawn_agent` 源码中的 `fork_turns`、model/effort override 和 role 行为
-- Codex 自定义 Agent role 的发现机制与配置优先级
-- Codex child runtime permission 继承/覆盖逻辑
-- OpenAI 公布的 SWE-Bench Pro、DeepSWE 和 Terminal-Bench 2.1 coding eval
-- OpenAI Skill Creator 的 progressive disclosure 和 `SKILL.md` 结构规范
-- `agents/openai.yaml` 官方字段说明
+- [架构说明](docs/architecture.md)
+- [Native Subagent Runtime Contract](docs/native-subagent-runtime.md)
+- [Model Route Assurance](docs/model-route-assurance.md)
+- [OpenAI 官方设计依据](docs/openai-references.md)
+- [安全策略](skill/codex-agent-team/references/safety-policy.md)
+- [授权策略](skill/codex-agent-team/references/consent-policy.md)
 
-这份 Skill 的 Luna/Terra/Sol 具体角色、Team 上限、One Writer、Fail Closed 和 Consent Gate 都是本项目的 opinionated policy，不宣称是 OpenAI 官方唯一推荐方式。
+## 验证状态
+
+项目把「静态策略测试通过」和「真实 Codex runtime 已验证」分开记录。
+
+- Policy regression tests：仓库内持续执行
+- Routing eval cases：覆盖路由、安全和 Consent 行为
+- Native runtime smoke matrix：仍需在代表性 Codex build 上持续验证
+
+在真实 smoke matrix 完成前，本项目不会宣称所有 Codex build 都能提供相同的 model override 或 telemetry surface。
+
+## OpenAI 官方资料
+
+设计时重点参考：
+
+- [GPT-5.6 发布公告](https://openai.com/index/gpt-5-6/)
+- [OpenAI API Pricing](https://developers.openai.com/api/docs/pricing)
+- [GPT-5.6 Model Guidance](https://developers.openai.com/api/docs/guides/latest-model)
+- [OpenAI Codex MultiAgentV2 `spawn_agent`](https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs)
+- [OpenAI Codex multi-agent common runtime](https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_common.rs)
+- [OpenAI Codex Agent role handling](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs)
+- [OpenAI Skill Creator](https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md)
+
+更完整的来源、数据和每份资料如何影响本项目，见 [`docs/openai-references.md`](docs/openai-references.md)。
 
 ## 项目结构
 
 ```text
 codex-agent-team/
-├── README.md                 # 默认中文
-├── README_EN.md              # English
-├── LICENSE
-├── CONTRIBUTING.md
-├── SECURITY.md
+├── README.md
+├── README_EN.md
 ├── docs/
 │   ├── architecture.md
+│   ├── native-subagent-runtime.md
+│   ├── model-route-assurance.md
 │   └── openai-references.md
 ├── examples/agents/
 ├── evals/
 ├── tests/
-└── skill/
-    └── codex-agent-team/
-        ├── SKILL.md
-        ├── agents/openai.yaml
-        └── references/
+└── skill/codex-agent-team/
 ```
 
-真正安装给 Codex 的运行目录只有 `skill/codex-agent-team/`。README、测试、eval 和开发资料留在仓库层，避免污染 Skill runtime context。
+真正安装进 Codex 的只有 `skill/codex-agent-team/`。README、测试、eval 和开发资料留在仓库层，减少 Skill runtime context。
 
-## 当前验证状态
+## 贡献
 
-- Static policy consistency tests: included in `tests/`
-- Routing behavior cases: included in `evals/`
-- Native runtime smoke tests: still required on representative Codex builds before declaring runtime behavior universally verified
+欢迎提交 Issue 和 Pull Request。变更模型路由、安全边界或 Consent Policy 时，请同时增加对应 eval 或 regression test。
 
-项目刻意区分“静态规则通过测试”和“真实 Codex runtime 已验证”，避免用测试数量代替运行时证据。
+## 文档风格
 
-## License
+中文 README 按 [chinese-documentation](https://github.com/jnMetaCode/superpowers-zh/tree/main/skills/chinese-documentation) 的技术文档规范整理，重点保持自然中文、中英混排空格、短句、统一标点和结构化表达。
 
-MIT
+## 许可证
+
+[MIT](LICENSE)
