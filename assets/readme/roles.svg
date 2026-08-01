@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="700" viewBox="0 0 1600 700" role="img" aria-labelledby="title desc">
+  <title id="title">Codex Agent Team roles</title>
+  <desc id="desc">Four-column role map for Root, Luna, Terra, and Sol.</desc>
+  <rect width="1600" height="700" fill="#fafaf8"/>
+  <rect x="78" y="72" width="1444" height="1" fill="#0a0a0a"/>
+  <text x="80" y="47" font-family="JetBrains Mono, Menlo, monospace" font-size="15" font-weight="600" letter-spacing="1.6" fill="#737373">ROLE MAP / FIXED ROUTES, DYNAMIC TEAM</text>
+
+  <g stroke="#d4d4d2" stroke-width="1">
+    <line x1="440" y1="72" x2="440" y2="624"/>
+    <line x1="800" y1="72" x2="800" y2="624"/>
+    <line x1="1160" y1="72" x2="1160" y2="624"/>
+    <line x1="78" y1="624" x2="1522" y2="624"/>
+  </g>
+
+  <rect x="80" y="112" width="14" height="14" fill="#0a0a0a"/>
+  <text x="80" y="218" font-family="Inter, Helvetica, Arial, sans-serif" font-size="62" font-weight="200" letter-spacing="-2.5" fill="#0a0a0a">ROOT</text>
+  <text x="80" y="265" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a0a0a">Controller</text>
+  <text x="80" y="318" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Intent / plan</text>
+  <text x="80" y="349" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Risk / integration</text>
+  <text x="80" y="380" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Final answer</text>
+  <text x="80" y="557" font-family="JetBrains Mono, Menlo, monospace" font-size="14" font-weight="600" fill="#0a0a0a">CURRENT SESSION</text>
+
+  <rect x="480" y="112" width="14" height="14" fill="#002FA7"/>
+  <text x="480" y="218" font-family="Inter, Helvetica, Arial, sans-serif" font-size="62" font-weight="200" letter-spacing="-2.5" fill="#002FA7">LUNA</text>
+  <text x="480" y="265" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a0a0a">Explorer / Worker</text>
+  <text x="480" y="318" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Search / trace</text>
+  <text x="480" y="349" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Implement / test</text>
+  <text x="480" y="380" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Heavy context</text>
+  <text x="480" y="557" font-family="JetBrains Mono, Menlo, monospace" font-size="14" font-weight="600" fill="#002FA7">LUNA / MAX</text>
+
+  <rect x="840" y="112" width="14" height="14" fill="#0a0a0a"/>
+  <text x="840" y="218" font-family="Inter, Helvetica, Arial, sans-serif" font-size="62" font-weight="200" letter-spacing="-2.5" fill="#0a0a0a">TERRA</text>
+  <text x="840" y="265" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a0a0a">Independent Critic</text>
+  <text x="840" y="318" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Detached review</text>
+  <text x="840" y="349" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Conflicting evidence</text>
+  <text x="840" y="380" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">Assumption check</text>
+  <text x="840" y="557" font-family="JetBrains Mono, Menlo, monospace" font-size="14" font-weight="600" fill="#0a0a0a">TERRA / XHIGH</text>
+
+  <rect x="1200" y="112" width="14" height="14" fill="#0a0a0a"/>
+  <text x="1200" y="218" font-family="Inter, Helvetica, Arial, sans-serif" font-size="62" font-weight="200" letter-spacing="-2.5" fill="#0a0a0a">SOL</text>
+  <text x="1200" y="265" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a0a0a">Senior Judge</text>
+  <text x="1200" y="318" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">High consequence</text>
+  <text x="1200" y="349" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">One-off review</text>
+  <text x="1200" y="380" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#737373">User consent</text>
+  <text x="1200" y="557" font-family="JetBrains Mono, Menlo, monospace" font-size="14" font-weight="600" fill="#0a0a0a">SOL / HIGH</text>
+
+  <rect x="80" y="652" width="1442" height="8" fill="#002FA7"/>
+</svg>
