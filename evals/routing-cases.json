@@ -45,7 +45,10 @@
             "model": "gpt-5.6-luna",
             "effort": "max",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "explorer"
           }
         ],
         "consent_reason": null
@@ -66,7 +69,10 @@
             "model": "gpt-5.6-luna",
             "effort": "max",
             "write_intent": true,
-            "workspace": "auth"
+            "workspace": "auth",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "worker"
           }
         ],
         "consent_reason": null
@@ -87,7 +93,10 @@
             "model": "gpt-5.6-terra",
             "effort": "xhigh",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "default"
           }
         ],
         "consent_reason": null
@@ -108,7 +117,10 @@
             "model": "gpt-5.6-luna",
             "effort": "max",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "explorer"
           }
         ],
         "consent_reason": null
@@ -129,7 +141,10 @@
             "model": "gpt-5.6-terra",
             "effort": "xhigh",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "default"
           }
         ],
         "consent_reason": null
@@ -150,7 +165,10 @@
             "model": "gpt-5.6-sol",
             "effort": "high",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "default"
           }
         ],
         "consent_reason": "one_time_higher_capability_review"
@@ -242,21 +260,30 @@
             "model": "gpt-5.6-luna",
             "effort": "max",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "explorer"
           },
           {
             "responsibility": "explorer",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "explorer"
           },
           {
             "responsibility": "explorer",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "explorer"
           }
         ],
         "consent_reason": "large_fanout_cost"
@@ -292,7 +319,10 @@
             "model": "gpt-5.6-luna",
             "effort": "max",
             "write_intent": false,
-            "workspace": "main"
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "explorer"
           }
         ],
         "consent_reason": null,
@@ -351,6 +381,108 @@
         "action": "root",
         "workers": [],
         "root_reason": "close_completed_worker_then_integrate",
+        "consent_reason": null
+      }
+    },
+    {
+      "id": "profile-mode-luna-worker",
+      "category": "capability",
+      "input": {
+        "root": "gpt-5.6-sol/high",
+        "task": "Delegate a bounded implementation using an installed luna_worker profile.",
+        "runtime": "custom luna_worker profile pins Luna Max; explicit model/effort overrides are omitted"
+      },
+      "expected": {
+        "action": "delegate",
+        "workers": [
+          {
+            "responsibility": "execution_worker",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "write_intent": true,
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "profile",
+            "agent_type": "luna_worker"
+          }
+        ],
+        "consent_reason": null
+      }
+    },
+    {
+      "id": "terra-root-detached-review",
+      "category": "routing",
+      "input": {
+        "root": "gpt-5.6-terra/xhigh",
+        "task": "Perform a clean-context detached review of a consequential diff; same-model diversity is not claimed."
+      },
+      "expected": {
+        "action": "delegate",
+        "workers": [
+          {
+            "responsibility": "independent_critic",
+            "model": "gpt-5.6-terra",
+            "effort": "xhigh",
+            "write_intent": false,
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "default"
+          }
+        ],
+        "consent_reason": null
+      }
+    },
+    {
+      "id": "terra-root-needs-sol-judge",
+      "category": "consent",
+      "input": {
+        "root": "gpt-5.6-terra/xhigh",
+        "task": "A high-consequence security decision remains materially unresolved and requires stronger independent model diversity."
+      },
+      "expected": {
+        "action": "ask_consent",
+        "workers": [
+          {
+            "responsibility": "senior_judge",
+            "model": "gpt-5.6-sol",
+            "effort": "high",
+            "write_intent": false,
+            "workspace": "main",
+            "fork_turns": "none",
+            "route_mode": "portable",
+            "agent_type": "default"
+          }
+        ],
+        "consent_reason": "one_time_higher_capability_review"
+      }
+    },
+    {
+      "id": "role-specific-fork-turns-must-be-explicit",
+      "category": "capability",
+      "input": {
+        "root": "gpt-5.6-sol/high",
+        "task": "A planned explorer spawn specifies agent_type=explorer but omits fork_turns on MultiAgentV2."
+      },
+      "expected": {
+        "action": "root",
+        "workers": [],
+        "root_reason": "context_fork_contract_unmet",
+        "consent_reason": null
+      }
+    },
+    {
+      "id": "required-role-surface-unavailable",
+      "category": "capability",
+      "input": {
+        "root": "gpt-5.6-sol/high",
+        "task": "Large read-only repository exploration that would normally use a Luna explorer.",
+        "runtime": "spawn_agent does not expose the required agent_type or fork_turns surface"
+      },
+      "expected": {
+        "action": "root",
+        "workers": [],
+        "root_reason": "required_role_surface_unavailable",
         "consent_reason": null
       }
     }
