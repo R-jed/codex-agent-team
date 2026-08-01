@@ -36,7 +36,7 @@ cd codex-agent-team
 python scripts/install.py
 ```
 
-安装后重新打开 Codex。
+安装后重新打开 Codex。默认 profiles：`luna_explorer`、`luna_worker`、`terra_reviewer`、`sol_judge`。
 
 只安装 Skill，使用 Portable Mode：
 
