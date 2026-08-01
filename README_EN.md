@@ -259,9 +259,9 @@ Possible team:
 ```text
 Root
 ├── Luna Max Worker
-│   ├── trace auth flow
-│   ├── implement bounded fix
-│   └── run tests
+│   ├─ trace auth flow
+│   ├─ implement bounded fix
+│   └─ run tests
 └── Terra XHigh Critic
     └── independently review session compatibility
 ```
@@ -286,6 +286,20 @@ The project separates static policy validation from real runtime verification.
 - Native runtime smoke matrix: still required across representative Codex builds
 
 The project does not claim universal runtime verification until that matrix exists.
+
+## Official OpenAI sources
+
+Key design references:
+
+- [GPT-5.6 launch](https://openai.com/index/gpt-5-6/)
+- [OpenAI API Pricing](https://developers.openai.com/api/docs/pricing)
+- [GPT-5.6 Model Guidance](https://developers.openai.com/api/docs/guides/latest-model)
+- [OpenAI Codex Subagents](https://developers.openai.com/codex/subagents)
+- [Codex MultiAgentV2 `spawn_agent`](https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs)
+- [Codex Agent role handling](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs)
+- [OpenAI Skill Creator](https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md)
+
+See [`docs/openai-references.md`](docs/openai-references.md) for the complete evidence trail and how each source shaped the project.
 
 ## License
 
