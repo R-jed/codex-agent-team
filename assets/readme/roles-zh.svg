@@ -18,19 +18,19 @@
     <rect x="626" y="144" width="894" height="120" fill="#002FA7"/>
     <text x="658" y="194" font-family="Inter, Helvetica, Arial, sans-serif" font-size="46" font-weight="200" fill="#ffffff">LUNA</text>
     <text x="900" y="190" font-size="28" font-weight="500" fill="#ffffff">执行 / 探索</text>
-    <text x="900" y="228" font-size="22" font-weight="500" fill="#ffffff">搜索 · 实现 · 调试 · 测试</text>
-    <text x="1326" y="206" font-size="22" font-weight="600" fill="#ffffff">GPT-5.6 / max</text>
+    <text x="1320" y="190" font-size="22" font-weight="600" fill="#ffffff">GPT-5.6 / max</text>
+    <text x="900" y="232" font-size="22" font-weight="500" fill="#ffffff">搜索 · 实现 · 调试 · 测试</text>
 
     <rect x="626" y="288" width="894" height="120" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
     <text x="658" y="338" font-family="Inter, Helvetica, Arial, sans-serif" font-size="46" font-weight="200" fill="#0a0a0a">TERRA</text>
     <text x="900" y="334" font-size="28" font-weight="500" fill="#0a0a0a">独立复核</text>
-    <text x="900" y="372" font-size="22" font-weight="500" fill="#737373">脱离实现路径检查 · 冲突证据 · 关键假设</text>
-    <text x="1300" y="350" font-size="22" font-weight="600" fill="#737373">GPT-5.6 / xhigh</text>
+    <text x="1320" y="334" font-size="22" font-weight="600" fill="#737373">GPT-5.6 / xhigh</text>
+    <text x="900" y="376" font-size="22" font-weight="500" fill="#737373">脱离实现路径检查 · 冲突证据 · 关键假设</text>
 
     <rect x="626" y="432" width="894" height="108" fill="#f0f0ee"/>
     <text x="658" y="480" font-family="Inter, Helvetica, Arial, sans-serif" font-size="42" font-weight="200" fill="#0a0a0a">SOL</text>
     <text x="900" y="476" font-size="28" font-weight="500" fill="#0a0a0a">高级裁决</text>
-    <text x="900" y="514" font-size="22" font-weight="500" fill="#737373">少量高后果问题 · 需要用户明确授权</text>
-    <text x="1326" y="494" font-size="22" font-weight="600" fill="#737373">GPT-5.6 / high</text>
+    <text x="1320" y="476" font-size="22" font-weight="600" fill="#737373">GPT-5.6 / high</text>
+    <text x="900" y="516" font-size="22" font-weight="500" fill="#737373">少量高后果问题 · 需要用户明确授权</text>
   </g>
 </svg>
