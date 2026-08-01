@@ -117,12 +117,17 @@ Root may keep a small attempt record:
 ```text
 task_id
 responsibility
-requested_route
+preferred_route
+route_mode
+configured_route
+route_assurance
 observed_route
 permission_guarantee
 result_status
 evidence_status
 ```
+
+Use `observed_route = not_exposed` when the native runtime does not report the effective child model/effort. Do not copy `preferred_route` into `observed_route` merely because the spawn succeeded.
 
 This is an audit note, not a persistent orchestration ledger.
 
