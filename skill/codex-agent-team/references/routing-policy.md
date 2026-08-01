@@ -5,7 +5,7 @@
 1. Root-aware control model
 2. Delegation Gate
 3. Minimum Team Principle
-4. Capability Gate
+4. Route Assurance Gate
 5. Context-fork contract
 6. Responsibility routing
 7. Root-specific behavior
@@ -16,23 +16,19 @@
 
 The current user-facing Codex session is always `ROOT_CONTROLLER`, regardless of its model.
 
-Root owns:
+Root owns user intent, decomposition, architecture, permission decisions, integration, diff acceptance, high-impact decisions, and the final answer.
 
-- user intent and acceptance criteria
-- decomposition and architecture
-- permission and high-impact decisions
-- integration and diff acceptance
-- final answer
+The Skill never requires a Sol Root and never silently changes the current Root model or reasoning effort.
 
-The Skill never requires a Sol root.
+Role-to-route bindings are stable policy. Team composition is task-aware and dynamic: Root decides whether the task needs execution, detached review, or a consent-gated senior judgment role.
 
 ## 2. Delegation Gate
 
-A Subagent requires at least one concrete benefit:
+A Subagent requires at least one concrete benefit.
 
 ### Context isolation
 
-Use when the child will consume substantial source, logs, tests, documentation, search output, command output, or trial-and-error history that can return as a compact conclusion with evidence.
+Use when substantial source, logs, tests, documentation, search output, command output, or trial-and-error history can stay outside Root and return as compact evidence.
 
 ### Real parallelism
 
@@ -44,13 +40,7 @@ Use when a consequential result benefits from a fresh Agent that did not produce
 
 ### Insufficient reasons
 
-Do not delegate solely because:
-
-- a task is long or difficult
-- many files exist
-- Luna is less expensive
-- concurrency is available
-- the user asked for careful work
+Do not delegate solely because a task is long, many files exist, Luna is inexpensive, concurrency is available, or the user asked for careful work.
 
 ## 3. Minimum Team Principle
 
@@ -60,21 +50,57 @@ Do not delegate solely because:
 - Hard maximum: 4.
 - Automatic Terra critics: at most 1.
 - Automatic Sol Senior Judges: at most 1.
-- More than 2 children normally requires Consent Gate unless the user already asked for broad parallel work.
+- More than 2 children normally requires Consent Gate unless broad parallel work was already requested.
 - One shared workspace has at most one active writing Worker.
-- Multiple active writing Workers require runtime-backed filesystem/workspace isolation. File-level promises inside one shared checkout are not sufficient.
+- Multiple active writing Workers require runtime-backed filesystem/workspace isolation.
 - One child receives at most one focused follow-up.
 - Delegation depth is 1. Workers do not spawn descendants.
 
-## 4. Capability Gate
+## 4. Route Assurance Gate
 
-Role-specific and model-specific routing must be grounded in current native runtime evidence. If the required `agent_type` or `fork_turns` surface is unavailable, do not approximate the route; return the task to Root. Model/effort overrides also require live support when Portable Mode depends on them.
+Model-specific routing must be grounded in current native runtime evidence. Keep route intent, accepted configuration, assurance, and observation separate:
 
-### Portable Mode
+```text
+preferred_route
+configured_route
+route_assurance
+observed_route
+```
 
-Use the built-in role and explicit exact route when the live `spawn_agent` contract exposes model and reasoning overrides.
+The Skill never manufactures observation that Codex does not expose. A successful exact spawn can establish `configured_route`; `observed_route` remains `not_exposed` when the runtime does not report the final effective tuple.
 
-Example:
+### Assurance state: `profile_locked`
+
+Use Profile Mode when an installed custom role pins the exact model and reasoning effort and the live `spawn_agent` role guidance reports those settings as locked.
+
+Expected profiles:
+
+| Agent type | Locked model | Locked effort |
+| --- | --- | --- |
+| `luna_explorer` | `gpt-5.6-luna` | `max` |
+| `luna_worker` | `gpt-5.6-luna` | `max` |
+| `terra_reviewer` | `gpt-5.6-terra` | `xhigh` |
+| `sol_judge` | `gpt-5.6-sol` | `high` |
+
+Spawn shape:
+
+```text
+agent_type = luna_worker
+fork_turns = none
+```
+
+Do not also send explicit model/effort when the profile owns them.
+
+### Assurance state: `native_explicit_validated`
+
+Use Portable Mode when:
+
+1. live `spawn_agent` exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`;
+2. the target model is available for the current MultiAgent backend;
+3. the selected role is not reported as locked to an incompatible model or effort; and
+4. Codex accepts the exact explicit request.
+
+Spawn shape:
 
 ```text
 agent_type = worker
@@ -83,33 +109,51 @@ reasoning_effort = max
 fork_turns = none
 ```
 
-### Profile Mode
+Codex validates the requested model and supported reasoning effort before the child is created. Treat rejection as `preferred_route_unavailable`.
 
-Use a custom Agent profile when it pins the intended model/effort. If the profile owns those values, omit explicit model/effort from the spawn request.
+### Built-in role shadowing
 
-Example:
+Current Codex allows user-defined roles to shadow built-in role names. Before Portable Mode uses `explorer`, `worker`, or `default`, inspect the live role guidance. If that role is locked to a different model or effort, Portable Mode for the requested route is invalid.
+
+### Effective selection precedence
+
+Current Codex resolves model and reasoning settings with this precedence when a custom Agent is involved:
 
 ```text
-agent_type = luna_worker
-fork_turns = none
+custom Agent file value
+  -> explicit spawn value
+  -> corresponding [agents] default
+  -> parent value
 ```
 
-Portable Mode and Profile Mode are alternative configuration paths. Do not combine a route-pinning profile with competing explicit model/effort overrides.
+Model and reasoning effort resolve independently. This is why Profile Mode and Portable Mode are alternative route paths and why a route-pinning profile must not be combined with competing explicit model/effort overrides.
 
-### Preferred route resolution
+### No inheritance-based exact route
 
-1. If live `spawn_agent` exposes the exact target model and reasoning effort, use Portable Mode.
-2. If model/effort override is unavailable but the desired route exactly equals the current Root route and inheritance is part of the current tool contract, omit the override and use exact inheritance.
-3. If an installed custom Agent profile pins the exact target model/effort, Profile Mode may be used after permission checks.
-4. Otherwise set `preferred_route_unavailable` and return the child task to Root.
+Do not treat omission of `model` or `reasoning_effort` as exact assurance. Current Codex may apply configured `agents.default_subagent_model` or `agents.default_subagent_reasoning_effort` before role configuration.
 
-A documentation page, model catalog, cached schema, or semantic API probe does not prove that the current native Subagent surface accepts a tuple.
+If explicit overrides are hidden and an exact locked profile is unavailable, return the task to Root.
+
+### Post-spawn observability limit
+
+Current MultiAgentV2 spawn output exposes canonical task name and optional nickname; `list_agents` exposes agent name and status. Neither surface exposes a universal child model/effort receipt.
+
+Therefore keep these fields separate:
+
+```text
+preferred_route
+configured_route
+route_assurance: profile_locked | native_explicit_validated | unavailable
+observed_route: not_exposed unless a future runtime reports the effective tuple
+```
+
+Do not label requested or configured settings as observed settings.
 
 ### No automatic cross-role fallback
 
 - Luna execution unavailable does not turn Terra into an implementation Worker.
-- Terra critic unavailable means Root performs the review or reports that independent model diversity was unavailable.
-- Sol Senior Judge unavailable means Root keeps control and reports the unresolved limitation.
+- Terra critic unavailable means Root reviews without claiming independent model diversity.
+- Sol Senior Judge unavailable means Root keeps control and reports the limitation.
 
 ## 5. Context-fork contract
 
@@ -118,113 +162,61 @@ MultiAgentV2 defaults `fork_turns` to full history when omitted. Role-specific s
 - Explorer: `fork_turns = "none"`.
 - Independent Critic: `fork_turns = "none"`.
 - Execution Worker: `fork_turns = "none"` by default.
-- Execution Worker may use a positive integer string such as `"2"` only when recent user decisions cannot be safely encoded in the task packet.
+- Execution Worker may use a positive integer such as `"2"` only when recent user decisions cannot be safely encoded in the task packet.
 - Never omit `fork_turns` for a role-specific spawn.
-- Never combine `fork_turns = "all"` with `agent_type` on MultiAgentV2. A full-history fork inherits the parent Agent type.
+- Never combine `fork_turns = "all"` with `agent_type` on MultiAgentV2.
 
-Fresh context is a default, not an excuse to omit task-local facts. Every child still receives a self-contained packet with objective, scope, constraints, acceptance criteria, evidence requirements, and stop conditions.
+Fresh context does not remove task-local facts. Every child still receives a self-contained objective, scope, constraints, acceptance criteria, evidence requirements, and stop conditions.
 
 ## 6. Responsibility routing
 
 ### Explorer
 
-Default: `gpt-5.6-luna`, `max`, native role `explorer`.
+Default route: `gpt-5.6-luna`, `max`.
 
 Use for repository mapping, symbol discovery, caller tracing, test mapping, documentation extraction, large read-only investigations, and evidence collection.
 
-Use `fork_turns = "none"`.
-
 ### Execution Worker
 
-Default: `gpt-5.6-luna`, `max`, native role `worker`.
+Default route: `gpt-5.6-luna`, `max`.
 
-Use for bounded implementation, debugging, test creation, test execution, local refactors, mechanical changes, and tool-heavy investigation with a clear acceptance test.
-
-Use a self-contained task packet and `fork_turns = "none"` by default. Use recent-N inheritance only when required to preserve material user decisions.
+Use for bounded implementation, debugging, test creation, test execution, local refactors, mechanical changes, and tool-heavy investigation with clear acceptance criteria.
 
 ### Independent Critic
 
-Default: `gpt-5.6-terra`, `xhigh`, native role `default`.
+Default route: `gpt-5.6-terra`, `xhigh`.
 
-Use when any of these are material:
+Use when independent verification, cross-module synthesis, conflicting evidence, requirement ambiguity, or challenge of a consequential assumption is material.
 
-- independent verification
-- cross-module synthesis
-- conflicting evidence
-- requirement ambiguity
-- challenge of a consequential assumption
-- important review that deterministic tests cannot fully cover
-
-Do not use Terra merely as a difficulty escalation. Use `fork_turns = "none"`. Give the critic the objective, acceptance criteria, artifact or diff, relevant evidence, and known constraints. Do not give it the producer's private chain of thought.
+Do not use Terra as a generic difficulty escalation. Give the critic the objective, acceptance criteria, artifact/diff, relevant evidence, and constraints without the producer's private reasoning.
 
 ### Senior Judge
 
-Default: `gpt-5.6-sol`, `high`, native role `default`.
+Default route: `gpt-5.6-sol`, `high`.
 
-Use only when:
-
-1. Root is not already Sol,
-2. the decision has substantial consequence,
-3. lower routes leave materially conflicting or insufficient evidence, and
-4. the user approves the one-time higher-capability review.
-
-Senior Judge receives a compressed decision packet and does not perform routine repository exploration or implementation.
+Use only when Root is not already Sol, the decision has substantial consequence, lower routes leave material uncertainty/conflict, and the user approves one higher-capability review.
 
 ## 7. Root-specific behavior
 
 ### Sol Root
 
-For the common Medium or High Root settings, the typical team is:
-
-```text
-Sol Root + Luna Max Worker
-```
-
-Add Terra XHigh only when independent judgment has concrete value.
-
-Architecture, security boundaries, permissions, data integrity, and final high-risk adjudication stay with Root.
-
-Do not create another Sol Worker automatically.
+Typical team is `Sol Root + Luna Max Worker`. Add Terra only when detached judgment has concrete value. Do not create another Sol Worker automatically.
 
 ### Luna Max Root
 
-Typical team:
-
-```text
-Luna Root + Luna Max Worker
-```
-
-The second Luna remains useful for context isolation and real parallelism.
-
-For consequential review, prefer Terra XHigh to gain model diversity.
-
-If a high-consequence conflict remains unresolved, trigger Consent Gate before a Sol Senior Judge.
+A second Luna remains useful for context isolation and real parallelism. Consequential review prefers Terra for model diversity. A remaining high-consequence conflict may trigger Consent Gate before one Sol Senior Judge.
 
 ### Terra XHigh Root
 
-Root already provides Terra-class judgment.
-
-Do not create another Terra Critic solely to claim model diversity. A Terra child is still valid when detached clean-context review itself has concrete value.
-
-If a high-consequence task specifically needs independent model diversity beyond Terra, trigger Consent Gate before a Sol Senior Judge.
+Do not create another Terra solely to claim model diversity. A Terra child is valid when detached clean-context review itself has value. A high-consequence need for stronger independent diversity may trigger Consent Gate before one Sol Senior Judge.
 
 ### Other Root routes
 
-Keep the same role policy. Do not infer that an unfamiliar Root model is stronger or weaker. Use exact native routes only when available.
+Do not infer relative strength from an unfamiliar Root route. Use only provable exact child routes.
 
 ## 8. Parallelism and lifecycle
 
-Safe patterns:
-
-```text
-Root + Luna Explorer
-Root + Luna Worker
-Root + Luna Worker + Terra Critic
-Root + two independent Luna readers
-Root + two Luna writers only with runtime-backed isolated workspaces
-```
-
-Avoid redundant quorum with same-model Agents unless the user explicitly requests it and independence is real.
+Safe patterns include Root + Luna Explorer, Root + Luna Worker, Root + Luna Worker + Terra Critic, two independent Luna readers, or two writing Luna Workers only with runtime-backed isolated workspaces.
 
 Lifecycle:
 
@@ -238,11 +230,11 @@ Close completed Agents promptly.
 
 ### Configuration rejection
 
-Record the exact failure and return to Root. Maximum one spawn attempt for a rejected exact configuration.
+Record the exact failure and return to Root. Do not cycle through model IDs or efforts.
 
 ### Worker failure
 
-Root decides whether deterministic retry with the same route has concrete evidence. Do not automatically climb a model ladder.
+Root may retry the same route only when there is concrete evidence that a deterministic retry is useful. Do not climb a hidden model ladder.
 
 ### Policy violation
 
