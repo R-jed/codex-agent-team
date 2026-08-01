@@ -71,7 +71,10 @@ def test_every_worker_has_exact_route_metadata():
 
 
 def test_route_assurance_matches_route_mode():
-    expected = {"portable": "native_explicit_validated", "profile": "profile_locked"}
+    expected = {
+        "portable": "native_explicit_validated",
+        "profile": "profile_locked",
+    }
     for case in load_evals()["evals"]:
         for worker in case["expected"].get("workers", []):
             assert worker["route_assurance"] == expected[worker["route_mode"]]
@@ -88,11 +91,21 @@ def test_inheritance_is_not_an_exact_assurance_mode():
 
 def test_route_assurance_failure_cases_present():
     ids = {case["id"] for case in load_evals()["evals"]}
-    assert {"profile-route-lock-not-provable", "portable-role-conflicts-with-explicit-route", "luna-root-hidden-overrides-no-exact-inheritance", "required-role-surface-unavailable"} <= ids
+    assert {
+        "profile-route-lock-not-provable",
+        "portable-role-conflicts-with-explicit-route",
+        "luna-root-hidden-overrides-no-exact-inheritance",
+        "required-role-surface-unavailable",
+    } <= ids
 
 
 def test_profile_mode_uses_project_specific_agent_types():
-    profile_workers = [w for case in load_evals()["evals"] for w in case["expected"].get("workers", []) if w["route_mode"] == "profile"]
+    profile_workers = [
+        w
+        for case in load_evals()["evals"]
+        for w in case["expected"].get("workers", [])
+        if w["route_mode"] == "profile"
+    ]
     assert profile_workers
     assert all(w["agent_type"] not in {"explorer", "worker", "default"} for w in profile_workers)
     assert any(w["agent_type"] == "sol_judge" for w in profile_workers)
@@ -152,7 +165,14 @@ def test_one_writer_per_workspace_in_delegate_plans():
 
 def test_required_safety_evals_present():
     ids = {case["id"] for case in load_evals()["evals"]}
-    assert {"strict-read-only-unavailable", "prompt-injection-scope-expansion", "nested-delegation-observed", "two-shared-writing-workers", "production-deploy-from-worker", "role-specific-fork-turns-must-be-explicit"} <= ids
+    assert {
+        "strict-read-only-unavailable",
+        "prompt-injection-scope-expansion",
+        "nested-delegation-observed",
+        "two-shared-writing-workers",
+        "production-deploy-from-worker",
+        "role-specific-fork-turns-must-be-explicit",
+    } <= ids
 
 
 def test_terra_root_behavior_is_covered():
@@ -179,7 +199,12 @@ def test_context_fork_contract_is_explicit():
 
 
 def test_route_assurance_docs_reject_implicit_inheritance():
-    texts = [(SKILL_DIR / "SKILL.md").read_text(), (SKILL_DIR / "references" / "routing-policy.md").read_text(), read("docs/model-route-assurance.md"), read("docs/architecture.md")]
+    texts = [
+        (SKILL_DIR / "SKILL.md").read_text(),
+        (SKILL_DIR / "references" / "routing-policy.md").read_text(),
+        read("docs/model-route-assurance.md"),
+        read("docs/architecture.md"),
+    ]
     for text in texts:
         assert "profile_locked" in text
         assert "native_explicit_validated" in text
@@ -188,7 +213,12 @@ def test_route_assurance_docs_reject_implicit_inheritance():
 
 
 def test_requested_configured_and_observed_routes_are_separate():
-    texts = [(SKILL_DIR / "SKILL.md").read_text(), (SKILL_DIR / "references" / "routing-policy.md").read_text(), (SKILL_DIR / "references" / "task-packet.md").read_text(), read("docs/model-route-assurance.md")]
+    texts = [
+        (SKILL_DIR / "SKILL.md").read_text(),
+        (SKILL_DIR / "references" / "routing-policy.md").read_text(),
+        (SKILL_DIR / "references" / "task-packet.md").read_text(),
+        read("docs/model-route-assurance.md"),
+    ]
     for text in texts:
         assert "route_assurance" in text
         assert "observed_route" in text
@@ -263,7 +293,16 @@ def test_profile_installation_is_documented_with_all_roles():
 
 def test_openai_reference_doc_records_price_and_runtime_sources():
     refs = read("docs/openai-references.md")
-    required_urls = ["https://openai.com/index/gpt-5-6/", "https://developers.openai.com/api/docs/pricing", "https://developers.openai.com/api/docs/guides/latest-model", "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs", "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_common.rs", "https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs", "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs", "https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md"]
+    required_urls = [
+        "https://openai.com/index/gpt-5-6/",
+        "https://developers.openai.com/api/docs/pricing",
+        "https://developers.openai.com/api/docs/guides/latest-model",
+        "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs",
+        "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_common.rs",
+        "https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs",
+        "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs",
+        "https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md",
+    ]
     for url in required_urls:
         assert url in refs
     assert "$1.00" in refs and "$6.00" in refs
