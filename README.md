@@ -86,7 +86,7 @@ Codex 会在内部为 Subagent 建立 child thread/session，并把它记录为 
 | Codex Native 能力 | Codex Agent Team 加上的策略 |
 | --- | --- |
 | 提供通用 `spawn_agent` | 先过 Delegation Gate，确认委派真的有收益 |
-| 子 Agent 可以继承或覆盖模型 | 只允许有 Route Assurance 的精确模型 / 思考强度 |
+| 未固定时，Codex 可自动平衡模型 / 思考强度 | Role 一旦确定，就要求有 Route Assurance 的精确 model / effort |
 | 提供 `explorer`、`worker`、`default` 等 role | 固定 Luna Execution、Terra Critic、Sol Judge 的职责 |
 | `fork_turns` 可继承完整历史 | Role-specific spawn 显式设置最小上下文 |
 | Codex Native runtime 可以组织多个 Agent thread | 本 Skill 把 delegation depth 固定为 1，所有子结果回到 Root 汇总 |
@@ -99,6 +99,8 @@ Codex 会在内部为 Subagent 建立 child thread/session，并把它记录为 
 ## 模型和思考强度，怎么保证真的落地？
 
 这是当前 Skill 的核心检查项。目标是让「策略想用哪个模型」和「Codex 实际接受了什么配置」分开记录。
+
+> **保证范围：** Route Assurance 只约束 Skill 创建的 model-specific Subagent。当前 Root 的 model / reasoning effort 继续由用户当前会话决定，Skill 不会暗中切换 Root。
 
 当当前 Runtime 支持对应能力时，Skill 只承认两种精确的**配置级 Route Assurance**。只有其中一种成立时，才创建 model-specific Subagent。运行后如果 Codex 没有暴露 effective model/effort telemetry，Skill 会明确记录 `observed_route = not_exposed`，不会把配置级保证冒充成运行时观测。
 
@@ -262,7 +264,9 @@ Skill 支持隐式调用，也可以显式使用：
 $codex-agent-team
 ```
 
-### 可选：安装锁定模型的 Agent profiles
+### 推荐：同时安装锁定模型的 Agent profiles
+
+只安装 Skill 也能使用 Portable Mode。如果最关心「子 Agent 是否真正落到指定 model / reasoning effort」，建议同时安装项目提供的 profiles。这样 Route Assurance 可以优先走 `profile_locked`。
 
 ```bash
 mkdir -p ~/.codex/agents
@@ -278,7 +282,7 @@ terra_reviewer
 sol_judge
 ```
 
-普通用户不需要先配置这些 profile。零配置模式依然可以通过 Native Explicit Validated 路径工作。
+这些 profile 不需要用户手写配置。安装后由 Skill 按角色选择；未安装时，零配置模式仍可在 live `spawn_agent` 暴露精确 model / effort override 时走 Native Explicit Validated。两条路径都无法证明 exact route 时，任务会安全留在 Root。
 
 ## 一个实际例子
 
