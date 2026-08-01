@@ -17,7 +17,7 @@ Track three distinct facts:
 - `requires_enforced_read_only`: whether safety depends on runtime preventing writes
 - `permission_guarantee`: `runtime_enforced`, `instruction_enforced`, or `unknown`
 
-Prompt text alone does not establish a runtime permission guarantee.
+Prompt text alone does not establish a runtime permission guarantee. A custom Agent profile declaring `sandbox_mode = "read-only"` is also only a role-level default until the live child runtime confirms the effective permission state.
 
 If `requires_enforced_read_only` is true and current runtime cannot confirm read-only enforcement, return the task to Root with `permission_requirement_unmet`.
 
@@ -62,7 +62,7 @@ One shared workspace has at most one active writing Worker.
 
 Multiple read-only Workers may inspect the same workspace.
 
-Multiple writing Workers require real filesystem isolation or clearly independent workspaces. Mere file-level promises are not enough when the runtime exposes no isolation and concurrent writes can overlap.
+Multiple writing Workers require runtime-backed filesystem isolation, worktrees, or independent workspaces. Mere file-level promises inside one shared checkout are not sufficient.
 
 Workers stay inside assigned write scope. Unexpected writes are policy violations and must be inspected before integration.
 
