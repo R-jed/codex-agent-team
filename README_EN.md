@@ -17,8 +17,6 @@ The current session always stays in control as Root. GPT-5.6 Luna Max handles he
 
 ## When it helps
 
-Use Codex Agent Team when:
-
 - source, logs, or tests would consume a large amount of Root context;
 - implementation can be delegated with a clear scope and acceptance criteria;
 - an important change benefits from a reviewer who did not produce it;
@@ -30,7 +28,7 @@ Small, already-isolated fixes usually stay in Root. The Skill does not create Su
 
 Requirements: Python >= 3.11, Git, and a Codex environment with Native Subagents.
 
-The default installer places the Skill under `~/.codex/skills/` and installs four model-locked Agent profiles under `~/.codex/agents/`.
+The default installer places the Skill under `~/.codex/skills/` and four model-locked Agent profiles under `~/.codex/agents/`.
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
@@ -52,7 +50,7 @@ Explicit invocation:
 $codex-agent-team
 ```
 
-Example request:
+Or simply describe the task:
 
 ```text
 Fix this authentication issue, run the relevant tests, then independently check whether existing Session behavior is affected.
@@ -81,15 +79,6 @@ If the required route, permission, scope, or external-impact boundary cannot be 
 | Independent Critic | GPT-5.6 Terra `xhigh` | detached review, conflicting evidence, assumption checks |
 | Senior Judge | GPT-5.6 Sol `high` | rare high-consequence adjudication after consent |
 
-Profiles installed by default:
-
-```text
-luna_explorer
-luna_worker
-terra_reviewer
-sol_judge
-```
-
 ## Core rules
 
 - Minimum Team: zero Subagents is normal; default 1; normal maximum 2.
@@ -101,14 +90,7 @@ sol_judge
 
 Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create a second Agent runtime, persistent task DAG, or background scheduler.
 
-## Routing modes
-
-| Mode | Best for | Behavior |
-| --- | --- | --- |
-| Profile Mode | recommended default | installs model-locked Agent profiles for the strongest exact-route assurance |
-| Portable Mode | Skill-only install | depends on the live `spawn_agent` surface exposing and accepting exact model / effort settings |
-
-See [Model Route Assurance](docs/model-route-assurance.md) for the full route contract, precedence rules, and runtime observability limits.
+The default install uses model-locked profiles. `--skill-only` depends on the live `spawn_agent` surface exposing exact model / effort settings. See [Model Route Assurance](docs/model-route-assurance.md) for details.
 
 ## Documentation
 
@@ -116,13 +98,11 @@ See [Model Route Assurance](docs/model-route-assurance.md) for the full route co
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)
 - [Model Route Assurance](docs/model-route-assurance.md)
 - [OpenAI References](docs/openai-references.md)
-- [Routing Policy](skill/codex-agent-team/references/routing-policy.md)
-- [Safety Policy](skill/codex-agent-team/references/safety-policy.md)
-- [Consent Policy](skill/codex-agent-team/references/consent-policy.md)
+- Policy: [Routing](skill/codex-agent-team/references/routing-policy.md) · [Safety](skill/codex-agent-team/references/safety-policy.md) · [Consent](skill/codex-agent-team/references/consent-policy.md)
 
 ## Validation status
 
-The repository includes policy regression tests and routing eval cases. Native runtime behavior remains dependent on the capabilities exposed by the active Codex build, and configuration assurance is not presented as observed runtime telemetry.
+The repository includes policy regression tests and routing eval cases. Native runtime behavior remains dependent on the capabilities exposed by the active Codex build.
 
 ## License
 
