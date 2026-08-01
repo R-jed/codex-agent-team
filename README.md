@@ -247,7 +247,7 @@ Agent profile 中的 `sandbox_mode` 表示配置意图。实际 child 权限仍�
 | 静默修改 Root 模型 | 不执行 |
 | 无法验证的 model-specific route | 不降级猜测，任务回到 Root |
 
-这使 Codex Agent Team 保持为一层轻量策略，而不是另一个 Agent orchestration framework。
+因此，Codex Agent Team 始终保持为轻量策略层，不额外承担完整 Agent 编排框架的职责。
 
 ## 文档
 
