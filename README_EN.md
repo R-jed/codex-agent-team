@@ -36,7 +36,7 @@ cd codex-agent-team
 python scripts/install.py
 ```
 
-Restart or reopen Codex after installation.
+Restart or reopen Codex after installation. Default profiles: `luna_explorer`, `luna_worker`, `terra_reviewer`, `sol_judge`.
 
 Skill-only Portable Mode:
 
