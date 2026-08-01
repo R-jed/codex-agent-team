@@ -6,10 +6,11 @@
 2. Delegation Gate
 3. Minimum Team Principle
 4. Capability Gate
-5. Responsibility routing
-6. Root-specific behavior
-7. Parallelism and lifecycle
-8. Failure behavior
+5. Context-fork contract
+6. Responsibility routing
+7. Root-specific behavior
+8. Parallelism and lifecycle
+9. Failure behavior
 
 ## 1. Root-aware control model
 
@@ -61,18 +62,45 @@ Do not delegate solely because:
 - Automatic Sol Senior Judges: at most 1.
 - More than 2 children normally requires Consent Gate unless the user already asked for broad parallel work.
 - One shared workspace has at most one active writing Worker.
+- Multiple active writing Workers require runtime-backed filesystem/workspace isolation. File-level promises inside one shared checkout are not sufficient.
 - One child receives at most one focused follow-up.
 - Delegation depth is 1. Workers do not spawn descendants.
 
 ## 4. Capability Gate
 
-Model-specific routing must be grounded in current native runtime evidence.
+Role-specific and model-specific routing must be grounded in current native runtime evidence. If the required `agent_type` or `fork_turns` surface is unavailable, do not approximate the route; return the task to Root. Model/effort overrides also require live support when Portable Mode depends on them.
+
+### Portable Mode
+
+Use the built-in role and explicit exact route when the live `spawn_agent` contract exposes model and reasoning overrides.
+
+Example:
+
+```text
+agent_type = worker
+model = gpt-5.6-luna
+reasoning_effort = max
+fork_turns = none
+```
+
+### Profile Mode
+
+Use a custom Agent profile when it pins the intended model/effort. If the profile owns those values, omit explicit model/effort from the spawn request.
+
+Example:
+
+```text
+agent_type = luna_worker
+fork_turns = none
+```
+
+Portable Mode and Profile Mode are alternative configuration paths. Do not combine a route-pinning profile with competing explicit model/effort overrides.
 
 ### Preferred route resolution
 
-1. If live `spawn_agent` exposes the exact target model and reasoning effort, use it.
-2. If model/effort override is unavailable but the desired route exactly equals the current root route and inheritance is part of the current tool contract, omit the override and use inheritance.
-3. If an installed custom Agent profile pins the exact target model/effort, it may be used after permission checks.
+1. If live `spawn_agent` exposes the exact target model and reasoning effort, use Portable Mode.
+2. If model/effort override is unavailable but the desired route exactly equals the current Root route and inheritance is part of the current tool contract, omit the override and use exact inheritance.
+3. If an installed custom Agent profile pins the exact target model/effort, Profile Mode may be used after permission checks.
 4. Otherwise set `preferred_route_unavailable` and return the child task to Root.
 
 A documentation page, model catalog, cached schema, or semantic API probe does not prove that the current native Subagent surface accepts a tuple.
@@ -83,7 +111,20 @@ A documentation page, model catalog, cached schema, or semantic API probe does n
 - Terra critic unavailable means Root performs the review or reports that independent model diversity was unavailable.
 - Sol Senior Judge unavailable means Root keeps control and reports the unresolved limitation.
 
-## 5. Responsibility routing
+## 5. Context-fork contract
+
+MultiAgentV2 defaults `fork_turns` to full history when omitted. Role-specific spawns therefore set it explicitly.
+
+- Explorer: `fork_turns = "none"`.
+- Independent Critic: `fork_turns = "none"`.
+- Execution Worker: `fork_turns = "none"` by default.
+- Execution Worker may use a positive integer string such as `"2"` only when recent user decisions cannot be safely encoded in the task packet.
+- Never omit `fork_turns` for a role-specific spawn.
+- Never combine `fork_turns = "all"` with `agent_type` on MultiAgentV2. A full-history fork inherits the parent Agent type.
+
+Fresh context is a default, not an excuse to omit task-local facts. Every child still receives a self-contained packet with objective, scope, constraints, acceptance criteria, evidence requirements, and stop conditions.
+
+## 6. Responsibility routing
 
 ### Explorer
 
@@ -91,7 +132,7 @@ Default: `gpt-5.6-luna`, `max`, native role `explorer`.
 
 Use for repository mapping, symbol discovery, caller tracing, test mapping, documentation extraction, large read-only investigations, and evidence collection.
 
-Prefer fresh context.
+Use `fork_turns = "none"`.
 
 ### Execution Worker
 
@@ -99,7 +140,7 @@ Default: `gpt-5.6-luna`, `max`, native role `worker`.
 
 Use for bounded implementation, debugging, test creation, test execution, local refactors, mechanical changes, and tool-heavy investigation with a clear acceptance test.
 
-Prefer a self-contained task packet. Inherit recent context only when re-packing would lose material user decisions.
+Use a self-contained task packet and `fork_turns = "none"` by default. Use recent-N inheritance only when required to preserve material user decisions.
 
 ### Independent Critic
 
@@ -114,7 +155,7 @@ Use when any of these are material:
 - challenge of a consequential assumption
 - important review that deterministic tests cannot fully cover
 
-Do not use Terra merely as a difficulty escalation. Prefer fresh context. Give the critic the objective, acceptance criteria, artifact or diff, relevant evidence, and known constraints. Do not give it the producer's chain of thought.
+Do not use Terra merely as a difficulty escalation. Use `fork_turns = "none"`. Give the critic the objective, acceptance criteria, artifact or diff, relevant evidence, and known constraints. Do not give it the producer's private chain of thought.
 
 ### Senior Judge
 
@@ -124,16 +165,16 @@ Use only when:
 
 1. Root is not already Sol,
 2. the decision has substantial consequence,
-3. Luna/Terra evidence remains materially conflicting or insufficient, and
+3. lower routes leave materially conflicting or insufficient evidence, and
 4. the user approves the one-time higher-capability review.
 
 Senior Judge receives a compressed decision packet and does not perform routine repository exploration or implementation.
 
-## 6. Root-specific behavior
+## 7. Root-specific behavior
 
-### Sol Medium or High Root
+### Sol Root
 
-Typical team:
+For the common Medium or High Root settings, the typical team is:
 
 ```text
 Sol Root + Luna Max Worker
@@ -159,11 +200,19 @@ For consequential review, prefer Terra XHigh to gain model diversity.
 
 If a high-consequence conflict remains unresolved, trigger Consent Gate before a Sol Senior Judge.
 
+### Terra XHigh Root
+
+Root already provides Terra-class judgment.
+
+Do not create another Terra Critic solely to claim model diversity. A Terra child is still valid when detached clean-context review itself has concrete value.
+
+If a high-consequence task specifically needs independent model diversity beyond Terra, trigger Consent Gate before a Sol Senior Judge.
+
 ### Other Root routes
 
-Keep the same role policy. Do not infer that an unfamiliar root model is stronger or weaker. Use exact native routes only when available.
+Keep the same role policy. Do not infer that an unfamiliar Root model is stronger or weaker. Use exact native routes only when available.
 
-## 7. Parallelism and lifecycle
+## 8. Parallelism and lifecycle
 
 Safe patterns:
 
@@ -172,7 +221,7 @@ Root + Luna Explorer
 Root + Luna Worker
 Root + Luna Worker + Terra Critic
 Root + two independent Luna readers
-Root + two independent Luna workers only when write environments are safely isolated
+Root + two Luna writers only with runtime-backed isolated workspaces
 ```
 
 Avoid redundant quorum with same-model Agents unless the user explicitly requests it and independence is real.
@@ -185,7 +234,7 @@ spawn -> work -> gather -> verify -> optional focused follow-up -> close
 
 Close completed Agents promptly.
 
-## 8. Failure behavior
+## 9. Failure behavior
 
 ### Configuration rejection
 
