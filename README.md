@@ -244,19 +244,25 @@ OpenAI 发布页还公开了 GPT-5.6 的 coding / terminal eval：
 
 ## 快速开始
 
-### 安装 Skill
+### 推荐安装：Skill + 锁定模型的 Agent profiles
+
+默认安装器会一次完成两件事：把 Skill 安装到 `~/.codex/skills/`，并把 4 个 model-locked Agent profiles 安装到 `~/.codex/agents/`。普通用户无需自己编辑 Codex 配置。
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
-mkdir -p ~/.codex/skills
-cp -R codex-agent-team/skill/codex-agent-team ~/.codex/skills/codex-agent-team
+cd codex-agent-team
+python scripts/install.py
 ```
 
-也可以在开发时使用软链接：
+安装完成后，重新打开 Codex，让新的 Agent profiles 被加载。
+
+如果你明确只想安装 Skill、完全依赖 Portable Mode，可以使用：
 
 ```bash
-ln -s "$(pwd)/skill/codex-agent-team" ~/.codex/skills/codex-agent-team
+python scripts/install.py --skill-only
 ```
+
+这种模式只有在 live `spawn_agent` 暴露精确 model / effort override 时，才能建立 `native_explicit_validated`。
 
 Skill 支持隐式调用，也可以显式使用：
 
@@ -264,14 +270,9 @@ Skill 支持隐式调用，也可以显式使用：
 $codex-agent-team
 ```
 
-### 推荐：同时安装锁定模型的 Agent profiles
+### 安装器默认提供的锁定 profiles
 
-只安装 Skill 也能使用 Portable Mode。如果最关心「子 Agent 是否真正落到指定 model / reasoning effort」，建议同时安装项目提供的 profiles。这样 Route Assurance 可以优先走 `profile_locked`。
-
-```bash
-mkdir -p ~/.codex/agents
-cp examples/agents/*.toml ~/.codex/agents/
-```
+默认安装已经包含这些 profiles，因此普通用户无需再手工复制。如果你使用 `--skill-only`，下面这些 role 不会被安装。
 
 安装后会提供：
 
@@ -332,6 +333,7 @@ Root 最后检查 Diff、测试证据和 Reviewer finding，再交付结果。
 - [GPT-5.6 发布公告](https://openai.com/index/gpt-5-6/)
 - [OpenAI API Pricing](https://developers.openai.com/api/docs/pricing)
 - [GPT-5.6 Model Guidance](https://developers.openai.com/api/docs/guides/latest-model)
+- [OpenAI Codex Subagents](https://developers.openai.com/codex/subagents)
 - [OpenAI Codex MultiAgentV2 `spawn_agent`](https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs)
 - [OpenAI Codex multi-agent common runtime](https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_common.rs)
 - [OpenAI Codex Agent role handling](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs)
