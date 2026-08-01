@@ -16,6 +16,7 @@ Use this Skill to decide whether the current task benefits from a small native S
 5. One shared workspace has at most one active writing Worker.
 6. Exact native route unavailable means return to Root. Do not randomly switch models.
 7. Material capability, permission, scope, cost, or external-impact escalation requires user consent unless the user already clearly authorized it.
+8. Role-specific spawns always set `fork_turns` explicitly. Do not rely on the runtime default.
 
 ## Step 1: Interpret the root task
 
@@ -37,13 +38,41 @@ If no concrete benefit exists, continue in Root.
 
 ## Step 3: Apply the Capability Gate
 
-Before using a model-specific Subagent route, inspect the current native `spawn_agent` contract and available model/effort combinations when exposed.
+Before any role-specific spawn, inspect the current native `spawn_agent` contract. Confirm that the required `agent_type` and `fork_turns` surface exists; for model-specific routing, also confirm the target model/effort combination when those overrides are exposed.
+
+Choose exactly one route mode for a child:
+
+### Portable Mode
+
+Use a built-in native role plus explicit model and effort only when the live tool contract exposes and accepts them.
+
+Example shape:
+
+```text
+agent_type = worker
+model = gpt-5.6-luna
+reasoning_effort = max
+fork_turns = none
+```
+
+### Profile Mode
+
+Use an installed custom Agent profile that already pins model/effort. When the profile owns model and reasoning effort, omit explicit `model` and `reasoning_effort` from the spawn request.
+
+Example shape:
+
+```text
+agent_type = luna_worker
+fork_turns = none
+```
+
+Do not combine a route-pinning custom profile with competing explicit model/effort overrides.
 
 Route resolution priority:
 
-1. Use an explicit exact model + reasoning override when current runtime supports it.
-2. If the desired route exactly matches the current root route and the runtime documents inheritance, an inherited route may be used.
-3. An installed custom Agent profile may be used only when it pins the intended model/effort and its effective permissions are acceptable.
+1. Portable Mode when current runtime exposes the exact explicit route.
+2. Exact inheritance only when the desired route equals the current Root route and inheritance is part of the live tool contract.
+3. Profile Mode when an installed custom Agent profile pins the intended route and its effective permissions are acceptable.
 4. Otherwise return that child task to Root with `preferred_route_unavailable`.
 
 Do not use semantic HTTP probes or stale docs as substitutes for current native capability evidence.
@@ -82,15 +111,17 @@ Explain why the escalation helps, what changes, whether files or external system
 
 Read `references/consent-policy.md` when consent may be required.
 
-## Step 6: Build the minimum task packet
+## Step 6: Build the minimum task packet and context fork
 
 Use `references/task-packet.md`.
 
-Prefer a self-contained packet and minimal context inheritance.
+Prefer a self-contained packet and minimum history inheritance. For role-specific spawns, always set `fork_turns` explicitly:
 
-- Explorer: fresh context when possible.
-- Execution Worker: fresh context by default; inherit only recent context needed to preserve material decisions.
-- Independent Critic: fresh context by default.
+- Explorer: `fork_turns = "none"`.
+- Independent Critic: `fork_turns = "none"`.
+- Execution Worker: `fork_turns = "none"` by default; use a positive integer string only when recent user decisions cannot be safely re-packed.
+- Never omit `fork_turns` for a role-specific spawn.
+- Never use `fork_turns = "all"` together with `agent_type` on MultiAgentV2.
 
 Every packet must include the prompt-injection boundary and no-further-delegation rule.
 
@@ -103,6 +134,8 @@ Distinguish:
 - `runtime_enforced`
 - `instruction_enforced`
 - `unknown`
+
+Custom Agent profiles may declare sandbox defaults, but effective child permissions are runtime facts. Never treat a profile's sandbox declaration alone as proof of `runtime_enforced` read-only access.
 
 If a task is safe only with enforced read-only access and current runtime cannot confirm it, do not spawn that Worker.
 
@@ -124,7 +157,7 @@ Close completed, rejected, or no-longer-needed Workers promptly. Do not keep com
 
 ## References
 
-- `references/routing-policy.md`: team selection, route triggers, capability fallback
+- `references/routing-policy.md`: team selection, route triggers, capability and context-fork rules
 - `references/task-packet.md`: progressive Worker packet and result contract
 - `references/consent-policy.md`: plain-language, one-time consent rules
 - `references/safety-policy.md`: permission, prompt injection, recursion, side-effect boundaries
