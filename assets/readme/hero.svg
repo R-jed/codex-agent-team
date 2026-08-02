@@ -1,41 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team</title>
-  <desc id="desc">Indigo porcelain editorial cover. Form a team only when it helps, while the main session keeps direction, acceptance, and final delivery.</desc>
-  <rect width="1200" height="600" fill="#0a1f3d"/>
+  <desc id="desc">Swiss-style overview. Small tasks stay in the main session; Luna, Terra, and Sol take bounded specialist work when useful.</desc>
+  <rect width="1200" height="560" fill="#f7f7f5"/>
 
-  <g fill="none" stroke="#f1f3f5" stroke-width="1.1" opacity="0.13">
-    <path d="M760 28 C876 -10 1042 20 1148 120 C1228 196 1216 294 1140 352 C1060 412 958 382 900 452 C850 512 874 568 930 600"/>
-    <path d="M800 62 C898 28 1032 48 1116 128 C1178 188 1174 270 1110 322 C1046 372 968 354 918 414 C878 462 894 518 946 556"/>
-    <path d="M840 98 C918 70 1018 82 1084 146 C1132 192 1130 250 1078 292 C1028 332 972 326 934 372 C902 410 912 458 960 494"/>
-    <path d="M876 134 C940 112 1008 120 1058 166 C1090 198 1094 238 1052 270 C1014 300 974 300 946 336 C924 364 934 404 972 434"/>
-  </g>
-  <g fill="none" stroke="#f1f3f5" stroke-width="1" opacity="0.05">
-    <circle cx="1004" cy="270" r="198"/>
-    <circle cx="1004" cy="270" r="150"/>
-    <circle cx="1004" cy="270" r="102"/>
-  </g>
-
-  <line x1="60" y1="78" x2="1140" y2="78" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
-  <line x1="60" y1="520" x2="1140" y2="520" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
-
-  <text x="60" y="48" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1.1" fill="#f1f3f5" opacity="0.8">CODEX AGENT TEAM · COMMUNITY WORKFLOW PLUGIN</text>
-  <text x="1140" y="48" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.8">TEAM ONLY WHEN USEFUL · 01</text>
-
-  <text x="60" y="142" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="25" font-weight="500" fill="#f1f3f5" opacity="0.72">You always work through one main session.</text>
-  <text x="54" y="270" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="78" font-weight="700" letter-spacing="-1.8" fill="#f1f3f5">FORM A TEAM</text>
-  <text x="54" y="360" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="78" font-weight="700" letter-spacing="-1.8" fill="#f1f3f5">ONLY WHEN IT HELPS.</text>
-
-  <text x="60" y="424" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="29" font-weight="600" fill="#f1f3f5">Small work stays local. Specialist work gets a specialist.</text>
-  <text x="60" y="468" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.72">Luna executes · Terra reviews independently · Sol judges when needed</text>
-
-  <g transform="translate(930 136)">
-    <text x="0" y="104" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="150" font-weight="700" fill="#f1f3f5" opacity="0.92">01</text>
-    <line x1="4" y1="136" x2="204" y2="136" stroke="#f1f3f5" stroke-width="1.4" opacity="0.68"/>
-    <text x="4" y="176" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="24" font-weight="600" fill="#f1f3f5">Main session</text>
-    <text x="4" y="214" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="24" font-weight="600" fill="#f1f3f5">Minimum team</text>
-    <text x="4" y="252" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="24" font-weight="600" fill="#f1f3f5">Evidence first</text>
+  <g stroke="#0a0a0a" stroke-width="1" opacity="0.055">
+    <line x1="60" y1="0" x2="60" y2="560"/>
+    <line x1="195" y1="0" x2="195" y2="560"/>
+    <line x1="330" y1="0" x2="330" y2="560"/>
+    <line x1="465" y1="0" x2="465" y2="560"/>
+    <line x1="600" y1="0" x2="600" y2="560"/>
+    <line x1="735" y1="0" x2="735" y2="560"/>
+    <line x1="870" y1="0" x2="870" y2="560"/>
+    <line x1="1005" y1="0" x2="1005" y2="560"/>
+    <line x1="1140" y1="0" x2="1140" y2="560"/>
   </g>
 
-  <text x="60" y="562" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">NATIVE SUBAGENTS · DEPTH 1 · ONE WRITER · FAIL CLOSED</text>
-  <text x="1140" y="562" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">/codex-agent-team</text>
+  <line x1="60" y1="74" x2="1140" y2="74" stroke="#0a0a0a" stroke-width="1"/>
+  <text x="60" y="46" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#0a0a0a">CODEX AGENT TEAM</text>
+  <text x="1140" y="46" text-anchor="end" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#6d6d69">CODEX PLUGIN · NATIVE SUBAGENTS</text>
+
+  <text x="58" y="168" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="84" font-weight="200" letter-spacing="-3" fill="#0a0a0a">CODEX</text>
+  <text x="58" y="246" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="84" font-weight="200" letter-spacing="-3" fill="#0a0a0a">AGENT TEAM</text>
+  <text x="60" y="316" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="32" font-weight="300" fill="#0a0a0a">Keep small work here. Delegate the hard parts.</text>
+  <text x="60" y="360" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#666661">Describe the task normally. The policy manages specialization and acceptance.</text>
+
+  <rect x="60" y="414" width="540" height="78" fill="#002FA7"/>
+  <text x="86" y="449" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#ffffff">MAIN SESSION</text>
+  <text x="86" y="478" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="400" fill="#ffffff">Decide first · accept last</text>
+  <text x="574" y="463" text-anchor="end" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#ffffff">/codex-agent-team</text>
+
+  <g transform="translate(720 112)">
+    <rect x="0" y="0" width="420" height="300" fill="#002FA7"/>
+    <text x="28" y="42" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#ffffff">WHEN SPECIALIZATION HELPS</text>
+    <line x1="28" y1="62" x2="392" y2="62" stroke="#ffffff" stroke-width="1" opacity="0.45"/>
+
+    <text x="28" y="116" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="42" font-weight="200" fill="#ffffff">LUNA</text>
+    <text x="250" y="112" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#ffffff">EXECUTE</text>
+    <text x="250" y="142" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="400" fill="#dfe6ff">trace · implement · test</text>
+
+    <line x1="28" y1="162" x2="392" y2="162" stroke="#ffffff" stroke-width="1" opacity="0.35"/>
+    <text x="28" y="214" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="42" font-weight="200" fill="#ffffff">TERRA</text>
+    <text x="250" y="210" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#ffffff">REVIEW</text>
+    <text x="250" y="240" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="400" fill="#dfe6ff">only when risk warrants it</text>
+
+    <line x1="28" y1="260" x2="392" y2="260" stroke="#ffffff" stroke-width="1" opacity="0.35"/>
+    <text x="28" y="292" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="300" fill="#ffffff">SOL</text>
+    <text x="250" y="292" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#ffffff">JUDGE AFTER CONSENT</text>
+  </g>
+
+  <line x1="720" y1="444" x2="1140" y2="444" stroke="#0a0a0a" stroke-width="1"/>
+  <text x="720" y="480" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a0a0a">One active writer per shared workspace</text>
+  <text x="720" y="516" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#6d6d69">Every result returns to the main session for diff, test, and evidence checks</text>
 </svg>
