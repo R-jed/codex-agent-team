@@ -2,8 +2,9 @@
 """Validate and summarize recorded paired Codex Agent Team live runs.
 
 The scorer never executes Codex and never invents missing telemetry. Declared primary
-comparisons are checked pair-by-pair before descriptive aggregate statistics are
-reported, so different workload mixes cannot masquerade as a controlled comparison.
+comparisons and experimental controls are checked pair-by-pair before descriptive
+aggregate statistics are reported, so different workload or environment mixes cannot
+masquerade as a controlled comparison.
 """
 
 from __future__ import annotations
@@ -20,6 +21,14 @@ import jsonschema
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
+
+PAIR_CONTROL_FIELDS = (
+    "workload_definition_hash",
+    "main_session_route",
+    "permissions_fingerprint",
+    "tool_surface_fingerprint",
+    "acceptance_rubric_id",
+)
 
 DELTA_FIELDS = (
     "acceptance_score",
@@ -105,13 +114,18 @@ def validate_pairs(
         if len(modes) != len(set(modes)):
             fail(f"pair {pair_id!r} contains duplicate modes")
 
-        main_routes = {
-            run.get("main_session_route")
+        for field in PAIR_CONTROL_FIELDS:
+            values = {run[field] for run in pair_runs}
+            if len(values) != 1:
+                fail(f"pair {pair_id!r} mixes controlled field {field!r}")
+
+        worker_routes = {
+            run.get("worker_route")
             for run in pair_runs
-            if isinstance(run.get("main_session_route"), str) and run.get("main_session_route")
+            if isinstance(run.get("worker_route"), str) and run.get("worker_route")
         }
-        if len(main_routes) > 1:
-            fail(f"pair {pair_id!r} mixes main-session routes")
+        if len(worker_routes) > 1:
+            fail(f"pair {pair_id!r} mixes worker routes")
 
         workload_id = pair_runs[0]["workload_id"]
         primary = declared_primary_modes(specs[workload_id])
@@ -230,6 +244,7 @@ def main() -> None:
             "repo_revision": first["repo_revision"],
             "repeat_index": first["repeat_index"],
             "modes": sorted(run["mode"] for run in pair_runs),
+            "controls": {field: first[field] for field in PAIR_CONTROL_FIELDS},
             "comparison": comparison,
         }
         if comparison is not None:
