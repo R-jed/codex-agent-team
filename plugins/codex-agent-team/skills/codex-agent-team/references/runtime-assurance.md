@@ -45,6 +45,8 @@ source: none | native | local | both
 
 When expected `parent_thread_id` is known, `matched` requires an observed matching parent. Absence is `not_observed`, not `true`.
 
+If native and local sources expose different parent ids, ancestry is `conflict` even when no expected parent was supplied. That conflict does not rewrite an otherwise matched route into route conflict.
+
 ### Permission evidence
 
 ```text
@@ -53,6 +55,8 @@ source: none | native | local | both
 ```
 
 A host-enforced read-only claim requires native runtime evidence of effective read-only sandboxing. Local rollout evidence alone cannot establish it.
+
+If native and local sources expose conflicting sandbox or permission-profile values, permission evidence is `conflict`. Route evidence remains independent.
 
 ## 3. Compact compatibility grades
 
@@ -112,13 +116,15 @@ The verifier returns typed route, ancestry, and permission evidence plus a compa
 
 If `runtime_observation_required` is true, complete matching native route evidence is required. A native object with missing role/model/effort fields does not satisfy that requirement.
 
+Legacy compatibility fields such as `configuration_match`, `source_agreement`, `ancestry_match`, and `permission_match` are tri-state. They return `null` when the relevant fact was not established. Treat the typed evidence objects as primary.
+
 ## 6. Source agreement
 
 When native and local sources both expose the same field, they must agree.
 
 A conflict in role, model, effort, thread identity, parent identity, sandbox, or permission profile produces a conflict state and quarantines the affected result.
 
-Two empty or partial observations do not become `R2` merely because neither contradicts the other.
+Two empty or partial observations do not become `R2` merely because neither contradicts the other. `source_agreement` is `null` when two sources have no overlapping observed field.
 
 ## 7. Depth-one ancestry
 
@@ -128,6 +134,7 @@ When the main session knows its thread id, include it as `expected.parent_thread
 matching observed parent -> matched
 missing observed parent -> not_observed
 mismatched observed parent -> conflict -> quarantine
+native/local parent disagreement -> conflict -> quarantine
 ```
 
 This preserves the distinction between lack of evidence and affirmative ancestry proof.
@@ -141,6 +148,7 @@ native reports read-only -> matched
 native reports broader sandbox -> broader_than_required -> quarantine/return
 native omits sandbox -> not_observed -> return to main session
 local says read-only but native absent -> not_observed -> return to main session
+native/local permission evidence conflicts -> conflict -> quarantine
 ```
 
 Behavioral read-only remains an instruction-level safety path defined in `safety-policy.md`; it does not upgrade runtime permission evidence.
