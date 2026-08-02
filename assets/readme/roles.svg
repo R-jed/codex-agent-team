@@ -30,20 +30,22 @@
   <text x="510" y="168" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="50" font-weight="700" fill="#0a1f3d">LUNA</text>
   <text x="510" y="214" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="28" font-weight="700" fill="#0a1f3d">Primary execution route</text>
   <text x="818" y="168" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#0a1f3d" opacity="0.66">GPT-5.6 · MAX</text>
-  <text x="818" y="214" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d">Search · implement · debug · test</text>
+  <text x="818" y="214" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#0a1f3d">Search · implement · debug · test</text>
   <text x="510" y="250" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="500" fill="#0a1f3d" opacity="0.68">Heavy execution and exploration inside a bounded task.</text>
 
   <line x1="478" y1="308" x2="1144" y2="308" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="364" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#f1f3f5">TERRA</text>
   <text x="478" y="408" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="27" font-weight="700" fill="#f1f3f5">Independent review</text>
-  <text x="818" y="364" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · XHIGH</text>
-  <text x="818" y="408" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.78">Conflicts · assumptions · detached verification</text>
+  <text x="818" y="358" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · XHIGH</text>
+  <text x="818" y="402" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="500" fill="#f1f3f5" opacity="0.78">Conflicting evidence · assumptions</text>
+  <text x="818" y="430" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="500" fill="#f1f3f5" opacity="0.78">Detached verification</text>
 
   <line x1="478" y1="448" x2="1144" y2="448" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="504" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="40" font-weight="700" fill="#f1f3f5">SOL</text>
   <text x="478" y="544" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="25" font-weight="700" fill="#f1f3f5">Consent-gated judgment</text>
-  <text x="818" y="504" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · HIGH</text>
-  <text x="818" y="544" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.78">Rare high-consequence decisions · explicit consent required</text>
+  <text x="818" y="498" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · HIGH</text>
+  <text x="818" y="540" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="500" fill="#f1f3f5" opacity="0.78">Rare high-consequence decisions</text>
+  <text x="818" y="568" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="500" fill="#f1f3f5" opacity="0.78">Explicit user consent required</text>
 
   <text x="56" y="634" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="18" font-weight="500" fill="#f1f3f5" opacity="0.68">The Skill never silently switches the active Root model or reasoning effort.</text>
   <text x="1144" y="634" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.58">BOUNDED DELEGATION</text>
