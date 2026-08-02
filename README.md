@@ -26,7 +26,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 当前远端分支审计共发现 11 个分支。`main` 之外的 10 个分支全部对应已经合并的历史 PR，没有任何分支需要再次合并。它们只剩远端 ref 清理，具体命令写在 [`HEADOFF.md`](HEADOFF.md)。
 
-下一阶段已经固定为**本地真实运行验证**。静态 CI 无法证明真实 Codex runtime 的角色发现、模型路由、sandbox、parent thread、Agent lifecycle、证据复用、成本或质量表现。接手本地测试前请先完整执行 `HEADOFF.md`，不要先重构当前 orchestration model。
+下一阶段固定为**本地真实运行验证**。静态 CI 无法证明真实 Codex runtime 的角色发现、模型路由、sandbox、parent thread、Agent lifecycle、证据复用、成本或质量表现。接手本地测试前请先完整执行 `HEADOFF.md`，不要先重构当前 orchestration model。
 
 ## 这套工作流怎么分工
 
@@ -163,19 +163,12 @@ codex_agent_team_advisor
 
 ## 接下来验证什么
 
-[`HEADOFF.md`](HEADOFF.md) 是本地 Codex 接手的唯一测试合同，覆盖：
+[`HEADOFF.md`](HEADOFF.md) 是本地 Codex 接手的唯一测试合同，重点分为四组：
 
-- 新用户 Plugin 安装和首次 profile consent；
-- 四个 semantic roles 的真实 route / sandbox / ancestry；
-- Runtime Truth 对抗矩阵；
-- Contractability 和 `JUDGMENT_REQUIRED`；
-- Shared Evidence State 的复用和依赖失效；
-- Luna 失败分类和 Terra delta escalation；
-- Luna + selective Sol 的真实收益；
-- raw prompt 对比 compiled contract 的 paired A/B；
-- useful parallelism、one-writer、fan-out、spawn/wait/close 压力测试；
-- installer migration 和真实文件系统 fault injection；
-- 远端历史分支清理。
+- Plugin 安装、profile consent、真实 route / sandbox / ancestry 和 Runtime Truth；
+- Contractability、Shared Evidence、Luna 失败分类、Terra delta 和 selective Sol；
+- raw prompt 对 compiled contract 的 paired A/B，以及 useful parallelism 和 Agent lifecycle 压力；
+- installer fault injection、远端历史分支清理和最终 release gate。
 
 Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍属于需要真实 workload 证明的 route hypotheses。没有真实数据前，不发布成本、延迟或质量提升结论。
 
