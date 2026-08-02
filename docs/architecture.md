@@ -6,8 +6,6 @@ Codex Agent Team is a Root-aware policy layer over Codex Native Subagents.
 
 The current user-facing Codex session is always the Root Controller. The Skill never requires a Sol Root and never creates a second orchestration runtime.
 
-Logical roles:
-
 | Role | Default route | Responsibility |
 | --- | --- | --- |
 | ROOT_CONTROLLER | current session | intent, planning, architecture, risk, integration, final answer |
@@ -21,9 +19,9 @@ The role table stays deliberately narrow. Terra is not a default implementation 
 
 The Skill calls Codex Native `spawn_agent`.
 
-Internally, Codex backs each Subagent with a child thread and a canonical Agent path such as `/root/auth_fix`. That child thread is the Subagent's runtime container. Codex Agent Team does not call an App Thread `create_thread` API, manage an external DAG, or maintain a separate scheduler.
+Internally, Codex backs each Subagent with a child thread. Codex Agent Team does not call an App Thread `create_thread` API, manage an external DAG, or maintain a separate scheduler.
 
-See [`native-subagent-runtime.md`](native-subagent-runtime.md) for the runtime distinction and the policy differences from plain native Subagent usage.
+See [`native-subagent-runtime.md`](native-subagent-runtime.md).
 
 ## Decision sequence
 
@@ -34,16 +32,16 @@ Root task
   -> Role Router
   -> Consent Gate when a material boundary changes
   -> Execute Native Subagent
-  -> Runtime Observation when useful or required
+  -> Runtime Evidence when useful or required
   -> Evidence Gate
   -> Review Gate when detached judgment has concrete value
   -> Close Subagent
   -> Root integration and acceptance
 ```
 
-Minimum Team remains upstream of every later gate. Runtime observation and review strengthen evidence; they do not justify delegation by themselves.
+Minimum Team remains upstream of every later gate. Runtime evidence and review strengthen an already-justified responsibility; they do not justify extra Agents by themselves.
 
-## Route assurance
+## Configuration route assurance
 
 Model-specific children use only provable configuration routes. The Skill keeps these facts separate:
 
@@ -58,42 +56,45 @@ A successful exact spawn can establish a configuration-level assured route. The 
 
 ### Profile Mode
 
-Preferred when an installed custom Agent role pins the intended model and reasoning effort and the live role guidance confirms the lock.
+An installed custom Agent role pins the intended model and reasoning effort and live role guidance confirms the lock.
 
 ```text
 route_assurance = profile_locked
 ```
 
+`profile_locked` describes a configuration lock, not post-spawn proof.
+
 ### Portable Mode
 
-Uses a built-in role plus explicit model/effort only when the live `agent_type` and `fork_turns` surface is available, model/effort overrides are exposed, and the selected role is not locked to an incompatible route. Current Codex validates the requested model and supported effort before spawn.
+A built-in role plus explicit model/effort is used only when the live surface exposes the required fields and Codex accepts the exact tuple.
 
 ```text
 route_assurance = native_explicit_validated
 ```
 
-### No exact inheritance assumption
+The Skill does not treat omitted model/effort as exact inheritance assurance.
 
-The Skill does not treat omitted model/effort as exact assurance because Codex can apply configured default Subagent model/effort values. If no exact profile or explicit route is provable, the child task returns to Root.
+See [`model-route-assurance.md`](model-route-assurance.md).
 
-See `model-route-assurance.md` for details.
+## Runtime evidence mechanism
 
-## Runtime observation
-
-Post-spawn observation is a separate evidence layer:
+Post-spawn evidence is graded by source strength:
 
 ```text
-observation_source: native_metadata | local_rollout | none
-observation_status: matched | not_exposed | mismatch | invalid
+C1_configuration_only
+L1_local_record_observed
+R1_runtime_reported
+R2_runtime_reported_and_local_record_agree
+X0_conflicted
 ```
 
-Public native metadata is preferred. The installed Skill also carries an optional standard-library `scripts/inspect-runtime.py` adapter for environments where public child details omit model or effort but the local Codex rollout store is accessible.
+Public/native runtime metadata is preferred. `scripts/inspect-runtime.py` can read one exact local rollout as an optional fallback record. That local record is mutable implementation-coupled telemetry, so it never becomes an authoritative runtime report by itself.
 
-The adapter emits only allowlisted route and permission metadata for one exact thread id. It is an implementation-coupled fallback and never becomes a universal dependency.
+`scripts/verify-runtime.py` is the deterministic mechanism that compares expected role/model/effort, child identity, expected parent-thread identity, source agreement, and required read-only state. Policy decides when that evidence is required; the verifier decides whether supplied evidence matches.
 
-Ordinary bounded work may accept `not_exposed` after a valid configuration route. Runtime observation becomes an acceptance requirement when the task depends on effective host-enforced read-only isolation, verified high-consequence cross-model independence, or an explicit user request for effective-route proof.
+When Root knows its own thread id, a child `parent_thread_id` mismatch is quarantined. This gives the Depth 1 policy a runtime-verifiable path when ancestry metadata is available.
 
-See `skill/codex-agent-team/references/runtime-assurance.md` for the installed policy.
+See `skill/codex-agent-team/references/runtime-assurance.md` and [`compatibility.md`](compatibility.md).
 
 ## Context strategy
 
@@ -119,39 +120,41 @@ STOP CONDITIONS
 RETURN
 ```
 
-Workers return `judgment_calls` so Root can identify decisions that were not mechanically determined by the packet. Worker reports remain claims; Root inspects actual changes and reruns deterministic verification.
+Workers return `judgment_calls`. Worker reports remain claims; Root inspects actual changes and reruns deterministic verification.
 
 ## Review model
 
-Independent review is risk-triggered.
-
-A Terra critic is added when detached judgment materially improves acceptance, such as security or permission logic, concurrency or state consistency, public contracts, migrations, broad cross-module invariants, weak deterministic oracles, material Worker judgment calls, or conflicting evidence.
+Independent review is risk-triggered. A Terra critic is added when detached judgment materially improves acceptance, such as security/permission logic, concurrency/state consistency, public contracts, migrations, broad cross-module invariants, weak deterministic oracles, material Worker judgment calls, or conflicting evidence.
 
 The critic returns `clear`, `findings`, or `insufficient_evidence`. Root retains final acceptance authority. A remaining high-consequence disagreement may reach one consent-gated Sol Senior Judge when Root is not already Sol.
-
-This preserves producer, critic, and judge separation without imposing a mandatory final-review tax on small changes.
 
 ## Permission semantics
 
 Custom Agent profiles may declare sandbox defaults, but effective child permissions are runtime facts. A profile declaring `sandbox_mode = "read-only"` is useful intent metadata; it is not proof of effective runtime enforcement.
 
-When safety depends on enforced read-only access, the Skill requires runtime evidence before accepting delegated review.
+`runtime_enforced` is reserved for effective read-only reported by the native runtime. Local rollout evidence may corroborate it but cannot establish it alone.
 
-When hard isolation is not required and the host broadens a critic's sandbox, the Safety Policy permits a behavioral read-only fallback only with explicit no-write instructions and verified before/after repository or artifact state. That path remains `instruction_enforced` and reports the broader sandbox as residual risk.
+When hard isolation is not required and the host broadens a critic's sandbox, Safety Policy permits behavioral read-only only with explicit no-write instructions and verified before/after state. That path remains `instruction_enforced`.
+
+## Installation lifecycle
+
+The installer validates sources, preflights conflicts, refuses symlinked locked-profile destinations, stages the Skill, verifies exactness, and supports non-mutating `--check`.
+
+It also stores `.codex-agent-team-install.json` under Codex home. The manifest records hashes of package-managed profiles. A future package version may replace a differing profile only when the installed bytes still match the previous managed hash. User-modified profiles remain protected.
+
+Rollback errors are treated as a separate failure condition and must be reported as `ROLLBACK INCOMPLETE` rather than silently swallowed.
+
+## Compatibility and behavior evidence
+
+`scripts/doctor.py` reports offline installation integrity, discovered Codex version when available, local sessions-store availability, and which runtime evidence tools are installed. Live spawn/model/effort capability remains an in-session fact.
+
+Static repository tests do not prove real Skill behavior in a particular Codex build. `behavioral-evals.md` defines the live workload/result protocol used to compare Root-only and Agent Team runs without inventing missing token or latency telemetry.
 
 ## Lifecycle
 
 ```text
 spawn -> work -> observe when useful -> gather -> verify -> review when justified -> optional focused follow-up -> close
 ```
-
-At most one focused follow-up is allowed for incomplete evidence. Completed Subagents are closed promptly.
-
-## Installation integrity
-
-The repository installer validates shipped Skill/profile sources, preflights destination conflicts before mutation, refuses symlinked locked-profile destinations, stages the Skill, creates only missing exact locked profiles, verifies the final installed state, and supports a non-mutating `--check` mode.
-
-Profile conflicts remain fail-closed. The installer does not silently overwrite a differing user-owned locked role.
 
 ## Scope boundary
 
