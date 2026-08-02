@@ -34,7 +34,7 @@ Plugin 安装完成后，还需要一次显式的 Agent setup。官方 Plugin ma
 在 Codex 中调用：
 
 ```text
-$codex-agent-team-setup
+/codex-agent-team-setup
 ```
 
 Setup Skill 会调用随 Plugin 打包的安全 installer，安装并逐字节校验：
