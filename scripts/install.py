@@ -176,11 +176,32 @@ def preflight_parent(path: Path) -> None:
         fail(f"Destination parent is not a directory: {path}")
 
 
-def preflight_skill(target_skill: Path) -> None:
+def preflight_skill(
+    target_skill: Path, *, check_only: bool, manifest: dict | None
+) -> bool:
+    """Return True when an existing differing Skill is a safe managed/legacy upgrade."""
     if target_skill.is_symlink():
         fail(f"Refusing symlinked installed Skill: {target_skill}")
-    if target_skill.exists() and not target_skill.is_dir():
+    if not target_skill.exists():
+        return False
+    if not target_skill.is_dir():
         fail(f"Installed Skill path is not a directory: {target_skill}")
+    if skill_is_exact(target_skill):
+        return False
+    if check_only:
+        fail(f"Installed Skill does not exactly match shipped source: {target_skill}")
+
+    actual_hash = tree_hash(target_skill)
+    if manifest is None:
+        # One-time migration path from installer versions that predate the manifest.
+        return True
+    previous_managed_hash = manifest.get("skill_hash")
+    if previous_managed_hash == actual_hash:
+        return True
+    fail(
+        "Refusing to overwrite an installed Skill that differs from the current package "
+        f"and is not proven unchanged from the previous managed install: {target_skill}"
+    )
 
 
 def preflight_profiles(
@@ -328,17 +349,32 @@ def discard_profile_backups(backups: dict[Path, Path]) -> None:
         backup.unlink(missing_ok=True)
 
 
-def write_manifest(path: Path, payload: dict) -> None:
+def write_bytes_atomically(path: Path, data: bytes, prefix: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    staged = stage_file(
-        path.parent,
-        (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode(),
-        ".codex-agent-team-manifest-",
-    )
+    staged = stage_file(path.parent, data, prefix)
     try:
         os.replace(staged, path)
     finally:
         staged.unlink(missing_ok=True)
+
+
+def write_manifest(path: Path, payload: dict) -> None:
+    write_bytes_atomically(
+        path,
+        (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode(),
+        ".codex-agent-team-manifest-",
+    )
+
+
+def restore_manifest(path: Path, previous: bytes | None) -> list[str]:
+    try:
+        if previous is None:
+            path.unlink(missing_ok=True)
+        else:
+            write_bytes_atomically(path, previous, ".codex-agent-team-manifest-restore-")
+    except OSError as exc:
+        return [f"could not restore install manifest {path}: {exc}"]
+    return []
 
 
 def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
@@ -350,10 +386,11 @@ def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
 
     validate_sources()
     manifest = load_manifest(manifest_path)
+    previous_manifest_bytes = manifest_path.read_bytes() if manifest_path.is_file() else None
     preflight_parent(skills_dir)
     if not skill_only:
         preflight_parent(agents_dir)
-    preflight_skill(target_skill)
+    preflight_skill(target_skill, check_only=check_only, manifest=manifest)
     managed_upgrades: set[str] = set()
     if not skill_only:
         managed_upgrades = preflight_profiles(
@@ -427,6 +464,7 @@ def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
                 shutil.rmtree(target_skill, ignore_errors=True)
             except OSError as rollback_exc:
                 rollback_errors.append(f"could not remove new Skill: {rollback_exc}")
+        rollback_errors.extend(restore_manifest(manifest_path, previous_manifest_bytes))
         if rollback_errors:
             fail(
                 f"INSTALL FAILED: {exc}\nROLLBACK INCOMPLETE:\n- "
