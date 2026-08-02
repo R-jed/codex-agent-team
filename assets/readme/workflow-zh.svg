@@ -1,55 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="640" viewBox="0 0 1600 640" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team 工作流程</title>
-  <desc id="desc">Root 判断委派是否有收益，Luna 负责执行，Terra 在需要时独立复核，Root 验证证据并作最终决定，Sol 只作为经用户授权的可选裁决回路。</desc>
-  <rect width="1600" height="640" fill="#0a0a0a"/>
-  <text x="80" y="64" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="24" font-weight="600" fill="#d4d4d2">任务流 · 最终决策始终由 ROOT 负责</text>
-  <line x1="80" y1="96" x2="1520" y2="96" stroke="#737373" stroke-width="1"/>
+  <desc id="desc">当前会话先判断委派收益，按需交给 Luna 执行或 Terra 复核，再回到当前会话验证与交付。Sol 仅作为经用户授权的可选裁决回路。</desc>
+  <rect width="1200" height="600" fill="#0a0a0a"/>
+  <line x1="60" y1="78" x2="1140" y2="78" stroke="#737373" stroke-width="1"/>
 
   <g font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
-    <text x="80" y="142" font-size="24" font-weight="500" fill="#737373">01 · 用户任务</text>
-    <rect x="80" y="168" width="348" height="252" fill="#fafaf8"/>
-    <text x="112" y="222" font-size="24" font-weight="600" fill="#737373">ROOT 判断</text>
-    <text x="112" y="286" font-size="38" font-weight="400" fill="#0a0a0a">委派是否带来</text>
-    <text x="112" y="332" font-size="38" font-weight="400" fill="#0a0a0a">明确收益？</text>
-    <text x="112" y="386" font-size="24" font-weight="500" fill="#737373">没有收益 → 留在 Root</text>
+    <text x="60" y="50" font-size="22" font-weight="600" fill="#d4d4d2">任务如何流转 · 最终责任始终留在当前会话</text>
 
-    <text x="535" y="142" font-size="24" font-weight="500" fill="#737373">02 · 按需组队</text>
-    <rect x="535" y="168" width="439" height="112" fill="#002FA7"/>
-    <text x="567" y="212" font-size="24" font-weight="600" fill="#ffffff">LUNA</text>
-    <text x="567" y="252" font-size="30" font-weight="400" fill="#ffffff">执行与探索</text>
-    <rect x="535" y="308" width="439" height="112" fill="#0a0a0a" stroke="#fafaf8" stroke-width="2"/>
-    <text x="567" y="352" font-size="24" font-weight="600" fill="#d4d4d2">TERRA</text>
-    <text x="567" y="392" font-size="30" font-weight="400" fill="#fafaf8">独立复核</text>
+    <text x="60" y="122" font-size="20" font-weight="600" fill="#737373">01 · 判断</text>
+    <rect x="60" y="144" width="270" height="264" fill="#fafaf8"/>
+    <text x="88" y="194" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#737373">ROOT</text>
+    <text x="88" y="258" font-size="34" font-weight="400" fill="#0a0a0a">委派是否带来</text>
+    <text x="88" y="302" font-size="34" font-weight="400" fill="#0a0a0a">明确收益？</text>
+    <line x1="88" y1="330" x2="302" y2="330" stroke="#d4d4d2" stroke-width="1"/>
+    <text x="88" y="372" font-size="21" font-weight="500" fill="#737373">无收益 → 留在当前会话</text>
 
-    <text x="1081" y="142" font-size="24" font-weight="500" fill="#737373">03 · ROOT 验证</text>
-    <rect x="1081" y="168" width="348" height="252" fill="#fafaf8"/>
-    <text x="1113" y="246" font-size="38" font-weight="400" fill="#0a0a0a">验证证据</text>
-    <text x="1113" y="294" font-size="38" font-weight="400" fill="#0a0a0a">处理冲突</text>
-    <text x="1113" y="342" font-size="38" font-weight="400" fill="#0a0a0a">作出决定</text>
-    <text x="1113" y="390" font-size="24" font-weight="500" fill="#737373">责任始终留在 Root</text>
+    <text x="390" y="122" font-size="20" font-weight="600" fill="#737373">02 · 按需组队</text>
+    <rect x="390" y="144" width="360" height="126" fill="#002FA7"/>
+    <text x="420" y="190" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#ffffff">LUNA</text>
+    <text x="420" y="234" font-size="30" font-weight="400" fill="#ffffff">执行 / 探索</text>
 
-    <rect x="1081" y="468" width="348" height="96" fill="#0a0a0a" stroke="#737373" stroke-width="2"/>
-    <text x="1113" y="508" font-size="22" font-weight="600" fill="#737373">可选 · 经用户授权</text>
-    <text x="1113" y="544" font-size="28" font-weight="400" fill="#fafaf8">SOL · 高级裁决</text>
+    <rect x="390" y="294" width="360" height="114" fill="#0a0a0a" stroke="#fafaf8" stroke-width="1.5"/>
+    <text x="420" y="338" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#d4d4d2">TERRA</text>
+    <text x="420" y="380" font-size="28" font-weight="400" fill="#fafaf8">独立复核</text>
 
-    <text x="1460" y="278" font-size="26" font-weight="600" fill="#fafaf8">交付</text>
+    <text x="810" y="122" font-size="20" font-weight="600" fill="#737373">03 · 验证与决定</text>
+    <rect x="810" y="144" width="270" height="264" fill="#fafaf8"/>
+    <text x="838" y="194" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#737373">ROOT</text>
+    <text x="838" y="254" font-size="32" font-weight="400" fill="#0a0a0a">验证证据</text>
+    <text x="838" y="298" font-size="32" font-weight="400" fill="#0a0a0a">处理冲突</text>
+    <text x="838" y="342" font-size="32" font-weight="400" fill="#0a0a0a">作出决定</text>
+    <text x="838" y="378" font-size="20" font-weight="500" fill="#737373">最终回答由当前会话交付</text>
+
+    <rect x="810" y="452" width="270" height="88" fill="#0a0a0a" stroke="#737373" stroke-width="1.5"/>
+    <text x="838" y="486" font-size="20" font-weight="600" fill="#737373">可选 · 用户授权后</text>
+    <text x="838" y="520" font-size="25" font-weight="400" fill="#fafaf8">SOL · 高级裁决</text>
+
+    <text x="1108" y="290" font-size="22" font-weight="600" fill="#fafaf8">交付</text>
+    <text x="60" y="568" font-size="20" font-weight="600" fill="#737373">无明确收益 → 当前会话 · 路由无法证明 → 当前会话 · 高影响操作 → 当前会话 + 用户授权</text>
   </g>
 
-  <g fill="none" stroke="#fafaf8" stroke-width="3">
-    <path d="M428 294 H490 V224 H535"/>
-    <path d="M490 294 V364 H535"/>
-    <path d="M974 224 H1028 V294 H1081"/>
-    <path d="M974 364 H1028 V294"/>
-    <path d="M1429 294 H1520"/>
+  <g fill="none" stroke="#fafaf8" stroke-width="2">
+    <path d="M330 276 H360 V207 H390"/>
+    <path d="M360 276 V351 H390"/>
+    <path d="M750 207 H780 V276 H810"/>
+    <path d="M750 351 H780 V276"/>
+    <path d="M1080 276 H1140"/>
   </g>
-  <g fill="none" stroke="#737373" stroke-width="2" stroke-dasharray="10 10">
-    <path d="M1255 420 V468"/>
-    <path d="M1081 516 H1038 V390 H1081"/>
+  <g fill="none" stroke="#737373" stroke-width="1.5" stroke-dasharray="8 8">
+    <path d="M945 408 V452"/>
+    <path d="M810 496 H778 V382 H810"/>
   </g>
   <g fill="#fafaf8">
-    <path d="M527 218 l14 6 -14 6z"/>
-    <path d="M527 358 l14 6 -14 6z"/>
-    <path d="M1073 288 l14 6 -14 6z"/>
-    <path d="M1512 288 l14 6 -14 6z"/>
+    <path d="M382 201 l12 6 -12 6z"/>
+    <path d="M382 345 l12 6 -12 6z"/>
+    <path d="M802 270 l12 6 -12 6z"/>
+    <path d="M1132 270 l12 6 -12 6z"/>
   </g>
 </svg>
