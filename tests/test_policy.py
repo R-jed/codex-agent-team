@@ -319,8 +319,8 @@ def test_readmes_are_concise_skill_overviews_with_localized_svg_visuals():
     assert "README_EN.md" in zh
     assert "README.md" in en
 
-    zh_assets = ["hero-zh.svg", "workflow-zh.svg", "roles-zh.svg"]
-    en_assets = ["hero.svg", "workflow.svg", "roles.svg"]
+    zh_assets = ["hero-zh.svg", "example-zh.svg", "workflow-zh.svg", "roles-zh.svg"]
+    en_assets = ["hero.svg", "example.svg", "workflow.svg", "roles.svg"]
 
     for asset in zh_assets:
         path = ROOT / "assets" / "readme" / asset
@@ -341,7 +341,7 @@ def test_readmes_are_concise_skill_overviews_with_localized_svg_visuals():
     for text in [zh, en]:
         assert "```mermaid" not in text
         assert not re.search(r"assets/readme/[^)\"']+\.(png|jpe?g|webp|gif)", text, re.I)
-        assert len(text.splitlines()) <= 180
+        assert len(text.splitlines()) <= 190
 
 
 def test_readmes_keep_quick_start_and_role_identity():
@@ -361,24 +361,50 @@ def test_readmes_keep_quick_start_and_role_identity():
             assert role in text
 
 
-def test_readmes_use_beginner_facing_main_session_terminology():
+def test_readmes_use_main_session_without_exposing_root_vocabulary():
     zh = read("README.md")
     en = read("README_EN.md")
     assert "主会话" in zh
     assert "Main session" in en
-    assert zh.count("Root Controller") == 1
-    assert en.count("Root Controller") == 1
-    assert zh.count("Root") == 1
-    assert en.count("Root") == 1
+    assert not re.search(r"\broot\b", zh, re.I)
+    assert not re.search(r"\broot\b", en, re.I)
     assert "Agent Team: Main session only" in zh
     assert "Agent Team: Main session only" in en
 
-    zh_visuals = [read("assets/readme/hero-zh.svg"), read("assets/readme/workflow-zh.svg"), read("assets/readme/roles-zh.svg")]
-    en_visuals = [read("assets/readme/hero.svg"), read("assets/readme/workflow.svg"), read("assets/readme/roles.svg")]
+    zh_visuals = [
+        read("assets/readme/hero-zh.svg"),
+        read("assets/readme/example-zh.svg"),
+        read("assets/readme/workflow-zh.svg"),
+        read("assets/readme/roles-zh.svg"),
+    ]
+    en_visuals = [
+        read("assets/readme/hero.svg"),
+        read("assets/readme/example.svg"),
+        read("assets/readme/workflow.svg"),
+        read("assets/readme/roles.svg"),
+    ]
     assert all("主会话" in svg for svg in zh_visuals)
-    assert all("ROOT" not in svg for svg in zh_visuals)
     assert all("main session" in svg.lower() for svg in en_visuals)
-    assert all("ROOT" not in svg for svg in en_visuals)
+    for svg in zh_visuals + en_visuals:
+        assert not re.search(r"\broot\b", svg, re.I)
+
+
+def test_chinese_readme_starts_with_user_problem_and_avoids_old_slogan_copy():
+    zh = read("README.md")
+    assert "Codex 已经能创建子代理（Subagent）" in zh
+    assert "先看一个例子" in zh
+    assert "支付回调里的并发问题" in zh
+    banned = [
+        "正常写代码。",
+        "只在真正值得时组队",
+        "该分工时才分工",
+        "你继续在一个主会话里开发",
+        "关键 gate",
+        "简短 receipt",
+        "Root Controller",
+    ]
+    for phrase in banned:
+        assert phrase not in zh
 
 
 def test_readmes_keep_public_safety_boundaries():

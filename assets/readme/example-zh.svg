@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">Codex Agent Team 真实任务示例</title>
+  <desc id="desc">电子杂志风示例。一个支付回调并发问题从主会话判断开始，需要时交给 Luna 执行和 Terra 复核，最后回到主会话验收。</desc>
+  <rect width="1200" height="680" fill="#f2ede3"/>
+
+  <g fill="none" stroke="#29473a" stroke-width="1" opacity="0.08">
+    <path d="M860 18 C978 52 1132 44 1198 120 C1240 170 1202 230 1128 252 C1034 282 982 246 914 302 C860 346 890 412 976 448"/>
+    <path d="M900 42 C1002 70 1118 70 1170 126 C1202 162 1174 208 1114 228 C1042 252 992 232 938 276 C898 310 918 360 982 390"/>
+    <path d="M938 70 C1018 90 1104 92 1142 134 C1168 160 1146 194 1100 210 C1046 228 1006 216 964 250 C934 276 948 314 994 338"/>
+  </g>
+
+  <line x1="58" y1="72" x2="1142" y2="72" stroke="#18201a" stroke-width="1" opacity="0.5"/>
+  <text x="58" y="44" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="21" font-weight="600" fill="#29473a">一个真实任务怎么走</text>
+  <text x="1142" y="44" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">支付回调 · 并发问题</text>
+
+  <text x="58" y="132" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">用户给出的任务</text>
+  <text x="58" y="192" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="38" font-weight="500" fill="#18201a">“检查支付回调里的并发问题，</text>
+  <text x="58" y="242" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="38" font-weight="500" fill="#18201a">修好后跑测试。如果改动碰到</text>
+  <text x="58" y="292" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="38" font-weight="500" fill="#18201a">安全边界，再安排独立复核。”</text>
+
+  <line x1="58" y1="342" x2="530" y2="342" stroke="#18201a" stroke-width="1" opacity="0.45"/>
+  <text x="58" y="386" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="26" font-weight="500" fill="#29473a">关键点不在“开几个 Agent”。</text>
+  <text x="58" y="426" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="24" font-weight="400" fill="#4f544d">先看任务需要什么，再决定要不要分出去。</text>
+  <text x="58" y="486" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">任务很小？</text>
+  <text x="58" y="520" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="28" font-weight="500" fill="#18201a">停在第 01 步，主会话直接完成。</text>
+
+  <g transform="translate(594 112)">
+    <line x1="0" y1="0" x2="548" y2="0" stroke="#18201a" stroke-width="2"/>
+
+    <text x="0" y="58" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">01</text>
+    <text x="92" y="52" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="29" font-weight="500" fill="#18201a">主会话先看范围</text>
+    <text x="92" y="88" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="21" font-weight="400" fill="#5e625c">确认问题、风险和验收条件。</text>
+    <line x1="0" y1="122" x2="548" y2="122" stroke="#18201a" stroke-width="1" opacity="0.28"/>
+
+    <text x="0" y="180" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">02</text>
+    <text x="92" y="174" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="29" font-weight="500" fill="#18201a">Luna 追踪并实现</text>
+    <text x="92" y="210" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="21" font-weight="400" fill="#5e625c">搜索调用链，修改代码，跑相关测试。</text>
+    <line x1="0" y1="244" x2="548" y2="244" stroke="#18201a" stroke-width="1" opacity="0.28"/>
+
+    <text x="0" y="302" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">03</text>
+    <text x="92" y="296" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="29" font-weight="500" fill="#18201a">Terra 只在需要时加入</text>
+    <text x="92" y="332" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="21" font-weight="400" fill="#5e625c">安全边界被触发，才做独立复核。</text>
+    <line x1="0" y1="366" x2="548" y2="366" stroke="#18201a" stroke-width="1" opacity="0.28"/>
+
+    <text x="0" y="424" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">04</text>
+    <text x="92" y="418" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="29" font-weight="500" fill="#18201a">主会话验收</text>
+    <text x="92" y="454" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="21" font-weight="400" fill="#5e625c">看 diff、测试与证据，再决定是否接受。</text>
+    <line x1="0" y1="488" x2="548" y2="488" stroke="#18201a" stroke-width="2"/>
+  </g>
+
+  <text x="58" y="634" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="20" font-weight="600" fill="#29473a">具体任务决定流程长度 · 没有必要的步骤不会硬加进去</text>
+  <text x="1142" y="634" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">02 / 示例</text>
+</svg>
