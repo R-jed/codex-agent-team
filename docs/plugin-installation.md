@@ -37,12 +37,13 @@ The main Skill checks profile readiness only after a responsibility has actually
 
 When a required role is missing, `/codex-agent-team`:
 
-1. explains that four managed custom Agent profiles need to be written under Codex home;
-2. asks permission before writing them;
-3. resolves `../../scripts/install-agents.py` relative to the installed Skill;
-4. runs the installer and its non-mutating `--check` verification;
-5. re-inspects live native role discovery;
-6. continues immediately if the required role is visible, otherwise asks the user to start a fresh Codex task.
+1. explains the exact project-managed file scope and asks permission;
+2. discloses that the installer may write the four current profiles and `.codex-agent-team-agents.json`;
+3. discloses that an older model-named profile may be removed only when its current bytes exactly match ownership recorded by a previous Codex Agent Team manifest;
+4. resolves `../../scripts/install-agents.py` relative to the installed Skill;
+5. runs the installer and its non-mutating `--check` verification;
+6. re-inspects live native role discovery;
+7. continues immediately if the required role is visible, otherwise asks the user to start a fresh Codex task.
 
 Successful file installation is configuration evidence. It does not prove that the current task refreshed role discovery.
 
@@ -57,7 +58,13 @@ terra_reviewer
 sol_judge
 ```
 
-The v0.3 installer migrates away from those names. An old profile is removed only when its current bytes match a hash recorded by a previous Codex Agent Team managed install. A modified or unproven legacy file is left untouched.
+The v0.3 installer migrates away from those names. An old profile is removed only when its current bytes match a hash recorded by the active previous Codex Agent Team ownership manifest. A modified or unproven legacy file is left untouched.
+
+The ownership model has an explicit migration epoch:
+
+- when `.codex-agent-team-agents.json` already exists, that companion manifest is authoritative;
+- the older standalone `.codex-agent-team-install.json` may seed ownership only before the companion manifest exists;
+- after migration writes the companion manifest, stale standalone hashes no longer grant deletion authority over a legacy filename that a user may intentionally recreate later.
 
 The current semantic profiles are installed independently and verified byte-for-byte.
 
@@ -68,8 +75,8 @@ The bundled installer:
 - writes only the four current Agent profiles plus `.codex-agent-team-agents.json` under Codex home;
 - rejects symlinked destinations;
 - rejects another TOML file that claims a current reserved project role name;
-- refuses to overwrite a differing current profile unless its bytes match a previous managed hash;
-- removes an old model-named profile only when previous managed ownership is proven;
+- refuses to overwrite a differing current profile unless its bytes match the active previous managed hash;
+- removes an old model-named profile only when active previous managed ownership is proven;
 - stages replacements and rolls back managed changes if installation fails;
 - supports a strictly non-mutating `--check` mode.
 
