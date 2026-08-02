@@ -361,15 +361,35 @@ def test_readmes_keep_quick_start_and_role_identity():
             assert role in text
 
 
+def test_readmes_use_beginner_facing_main_session_terminology():
+    zh = read("README.md")
+    en = read("README_EN.md")
+    assert "主会话" in zh
+    assert "Main session" in en
+    assert zh.count("Root Controller") == 1
+    assert en.count("Root Controller") == 1
+    assert zh.count("Root") == 1
+    assert en.count("Root") == 1
+    assert "Agent Team: Main session only" in zh
+    assert "Agent Team: Main session only" in en
+
+    zh_visuals = [read("assets/readme/hero-zh.svg"), read("assets/readme/workflow-zh.svg"), read("assets/readme/roles-zh.svg")]
+    en_visuals = [read("assets/readme/hero.svg"), read("assets/readme/workflow.svg"), read("assets/readme/roles.svg")]
+    assert all("主会话" in svg for svg in zh_visuals)
+    assert all("ROOT" not in svg for svg in zh_visuals)
+    assert all("main session" in svg.lower() for svg in en_visuals)
+    assert all("ROOT" not in svg for svg in en_visuals)
+
+
 def test_readmes_keep_public_safety_boundaries():
     zh = read("README.md")
     en = read("README_EN.md")
     assert "一个共享 Workspace 同时最多 1 个 Writing Worker" in zh
     assert "Worker 不继续创建新的 Subagent 团队" in zh
-    assert "Skill 不会暗中切换当前 Root" in zh
+    assert "Skill 不会暗中切换主会话的模型或 reasoning effort" in zh
     assert "one active writing Worker per shared workspace" in en
     assert "Workers do not create another Subagent team" in en
-    assert "never silently switches the active Root" in en
+    assert "never silently switches the main session model or reasoning effort" in en
 
 
 def test_readmes_point_technical_details_to_docs():
