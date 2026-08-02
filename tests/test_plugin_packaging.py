@@ -19,7 +19,7 @@ def test_plugin_manifest_packages_canonical_skill_tree():
     assert payload["skills"] == "./skills/"
     assert payload["license"] == "MIT"
     assert payload["interface"]["displayName"] == "Codex Agent Team"
-    assert {"Interactive", "Write"} <= set(payload["interface"]["capabilities"])
+    assert {"Read", "Write"} <= set(payload["interface"]["capabilities"])
     assert MAIN_SKILL.is_dir()
     assert SETUP_SKILL.is_dir()
     assert (PLUGIN_ROOT / "scripts" / "install-agents.py").is_file()
@@ -71,7 +71,7 @@ def test_readmes_make_plugin_primary_and_keep_standalone_path():
     for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text()
         assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
-        assert "codex plugin add codex-agent-team@codex-agent-team" in text
+        assert "Plugins Directory" in text
         assert "$codex-agent-team-setup" in text
         assert "python scripts/install.py" in text
         assert "python scripts/install.py --check" in text
