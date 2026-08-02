@@ -158,6 +158,22 @@ def test_wrong_parent_is_quarantined():
     assert data["ancestry_match"] is False
 
 
+def test_ancestry_conflict_does_not_poison_matched_route_evidence():
+    result, data = run_verifier(
+        {
+            "expected": expected(),
+            "native": observation(),
+            "local": observation(parent_thread_id="22222222-2222-7222-8222-222222222222"),
+        }
+    )
+    assert result.returncode == 0, result.stderr
+    assert data["decision"] == "quarantine"
+    assert data["evidence_grade"] == "X0_conflicted"
+    assert data["route_evidence"]["status"] == "matched"
+    assert data["route_evidence"]["source"] == "both"
+    assert data["ancestry_evidence"]["status"] == "conflict"
+
+
 def test_required_read_only_needs_native_effective_sandbox():
     result, data = run_verifier(
         {
