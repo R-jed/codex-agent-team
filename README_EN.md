@@ -187,5 +187,4 @@ Luna Max is the current execution baseline. Terra XHigh and Sol High remain rout
 - [OpenAI References](docs/openai-references.md)
 
 ## License
-
 [MIT](LICENSE)
