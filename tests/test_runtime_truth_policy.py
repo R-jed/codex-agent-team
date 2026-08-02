@@ -1,0 +1,70 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SKILL = ROOT / "skill" / "codex-agent-team"
+
+
+def test_evidence_grades_are_explicit_and_local_record_is_not_runtime_proof():
+    runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
+    for grade in [
+        "C1_configuration_only",
+        "L1_local_record_observed",
+        "R1_runtime_reported",
+        "R2_runtime_reported_and_local_record_agree",
+        "X0_conflicted",
+    ]:
+        assert grade in runtime
+    assert "mutable local Codex rollout record" in runtime
+    assert "Reserve stronger terminology such as `runtime_attested`" in runtime
+
+
+def test_profile_locked_is_documented_as_configuration_only():
+    skill = (SKILL / "SKILL.md").read_text()
+    route = (ROOT / "docs" / "model-route-assurance.md").read_text()
+    assert "`profile_locked`" in skill
+    assert "configuration assurance only" in skill
+    assert "does not mean the child route has been independently observed" in route
+
+
+def test_verifier_is_wired_into_skill_and_policy():
+    verifier = SKILL / "scripts" / "verify-runtime.py"
+    assert verifier.exists()
+    for path in [
+        SKILL / "SKILL.md",
+        SKILL / "references" / "runtime-assurance.md",
+        SKILL / "references" / "routing-policy.md",
+        SKILL / "references" / "task-packet.md",
+    ]:
+        assert "verify-runtime.py" in path.read_text()
+
+
+def test_depth_one_has_parent_thread_runtime_check():
+    skill = (SKILL / "SKILL.md").read_text()
+    safety = (SKILL / "references" / "safety-policy.md").read_text()
+    packet = (SKILL / "references" / "task-packet.md").read_text()
+    assert "parent_thread_id" in skill
+    assert "parent_thread_id" in safety
+    assert "expected_parent_thread_id" in packet
+
+
+def test_consent_policy_defines_baseline_envelope():
+    consent = (SKILL / "references" / "consent-policy.md").read_text()
+    assert "Baseline orchestration envelope" in consent
+    assert "one Luna responsibility" in consent
+    assert "one Terra" in consent
+    assert "Sol Senior Judge is outside the baseline envelope" in consent
+
+
+def test_live_evals_are_separate_from_static_tests():
+    docs = (ROOT / "docs" / "behavioral-evals.md").read_text()
+    workloads = (ROOT / "evals" / "behavioral-workloads.json").read_text()
+    assert "Static repository tests" in docs
+    assert "do not prove real Skill behavior" in docs
+    assert "no claimed benchmark results" in workloads
+
+
+def test_doctor_and_compatibility_docs_exist():
+    assert (ROOT / "scripts" / "doctor.py").exists()
+    compatibility = (ROOT / "docs" / "compatibility.md").read_text()
+    assert "requires active Codex runtime" in compatibility
+    assert "R1_runtime_reported" in compatibility
