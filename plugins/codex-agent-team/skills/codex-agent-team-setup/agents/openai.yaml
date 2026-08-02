@@ -1,7 +1,0 @@
-interface:
-  display_name: "Codex Agent Team Setup"
-  short_description: "Install or verify companion custom Agent profiles"
-  default_prompt: "Use $codex-agent-team-setup to install and verify the role-pinned custom Agent profiles required by Codex Agent Team Profile Mode."
-
-policy:
-  allow_implicit_invocation: false
