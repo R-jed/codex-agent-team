@@ -147,11 +147,11 @@ Codex Agent Team 直接使用 Codex 原生 `spawn_agent`，不会建立第二套
 - [Architecture](docs/architecture.md)
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)
 - [Model Route Assurance](docs/model-route-assurance.md)
-- [Runtime Evidence](skill/codex-agent-team/references/runtime-assurance.md)
+- [Runtime Evidence](plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md)
 - [Compatibility](docs/compatibility.md)
 - [Behavioral Evals](docs/behavioral-evals.md)
 - [OpenAI References](docs/openai-references.md)
-- Policy：[Routing](skill/codex-agent-team/references/routing-policy.md) · [Safety](skill/codex-agent-team/references/safety-policy.md) · [Consent](skill/codex-agent-team/references/consent-policy.md)
+- Policy：[Routing](plugins/codex-agent-team/skills/codex-agent-team/references/routing-policy.md) · [Safety](plugins/codex-agent-team/skills/codex-agent-team/references/safety-policy.md) · [Consent](plugins/codex-agent-team/skills/codex-agent-team/references/consent-policy.md)
 
 ## 验证状态
 
