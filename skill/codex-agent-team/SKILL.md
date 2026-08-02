@@ -11,13 +11,15 @@ Use this Skill as a policy layer over Codex Native Subagents. The Skill does not
 
 1. The current Root owns intent, planning, high-risk decisions, integration, and the final user-facing answer.
 2. Zero Subagents is a normal outcome. Default child count is 1, normal maximum is 2, hard maximum is 4.
-3. Model-specific children require a provable route. An unverified route returns to Root.
+3. Model-specific children require a provable configuration route. An unverified route returns to Root.
 4. Luna Max is the default execution route; Terra XHigh is the selective independent-judgment route; Sol High is a consent-gated Senior Judge when Root is not Sol.
 5. Workers do not create further Subagents.
 6. One shared workspace has at most one active writing Worker.
 7. Role-specific spawns always set `fork_turns` explicitly.
 8. Material capability, permission, scope, cost, or external-impact escalation requires user consent unless already clearly authorized.
 9. Role-to-route bindings are fixed; team composition is dynamic. The Skill does not silently change the current Root model or reasoning effort.
+10. Configuration assurance and runtime observation are separate facts. Never relabel configured values as observed telemetry.
+11. Worker reports are claims. Root accepts work from actual artifacts, deterministic verification, and reproducible evidence.
 
 ## Step 1: Interpret the Root task
 
@@ -41,7 +43,7 @@ If no concrete benefit exists, continue in Root.
 
 Before any model-specific child is spawned, inspect the live native `spawn_agent` contract and role guidance.
 
-Track route intent and runtime evidence separately:
+Track route intent, accepted configuration, and runtime observation separately:
 
 ```text
 preferred_route
@@ -50,9 +52,9 @@ route_assurance
 observed_route
 ```
 
-A successful exact spawn can establish `configured_route`, while `observed_route` may still be `not_exposed` when current Codex does not return the effective model/effort. Never copy the preferred route into the observed route.
+A successful exact spawn can establish `configured_route`, while `observed_route` may still be `not_exposed`. Never copy the preferred or configured route into the observed route.
 
-A child route is allowed only with one of these assurance states:
+A child route is allowed only with one of these configuration-assurance states:
 
 ### A. Profile Locked (Profile Mode)
 
@@ -106,24 +108,13 @@ custom Agent file value
   -> parent value
 ```
 
-Model and reasoning effort resolve independently. This is why Profile Mode and Portable Mode are alternative route paths and why a route-pinning profile must not be combined with competing explicit model/effort overrides.
+Model and reasoning effort resolve independently. Profile Mode and Portable Mode are alternative route paths; do not combine a route-pinning profile with competing explicit model/effort overrides.
 
 ### Do not treat inheritance as exact assurance
 
 Do not use omitted `model` or `reasoning_effort` as proof of a model-specific route. Current Codex can apply configured default Subagent model/effort values before role configuration. If explicit overrides are hidden and no exact locked profile is available, return the child task to Root with `preferred_route_unavailable`.
 
-Current MultiAgentV2 spawn/list outputs do not expose a universal post-spawn model/effort receipt. Keep these facts separate:
-
-```text
-preferred_route
-configured_route
-route_assurance
-observed_route
-```
-
-Use `observed_route = not_exposed` unless a future runtime explicitly reports the effective child tuple. Do not report a model or reasoning effort as observed unless the live runtime explicitly exposes it. Never copy the requested/configured tuple into the observed field merely because spawn succeeded.
-
-Read `references/routing-policy.md` for the detailed runtime contract. Repository-level design notes are documentation only and are not required by the installed Skill.
+Read `references/routing-policy.md` for the detailed routing contract and `references/runtime-assurance.md` for optional post-spawn attestation. Repository-level design notes are documentation only and are not required by the installed Skill.
 
 ## Step 4: Route by responsibility
 
@@ -153,7 +144,7 @@ Explain why the escalation helps, what changes, whether files or external system
 
 ## Step 6: Build the minimum task packet and context fork
 
-Use `references/task-packet.md`.
+Use `references/task-packet.md`. For bounded coding work, use its Implementation Preset when that is more precise than the generic packet.
 
 For role-specific spawns, always set `fork_turns` explicitly:
 
@@ -173,23 +164,50 @@ Distinguish `runtime_enforced`, `instruction_enforced`, and `unknown`. A profile
 
 If a task is safe only with enforced read-only access and current runtime cannot confirm it, keep the task in Root.
 
-## Step 8: Execute and verify
+## Step 8: Execute, observe, and verify
 
 After a Subagent returns:
 
-1. Check evidence, scope, changed files, tests, uncertainty, and policy violations.
-2. Run deterministic verification when available.
-3. Allow at most one focused follow-up to the same child when evidence is incomplete.
-4. Reject affected results if nested delegation is observed.
-5. Root resolves disagreements and owns final acceptance.
+1. Treat the child report as a claim, not self-validating evidence.
+2. Inspect actual files, diff, scope, commands, tests, uncertainty, `judgment_calls`, and policy violations.
+3. Rerun deterministic verification when available.
+4. Obtain runtime observation when exposed. For ordinary tasks, missing telemetry may remain `not_exposed`; when safety or a high-consequence independence claim depends on effective route or sandbox, apply `references/runtime-assurance.md` as an acceptance requirement.
+5. If native metadata and local rollout evidence both exist, require agreement on overlapping fields.
+6. Allow at most one focused follow-up to the same child when evidence is incomplete.
+7. Reject or quarantine affected results when route observation conflicts, unexpected mutation occurs, or nested delegation is observed.
 
-## Step 9: Close Subagents
+## Step 9: Apply the Review Gate
+
+Detached review is risk-triggered, not mandatory for every implementation.
+
+Add one Terra Independent Critic when fresh judgment materially improves acceptance, especially for:
+
+- security, permission, concurrency, or state-consistency logic;
+- cross-module invariants, public contracts, migrations, or wide blast radius;
+- weak deterministic oracles where tests alone do not establish correctness;
+- substantial Worker `judgment_calls` outside mechanical execution;
+- conflicting evidence or a consequential assumption that should be challenged independently.
+
+Do not add Terra merely because the task was long or difficult. Give the critic the actual artifact or diff, objective, constraints, verification evidence, and material assumptions without the producer's private reasoning.
+
+The critic returns one review status:
+
+```text
+clear
+findings
+insufficient_evidence
+```
+
+Root still owns acceptance. Bounded findings return to the Worker or Root for correction and deterministic re-verification. A fresh Terra review is required only when the correction materially changes the reviewed risk. If a high-consequence conflict remains unresolved and Root is not Sol, the Consent Gate may authorize one Sol Senior Judge.
+
+## Step 10: Close Subagents
 
 Close completed, rejected, or no-longer-needed Subagents promptly so they do not continue occupying concurrency.
 
 ## References
 
-- `references/routing-policy.md`: team selection, route assurance, context fork, failure behavior
-- `references/task-packet.md`: progressive child packet and route record
+- `references/routing-policy.md`: team selection, route assurance, context fork, review gate, failure behavior
+- `references/runtime-assurance.md`: post-spawn route and permission observation
+- `references/task-packet.md`: progressive child packet, implementation preset, and route record
 - `references/consent-policy.md`: plain-language one-time consent
 - `references/safety-policy.md`: permissions, prompt injection, recursion, side effects

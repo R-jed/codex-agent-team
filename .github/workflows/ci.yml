@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,3 +17,9 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -r requirements-dev.txt
       - run: pytest -q
+      - name: Verify installer transaction
+        shell: bash
+        run: |
+          target="$RUNNER_TEMP/codex-agent-team"
+          python scripts/install.py --codex-home "$target"
+          python scripts/install.py --codex-home "$target" --check

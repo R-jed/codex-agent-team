@@ -6,11 +6,13 @@
 2. Delegation Gate
 3. Minimum Team Principle
 4. Route Assurance Gate
-5. Context-fork contract
-6. Responsibility routing
-7. Root-specific behavior
-8. Parallelism and lifecycle
-9. Failure behavior
+5. Runtime Observation Gate
+6. Context-fork contract
+7. Responsibility routing
+8. Review Gate
+9. Root-specific behavior
+10. Parallelism and lifecycle
+11. Failure behavior
 
 ## 1. Root-aware control model
 
@@ -56,9 +58,11 @@ Do not delegate solely because a task is long, many files exist, Luna is inexpen
 - One child receives at most one focused follow-up.
 - Delegation depth is 1. Workers do not spawn descendants.
 
+Runtime assurance and review must not increase Agent count by themselves. They can strengthen evidence for an already-justified responsibility.
+
 ## 4. Route Assurance Gate
 
-Model-specific routing must be grounded in current native runtime evidence. Keep route intent, accepted configuration, assurance, and observation separate:
+Model-specific routing must be grounded in current native runtime evidence available before or at spawn. Keep route intent, accepted configuration, assurance, and later observation separate:
 
 ```text
 preferred_route
@@ -67,7 +71,7 @@ route_assurance
 observed_route
 ```
 
-The Skill never manufactures observation that Codex does not expose. A successful exact spawn can establish `configured_route`; `observed_route` remains `not_exposed` when the runtime does not report the final effective tuple.
+The Skill never manufactures observation that Codex does not expose. A successful exact spawn can establish `configured_route`; `observed_route` may remain `not_exposed`.
 
 ### Assurance state: `profile_locked`
 
@@ -126,7 +130,7 @@ custom Agent file value
   -> parent value
 ```
 
-Model and reasoning effort resolve independently. This is why Profile Mode and Portable Mode are alternative route paths and why a route-pinning profile must not be combined with competing explicit model/effort overrides.
+Model and reasoning effort resolve independently. Profile Mode and Portable Mode are alternative assurance paths.
 
 ### No inheritance-based exact route
 
@@ -134,28 +138,42 @@ Do not treat omission of `model` or `reasoning_effort` as exact assurance. Curre
 
 If explicit overrides are hidden and an exact locked profile is unavailable, return the task to Root.
 
-### Post-spawn observability limit
-
-Current MultiAgentV2 spawn output exposes canonical task name and optional nickname; `list_agents` exposes agent name and status. Neither surface exposes a universal child model/effort receipt.
-
-Therefore keep these fields separate:
-
-```text
-preferred_route
-configured_route
-route_assurance: profile_locked | native_explicit_validated | unavailable
-observed_route: not_exposed unless a future runtime reports the effective tuple
-```
-
-Do not label requested or configured settings as observed settings.
-
 ### No automatic cross-role fallback
 
 - Luna execution unavailable does not turn Terra into an implementation Worker.
-- Terra critic unavailable means Root reviews without claiming independent model diversity.
+- Terra critic unavailable means Root reviews without claiming independent Terra verification.
 - Sol Senior Judge unavailable means Root keeps control and reports the limitation.
+- An unused role being unavailable does not block responsibilities that do not depend on it.
 
-## 5. Context-fork contract
+## 5. Runtime Observation Gate
+
+After spawn, use `runtime-assurance.md` when effective route or permission evidence matters.
+
+Track:
+
+```text
+observation_source: native_metadata | local_rollout | none
+observed_agent_type
+observed_route
+observed_sandbox
+observed_permission_profile
+observation_status: matched | not_exposed | mismatch | invalid
+```
+
+Prefer public native metadata. Use the bundled local rollout inspector only as a read-only fallback when required fields are omitted and the local sessions store is accessible.
+
+For ordinary bounded work, configuration assurance remains sufficient and missing runtime telemetry may stay `not_exposed`.
+
+Make runtime observation an acceptance requirement when:
+
+- safety depends on effective host-enforced read-only isolation;
+- a high-consequence conclusion specifically relies on verified cross-model independence;
+- the user explicitly requests proof of effective route or permission state; or
+- available runtime evidence conflicts with the configured route.
+
+If two observation sources expose the same field, require agreement. A mismatch quarantines the affected child result.
+
+## 6. Context-fork contract
 
 MultiAgentV2 defaults `fork_turns` to full history when omitted. Role-specific spawns therefore set it explicitly.
 
@@ -168,7 +186,7 @@ MultiAgentV2 defaults `fork_turns` to full history when omitted. Role-specific s
 
 Fresh context does not remove task-local facts. Every child still receives a self-contained objective, scope, constraints, acceptance criteria, evidence requirements, and stop conditions.
 
-## 6. Responsibility routing
+## 7. Responsibility routing
 
 ### Explorer
 
@@ -182,13 +200,15 @@ Default route: `gpt-5.6-luna`, `max`.
 
 Use for bounded implementation, debugging, test creation, test execution, local refactors, mechanical changes, and tool-heavy investigation with clear acceptance criteria.
 
+For coding tasks, prefer the Implementation Preset in `task-packet.md`. Require explicit ownership, interfaces, constraints, verification, and `judgment_calls` in the return report.
+
 ### Independent Critic
 
 Default route: `gpt-5.6-terra`, `xhigh`.
 
 Use when independent verification, cross-module synthesis, conflicting evidence, requirement ambiguity, or challenge of a consequential assumption is material.
 
-Do not use Terra as a generic difficulty escalation. Give the critic the objective, acceptance criteria, artifact/diff, relevant evidence, and constraints without the producer's private reasoning.
+Do not use Terra as a generic difficulty escalation or implementation lane. Give the critic the objective, acceptance criteria, actual artifact/diff, relevant evidence, and constraints without the producer's private reasoning.
 
 ### Senior Judge
 
@@ -196,7 +216,33 @@ Default route: `gpt-5.6-sol`, `high`.
 
 Use only when Root is not already Sol, the decision has substantial consequence, lower routes leave material uncertainty/conflict, and the user approves one higher-capability review.
 
-## 7. Root-specific behavior
+## 8. Review Gate
+
+Independent review is selective. Root first inspects the actual mutation and reruns deterministic verification.
+
+Add one Terra critic when fresh judgment has concrete acceptance value, especially for:
+
+- security, permissions, concurrency, or state consistency;
+- cross-module invariants, public contracts, migrations, or broad blast radius;
+- weak deterministic oracles;
+- material Worker `judgment_calls` beyond mechanical execution;
+- conflicting evidence or consequential assumptions.
+
+The critic returns:
+
+```text
+review_status: clear | findings | insufficient_evidence
+findings
+residual_risk
+```
+
+`clear` means no material issue was found in the reviewed evidence. Root still owns final acceptance.
+
+For bounded findings, correct the work and rerun deterministic verification. Run a fresh Terra review only when the correction materially changes the risk that justified detached review.
+
+If high-consequence disagreement remains after the critic and Root is not Sol, apply Consent Gate before one Sol Senior Judge.
+
+## 9. Root-specific behavior
 
 ### Sol Root
 
@@ -214,23 +260,31 @@ Do not create another Terra solely to claim model diversity. A Terra child is va
 
 Do not infer relative strength from an unfamiliar Root route. Use only provable exact child routes.
 
-## 8. Parallelism and lifecycle
+## 10. Parallelism and lifecycle
 
 Safe patterns include Root + Luna Explorer, Root + Luna Worker, Root + Luna Worker + Terra Critic, two independent Luna readers, or two writing Luna Workers only with runtime-backed isolated workspaces.
 
 Lifecycle:
 
 ```text
-spawn -> work -> gather -> verify -> optional focused follow-up -> close
+spawn -> work -> observe when useful -> gather -> verify -> review when justified -> optional focused follow-up -> close
 ```
 
 Close completed Agents promptly.
 
-## 9. Failure behavior
+## 11. Failure behavior
 
 ### Configuration rejection
 
 Record the exact failure and return to Root. Do not cycle through model IDs or efforts.
+
+### Runtime observation unavailable
+
+If observation is optional, record `not_exposed` and continue from configuration assurance plus deterministic evidence. If observation is required by safety or the acceptance claim, return the affected responsibility to Root and state the limitation.
+
+### Runtime observation mismatch
+
+Quarantine the affected child result. Do not accept useful-looking output from a child whose effective observed route conflicts with the selected route.
 
 ### Worker failure
 

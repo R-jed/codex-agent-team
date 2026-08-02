@@ -1,10 +1,10 @@
 # Model Route Assurance
 
-Codex Agent Team uses model-specific Subagents only when it can establish a concrete assurance path for both the model and the reasoning effort.
+Codex Agent Team uses model-specific Subagents only when it can establish a concrete configuration-assurance path for both the model and the reasoning effort. Post-spawn runtime observation is recorded separately and can strengthen acceptance evidence when the task needs it.
 
 ## Why this exists
 
-A routing table that says “Luna Max” is useful only if the native runtime can actually execute `gpt-5.6-luna` with `max` reasoning. The Skill therefore separates four facts:
+A routing table that says “Luna Max” is useful only if the native runtime can accept a route to `gpt-5.6-luna` with `max` reasoning. The Skill therefore separates four facts:
 
 ```text
 preferred_route   what the policy wants
@@ -13,11 +13,24 @@ route_assurance   why that configuration is trusted
 observed_route    what the runtime explicitly reports after spawn
 ```
 
-Current MultiAgentV2 does not expose a universal child model/effort receipt in spawn or list output, so `observed_route = not_exposed` is the normal state. The Skill does not relabel requested or configured settings as observed settings.
+A configuration-level assured route never becomes observed telemetry merely because spawn succeeded.
+
+Runtime observation has its own metadata:
+
+```text
+observation_source
+observed_agent_type
+observed_route
+observed_sandbox
+observed_permission_profile
+observation_status
+```
+
+See the installed Skill reference `references/runtime-assurance.md` for the post-spawn policy.
 
 ## Assurance path 1: Profile Locked
 
-This is the strongest optional path.
+This is the preferred default installation path.
 
 A custom Agent profile pins model and reasoning effort:
 
@@ -39,7 +52,7 @@ Profile Mode omits competing explicit `model` and `reasoning_effort` fields.
 
 ## Assurance path 2: Native Explicit Validated
 
-Portable Mode works without installing profiles.
+Portable Mode works without installing profiles when the live runtime exposes the required explicit routing surface.
 
 The Skill explicitly requests:
 
@@ -71,7 +84,7 @@ custom Agent file value
   -> parent value
 ```
 
-Model and reasoning effort are resolved independently. This is why Profile Mode and Portable Mode are alternative assurance paths instead of two sources that should be mixed in one spawn.
+Model and reasoning effort are resolved independently. Profile Mode and Portable Mode are alternative assurance paths instead of two sources that should be mixed in one spawn.
 
 ## Why inheritance is not an assurance path
 
@@ -79,12 +92,34 @@ Omitting model/effort can look like a convenient way to inherit Root. Current Co
 
 For model-specific policy routes, Codex Agent Team therefore requires Profile Locked or Native Explicit Validated. If neither is available, the child task stays in Root.
 
+## Configuration assurance versus runtime attestation
+
+Configuration assurance answers:
+
+```text
+Did Codex accept a configuration path that targets the required model and effort?
+```
+
+Runtime attestation answers:
+
+```text
+What model, effort, role, sandbox, or permission state did the child runtime actually expose?
+```
+
+Use public native metadata first. When public details omit required route fields and the local sessions store is available, the installed Skill includes a read-only `scripts/inspect-runtime.py` adapter that can extract a small allowlisted object from the exact child rollout.
+
+The local adapter is intentionally optional because its storage format is coupled to current Codex implementation details. Ordinary bounded work can proceed from configuration assurance when runtime telemetry is unavailable. Tasks whose safety or high-consequence independence claim depends on effective route or sandbox can require runtime observation and return the affected responsibility to Root when it cannot be established.
+
 ## Failure rule
 
 ```text
-exact route provable -> spawn
-exact route rejected -> Root
-exact route unprovable -> Root
+exact configuration route provable -> spawn
+exact configuration route rejected -> Root
+exact configuration route unprovable -> Root
+runtime observation matches -> strengthen evidence
+runtime observation unavailable and optional -> record not_exposed
+runtime observation unavailable and required -> Root
+runtime observation conflicts -> quarantine child result
 ```
 
 The Skill does not silently substitute Terra for Luna, Sol for Terra, or another reasoning effort.
