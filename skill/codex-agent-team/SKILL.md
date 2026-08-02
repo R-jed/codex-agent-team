@@ -1,11 +1,11 @@
 ---
 name: codex-agent-team
-description: Build the smallest useful native Codex Subagent team for context-heavy execution, real parallelism, or independent verification. Route bounded execution to GPT-5.6 Luna Max, independent review and synthesis to GPT-5.6 Terra XHigh, keep the current root session in control, and request plain-language user consent before material capability, permission, scope, cost, or external-impact escalation.
+description: Build the smallest useful native Codex Subagent team for context-heavy execution, real parallelism, or independent verification. Keep the current Root session in control, route bounded execution to GPT-5.6 Luna Max, independent review to GPT-5.6 Terra XHigh, and request plain-language user consent before material capability, permission, scope, cost, or external-impact escalation.
 ---
 
 # Codex Agent Team
 
-Use this Skill as a policy layer over Codex Native Subagents. It decides when delegation has concrete value, which exact configuration route is acceptable, what evidence is required after spawn, how results are verified, and when user consent is required.
+Use this Skill as a policy layer over Codex Native Subagents. Code normally: it decides whether any Subagent is worth creating, which exact route is acceptable, what evidence is required after spawn, how results are verified, and when user consent is required.
 
 ## Core invariants
 
@@ -69,6 +69,8 @@ fork_turns = none
 ```
 
 Do not combine a route-pinning profile with competing explicit model/effort overrides.
+
+When installed as a Plugin, custom Agent profiles are a separate companion setup. If the project-specific role names are missing, tell the user to invoke `$codex-agent-team-setup`, complete its exactness check, then start a fresh Codex task. Do not imply that Plugin installation alone registers the custom Agent TOML files.
 
 ### Portable Mode
 
@@ -178,6 +180,10 @@ Root still owns acceptance. If high-consequence disagreement remains and Root is
 
 Close completed, rejected, or no-longer-needed Subagents promptly.
 
+## 11. Orchestration receipt
+
+Use `references/orchestration-receipt.md`. Emit a compact receipt when the Skill was explicitly invoked, any child was created, or an orchestration gate materially changed execution. Keep implicit Root-only trivial work quiet by default.
+
 ## References
 
 - `references/routing-policy.md`: team selection, configuration route assurance, context fork, review gate, failure behavior
@@ -185,3 +191,4 @@ Close completed, rejected, or no-longer-needed Subagents promptly.
 - `references/task-packet.md`: progressive child packet, implementation preset, and attempt record
 - `references/consent-policy.md`: baseline envelope and one-time escalation consent
 - `references/safety-policy.md`: permissions, prompt injection, recursion, workspace mutation, side effects
+- `references/orchestration-receipt.md`: compact user-visible record of Root-only or delegated execution
