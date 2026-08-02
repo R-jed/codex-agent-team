@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Codex Agent Team 运行模型</title>
+  <desc id="desc">一个主会话拥有完整任务。Luna、Terra、Sol 分别在执行、独立复核和授权裁决条件满足时接手局部责任，结果回到主会话验收。</desc>
+  <rect width="1200" height="700" fill="#f7f7f5"/>
+
+  <line x1="60" y1="72" x2="1140" y2="72" stroke="#0a0a0a" stroke-width="1"/>
+  <text x="60" y="44" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, Inter, sans-serif" font-size="28" font-weight="600" fill="#0a0a0a">运行模型</text>
+  <text x="1140" y="44" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, Inter, sans-serif" font-size="28" font-weight="500" fill="#666661">一个主会话 · 三类专业 Subagent</text>
+
+  <text x="60" y="134" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, Inter, sans-serif" font-size="44" font-weight="300" fill="#0a0a0a">一个主会话，三个专业子代理。</text>
+  <text x="60" y="178" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, Inter, sans-serif" font-size="30" font-weight="500" fill="#666661">每条支路都有触发条件。没有触发，就留在主会话。</text>
+
+  <rect x="60" y="228" width="300" height="342" fill="#002FA7"/>
+  <text x="88" y="274" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="600" fill="#dfe6ff">完整任务</text>
+  <text x="88" y="334" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="40" font-weight="500" fill="#ffffff">主会话</text>
+  <text x="88" y="392" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">理解需求 · 定范围</text>
+  <text x="88" y="438" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">控制风险 · 设验收条件</text>
+  <text x="88" y="520" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">决定是否委派</text>
+
+  <rect x="430" y="228" width="360" height="100" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+  <text x="456" y="269" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">LUNA</text>
+  <text x="456" y="304" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">搜索量大 / 有边界实现 → 探索与执行</text>
+
+  <rect x="430" y="350" width="360" height="100" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+  <text x="456" y="391" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">TERRA</text>
+  <text x="456" y="426" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">高风险修改 / 独立视角有价值 → 复核</text>
+
+  <rect x="430" y="472" width="360" height="100" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+  <text x="456" y="513" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">SOL</text>
+  <text x="456" y="548" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">高后果分歧未决 + 用户授权 → 一次裁决</text>
+
+  <rect x="860" y="228" width="280" height="342" fill="#0a0a0a"/>
+  <text x="888" y="274" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="600" fill="#bdbdb7">最终责任</text>
+  <text x="888" y="334" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="40" font-weight="500" fill="#ffffff">主会话验收</text>
+  <text x="888" y="392" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">检查实际 diff</text>
+  <text x="888" y="438" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">检查测试与证据</text>
+  <text x="888" y="484" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">接受或继续修</text>
+
+  <g stroke="#0a0a0a" stroke-width="2" fill="#0a0a0a">
+    <line x1="360" y1="278" x2="430" y2="278"/><polygon points="430,278 416,270 416,286"/>
+    <line x1="790" y1="278" x2="860" y2="278"/><polygon points="860,278 846,270 846,286"/>
+    <line x1="360" y1="400" x2="430" y2="400"/><polygon points="430,400 416,392 416,408"/>
+    <line x1="790" y1="400" x2="860" y2="400"/><polygon points="860,400 846,392 846,408"/>
+    <line x1="360" y1="522" x2="430" y2="522"/><polygon points="430,522 416,514 416,530"/>
+    <line x1="790" y1="522" x2="860" y2="522"/><polygon points="860,522 846,514 846,530"/>
+  </g>
+
+  <line x1="60" y1="620" x2="1140" y2="620" stroke="#0a0a0a" stroke-width="1"/>
+  <rect x="60" y="646" width="18" height="18" fill="#002FA7"/>
+  <text x="96" y="665" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="600" fill="#0a0a0a">小而明确的任务：主会话直接完成，无需创建 Subagent。</text>
+</svg>
