@@ -19,14 +19,17 @@ Small, already-isolated work stays in the current Root. Context-heavy or clearly
 
 The Plugin is the recommended community distribution path. It installs the workflow Skills while keeping the current session as Root.
 
+First register this repository as a marketplace source with Codex CLI:
+
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
-codex plugin add codex-agent-team@codex-agent-team
 ```
+
+Then reopen the ChatGPT desktop app, choose the `Codex Agent Team` marketplace in the Plugins Directory, and install `Codex Agent Team`. This follows the currently documented OpenAI Plugin flow and avoids making a build-specific convenience command the only installation path.
 
 ### Install companion custom agents
 
-After the Plugin is installed, complete one explicit Agent setup step. The four role-pinned profiles live under `~/.codex/agents/`; the workflow never assumes Plugin installation registered them automatically.
+After the Plugin is installed, complete one explicit Agent setup step. The current Plugin manifest natively declares Skills, MCP, hooks, and interface assets, while Codex custom Agent TOML files are still discovered from `~/.codex/agents/` or project `.codex/agents/`. Codex Agent Team therefore installs them as explicit companion profiles.
 
 Invoke in Codex:
 
