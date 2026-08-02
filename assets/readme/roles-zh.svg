@@ -20,19 +20,19 @@
     <rect x="420" y="118" width="720" height="180" fill="#002FA7"/>
     <text x="450" y="176" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="44" font-weight="200" fill="#ffffff">LUNA</text>
     <text x="450" y="224" font-size="28" font-weight="500" fill="#ffffff">主要执行路线</text>
-    <text x="760" y="176" font-size="22" font-weight="600" fill="#ffffff">GPT-5.6 · max</text>
-    <text x="760" y="224" font-size="22" font-weight="500" fill="#ffffff">搜索 · 实现 · 调试 · 测试</text>
+    <text x="790" y="176" font-size="22" font-weight="600" fill="#ffffff">GPT-5.6 · max</text>
+    <text x="790" y="224" font-size="22" font-weight="500" fill="#ffffff">搜索 · 实现 · 调试 · 测试</text>
     <text x="450" y="270" font-size="20" font-weight="600" fill="#ffffff">任务边界清楚时，负责重执行与探索</text>
 
     <rect x="420" y="322" width="720" height="132" fill="#fafaf8" stroke="#0a0a0a" stroke-width="1.5"/>
     <text x="450" y="372" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="38" font-weight="200" fill="#0a0a0a">TERRA</text>
     <text x="450" y="416" font-size="26" font-weight="500" fill="#0a0a0a">独立复核</text>
-    <text x="760" y="372" font-size="21" font-weight="600" fill="#737373">GPT-5.6 · xhigh</text>
-    <text x="760" y="416" font-size="21" font-weight="500" fill="#737373">冲突证据 · 关键假设 · 脱离实现路径检查</text>
+    <text x="790" y="372" font-size="21" font-weight="600" fill="#737373">GPT-5.6 · xhigh</text>
+    <text x="790" y="416" font-size="21" font-weight="500" fill="#737373">冲突证据 · 关键假设</text>
 
     <rect x="420" y="478" width="720" height="68" fill="#f0f0ee"/>
     <text x="450" y="521" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="300" fill="#0a0a0a">SOL</text>
     <text x="560" y="521" font-size="22" font-weight="500" fill="#0a0a0a">高级裁决</text>
-    <text x="760" y="521" font-size="20" font-weight="600" fill="#737373">GPT-5.6 · high · 需要用户明确授权</text>
+    <text x="790" y="521" font-size="20" font-weight="600" fill="#737373">GPT-5.6 · high · 需明确授权</text>
   </g>
 </svg>
