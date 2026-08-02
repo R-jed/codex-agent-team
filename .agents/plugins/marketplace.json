@@ -8,7 +8,7 @@
       "name": "codex-agent-team",
       "source": {
         "source": "local",
-        "path": "./"
+        "path": "./plugins/codex-agent-team"
       },
       "policy": {
         "installation": "AVAILABLE",
