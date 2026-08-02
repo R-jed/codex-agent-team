@@ -319,8 +319,8 @@ def test_readmes_are_concise_skill_overviews_with_localized_svg_visuals():
     assert "README_EN.md" in zh
     assert "README.md" in en
 
-    zh_assets = ["hero-zh.svg", "example-zh.svg", "workflow-zh.svg", "roles-zh.svg"]
-    en_assets = ["hero.svg", "example.svg", "workflow.svg", "roles.svg"]
+    zh_assets = ["hero-zh.svg", "example-zh.svg", "operating-model-zh.svg"]
+    en_assets = ["hero.svg", "example.svg", "operating-model.svg"]
 
     for asset in zh_assets:
         path = ROOT / "assets" / "readme" / asset
@@ -338,10 +338,15 @@ def test_readmes_are_concise_skill_overviews_with_localized_svg_visuals():
         assert f"assets/readme/{asset}" in en
         assert f"assets/readme/{asset}" not in zh
 
+    for retired in ["workflow-zh.svg", "roles-zh.svg"]:
+        assert f"assets/readme/{retired}" not in zh
+    for retired in ["workflow.svg", "roles.svg"]:
+        assert f"assets/readme/{retired}" not in en
+
     for text in [zh, en]:
         assert "```mermaid" not in text
         assert not re.search(r"assets/readme/[^)\"']+\.(png|jpe?g|webp|gif)", text, re.I)
-        assert len(text.splitlines()) <= 190
+        assert len(text.splitlines()) <= 170
 
 
 def test_readmes_keep_quick_start_and_role_identity():
@@ -374,14 +379,12 @@ def test_readmes_use_main_session_without_exposing_root_vocabulary():
     zh_visuals = [
         read("assets/readme/hero-zh.svg"),
         read("assets/readme/example-zh.svg"),
-        read("assets/readme/workflow-zh.svg"),
-        read("assets/readme/roles-zh.svg"),
+        read("assets/readme/operating-model-zh.svg"),
     ]
     en_visuals = [
         read("assets/readme/hero.svg"),
         read("assets/readme/example.svg"),
-        read("assets/readme/workflow.svg"),
-        read("assets/readme/roles.svg"),
+        read("assets/readme/operating-model.svg"),
     ]
     assert all("主会话" in svg for svg in zh_visuals)
     assert all("main session" in svg.lower() for svg in en_visuals)
@@ -392,8 +395,8 @@ def test_readmes_use_main_session_without_exposing_root_vocabulary():
 def test_chinese_readme_starts_with_user_problem_and_avoids_old_slogan_copy():
     zh = read("README.md")
     assert "Codex 已经能创建子代理（Subagent）" in zh
-    assert "先看一个例子" in zh
-    assert "支付回调里的并发问题" in zh
+    assert "一个任务怎么分" in zh
+    assert "支付回调出现并发问题" in zh
     banned = [
         "正常写代码。",
         "只在真正值得时组队",
