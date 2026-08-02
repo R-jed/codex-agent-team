@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Validate and summarize recorded paired Codex Agent Team live runs.
 
-The scorer never executes Codex and never invents missing telemetry. Pair integrity is
-checked before aggregate mode statistics are reported.
+The scorer never executes Codex and never invents missing telemetry. Declared primary
+comparisons are checked pair-by-pair before descriptive aggregate statistics are
+reported, so different workload mixes cannot masquerade as a controlled comparison.
 """
 
 from __future__ import annotations
@@ -20,6 +21,29 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
 
+DELTA_FIELDS = (
+    "acceptance_score",
+    "agent_count",
+    "scope_violations",
+    "wrong_edits",
+    "regressions",
+    "correction_turns",
+    "main_session_correction_tokens",
+    "main_session_correction_ms",
+    "review_findings",
+    "review_false_positives",
+    "consent_prompts",
+    "input_tokens",
+    "output_tokens",
+    "reasoning_tokens",
+    "latency_ms",
+    "evidence_established",
+    "evidence_invalidated",
+    "unjustified_repeated_commands",
+    "unjustified_repeated_discovery",
+    "duplicate_dependency_calls",
+)
+
 
 def fail(message: str) -> NoReturn:
     raise SystemExit(f"ERROR: {message}")
@@ -32,15 +56,42 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def number_or_none(value: Any) -> float | int | None:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return value
+    return None
+
+
 def mean_present(runs: list[dict[str, Any]], field: str) -> float | None:
-    values = [run[field] for run in runs if isinstance(run.get(field), (int, float)) and not isinstance(run.get(field), bool)]
+    values = [value for run in runs if (value := number_or_none(run.get(field))) is not None]
     return statistics.fmean(values) if values else None
 
 
-def validate_pairs(runs: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+def mean_values(values: list[float | int | None]) -> float | None:
+    present = [value for value in values if value is not None]
+    return statistics.fmean(present) if present else None
+
+
+def workload_specs(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {item["id"]: item for item in payload["workloads"]}
+
+
+def declared_primary_modes(spec: dict[str, Any]) -> list[str] | None:
+    comparison = spec.get("expected", {}).get("primary_comparison")
+    if comparison is None:
+        return None
+    if not isinstance(comparison, list) or len(comparison) != 2 or not all(isinstance(item, str) for item in comparison):
+        fail(f"workload {spec['id']!r} has invalid primary_comparison metadata")
+    return comparison
+
+
+def validate_pairs(
+    runs: list[dict[str, Any]], specs: dict[str, dict[str, Any]]
+) -> dict[str, list[dict[str, Any]]]:
     pairs: dict[str, list[dict[str, Any]]] = {}
     for run in runs:
         pairs.setdefault(run["pair_id"], []).append(run)
+
     for pair_id, pair_runs in pairs.items():
         if len(pair_runs) < 2:
             fail(f"pair {pair_id!r} has fewer than two runs")
@@ -53,6 +104,22 @@ def validate_pairs(runs: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]
         modes = [run["mode"] for run in pair_runs]
         if len(modes) != len(set(modes)):
             fail(f"pair {pair_id!r} contains duplicate modes")
+
+        main_routes = {
+            run.get("main_session_route")
+            for run in pair_runs
+            if isinstance(run.get("main_session_route"), str) and run.get("main_session_route")
+        }
+        if len(main_routes) > 1:
+            fail(f"pair {pair_id!r} mixes main-session routes")
+
+        workload_id = pair_runs[0]["workload_id"]
+        primary = declared_primary_modes(specs[workload_id])
+        if primary is not None and set(modes) != set(primary):
+            fail(
+                f"pair {pair_id!r} for workload {workload_id!r} must contain declared "
+                f"primary comparison modes {primary!r}; got {sorted(modes)!r}"
+            )
     return pairs
 
 
@@ -81,6 +148,46 @@ def mode_summary(runs: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def delta(baseline: dict[str, Any], candidate: dict[str, Any], field: str) -> float | int | None:
+    left = number_or_none(baseline.get(field))
+    right = number_or_none(candidate.get(field))
+    if left is None or right is None:
+        return None
+    return right - left
+
+
+def pair_comparison(
+    pair_runs: list[dict[str, Any]], primary_modes: list[str]
+) -> dict[str, Any]:
+    by_mode = {run["mode"]: run for run in pair_runs}
+    baseline_mode, candidate_mode = primary_modes
+    baseline = by_mode[baseline_mode]
+    candidate = by_mode[candidate_mode]
+    return {
+        "baseline_mode": baseline_mode,
+        "candidate_mode": candidate_mode,
+        "success_delta": int(bool(candidate["success"])) - int(bool(baseline["success"])),
+        "metric_deltas": {
+            field: delta(baseline, candidate, field)
+            for field in DELTA_FIELDS
+        },
+    }
+
+
+def aggregate_comparisons(items: list[dict[str, Any]]) -> dict[str, Any]:
+    first = items[0]
+    return {
+        "pair_count": len(items),
+        "baseline_mode": first["baseline_mode"],
+        "candidate_mode": first["candidate_mode"],
+        "mean_success_delta": statistics.fmean(item["success_delta"] for item in items),
+        "mean_metric_deltas": {
+            field: mean_values([item["metric_deltas"][field] for item in items])
+            for field in DELTA_FIELDS
+        },
+    }
+
+
 def main() -> None:
     args = parse_args()
     try:
@@ -91,30 +198,56 @@ def main() -> None:
         fail(str(exc))
 
     jsonschema.Draft202012Validator(schema).validate(payload)
-    known = {item["id"] for item in workloads["workloads"]}
-    unknown = sorted({run["workload_id"] for run in payload["runs"]} - known)
+    specs = workload_specs(workloads)
+    unknown = sorted({run["workload_id"] for run in payload["runs"]} - set(specs))
     if unknown:
         fail(f"unknown workload ids: {', '.join(unknown)}")
 
-    pairs = validate_pairs(payload["runs"])
+    pairs = validate_pairs(payload["runs"], specs)
     by_mode: dict[str, list[dict[str, Any]]] = {}
+    by_workload_mode: dict[str, dict[str, list[dict[str, Any]]]] = {}
     for run in payload["runs"]:
         by_mode.setdefault(run["mode"], []).append(run)
+        by_workload_mode.setdefault(run["workload_id"], {}).setdefault(run["mode"], []).append(run)
 
     summary: dict[str, Any] = {
         "runtime": payload["runtime"],
         "pair_count": len(pairs),
         "pairs": {},
+        "comparisons": {},
+        "workloads": {},
         "modes": {},
+        "mode_aggregates_are_descriptive_only": True,
     }
+
+    comparison_groups: dict[str, list[dict[str, Any]]] = {}
     for pair_id, pair_runs in sorted(pairs.items()):
         first = pair_runs[0]
+        primary = declared_primary_modes(specs[first["workload_id"]])
+        comparison = pair_comparison(pair_runs, primary) if primary is not None else None
         summary["pairs"][pair_id] = {
             "workload_id": first["workload_id"],
             "repo_revision": first["repo_revision"],
             "repeat_index": first["repeat_index"],
             "modes": sorted(run["mode"] for run in pair_runs),
+            "comparison": comparison,
         }
+        if comparison is not None:
+            key = (
+                f"{first['workload_id']}:"
+                f"{comparison['baseline_mode']}->{comparison['candidate_mode']}"
+            )
+            comparison_groups.setdefault(key, []).append(comparison)
+
+    for key, items in sorted(comparison_groups.items()):
+        summary["comparisons"][key] = aggregate_comparisons(items)
+
+    for workload_id, mode_runs in sorted(by_workload_mode.items()):
+        summary["workloads"][workload_id] = {
+            mode: mode_summary(runs)
+            for mode, runs in sorted(mode_runs.items())
+        }
+
     for mode, runs in sorted(by_mode.items()):
         summary["modes"][mode] = mode_summary(runs)
 
@@ -125,6 +258,28 @@ def main() -> None:
 
     print(f"Runtime: {payload['runtime']['codex_version']} ({payload['runtime']['date']})")
     print(f"Pairs: {summary['pair_count']}")
+
+    if summary["comparisons"]:
+        print("\nPaired primary comparisons")
+        for key, stats in summary["comparisons"].items():
+            print(f"  {key}")
+            print(f"    pairs: {stats['pair_count']}")
+            print(f"    mean_success_delta: {stats['mean_success_delta']:.3f}")
+            for field in [
+                "acceptance_score",
+                "correction_turns",
+                "main_session_correction_tokens",
+                "input_tokens",
+                "reasoning_tokens",
+                "latency_ms",
+                "unjustified_repeated_commands",
+                "unjustified_repeated_discovery",
+                "duplicate_dependency_calls",
+            ]:
+                value = stats["mean_metric_deltas"][field]
+                print(f"    delta_{field}: {'not_recorded' if value is None else round(value, 2)}")
+
+    print("\nDescriptive mode aggregates (do not compare across workload mixes)")
     for mode, stats in summary["modes"].items():
         print(f"\n{mode}")
         print(f"  runs: {stats['runs']}")
@@ -140,9 +295,6 @@ def main() -> None:
         ]:
             value = stats[field]
             print(f"  {field}: {'not_recorded' if value is None else round(value, 2)}")
-        print(f"  unjustified_repeated_commands: {stats['unjustified_repeated_commands']}")
-        print(f"  unjustified_repeated_discovery: {stats['unjustified_repeated_discovery']}")
-        print(f"  duplicate_dependency_calls: {stats['duplicate_dependency_calls']}")
 
 
 if __name__ == "__main__":
