@@ -1,6 +1,6 @@
 # Codex Agent Team
 
-[中文](README.md) · [Install](docs/plugin-installation.md) · [Architecture](docs/architecture.md) · [Evals](docs/behavioral-evals.md)
+[中文](README.md) · [Install](docs/plugin-installation.md) · [Architecture](docs/architecture.md) · [Evals](docs/behavioral-evals.md) · [Local validation handoff](HEADOFF.md)
 
 Codex can already spawn Subagents. The harder engineering problem is scheduling them well: which work is worth delegating, how precisely it should be specified, which results can be reused, when a stronger model adds new value, and who accepts the final result.
 
@@ -165,12 +165,23 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-If a required profile is missing, the Skill asks permission before installing and verifying only these managed profiles plus their ownership manifest. Older model-named profiles such as `luna_worker` and `terra_reviewer` are migrated automatically only when their bytes are proven to belong to a previous managed install.
+If a required profile is missing, the Skill discloses the complete managed file scope before asking permission. The installer manages only these four current profiles and its ownership manifest. Older model-named profiles such as `luna_worker` and `terra_reviewer` are removed only when their current bytes are proven by the active previous project ownership manifest. User-modified, unproven, or intentionally recreated legacy files do not inherit deletion authority from a stale standalone manifest.
 
 </details>
 
+## Project status
+
+The current architecture has completed its static closure pass. CI and deterministic tests cover Plugin packaging, the managed profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired-eval tooling.
+
+Static results cannot prove that a live Codex build exposes roles, models, sandboxes, or parent-thread metadata as expected. They also cannot prove that contracts, Terra delta escalation, or Sol review improve real task economics or quality.
+
+The next phase is deliberately local runtime validation rather than more architecture expansion. Follow [`HEADOFF.md`](HEADOFF.md) for ChatGPT Desktop/Codex user-flow simulation, Runtime Truth adversarial testing, Agent lifecycle stress, installer fault injection, and paired behavioral evals.
+
+Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses that require representative live workload evidence.
+
 ## Documentation
 
+- [Local runtime validation handoff](HEADOFF.md)
 - [Plugin installation and first run](docs/plugin-installation.md)
 - [Architecture](docs/architecture.md)
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)
@@ -182,7 +193,7 @@ If a required profile is missing, the Skill asks permission before installing an
 
 ## Current validation scope
 
-CI covers Plugin packaging, the managed Agent profile lifecycle, orchestration policy, Delegation Contract rules, Runtime Truth, and the deterministic verifier. Real task performance is evaluated with paired live behavioral runs; static repository tests are not presented as performance results.
+Real task outcomes are evaluated only with controlled paired live behavioral runs. Result schema controls include workload definition, main-session route, permissions, tool surface, and acceptance rubric. Missing telemetry remains missing rather than estimated. No cost, latency, or quality-improvement claim should be published before representative live workload data exists.
 
 ## License
 
