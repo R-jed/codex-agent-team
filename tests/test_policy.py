@@ -39,7 +39,7 @@ def test_skill_frontmatter_and_name():
 def test_openai_yaml_matches_skill():
     data = yaml.safe_load((SKILL_DIR / "agents" / "openai.yaml").read_text())
     assert data["interface"]["display_name"] == "Codex Agent Team"
-    assert "$codex-agent-team" in data["interface"]["default_prompt"]
+    assert "/codex-agent-team" in data["interface"]["default_prompt"]
     assert 25 <= len(data["interface"]["short_description"]) <= 64
     assert data["policy"]["allow_implicit_invocation"] is True
 
@@ -348,9 +348,12 @@ def test_readmes_keep_quick_start_and_role_identity():
     zh = read("README.md")
     en = read("README_EN.md")
     for text in [zh, en]:
-        assert "python scripts/install.py" in text
-        assert "--skill-only" in text
-        assert "$codex-agent-team" in text
+        assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
+        assert "Plugins Directory" in text
+        assert "/codex-agent-team" in text
+        assert "python scripts/install.py" not in text
+        assert "--skill-only" not in text
+        assert "codex-agent-team-setup" not in text
         assert "GPT-5.6 Luna" in text
         assert "GPT-5.6 Terra" in text
         assert "GPT-5.6 Sol" in text
