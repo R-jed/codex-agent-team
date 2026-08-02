@@ -1,36 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team 中文封面</title>
-  <desc id="desc">瑞士国际主义风格封面。当前会话负责掌控，Luna 执行，Terra 复核，Sol 仅在授权后参与裁决。</desc>
-  <rect width="1200" height="520" fill="#fafaf8"/>
-  <line x1="60" y1="72" x2="1140" y2="72" stroke="#d4d4d2" stroke-width="1"/>
-  <line x1="60" y1="448" x2="1140" y2="448" stroke="#d4d4d2" stroke-width="1"/>
+  <desc id="desc">靛蓝瓷电子杂志风封面，介绍由当前 Codex 主会话控制的小型原生子代理团队策略。</desc>
+  <rect width="1200" height="560" fill="#0a1f3d"/>
 
-  <g font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
-    <text x="60" y="48" font-size="20" font-weight="600" fill="#737373">CODEX 原生子代理 · 团队策略</text>
-    <text x="60" y="190" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="86" font-weight="200" letter-spacing="-3.5" fill="#0a0a0a">CODEX</text>
-    <text x="60" y="270" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="86" font-weight="200" letter-spacing="-3.5" fill="#0a0a0a">AGENT TEAM</text>
-    <text x="64" y="326" font-size="28" font-weight="400" fill="#0a0a0a">需要时组队，始终由当前会话掌控。</text>
-    <text x="64" y="366" font-size="22" font-weight="500" fill="#737373">执行交给 Luna · 独立复核交给 Terra · 高后果裁决需要用户授权</text>
-    <text x="60" y="486" font-size="20" font-weight="600" fill="#737373">最小团队 · 单层委派 · 单写入者 · 证据优先</text>
+  <g fill="none" stroke="#f1f3f5" stroke-width="1.2" opacity="0.15">
+    <path d="M780 46 C900 8 1058 26 1158 112 C1226 170 1234 260 1174 322 C1104 396 974 368 908 446 C872 488 880 530 916 560"/>
+    <path d="M812 70 C918 38 1046 48 1130 122 C1186 170 1190 246 1140 300 C1082 364 980 346 926 412 C894 450 900 494 936 528"/>
+    <path d="M846 100 C936 74 1034 80 1104 140 C1150 180 1150 236 1110 282 C1062 334 986 322 944 376 C918 410 924 450 956 482"/>
+    <path d="M878 134 C952 112 1022 118 1078 166 C1112 196 1116 232 1084 266 C1046 308 994 302 960 344 C940 370 944 404 974 432"/>
+  </g>
+  <g fill="none" stroke="#f1f3f5" stroke-width="1" opacity="0.07">
+    <circle cx="998" cy="254" r="188"/>
+    <circle cx="998" cy="254" r="146"/>
+    <circle cx="998" cy="254" r="104"/>
   </g>
 
-  <g>
-    <rect x="835" y="126" width="248" height="124" fill="#0a0a0a"/>
-    <text x="863" y="173" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#fafaf8">ROOT</text>
-    <text x="863" y="211" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="24" font-weight="500" fill="#fafaf8">规划 · 风险 · 验收</text>
+  <line x1="60" y1="76" x2="1140" y2="76" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
+  <line x1="60" y1="486" x2="1140" y2="486" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
 
-    <rect x="903" y="274" width="180" height="94" fill="#002FA7"/>
-    <text x="929" y="314" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#ffffff">LUNA</text>
-    <text x="929" y="346" font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="500" fill="#ffffff">执行 / 探索</text>
+  <text x="60" y="48" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" letter-spacing="1.4" fill="#f1f3f5" opacity="0.78">CODEX AGENT TEAM · VOL. 01</text>
+  <text x="1140" y="48" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="500" fill="#f1f3f5" opacity="0.78">原生子代理 · 团队策略</text>
 
-    <rect x="835" y="392" width="128" height="58" fill="#fafaf8" stroke="#0a0a0a" stroke-width="1.5"/>
-    <text x="857" y="429" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a0a0a">TERRA</text>
+  <text x="60" y="132" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5" opacity="0.72">只在真正值得的时候组队</text>
+  <text x="54" y="270" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="96" font-weight="700" letter-spacing="-2.5" fill="#f1f3f5">CODEX</text>
+  <text x="54" y="360" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="96" font-weight="700" letter-spacing="-2.5" fill="#f1f3f5">AGENT TEAM</text>
 
-    <rect x="987" y="392" width="96" height="58" fill="#f0f0ee"/>
-    <text x="1009" y="429" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a0a0a">SOL</text>
+  <text x="60" y="420" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="28" font-weight="600" fill="#f1f3f5">Root 掌控全局，Luna 执行，Terra 复核，Sol 只在授权后裁决。</text>
 
-    <path d="M959 250 V274" stroke="#0a0a0a" stroke-width="1.5"/>
-    <path d="M959 368 V380 H899 V392" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
-    <path d="M959 380 H1035 V392" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
-  </g>
+  <text x="60" y="526" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.72">最小团队 · 单层委派 · 单写入者 · 证据优先</text>
+  <text x="1140" y="526" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.72">ROOT STAYS IN CONTROL</text>
 </svg>
