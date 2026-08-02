@@ -1,55 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="640" viewBox="0 0 1600 640" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team workflow</title>
-  <desc id="desc">Root decides whether delegation helps, Luna executes, Terra reviews when useful, Root verifies evidence, and Sol is an optional consent-gated consultation loop.</desc>
-  <rect width="1600" height="640" fill="#0a0a0a"/>
-  <text x="80" y="64" font-family="Inter, Helvetica, Arial, sans-serif" font-size="24" font-weight="600" letter-spacing="1.8" fill="#d4d4d2">TASK FLOW · ROOT OWNS THE FINAL DECISION</text>
-  <line x1="80" y1="96" x2="1520" y2="96" stroke="#737373" stroke-width="1"/>
+  <desc id="desc">Root decides whether delegation helps, Luna executes, Terra reviews when useful, Root verifies evidence and delivers, while Sol remains an optional consent-gated consultation loop.</desc>
+  <rect width="1200" height="600" fill="#0a0a0a"/>
+  <line x1="60" y1="78" x2="1140" y2="78" stroke="#737373" stroke-width="1"/>
 
-  <g font-family="Inter, Helvetica, Arial, sans-serif">
-    <text x="80" y="142" font-size="24" font-weight="500" fill="#737373">01 · REQUEST</text>
-    <rect x="80" y="168" width="348" height="252" fill="#fafaf8"/>
-    <text x="112" y="222" font-size="24" font-weight="600" fill="#737373">ROOT GATE</text>
-    <text x="112" y="286" font-size="38" font-weight="400" fill="#0a0a0a">Does delegation</text>
-    <text x="112" y="332" font-size="38" font-weight="400" fill="#0a0a0a">add real value?</text>
-    <text x="112" y="386" font-size="24" font-weight="500" fill="#737373">No benefit → stay in Root</text>
+  <g font-family="Inter, Helvetica Neue, Arial, sans-serif">
+    <text x="60" y="50" font-size="22" font-weight="600" letter-spacing="1.3" fill="#d4d4d2">TASK FLOW · ROOT OWNS THE FINAL DECISION</text>
 
-    <text x="535" y="142" font-size="24" font-weight="500" fill="#737373">02 · OPTIONAL TEAM</text>
-    <rect x="535" y="168" width="439" height="112" fill="#002FA7"/>
-    <text x="567" y="212" font-size="24" font-weight="600" fill="#ffffff">LUNA</text>
-    <text x="567" y="252" font-size="30" font-weight="400" fill="#ffffff">Execute / explore</text>
-    <rect x="535" y="308" width="439" height="112" fill="#0a0a0a" stroke="#fafaf8" stroke-width="2"/>
-    <text x="567" y="352" font-size="24" font-weight="600" fill="#d4d4d2">TERRA</text>
-    <text x="567" y="392" font-size="30" font-weight="400" fill="#fafaf8">Independent review</text>
+    <text x="60" y="122" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">01 · DECIDE</text>
+    <rect x="60" y="144" width="270" height="264" fill="#fafaf8"/>
+    <text x="88" y="194" font-size="21" font-weight="600" fill="#737373">ROOT</text>
+    <text x="88" y="254" font-size="34" font-weight="400" fill="#0a0a0a">Does delegation</text>
+    <text x="88" y="298" font-size="34" font-weight="400" fill="#0a0a0a">add real value?</text>
+    <line x1="88" y1="330" x2="302" y2="330" stroke="#d4d4d2" stroke-width="1"/>
+    <text x="88" y="372" font-size="21" font-weight="500" fill="#737373">No benefit → stay in Root</text>
 
-    <text x="1081" y="142" font-size="24" font-weight="500" fill="#737373">03 · ROOT VERIFY</text>
-    <rect x="1081" y="168" width="348" height="252" fill="#fafaf8"/>
-    <text x="1113" y="246" font-size="38" font-weight="400" fill="#0a0a0a">Verify evidence.</text>
-    <text x="1113" y="294" font-size="38" font-weight="400" fill="#0a0a0a">Resolve conflicts.</text>
-    <text x="1113" y="342" font-size="38" font-weight="400" fill="#0a0a0a">Decide.</text>
-    <text x="1113" y="390" font-size="24" font-weight="500" fill="#737373">Root remains accountable</text>
+    <text x="390" y="122" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">02 · OPTIONAL TEAM</text>
+    <rect x="390" y="144" width="360" height="126" fill="#002FA7"/>
+    <text x="420" y="190" font-size="22" font-weight="600" fill="#ffffff">LUNA</text>
+    <text x="420" y="234" font-size="30" font-weight="400" fill="#ffffff">Execute / explore</text>
 
-    <rect x="1081" y="468" width="348" height="96" fill="#0a0a0a" stroke="#737373" stroke-width="2"/>
-    <text x="1113" y="508" font-size="22" font-weight="600" fill="#737373">OPTIONAL · WITH CONSENT</text>
-    <text x="1113" y="544" font-size="28" font-weight="400" fill="#fafaf8">SOL · senior judgment</text>
+    <rect x="390" y="294" width="360" height="114" fill="#0a0a0a" stroke="#fafaf8" stroke-width="1.5"/>
+    <text x="420" y="338" font-size="22" font-weight="600" fill="#d4d4d2">TERRA</text>
+    <text x="420" y="380" font-size="28" font-weight="400" fill="#fafaf8">Independent review</text>
 
-    <text x="1460" y="278" font-size="26" font-weight="600" fill="#fafaf8">DELIVER</text>
+    <text x="810" y="122" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">03 · VERIFY + DECIDE</text>
+    <rect x="810" y="144" width="270" height="264" fill="#fafaf8"/>
+    <text x="838" y="194" font-size="21" font-weight="600" fill="#737373">ROOT</text>
+    <text x="838" y="250" font-size="31" font-weight="400" fill="#0a0a0a">Verify evidence</text>
+    <text x="838" y="294" font-size="31" font-weight="400" fill="#0a0a0a">Resolve conflicts</text>
+    <text x="838" y="338" font-size="31" font-weight="400" fill="#0a0a0a">Make the call</text>
+    <text x="838" y="378" font-size="20" font-weight="500" fill="#737373">Root delivers the final answer</text>
+
+    <rect x="810" y="452" width="270" height="88" fill="#0a0a0a" stroke="#737373" stroke-width="1.5"/>
+    <text x="838" y="486" font-size="20" font-weight="600" fill="#737373">OPTIONAL · WITH CONSENT</text>
+    <text x="838" y="520" font-size="25" font-weight="400" fill="#fafaf8">SOL · senior judgment</text>
+
+    <text x="1102" y="290" font-size="22" font-weight="600" fill="#fafaf8">DELIVER</text>
+    <text x="60" y="568" font-size="20" font-weight="600" fill="#737373">NO BENEFIT → ROOT · UNPROVABLE ROUTE → ROOT · HIGH IMPACT → ROOT + CONSENT</text>
   </g>
 
-  <g fill="none" stroke="#fafaf8" stroke-width="3">
-    <path d="M428 294 H490 V224 H535"/>
-    <path d="M490 294 V364 H535"/>
-    <path d="M974 224 H1028 V294 H1081"/>
-    <path d="M974 364 H1028 V294"/>
-    <path d="M1429 294 H1520"/>
+  <g fill="none" stroke="#fafaf8" stroke-width="2">
+    <path d="M330 276 H360 V207 H390"/>
+    <path d="M360 276 V351 H390"/>
+    <path d="M750 207 H780 V276 H810"/>
+    <path d="M750 351 H780 V276"/>
+    <path d="M1080 276 H1140"/>
   </g>
-  <g fill="none" stroke="#737373" stroke-width="2" stroke-dasharray="10 10">
-    <path d="M1255 420 V468"/>
-    <path d="M1081 516 H1038 V390 H1081"/>
+  <g fill="none" stroke="#737373" stroke-width="1.5" stroke-dasharray="8 8">
+    <path d="M945 408 V452"/>
+    <path d="M810 496 H778 V382 H810"/>
   </g>
   <g fill="#fafaf8">
-    <path d="M527 218 l14 6 -14 6z"/>
-    <path d="M527 358 l14 6 -14 6z"/>
-    <path d="M1073 288 l14 6 -14 6z"/>
-    <path d="M1512 288 l14 6 -14 6z"/>
+    <path d="M382 201 l12 6 -12 6z"/>
+    <path d="M382 345 l12 6 -12 6z"/>
+    <path d="M802 270 l12 6 -12 6z"/>
+    <path d="M1132 270 l12 6 -12 6z"/>
   </g>
 </svg>
