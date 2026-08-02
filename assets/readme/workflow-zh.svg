@@ -1,60 +1,58 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team 工作流程</title>
-  <desc id="desc">当前会话先判断委派收益，按需交给 Luna 执行或 Terra 复核，再回到当前会话验证与交付。Sol 仅作为经用户授权的可选裁决回路。</desc>
-  <rect width="1200" height="600" fill="#0a0a0a"/>
-  <line x1="60" y1="78" x2="1140" y2="78" stroke="#737373" stroke-width="1"/>
+  <desc id="desc">电子杂志风任务流程图。Root 先判断是否值得委派，Luna 执行，Terra 独立复核，结果回到 Root 验证，Sol 只在用户授权后参与高后果裁决。</desc>
+  <rect width="1200" height="680" fill="#f1f3f5"/>
 
-  <g font-family="PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
-    <text x="60" y="50" font-size="22" font-weight="600" fill="#d4d4d2">任务如何流转 · 最终责任始终留在当前会话</text>
-
-    <text x="60" y="122" font-size="20" font-weight="600" fill="#737373">01 · 判断</text>
-    <rect x="60" y="144" width="270" height="264" fill="#fafaf8"/>
-    <text x="88" y="194" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#737373">ROOT</text>
-    <text x="88" y="258" font-size="34" font-weight="400" fill="#0a0a0a">委派是否带来</text>
-    <text x="88" y="302" font-size="34" font-weight="400" fill="#0a0a0a">明确收益？</text>
-    <line x1="88" y1="330" x2="302" y2="330" stroke="#d4d4d2" stroke-width="1"/>
-    <text x="88" y="372" font-size="21" font-weight="500" fill="#737373">无收益 → 当前会话</text>
-
-    <text x="390" y="122" font-size="20" font-weight="600" fill="#737373">02 · 按需组队</text>
-    <rect x="390" y="144" width="360" height="126" fill="#002FA7"/>
-    <text x="420" y="190" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#ffffff">LUNA</text>
-    <text x="420" y="234" font-size="30" font-weight="400" fill="#ffffff">执行 / 探索</text>
-
-    <rect x="390" y="294" width="360" height="114" fill="#0a0a0a" stroke="#fafaf8" stroke-width="1.5"/>
-    <text x="420" y="338" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#d4d4d2">TERRA</text>
-    <text x="420" y="380" font-size="28" font-weight="400" fill="#fafaf8">独立复核</text>
-
-    <text x="810" y="122" font-size="20" font-weight="600" fill="#737373">03 · 验证与决定</text>
-    <rect x="810" y="144" width="270" height="264" fill="#fafaf8"/>
-    <text x="838" y="194" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#737373">ROOT</text>
-    <text x="838" y="254" font-size="32" font-weight="400" fill="#0a0a0a">验证证据</text>
-    <text x="838" y="298" font-size="32" font-weight="400" fill="#0a0a0a">处理冲突</text>
-    <text x="838" y="342" font-size="32" font-weight="400" fill="#0a0a0a">作出决定</text>
-    <text x="838" y="378" font-size="20" font-weight="500" fill="#737373">当前会话负责交付</text>
-
-    <rect x="810" y="452" width="270" height="88" fill="#0a0a0a" stroke="#737373" stroke-width="1.5"/>
-    <text x="838" y="486" font-size="20" font-weight="600" fill="#737373">可选 · 用户授权后</text>
-    <text x="838" y="520" font-size="25" font-weight="400" fill="#fafaf8">SOL · 高级裁决</text>
-
-    <text x="1108" y="290" font-size="22" font-weight="600" fill="#fafaf8">交付</text>
-    <text x="60" y="568" font-size="20" font-weight="600" fill="#737373">无明确收益 → 当前会话 · 路由无法证明 → 当前会话 · 高影响操作 → 当前会话 + 用户授权</text>
+  <g fill="none" stroke="#0a1f3d" stroke-width="1" opacity="0.08">
+    <path d="M-40 130 C86 52 190 78 268 158 C332 222 326 304 250 350 C170 398 54 370 -10 454"/>
+    <path d="M-18 164 C92 92 180 110 244 174 C296 226 290 286 230 326 C164 368 72 346 8 410"/>
+    <path d="M14 198 C104 140 172 150 222 196 C260 232 256 276 210 306 C158 340 90 328 36 378"/>
   </g>
 
-  <g fill="none" stroke="#fafaf8" stroke-width="2">
-    <path d="M330 276 H360 V207 H390"/>
-    <path d="M360 276 V351 H390"/>
-    <path d="M750 207 H780 V276 H810"/>
-    <path d="M750 351 H780 V276"/>
-    <path d="M1080 276 H1140"/>
+  <line x1="56" y1="72" x2="1144" y2="72" stroke="#0a1f3d" stroke-width="1" opacity="0.32"/>
+  <line x1="56" y1="610" x2="1144" y2="610" stroke="#0a1f3d" stroke-width="1" opacity="0.32"/>
+
+  <text x="56" y="46" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" letter-spacing="1.3" fill="#0a1f3d" opacity="0.68">ACT II · TASK FLOW</text>
+  <text x="1144" y="46" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="500" fill="#0a1f3d" opacity="0.68">委派有收益才发生 · 02 / 03</text>
+
+  <text x="56" y="138" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.62">工作流</text>
+  <text x="56" y="202" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="48" font-weight="700" fill="#0a1f3d">任务只在</text>
+  <text x="56" y="258" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="48" font-weight="700" fill="#0a1f3d">有收益时分流。</text>
+  <text x="56" y="316" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="400" fill="#0a1f3d" opacity="0.74">当前会话始终掌握目标、风险、验收与最终交付。</text>
+
+  <rect x="56" y="382" width="300" height="136" fill="#0a1f3d"/>
+  <text x="82" y="420" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.7">OPTIONAL JUDGMENT</text>
+  <text x="82" y="462" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#f1f3f5">Sol · 高级裁决</text>
+  <text x="82" y="496" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.78">仅用于高后果分歧，并需要用户明确授权。</text>
+
+  <g transform="translate(414,118)">
+    <line x1="0" y1="0" x2="730" y2="0" stroke="#0a1f3d" stroke-width="2"/>
+    <line x1="0" y1="122" x2="730" y2="122" stroke="#0a1f3d" stroke-width="1" opacity="0.28"/>
+    <line x1="0" y1="244" x2="730" y2="244" stroke="#0a1f3d" stroke-width="1" opacity="0.28"/>
+    <line x1="0" y1="366" x2="730" y2="366" stroke="#0a1f3d" stroke-width="1" opacity="0.28"/>
+    <line x1="0" y1="488" x2="730" y2="488" stroke="#0a1f3d" stroke-width="2"/>
+
+    <text x="0" y="48" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="42" font-weight="700" fill="#0a1f3d">01</text>
+    <text x="88" y="42" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">Root 判断</text>
+    <text x="88" y="76" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.68">没有明确收益，就不创建 Subagent。</text>
+    <text x="650" y="48" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" fill="#0a1f3d" opacity="0.6">DECIDE</text>
+
+    <text x="0" y="170" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="42" font-weight="700" fill="#0a1f3d">02</text>
+    <text x="88" y="164" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">Luna 执行</text>
+    <text x="88" y="198" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.68">搜索、实现、调试与测试，任务边界必须清楚。</text>
+    <text x="650" y="170" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" fill="#0a1f3d" opacity="0.6">EXECUTE</text>
+
+    <text x="0" y="292" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="42" font-weight="700" fill="#0a1f3d">03</text>
+    <text x="88" y="286" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">Terra 复核</text>
+    <text x="88" y="320" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.68">只在独立视角能提高置信度时加入。</text>
+    <text x="650" y="292" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" fill="#0a1f3d" opacity="0.6">REVIEW</text>
+
+    <text x="0" y="414" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="42" font-weight="700" fill="#0a1f3d">04</text>
+    <text x="88" y="408" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">Root 验证并交付</text>
+    <text x="88" y="442" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.68">检查证据、解决冲突，最终决定仍由当前会话负责。</text>
+    <text x="650" y="414" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" fill="#0a1f3d" opacity="0.6">DELIVER</text>
   </g>
-  <g fill="none" stroke="#737373" stroke-width="1.5" stroke-dasharray="8 8">
-    <path d="M945 408 V452"/>
-    <path d="M810 496 H778 V382 H810"/>
-  </g>
-  <g fill="#fafaf8">
-    <path d="M382 201 l12 6 -12 6z"/>
-    <path d="M382 345 l12 6 -12 6z"/>
-    <path d="M802 270 l12 6 -12 6z"/>
-    <path d="M1132 270 l12 6 -12 6z"/>
-  </g>
+
+  <text x="56" y="648" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="18" font-weight="500" fill="#0a1f3d" opacity="0.68">路由无法证明 → 回到 Root · 高影响操作 → Root + 用户授权</text>
+  <text x="1144" y="648" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#0a1f3d" opacity="0.58">FAIL CLOSED</text>
 </svg>
