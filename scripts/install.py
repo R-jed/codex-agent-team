@@ -59,6 +59,14 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Verify installed package-managed artifacts exactly; make no changes.",
     )
+    parser.add_argument(
+        "--adopt-legacy-install",
+        action="store_true",
+        help=(
+            "Explicitly allow one migration of a pre-manifest installed Skill that differs "
+            "from the current package. Use only after confirming local Skill edits may be replaced."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -177,27 +185,35 @@ def preflight_parent(path: Path) -> None:
 
 
 def preflight_skill(
-    target_skill: Path, *, check_only: bool, manifest: dict | None
-) -> bool:
-    """Return True when an existing differing Skill is a safe managed/legacy upgrade."""
+    target_skill: Path,
+    *,
+    check_only: bool,
+    manifest: dict | None,
+    adopt_legacy_install: bool,
+) -> None:
     if target_skill.is_symlink():
         fail(f"Refusing symlinked installed Skill: {target_skill}")
     if not target_skill.exists():
-        return False
+        return
     if not target_skill.is_dir():
         fail(f"Installed Skill path is not a directory: {target_skill}")
     if skill_is_exact(target_skill):
-        return False
+        return
     if check_only:
         fail(f"Installed Skill does not exactly match shipped source: {target_skill}")
 
     actual_hash = tree_hash(target_skill)
     if manifest is None:
-        # One-time migration path from installer versions that predate the manifest.
-        return True
+        if adopt_legacy_install:
+            return
+        fail(
+            "Refusing to overwrite a differing pre-manifest Skill because prior package ownership "
+            "cannot be proven. Review local edits, then rerun with --adopt-legacy-install only if "
+            f"the current package may replace that Skill: {target_skill}"
+        )
     previous_managed_hash = manifest.get("skill_hash")
     if previous_managed_hash == actual_hash:
-        return True
+        return
     fail(
         "Refusing to overwrite an installed Skill that differs from the current package "
         f"and is not proven unchanged from the previous managed install: {target_skill}"
@@ -377,7 +393,15 @@ def restore_manifest(path: Path, previous: bytes | None) -> list[str]:
     return []
 
 
-def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
+def install(
+    codex_home: Path,
+    skill_only: bool,
+    check_only: bool,
+    adopt_legacy_install: bool,
+) -> None:
+    if check_only and adopt_legacy_install:
+        fail("--adopt-legacy-install cannot be combined with --check")
+
     codex_home = codex_home.expanduser().resolve()
     skills_dir = codex_home / "skills"
     agents_dir = codex_home / "agents"
@@ -390,7 +414,12 @@ def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
     preflight_parent(skills_dir)
     if not skill_only:
         preflight_parent(agents_dir)
-    preflight_skill(target_skill, check_only=check_only, manifest=manifest)
+    preflight_skill(
+        target_skill,
+        check_only=check_only,
+        manifest=manifest,
+        adopt_legacy_install=adopt_legacy_install,
+    )
     managed_upgrades: set[str] = set()
     if not skill_only:
         managed_upgrades = preflight_profiles(
@@ -493,7 +522,12 @@ def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
 
 def main() -> None:
     args = parse_args()
-    install(args.codex_home, args.skill_only, args.check)
+    install(
+        args.codex_home,
+        args.skill_only,
+        args.check,
+        args.adopt_legacy_install,
+    )
 
 
 if __name__ == "__main__":
