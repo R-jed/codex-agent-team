@@ -6,32 +6,38 @@ import re
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / ".codex-plugin" / "plugin.json"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+PLUGIN = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
-MAIN_SKILL = ROOT / "skill" / "codex-agent-team"
-SETUP_SKILL = ROOT / "skill" / "codex-agent-team-setup"
+MAIN_SKILL = PLUGIN_ROOT / "skills" / "codex-agent-team"
+SETUP_SKILL = PLUGIN_ROOT / "skills" / "codex-agent-team-setup"
 
 
-def test_plugin_manifest_packages_repo_skill_tree_without_copying_policy():
+def test_plugin_manifest_packages_canonical_skill_tree():
     payload = json.loads(PLUGIN.read_text())
     assert payload["name"] == "codex-agent-team"
-    assert payload["skills"] == "./skill/"
+    assert payload["skills"] == "./skills/"
     assert payload["license"] == "MIT"
     assert payload["interface"]["displayName"] == "Codex Agent Team"
     assert {"Interactive", "Write"} <= set(payload["interface"]["capabilities"])
     assert MAIN_SKILL.is_dir()
     assert SETUP_SKILL.is_dir()
-    assert not (ROOT / "plugins" / "codex-agent-team" / "skills").exists()
+    assert (PLUGIN_ROOT / "scripts" / "install-agents.py").is_file()
+    assert (PLUGIN_ROOT / "agent-profiles" / "luna-worker.toml").is_file()
 
 
-def test_repository_marketplace_points_at_repo_plugin_root():
+def test_repository_marketplace_points_at_nested_plugin_root():
     payload = json.loads(MARKETPLACE.read_text())
     assert payload["name"] == "codex-agent-team"
     assert len(payload["plugins"]) == 1
     plugin = payload["plugins"][0]
     assert plugin["name"] == "codex-agent-team"
-    assert plugin["source"] == {"source": "local", "path": "./"}
+    assert plugin["source"] == {
+        "source": "local",
+        "path": "./plugins/codex-agent-team",
+    }
     assert plugin["policy"]["installation"] == "AVAILABLE"
+    assert not (ROOT / ".codex-plugin" / "plugin.json").exists()
 
 
 def test_setup_skill_is_explicit_and_uses_companion_installer():
@@ -39,7 +45,7 @@ def test_setup_skill_is_explicit_and_uses_companion_installer():
     metadata = yaml.safe_load((SETUP_SKILL / "agents" / "openai.yaml").read_text())
     assert "../../scripts/install-agents.py" in text
     assert "python \"$installer\" --check" in text
-    assert "~/.codex/agents" not in text  # installer owns destination resolution
+    assert "~/.codex/agents" not in text
     assert metadata["policy"]["allow_implicit_invocation"] is False
     assert "$codex-agent-team-setup" in metadata["interface"]["default_prompt"]
 
@@ -52,6 +58,13 @@ def test_main_skill_explains_plugin_agent_setup_and_receipts():
     receipt = (MAIN_SKILL / "references" / "orchestration-receipt.md").read_text()
     assert "Agent Team: Root only" in receipt
     assert "Do not claim runtime evidence that was not observed" in receipt
+
+
+def test_old_skill_and_profile_sources_are_removed():
+    assert not (ROOT / "skill" / "codex-agent-team").exists()
+    assert not (ROOT / "skill" / "codex-agent-team-setup").exists()
+    assert not (ROOT / "examples" / "agents").exists()
+    assert not (ROOT / "scripts" / "install-agents.py").exists()
 
 
 def test_readmes_make_plugin_primary_and_keep_standalone_path():
