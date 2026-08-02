@@ -27,6 +27,7 @@ See [`native-subagent-runtime.md`](native-subagent-runtime.md).
 
 ```text
 Root task
+  -> Agent Profile Readiness Gate
   -> Delegation Gate
   -> Route Assurance Gate
   -> Role Router
@@ -39,7 +40,17 @@ Root task
   -> Root integration and acceptance
 ```
 
-Minimum Team remains upstream of every later gate. Runtime evidence and review strengthen an already-justified responsibility; they do not justify extra Agents by themselves.
+Minimum Team remains upstream of every later delegation decision. Runtime evidence and review strengthen an already-justified responsibility; they do not justify extra Agents by themselves.
+
+## Plugin and profile readiness
+
+Codex Plugin is the only supported distribution path. The Plugin packages the canonical Skill, role-pinned Agent templates, and the managed custom-Agent installer.
+
+`/codex-agent-team` is the single user-facing workflow entry point. Before model-specific delegation, it checks whether the required project roles are visible through the current native role surface.
+
+When a required role is missing, the Skill asks permission to write only the four managed Agent TOML profiles plus the ownership manifest under Codex home. It then runs the bundled installer and exactness check, and re-inspects live role discovery.
+
+Exact file installation does not imply that the current task has refreshed custom-Agent discovery. If the new roles remain unavailable after exact installation, the current task stops model-specific delegation and asks the user to start a fresh task.
 
 ## Configuration route assurance
 
@@ -62,17 +73,17 @@ An installed custom Agent role pins the intended model and reasoning effort and 
 route_assurance = profile_locked
 ```
 
-`profile_locked` describes a configuration lock, not post-spawn proof.
+`profile_locked` describes a configuration lock, not post-spawn proof. This is the normal Plugin route.
 
 ### Portable Mode
 
-A built-in role plus explicit model/effort is used only when the live surface exposes the required fields and Codex accepts the exact tuple.
+A built-in role plus explicit model/effort remains an internal compatibility path only when profile-free operation is explicitly required, the live surface exposes the required fields, and Codex accepts the exact tuple.
 
 ```text
 route_assurance = native_explicit_validated
 ```
 
-The Skill does not treat omitted model/effort as exact inheritance assurance.
+Portable Mode is never an automatic fallback for missing project profiles. The Skill does not treat omitted model/effort as exact inheritance assurance.
 
 See [`model-route-assurance.md`](model-route-assurance.md).
 
@@ -88,13 +99,13 @@ R2_runtime_reported_and_local_record_agree
 X0_conflicted
 ```
 
-Public/native runtime metadata is preferred. `scripts/inspect-runtime.py` can read one exact local rollout as an optional fallback record. That local record is mutable implementation-coupled telemetry, so it never becomes an authoritative runtime report by itself.
+Public/native runtime metadata is preferred. `scripts/inspect-runtime.py` inside the installed Skill can read one exact local rollout as an optional fallback record. That local record is mutable implementation-coupled telemetry, so it never becomes an authoritative runtime report by itself.
 
 `scripts/verify-runtime.py` is the deterministic mechanism that compares expected role/model/effort, child identity, expected parent-thread identity, source agreement, and required read-only state. Policy decides when that evidence is required; the verifier decides whether supplied evidence matches.
 
 When Root knows its own thread id, a child `parent_thread_id` mismatch is quarantined. This gives the Depth 1 policy a runtime-verifiable path when ancestry metadata is available.
 
-See `skill/codex-agent-team/references/runtime-assurance.md` and [`compatibility.md`](compatibility.md).
+See `plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md` and [`compatibility.md`](compatibility.md).
 
 ## Context strategy
 
@@ -136,17 +147,19 @@ Custom Agent profiles may declare sandbox defaults, but effective child permissi
 
 When hard isolation is not required and the host broadens a critic's sandbox, Safety Policy permits behavioral read-only only with explicit no-write instructions and verified before/after state. That path remains `instruction_enforced`.
 
-## Installation lifecycle
+## Managed custom-Agent lifecycle
 
-The installer validates sources, preflights conflicts, refuses symlinked locked-profile destinations, stages the Skill, verifies exactness, and supports non-mutating `--check`.
+The Plugin-bundled `scripts/install-agents.py` validates shipped profile sources, preflights conflicts, refuses symlinked destinations and reserved-role collisions, stages managed profile replacements, verifies exact bytes, and supports a strictly non-mutating `--check`.
 
-It also stores `.codex-agent-team-install.json` under Codex home. The manifest records hashes of package-managed profiles. A future package version may replace a differing profile only when the installed bytes still match the previous managed hash. User-modified profiles remain protected.
+It stores `.codex-agent-team-agents.json` under Codex home. The manifest records hashes of package-managed profiles. A later Plugin version may replace a differing profile only when the installed bytes still match a previous managed hash. User-modified profiles remain protected.
+
+The installer can recognize ownership hashes from earlier Codex Agent Team standalone releases so existing users can migrate to Plugin-only distribution without weakening overwrite protection.
 
 Rollback errors are treated as a separate failure condition and must be reported as `ROLLBACK INCOMPLETE` rather than silently swallowed.
 
 ## Compatibility and behavior evidence
 
-`scripts/doctor.py` reports offline installation integrity, discovered Codex version when available, local sessions-store availability, and which runtime evidence tools are installed. Live spawn/model/effort capability remains an in-session fact.
+Repository tests verify Plugin packaging, managed profile installation, policy regressions, runtime-evidence fixtures, and deterministic verification. Live spawn/model/effort capability remains an in-session fact.
 
 Static repository tests do not prove real Skill behavior in a particular Codex build. `behavioral-evals.md` defines the live workload/result protocol used to compare Root-only and Agent Team runs without inventing missing token or latency telemetry.
 
