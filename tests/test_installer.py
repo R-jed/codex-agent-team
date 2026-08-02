@@ -37,6 +37,14 @@ def tree_bytes(root: Path) -> dict[str, bytes]:
     }
 
 
+def installed_file_state(root: Path) -> dict[str, tuple[int, bytes]]:
+    return {
+        path.relative_to(root).as_posix(): (path.stat().st_mtime_ns, path.read_bytes())
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+
+
 def test_default_installer_installs_skill_and_all_locked_profiles(tmp_path: Path):
     target = tmp_path / "codex-home"
     result = run_installer(target)
@@ -61,40 +69,27 @@ def test_check_is_exact_and_non_mutating(tmp_path: Path):
     install = run_installer(target)
     assert install.returncode == 0, install.stderr
 
-    before = {
-        path.relative_to(target).as_posix(): (path.stat().st_mtime_ns, path.read_bytes())
-        for path in target.rglob("*")
-        if path.is_file()
-    }
+    before = installed_file_state(target)
     check = run_installer(target, "--check")
-    after = {
-        path.relative_to(target).as_posix(): (path.stat().st_mtime_ns, path.read_bytes())
-        for path in target.rglob("*")
-        if path.is_file()
-    }
+    after = installed_file_state(target)
 
     assert check.returncode == 0, check.stderr
     assert "CHECK PASSED" in check.stdout
     assert before == after
 
 
-def test_repeat_install_is_idempotent(tmp_path: Path):
+def test_repeat_install_is_a_true_no_op(tmp_path: Path):
     target = tmp_path / "codex-home"
     first = run_installer(target)
     assert first.returncode == 0, first.stderr
 
-    before_profiles = {
-        filename: (target / "agents" / filename).read_bytes()
-        for filename in PROFILE_FILES
-    }
+    before = installed_file_state(target)
     second = run_installer(target)
+    after = installed_file_state(target)
 
     assert second.returncode == 0, second.stderr
+    assert before == after
     assert tree_bytes(target / "skills" / "codex-agent-team") == tree_bytes(SKILL_SOURCE)
-    assert before_profiles == {
-        filename: (target / "agents" / filename).read_bytes()
-        for filename in PROFILE_FILES
-    }
 
 
 def test_profile_conflict_causes_zero_partial_install(tmp_path: Path):
