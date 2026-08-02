@@ -144,7 +144,8 @@ def test_one_writer_and_depth_one_remain_invariants():
     skill = (SKILL_DIR / "SKILL.md").read_text()
     safety = (SKILL_DIR / "references" / "safety-policy.md").read_text()
     assert "one active writing Worker" in skill
-    assert "Workers must not spawn further Subagents" in safety
+    assert "Children must not spawn further Subagents" in safety
+    assert "Every Delegation Contract carries the no-further-delegation rule" in safety
 
 
 def test_consent_is_resource_based_and_explicit_sol_can_fit_baseline():
