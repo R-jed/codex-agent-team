@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """Deterministically reconcile expected and observed native Subagent runtime facts.
 
-Input is a JSON object on stdin or via --input. Observation objects must already be
-normalized to the allowlisted shape emitted by inspect-runtime.py or an equivalent
-native-metadata adapter. This verifier never reads rollout files itself.
-
-Evidence grades deliberately distinguish configuration, runtime reports, and mutable
-local records. Local rollout data is corroborating telemetry, not authoritative or
-cryptographic attestation.
+Evidence is typed by route, ancestry, and permission. Observation-object presence is
+never enough to establish a matched route: agent_role, model, and effort must all be
+present and agree before L1/R1/R2 can be emitted.
 """
 
 from __future__ import annotations
@@ -19,7 +15,7 @@ import sys
 from typing import Any, NoReturn
 
 ROUTE_FIELDS = ("agent_role", "model", "effort")
-OPTIONAL_IDENTITY_FIELDS = ("thread_id", "parent_thread_id")
+IDENTITY_FIELDS = ("thread_id", "parent_thread_id")
 PERMISSION_FIELDS = ("sandbox_policy_type", "permission_profile_type")
 READ_ONLY_SANDBOXES = {"read-only", "read_only", "readonly"}
 
@@ -82,18 +78,11 @@ def compare_expected(
     source: str,
 ) -> list[str]:
     violations: list[str] = []
-    mapping = {
-        "thread_id": "thread_id",
-        "parent_thread_id": "parent_thread_id",
-        "agent_role": "agent_role",
-        "model": "model",
-        "effort": "effort",
-    }
-    for expected_key, observed_key in mapping.items():
-        wanted = string_or_none(expected.get(expected_key))
-        got = observed.get(observed_key)
+    for field in (*IDENTITY_FIELDS, *ROUTE_FIELDS):
+        wanted = string_or_none(expected.get(field))
+        got = observed.get(field)
         if wanted is not None and got is not None and wanted != got:
-            violations.append(f"{source}:{expected_key}_mismatch")
+            violations.append(f"{source}:{field}_mismatch")
     return violations
 
 
@@ -102,7 +91,7 @@ def compare_sources(
     local: dict[str, str | None],
 ) -> list[str]:
     violations: list[str] = []
-    for field in (*ROUTE_FIELDS, *OPTIONAL_IDENTITY_FIELDS, *PERMISSION_FIELDS):
+    for field in (*ROUTE_FIELDS, *IDENTITY_FIELDS, *PERMISSION_FIELDS):
         left = native.get(field)
         right = local.get(field)
         if left is not None and right is not None and left != right:
@@ -110,38 +99,115 @@ def compare_sources(
     return violations
 
 
-def read_only_observed(observation: dict[str, str | None] | None) -> bool | None:
+def observed_fields(observation: dict[str, str | None] | None, fields: tuple[str, ...]) -> list[str]:
     if observation is None:
-        return None
-    sandbox = observation.get("sandbox_policy_type")
-    if sandbox is None:
-        return None
-    return sandbox.lower() in READ_ONLY_SANDBOXES
+        return []
+    return [field for field in fields if observation.get(field) is not None]
 
 
-def is_conflict(violations: list[str]) -> bool:
-    for item in violations:
-        if item.startswith("source_conflict:"):
-            return True
-        if item.startswith("native:") or item.startswith("local:"):
-            return True
-        if item == "permission:read_only_not_enforced":
-            return True
-    return False
+def route_complete(
+    expected: dict[str, Any], observation: dict[str, str | None] | None, source: str, violations: list[str]
+) -> bool:
+    if observation is None:
+        return False
+    for field in ROUTE_FIELDS:
+        if string_or_none(expected.get(field)) is not None and observation.get(field) is None:
+            return False
+        if f"{source}:{field}_mismatch" in violations:
+            return False
+    return all(observation.get(field) is not None for field in ROUTE_FIELDS)
 
 
-def evidence_grade(
+def evidence_source(native: bool, local: bool) -> str:
+    if native and local:
+        return "both"
+    if native:
+        return "native"
+    if local:
+        return "local"
+    return "none"
+
+
+def route_evidence(
+    expected: dict[str, Any],
     native: dict[str, str | None] | None,
     local: dict[str, str | None] | None,
     violations: list[str],
+) -> tuple[dict[str, Any], bool, bool]:
+    native_complete = route_complete(expected, native, "native", violations)
+    local_complete = route_complete(expected, local, "local", violations)
+    route_conflict = any(
+        item.startswith("source_conflict:")
+        or any(item == f"native:{field}_mismatch" for field in ROUTE_FIELDS)
+        or any(item == f"local:{field}_mismatch" for field in ROUTE_FIELDS)
+        for item in violations
+    )
+    native_seen = observed_fields(native, ROUTE_FIELDS)
+    local_seen = observed_fields(local, ROUTE_FIELDS)
+    seen = sorted(set(native_seen + local_seen))
+    if route_conflict:
+        status = "conflict"
+    elif native_complete or local_complete:
+        status = "matched"
+    elif seen:
+        status = "partial"
+    else:
+        status = "not_observed"
+    return (
+        {
+            "status": status,
+            "source": evidence_source(native_complete, local_complete),
+            "observed_fields": seen,
+            "native_observed_fields": native_seen,
+            "local_observed_fields": local_seen,
+        },
+        native_complete,
+        local_complete,
+    )
+
+
+def ancestry_evidence(
+    expected: dict[str, Any],
+    native: dict[str, str | None] | None,
+    local: dict[str, str | None] | None,
+    violations: list[str],
+) -> dict[str, Any]:
+    wanted = string_or_none(expected.get("parent_thread_id"))
+    if wanted is None:
+        return {"status": "not_required", "source": "none"}
+    if any("parent_thread_id_mismatch" in item for item in violations):
+        return {"status": "conflict", "source": "both" if native and local else "native" if native else "local"}
+    native_has = native is not None and native.get("parent_thread_id") is not None
+    local_has = local is not None and local.get("parent_thread_id") is not None
+    if not native_has and not local_has:
+        return {"status": "not_observed", "source": "none"}
+    return {"status": "matched", "source": evidence_source(native_has, local_has)}
+
+
+def permission_evidence(
+    expected: dict[str, Any],
+    native: dict[str, str | None] | None,
+) -> dict[str, Any]:
+    if not bool(expected.get("requires_enforced_read_only", False)):
+        return {"status": "not_required", "source": "none"}
+    if native is None or native.get("sandbox_policy_type") is None:
+        return {"status": "not_observed", "source": "none"}
+    sandbox = native["sandbox_policy_type"]
+    if sandbox is not None and sandbox.lower() in READ_ONLY_SANDBOXES:
+        return {"status": "matched", "source": "native"}
+    return {"status": "broader_than_required", "source": "native"}
+
+
+def compact_grade(
+    route: dict[str, Any], native_complete: bool, local_complete: bool, conflicts: bool
 ) -> str:
-    if is_conflict(violations):
+    if conflicts:
         return "X0_conflicted"
-    if native is not None and local is not None:
+    if native_complete and local_complete:
         return "R2_runtime_reported_and_local_record_agree"
-    if native is not None:
+    if native_complete:
         return "R1_runtime_reported"
-    if local is not None:
+    if local_complete:
         return "L1_local_record_observed"
     return "C1_configuration_only"
 
@@ -163,45 +229,77 @@ def main() -> None:
     if native is not None and local is not None:
         violations.extend(compare_sources(native, local))
 
-    requires_read_only = bool(expected.get("requires_enforced_read_only", False))
-    if requires_read_only:
-        native_read_only = read_only_observed(native)
-        if native_read_only is None:
-            violations.append("permission:read_only_native_unobserved")
-        elif not native_read_only:
-            violations.append("permission:read_only_not_enforced")
+    route, native_complete, local_complete = route_evidence(expected, native, local, violations)
+    ancestry = ancestry_evidence(expected, native, local, violations)
+    permission = permission_evidence(expected, native)
 
-    grade = evidence_grade(native, local, violations)
-    runtime_observation_required = bool(expected.get("runtime_observation_required", False))
+    if permission["status"] == "not_observed":
+        violations.append("permission:read_only_native_unobserved")
+    elif permission["status"] == "broader_than_required":
+        violations.append("permission:read_only_not_enforced")
 
-    if is_conflict(violations):
+    identity_conflict = any(
+        item.endswith("thread_id_mismatch") or item.startswith("source_conflict:thread_id")
+        for item in violations
+    )
+    source_conflict = any(item.startswith("source_conflict:") for item in violations)
+    conflict = (
+        route["status"] == "conflict"
+        or ancestry["status"] == "conflict"
+        or permission["status"] == "broader_than_required"
+        or identity_conflict
+        or source_conflict
+    )
+    grade = compact_grade(route, native_complete, local_complete, conflict)
+    runtime_required = bool(expected.get("runtime_observation_required", False))
+
+    if conflict:
         status = "mismatch"
         decision = "quarantine"
-    elif "permission:read_only_native_unobserved" in violations:
+    elif permission["status"] == "not_observed":
         status = "not_exposed"
         decision = "return_to_root"
-    elif runtime_observation_required and native is None:
+    elif runtime_required and not native_complete:
         status = "not_exposed"
         decision = "return_to_root"
-    elif native is None and local is None:
+    elif not native_complete and not local_complete:
         status = "not_exposed"
         decision = "continue_configuration_only"
     else:
         status = "matched"
         decision = "continue"
 
+    ancestry_match: bool | None
+    if ancestry["status"] == "matched":
+        ancestry_match = True
+    elif ancestry["status"] == "conflict":
+        ancestry_match = False
+    else:
+        ancestry_match = None
+
+    permission_match: bool | None
+    if permission["status"] == "matched":
+        permission_match = True
+    elif permission["status"] in {"broader_than_required", "conflict"}:
+        permission_match = False
+    else:
+        permission_match = None
+
     result = {
         "status": status,
         "decision": decision,
         "evidence_grade": grade,
+        "route_evidence": route,
+        "ancestry_evidence": ancestry,
+        "permission_evidence": permission,
         "configuration_match": not any(
             item.startswith("native:") or item.startswith("local:") for item in violations
         ),
-        "runtime_reported": native is not None,
-        "local_record_observed": local is not None,
-        "source_agreement": not any(item.startswith("source_conflict:") for item in violations),
-        "permission_match": not any(item.startswith("permission:") for item in violations),
-        "ancestry_match": not any("parent_thread_id_mismatch" in item for item in violations),
+        "runtime_reported": native_complete,
+        "local_record_observed": local_complete,
+        "source_agreement": not source_conflict,
+        "permission_match": permission_match,
+        "ancestry_match": ancestry_match,
         "violations": sorted(set(violations)),
     }
     json.dump(result, sys.stdout, sort_keys=True, separators=(",", ":"))
