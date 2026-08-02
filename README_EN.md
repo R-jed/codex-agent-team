@@ -36,6 +36,12 @@ cd codex-agent-team
 python scripts/install.py
 ```
 
+The installer preflights the complete destination before mutation and never overwrites a differing locked Agent profile. Verify the installed artifacts later with a non-mutating exactness check:
+
+```bash
+python scripts/install.py --check
+```
+
 Restart or reopen Codex after installation. Default profiles: `luna_explorer`, `luna_worker`, `terra_reviewer`, `sol_judge`.
 
 Skill-only Portable Mode:
@@ -64,7 +70,7 @@ Fix this authentication issue, run the relevant tests, then independently check 
 
 Root first decides whether delegation has a concrete benefit. Luna handles exploration or execution. Terra is added when detached review materially improves confidence. Results return to Root for verification and integration.
 
-If the required route, permission, scope, or external-impact boundary cannot be established safely, the work stays in Root. High-impact actions stay with Root as well.
+If the required route, permission, scope, or external-impact boundary cannot be established safely, the work stays in Root. High-impact actions stay with Root as well. Consequential tasks may also inspect effective child routing and permissions when the runtime exposes them. Missing runtime telemetry stays explicitly `not_exposed`; configured values are never relabeled as observed facts.
 
 ## Roles
 
@@ -86,7 +92,7 @@ If the required route, permission, scope, or external-impact boundary cannot be 
 - One Writer: one active writing Worker per shared workspace.
 - Depth 1: Workers do not create another Subagent team.
 - Fail closed: unprovable exact routes or required permissions return work to Root.
-- Evidence first: Root accepts work based on reproducible evidence and validation.
+- Evidence first: Worker reports are claims; Root accepts work from actual files, diffs, commands, tests, and reproducible evidence.
 
 Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create a second Agent runtime, persistent task DAG, or background scheduler.
 
@@ -97,12 +103,13 @@ The default install uses model-locked profiles. `--skill-only` depends on the li
 - [Architecture](docs/architecture.md)
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)
 - [Model Route Assurance](docs/model-route-assurance.md)
+- [Runtime Assurance](skill/codex-agent-team/references/runtime-assurance.md)
 - [OpenAI References](docs/openai-references.md)
 - Policy: [Routing](skill/codex-agent-team/references/routing-policy.md) · [Safety](skill/codex-agent-team/references/safety-policy.md) · [Consent](skill/codex-agent-team/references/consent-policy.md)
 
 ## Validation status
 
-The repository includes policy regression tests and routing eval cases. Native runtime behavior remains dependent on the capabilities exposed by the active Codex build.
+The repository includes policy regression tests, routing eval cases, installer regressions, and runtime-attestation fixtures. Native runtime behavior remains dependent on the capabilities exposed by the active Codex build.
 
 ## License
 
