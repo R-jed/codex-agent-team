@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Provision Codex Agent Team managed custom-agent profiles safely.
 
-The main /codex-agent-team Skill invokes this Plugin-bundled helper when its required
-role-pinned Agent TOML files are missing. The installer is transactional, refuses
-user-modified profiles, and records profile ownership hashes for safe future upgrades.
-Legacy standalone-manifest hashes may be read only to preserve migration safety.
+The Plugin uses semantic, namespaced role names so routing policy can change models
+without changing the responsibility contract. Older model-named profiles are removed
+only when their exact bytes are proven to belong to a previous managed install.
 """
 
 from __future__ import annotations
@@ -22,20 +21,30 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_SOURCE = ROOT / "agent-profiles"
 PROFILE_FILES = (
+    "codex-agent-team-reader.toml",
+    "codex-agent-team-worker.toml",
+    "codex-agent-team-investigator.toml",
+    "codex-agent-team-advisor.toml",
+)
+LEGACY_PROFILE_FILES = (
     "luna-explorer.toml",
     "luna-worker.toml",
     "terra-reviewer.toml",
     "sol-judge.toml",
 )
 EXPECTED_PROFILES = {
-    "luna-explorer.toml": ("luna_explorer", "gpt-5.6-luna", "max"),
-    "luna-worker.toml": ("luna_worker", "gpt-5.6-luna", "max"),
-    "terra-reviewer.toml": ("terra_reviewer", "gpt-5.6-terra", "xhigh"),
-    "sol-judge.toml": ("sol_judge", "gpt-5.6-sol", "high"),
+    "codex-agent-team-reader.toml": ("codex_agent_team_reader", "gpt-5.6-luna", "max"),
+    "codex-agent-team-worker.toml": ("codex_agent_team_worker", "gpt-5.6-luna", "max"),
+    "codex-agent-team-investigator.toml": (
+        "codex_agent_team_investigator",
+        "gpt-5.6-terra",
+        "xhigh",
+    ),
+    "codex-agent-team-advisor.toml": ("codex_agent_team_advisor", "gpt-5.6-sol", "high"),
 }
 MANIFEST_NAME = ".codex-agent-team-agents.json"
 FULL_MANIFEST_NAME = ".codex-agent-team-install.json"
-MANIFEST_SCHEMA = 1
+MANIFEST_SCHEMA = 2
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,7 +60,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Verify all managed Agent profiles exactly; make no changes.",
+        help="Verify all current managed Agent profiles exactly; make no changes.",
     )
     return parser.parse_args()
 
@@ -68,7 +77,7 @@ def file_hash(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
 
 
-def load_json_manifest(path: Path, *, required_schema: bool) -> dict | None:
+def load_json_manifest(path: Path, *, require_supported_schema: bool) -> dict | None:
     if path.is_symlink():
         fail(f"Refusing symlinked install manifest: {path}")
     if not path.exists():
@@ -81,7 +90,8 @@ def load_json_manifest(path: Path, *, required_schema: bool) -> dict | None:
         fail(f"Invalid install manifest {path}: {exc}")
     if not isinstance(payload, dict):
         fail(f"Invalid install manifest object: {path}")
-    if required_schema and payload.get("schema_version") != MANIFEST_SCHEMA:
+    schema = payload.get("schema_version")
+    if require_supported_schema and schema not in {1, MANIFEST_SCHEMA}:
         fail(f"Unsupported managed-profile install manifest: {path}")
     profile_hashes = payload.get("profile_hashes", {})
     if not isinstance(profile_hashes, dict):
@@ -133,21 +143,17 @@ def preflight_agents_dir(path: Path, *, check_only: bool) -> None:
         fail(f"Required agents directory is missing: {path}")
 
 
-def previous_managed_hashes(
-    companion_manifest: dict | None, full_manifest: dict | None
-) -> dict[str, str]:
-    if companion_manifest is not None:
-        return {
-            str(key): str(value)
-            for key, value in companion_manifest.get("profile_hashes", {}).items()
-            if isinstance(key, str) and isinstance(value, str)
-        }
-    if full_manifest is not None:
-        return {
-            str(key): str(value)
-            for key, value in full_manifest.get("profile_hashes", {}).items()
-            if isinstance(key, str) and isinstance(value, str)
-        }
+def previous_managed_hashes(*manifests: dict | None) -> dict[str, str]:
+    for manifest in manifests:
+        if manifest is None:
+            continue
+        hashes = manifest.get("profile_hashes", {})
+        if isinstance(hashes, dict):
+            return {
+                str(key): str(value)
+                for key, value in hashes.items()
+                if isinstance(key, str) and isinstance(value, str)
+            }
     return {}
 
 
@@ -156,8 +162,9 @@ def preflight_profiles(
     *,
     check_only: bool,
     old_hashes: dict[str, str],
-) -> set[str]:
+) -> tuple[set[str], set[str]]:
     upgrades: set[str] = set()
+    removable_legacy: set[str] = set()
 
     for filename in PROFILE_FILES:
         source = PROFILE_SOURCE / filename
@@ -181,6 +188,14 @@ def preflight_profiles(
             f"and is not proven unchanged from a previous managed install: {target}"
         )
 
+    if not check_only:
+        for filename in LEGACY_PROFILE_FILES:
+            target = agents_dir / filename
+            if target.is_symlink() or not target.is_file():
+                continue
+            if old_hashes.get(filename) == file_hash(target):
+                removable_legacy.add(filename)
+
     reserved_names = {values[0] for values in EXPECTED_PROFILES.values()}
     if agents_dir.exists():
         for existing in agents_dir.glob("*.toml"):
@@ -196,7 +211,7 @@ def preflight_profiles(
                     "Refusing to install because another Agent file uses the reserved role name "
                     f"{existing_name!r}: {existing}"
                 )
-    return upgrades
+    return upgrades, removable_legacy
 
 
 def verify_profiles(agents_dir: Path) -> None:
@@ -229,11 +244,20 @@ def write_manifest(path: Path, payload: dict) -> None:
         staged.unlink(missing_ok=True)
 
 
+def backup_target(target: Path) -> Path:
+    backup = target.parent / f".{target.name}.backup-{uuid.uuid4().hex}"
+    target.rename(backup)
+    return backup
+
+
 def install_profiles(
-    agents_dir: Path, upgrades: set[str]
+    agents_dir: Path,
+    upgrades: set[str],
+    removable_legacy: set[str],
 ) -> tuple[list[Path], dict[Path, Path]]:
     created: list[Path] = []
     backups: dict[Path, Path] = {}
+
     for filename in PROFILE_FILES:
         source = PROFILE_SOURCE / filename
         target = agents_dir / filename
@@ -242,15 +266,19 @@ def install_profiles(
         staged = stage_file(agents_dir, source.read_bytes())
         try:
             if target.exists():
-                backup = agents_dir / f".{filename}.backup-{uuid.uuid4().hex}"
-                target.rename(backup)
-                backups[target] = backup
+                backups[target] = backup_target(target)
             staged.rename(target)
             if target not in backups:
                 created.append(target)
         except BaseException:
             staged.unlink(missing_ok=True)
             raise
+
+    for filename in removable_legacy:
+        target = agents_dir / filename
+        if target.exists():
+            backups[target] = backup_target(target)
+
     return created, backups
 
 
@@ -293,10 +321,10 @@ def install(codex_home: Path, check_only: bool) -> None:
 
     validate_sources()
     preflight_agents_dir(agents_dir, check_only=check_only)
-    companion_manifest = load_json_manifest(manifest_path, required_schema=True)
-    full_manifest = load_json_manifest(full_manifest_path, required_schema=False)
+    companion_manifest = load_json_manifest(manifest_path, require_supported_schema=True)
+    full_manifest = load_json_manifest(full_manifest_path, require_supported_schema=False)
     old_hashes = previous_managed_hashes(companion_manifest, full_manifest)
-    upgrades = preflight_profiles(
+    upgrades, removable_legacy = preflight_profiles(
         agents_dir, check_only=check_only, old_hashes=old_hashes
     )
 
@@ -311,7 +339,7 @@ def install(codex_home: Path, check_only: bool) -> None:
         and (agents_dir / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
         for filename in PROFILE_FILES
     )
-    if profiles_exact and companion_manifest == desired_manifest():
+    if profiles_exact and companion_manifest == desired_manifest() and not removable_legacy:
         print("Managed Agent profiles already installed exactly; no changes made.")
         return
 
@@ -322,7 +350,7 @@ def install(codex_home: Path, check_only: bool) -> None:
     backups: dict[Path, Path] = {}
 
     try:
-        created, backups = install_profiles(agents_dir, upgrades)
+        created, backups = install_profiles(agents_dir, upgrades, removable_legacy)
         verify_profiles(agents_dir)
         write_manifest(manifest_path, desired_manifest())
         verify_profiles(agents_dir)
@@ -341,7 +369,10 @@ def install(codex_home: Path, check_only: bool) -> None:
 
     print(f"Managed Agent profiles installed under: {agents_dir}")
     print(f"Managed profile manifest: {manifest_path}")
-    print("Verified roles: luna_explorer, luna_worker, terra_reviewer, sol_judge")
+    print(
+        "Verified roles: codex_agent_team_reader, codex_agent_team_worker, "
+        "codex_agent_team_investigator, codex_agent_team_advisor"
+    )
     print(
         "Profile files are ready. Re-check the native spawn_agent role surface; "
         "start a fresh Codex task only if the current task still cannot discover these roles."
