@@ -105,6 +105,10 @@ def observed_fields(observation: dict[str, str | None] | None, fields: tuple[str
     return [field for field in fields if observation.get(field) is not None]
 
 
+def source_conflict_for(violations: list[str], fields: tuple[str, ...]) -> bool:
+    return any(f"source_conflict:{field}" in violations for field in fields)
+
+
 def route_complete(
     expected: dict[str, Any], observation: dict[str, str | None] | None, source: str, violations: list[str]
 ) -> bool:
@@ -136,11 +140,11 @@ def route_evidence(
 ) -> tuple[dict[str, Any], bool, bool]:
     native_complete = route_complete(expected, native, "native", violations)
     local_complete = route_complete(expected, local, "local", violations)
-    route_conflict = any(
-        item.startswith("source_conflict:")
-        or any(item == f"native:{field}_mismatch" for field in ROUTE_FIELDS)
-        or any(item == f"local:{field}_mismatch" for field in ROUTE_FIELDS)
+    route_conflict = source_conflict_for(violations, ROUTE_FIELDS) or any(
+        item == f"{source}:{field}_mismatch"
         for item in violations
+        for source in ("native", "local")
+        for field in ROUTE_FIELDS
     )
     native_seen = observed_fields(native, ROUTE_FIELDS)
     local_seen = observed_fields(local, ROUTE_FIELDS)
@@ -175,10 +179,10 @@ def ancestry_evidence(
     wanted = string_or_none(expected.get("parent_thread_id"))
     if wanted is None:
         return {"status": "not_required", "source": "none"}
-    if any("parent_thread_id_mismatch" in item for item in violations):
-        return {"status": "conflict", "source": "both" if native and local else "native" if native else "local"}
     native_has = native is not None and native.get("parent_thread_id") is not None
     local_has = local is not None and local.get("parent_thread_id") is not None
+    if any("parent_thread_id_mismatch" in item for item in violations):
+        return {"status": "conflict", "source": evidence_source(native_has, local_has)}
     if not native_has and not local_has:
         return {"status": "not_observed", "source": "none"}
     return {"status": "matched", "source": evidence_source(native_has, local_has)}
