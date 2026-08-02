@@ -107,7 +107,13 @@ skill_dir = directory containing this SKILL.md
 installer = skill_dir/../../scripts/install-agents.py
 ```
 
-Before running it, tell the user that Codex Agent Team needs to write its four managed custom-Agent profiles plus its ownership manifest under Codex home and ask permission. That authorization covers only those managed files.
+Before running it, explain the exact managed write/migration scope and ask permission. The installer may:
+
+- write or replace the four current Codex Agent Team profile files only when ownership/exactness rules permit;
+- write `.codex-agent-team-agents.json` under Codex home;
+- remove an older `luna_explorer`, `luna_worker`, `terra_reviewer`, or `sol_judge` profile only when its current bytes exactly match ownership recorded by a previous Codex Agent Team manifest.
+
+Unproven or user-modified legacy files are left untouched. Authorization covers only these project-managed paths and does not authorize edits to `config.toml`, credentials, MCP configuration, repositories, or unrelated Agent profiles.
 
 After approval:
 

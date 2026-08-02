@@ -1,6 +1,6 @@
 # Codex Agent Team
 
-[English](README_EN.md) · [安装](docs/plugin-installation.md) · [架构](docs/architecture.md) · [评测](docs/behavioral-evals.md)
+[English](README_EN.md) · [安装](docs/plugin-installation.md) · [架构](docs/architecture.md) · [评测](docs/behavioral-evals.md) · [本地真测交接](HEADOFF.md)
 
 Codex 已经能创建 Subagent。真正影响日常开发体验的是后面的调度：哪些工作值得交出去，交出去之前要说明到什么程度，前一个 Agent 已经查清的东西要不要重算，什么时候需要更强的模型，最后由谁验收。
 
@@ -34,11 +34,8 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ```text
 主会话
-
 主会话 -> Luna -> 主会话
-
 主会话 -> Luna -> Sol -> 主会话
-
 主会话 -> Luna -> Terra（只处理未决问题）-> Luna / 主会话
 ```
 
@@ -75,17 +72,10 @@ STOP / ESCALATE  什么情况必须停下来交回主会话
 主会话先判断失败属于哪一类：
 
 ```text
-机械错误
--> Luna 定点修正
-
-合同缺口
--> 主会话补齐合同，再继续受影响的部分
-
-能力缺口
--> Terra 只接收尚未解决的技术问题
-
-判断缺口
--> 主会话决定，或在确有价值时交给 Sol
+机械错误 -> Luna 定点修正
+合同缺口 -> 主会话补齐合同，再继续受影响的部分
+能力缺口 -> Terra 只接收尚未解决的技术问题
+判断缺口 -> 主会话决定，或在确有价值时交给 Sol
 ```
 
 Terra 默认是 read-only 的复杂问题调查层。它会收到已经确认的证据、当前 artifact、未决问题和明确的 `DO NOT REDO` 项，而不是重新扫描整个仓库或把 Luna 的实现从头做一遍。
@@ -163,12 +153,21 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-缺少 profile 时，Skill 会先说明写入范围并请求授权，然后只安装和校验这 4 个 managed profiles 及 ownership manifest。旧版本的 `luna_worker`、`terra_reviewer` 等 model-named profiles 只有在能够证明仍是项目管理的原始文件时才会自动迁移。
+缺少 profile 时，Skill 会先说明完整的项目管理文件范围并请求授权。Installer 只管理这 4 个当前 profiles 和 ownership manifest；旧版本的 `luna_worker`、`terra_reviewer` 等 model-named profiles 只有在当前文件字节能够由上一轮项目 ownership manifest 精确证明时才会清理。用户修改过、无法证明归属，或者在迁移完成后重新创建的 legacy 文件都不会因为陈旧 manifest 被再次删除。
 
 </details>
 
+## 项目状态
+
+当前架构已经完成静态收口。CI 和 deterministic tests 覆盖 Plugin packaging、managed profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired-eval tooling。静态结果无法证明真实 Codex 运行时一定按预期暴露角色、模型、sandbox、parent thread，也无法证明 Contract、Terra delta escalation 或 Sol review 在真实任务上一定降低成本或提高质量。
+
+下一阶段固定为本地真实运行验证。请按 [`HEADOFF.md`](HEADOFF.md) 完成 ChatGPT Desktop / Codex 用户侧模拟、Runtime Truth 对抗测试、Agent lifecycle 压力测试、installer fault injection 和 paired behavioral eval。评测 schema 会锁定 workload definition、主会话 route、permissions、tool surface 和 acceptance rubric；缺失 telemetry 保持缺失，不估算。
+
+Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍是需要真实 workload 证明的 route hypotheses。没有真实数据前，不发布成本、延迟或质量提升结论。
+
 ## 文档
 
+- [本地真实运行交接](HEADOFF.md)
 - [安装与首次运行](docs/plugin-installation.md)
 - [整体架构](docs/architecture.md)
 - [Codex 原生 Subagent Runtime](docs/native-subagent-runtime.md)
@@ -177,10 +176,6 @@ codex_agent_team_advisor
 - [Runtime Evidence](plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md)
 - [Behavioral Evals](docs/behavioral-evals.md)
 - [OpenAI References](docs/openai-references.md)
-
-## 当前验证范围
-
-CI 覆盖 Plugin packaging、managed Agent profile lifecycle、调度 policy、Delegation Contract、Runtime Truth 和 deterministic verifier。真实任务效果通过 paired live behavioral eval 验证，静态测试不会被当成真实性能结果。
 
 ## License
 

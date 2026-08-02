@@ -2,7 +2,7 @@
 
 Static repository tests prove policy text, profile lifecycle, schemas, and deterministic evidence tooling. They do not prove that a particular Codex build improves real task outcomes.
 
-Behavioral evaluation therefore uses paired live runs over the same workload and repository revision.
+Behavioral evaluation therefore uses paired live runs over the same workload, repository revision, and controlled runtime conditions.
 
 ## Primary question
 
@@ -23,15 +23,28 @@ Optional research modes may include Terra delta investigation when a workload ex
 
 A comparison is valid only when paired runs keep these fixed:
 
-- workload id;
+- workload id and exact workload definition;
 - repository and base revision;
-- user prompt;
 - Codex version;
-- main-session model/effort when applicable;
-- permissions and available tools;
+- main-session model/effort;
+- Worker route when both candidates use a Worker;
+- permissions and approval posture;
+- available tool surface;
 - acceptance rubric.
 
-Record a `repeat_index` for repeated trials. Workloads that declare `primary_comparison` must contain exactly those two modes in each comparison pair. The scorer rejects a pair that mixes workload/revision/repeat metadata, duplicates a mode, or reports different main-session routes inside the same pair.
+Result schema `2.1` makes the main controls machine-checkable. Every run records:
+
+```text
+workload_definition_hash
+main_session_route
+permissions_fingerprint
+tool_surface_fingerprint
+acceptance_rubric_id
+```
+
+The scorer requires those values to be identical inside a pair. It also rejects mixed Worker routes when both candidates report one.
+
+Record a `repeat_index` for repeated trials. Workloads that declare `primary_comparison` must contain exactly those two modes in each comparison pair. The scorer rejects a pair that mixes workload/revision/repeat metadata, duplicates a mode, or changes a controlled fingerprint.
 
 Do not compare aggregate mode averages built from different workload mixes.
 

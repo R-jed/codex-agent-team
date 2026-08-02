@@ -65,7 +65,7 @@ def valid_records(thread_id: str = THREAD_ID) -> list[dict]:
             "payload": {
                 "id": thread_id,
                 "parent_thread_id": "00000000-0000-7000-8000-000000000000",
-                "agent_role": "luna_worker",
+                "agent_role": "codex_agent_team_worker",
                 "agent_path": "/root/fixture",
                 "model_provider": "openai",
                 "cli_version": "0.145.0",
@@ -96,7 +96,7 @@ def test_runtime_inspector_emits_only_minimal_allowlisted_metadata(tmp_path: Pat
     assert result.returncode == 0, result.stderr
     payload = json.loads(result.stdout)
     assert payload == {
-        "agent_role": "luna_worker",
+        "agent_role": "codex_agent_team_worker",
         "effort": "max",
         "model": "gpt-5.6-luna",
         "model_provider": "openai",

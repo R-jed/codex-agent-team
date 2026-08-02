@@ -1,6 +1,6 @@
 # Codex Agent Team
 
-[中文](README.md) · [Install](docs/plugin-installation.md) · [Architecture](docs/architecture.md) · [Evals](docs/behavioral-evals.md)
+[中文](README.md) · [Install](docs/plugin-installation.md) · [Architecture](docs/architecture.md) · [Evals](docs/behavioral-evals.md) · [Local validation handoff](HEADOFF.md)
 
 Codex can already spawn Subagents. The harder engineering problem is scheduling them well: which work is worth delegating, how precisely it should be specified, which results can be reused, when a stronger model adds new value, and who accepts the final result.
 
@@ -34,11 +34,8 @@ These are not pipeline stages. Valid paths include:
 
 ```text
 main session
-
 main session -> Luna -> main session
-
 main session -> Luna -> Sol -> main session
-
 main session -> Luna -> Terra (unresolved delta only) -> Luna / main session
 ```
 
@@ -77,17 +74,10 @@ Model judgments are kept separate from established facts. A hypothesis stays cha
 The main session classifies the failure first:
 
 ```text
-mechanical defect
--> focused Luna correction
-
-contract gap
--> main session repairs the contract
-
-capability gap
--> Terra receives only the unresolved technical delta
-
-judgment gap
--> main session decides, or uses Sol when that adds real value
+mechanical defect -> focused Luna correction
+contract gap -> main session repairs the contract
+capability gap -> Terra receives only the unresolved technical delta
+judgment gap -> main session decides, or uses Sol when that adds real value
 ```
 
 Terra is a read-only complex-investigation tier by default. It receives established evidence, the current artifact, the unresolved question, and explicit `DO NOT REDO` items. It does not rescan the repository or reimplement the entire Luna responsibility by default.
@@ -165,12 +155,21 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-If a required profile is missing, the Skill asks permission before installing and verifying only these managed profiles plus their ownership manifest. Older model-named profiles such as `luna_worker` and `terra_reviewer` are migrated automatically only when their bytes are proven to belong to a previous managed install.
+If a required profile is missing, the Skill discloses the complete managed file scope before asking permission. The installer manages only these four current profiles and its ownership manifest. Older model-named profiles such as `luna_worker` and `terra_reviewer` are removed only when their current bytes are proven by the active previous project ownership manifest. User-modified, unproven, or intentionally recreated legacy files do not inherit deletion authority from a stale standalone manifest.
 
 </details>
 
+## Project status
+
+The current architecture has completed its static closure pass. CI and deterministic tests cover Plugin packaging, the managed profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired-eval tooling. Static results cannot prove that a live Codex build exposes roles, models, sandboxes, or parent-thread metadata as expected, nor that contracts, Terra delta escalation, or Sol review improve real task economics or quality.
+
+The next phase is local runtime validation. Follow [`HEADOFF.md`](HEADOFF.md) for ChatGPT Desktop/Codex user-flow simulation, Runtime Truth adversarial testing, Agent lifecycle stress, installer fault injection, and paired behavioral evals. Result controls lock workload definition, main-session route, permissions, tool surface, and acceptance rubric; missing telemetry remains missing.
+
+Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses requiring representative live workload evidence. Do not publish cost, latency, or quality-improvement claims before that evidence exists.
+
 ## Documentation
 
+- [Local runtime validation handoff](HEADOFF.md)
 - [Plugin installation and first run](docs/plugin-installation.md)
 - [Architecture](docs/architecture.md)
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)
@@ -179,10 +178,6 @@ If a required profile is missing, the Skill asks permission before installing an
 - [Runtime Evidence](plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md)
 - [Behavioral Evals](docs/behavioral-evals.md)
 - [OpenAI References](docs/openai-references.md)
-
-## Current validation scope
-
-CI covers Plugin packaging, the managed Agent profile lifecycle, orchestration policy, Delegation Contract rules, Runtime Truth, and the deterministic verifier. Real task performance is evaluated with paired live behavioral runs; static repository tests are not presented as performance results.
 
 ## License
 

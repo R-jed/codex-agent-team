@@ -17,6 +17,7 @@ from typing import Any, NoReturn
 ROUTE_FIELDS = ("agent_role", "model", "effort")
 IDENTITY_FIELDS = ("thread_id", "parent_thread_id")
 PERMISSION_FIELDS = ("sandbox_policy_type", "permission_profile_type")
+ALL_OBSERVED_FIELDS = (*ROUTE_FIELDS, *IDENTITY_FIELDS, *PERMISSION_FIELDS)
 READ_ONLY_SANDBOXES = {"read-only", "read_only", "readonly"}
 
 
@@ -91,7 +92,7 @@ def compare_sources(
     local: dict[str, str | None],
 ) -> list[str]:
     violations: list[str] = []
-    for field in (*ROUTE_FIELDS, *IDENTITY_FIELDS, *PERMISSION_FIELDS):
+    for field in ALL_OBSERVED_FIELDS:
         left = native.get(field)
         right = local.get(field)
         if left is not None and right is not None and left != right:
@@ -176,11 +177,14 @@ def ancestry_evidence(
     local: dict[str, str | None] | None,
     violations: list[str],
 ) -> dict[str, Any]:
+    native_has = native is not None and native.get("parent_thread_id") is not None
+    local_has = local is not None and local.get("parent_thread_id") is not None
+    if source_conflict_for(violations, ("parent_thread_id",)):
+        return {"status": "conflict", "source": "both"}
+
     wanted = string_or_none(expected.get("parent_thread_id"))
     if wanted is None:
         return {"status": "not_required", "source": "none"}
-    native_has = native is not None and native.get("parent_thread_id") is not None
-    local_has = local is not None and local.get("parent_thread_id") is not None
     if any("parent_thread_id_mismatch" in item for item in violations):
         return {"status": "conflict", "source": evidence_source(native_has, local_has)}
     if not native_has and not local_has:
@@ -191,7 +195,11 @@ def ancestry_evidence(
 def permission_evidence(
     expected: dict[str, Any],
     native: dict[str, str | None] | None,
+    local: dict[str, str | None] | None,
+    violations: list[str],
 ) -> dict[str, Any]:
+    if source_conflict_for(violations, PERMISSION_FIELDS):
+        return {"status": "conflict", "source": "both"}
     if not bool(expected.get("requires_enforced_read_only", False)):
         return {"status": "not_required", "source": "none"}
     if native is None or native.get("sandbox_policy_type") is None:
@@ -216,6 +224,24 @@ def compact_grade(
     return "C1_configuration_only"
 
 
+def observed_source_agreement(
+    native: dict[str, str | None] | None,
+    local: dict[str, str | None] | None,
+    violations: list[str],
+) -> bool | None:
+    if native is None or local is None:
+        return None
+    overlap = any(
+        native.get(field) is not None and local.get(field) is not None
+        for field in ALL_OBSERVED_FIELDS
+    )
+    if not overlap:
+        return None
+    if any(item.startswith("source_conflict:") for item in violations):
+        return False
+    return True
+
+
 def main() -> None:
     args = parse_args()
     payload = load_payload(args.input)
@@ -235,7 +261,7 @@ def main() -> None:
 
     route, native_complete, local_complete = route_evidence(expected, native, local, violations)
     ancestry = ancestry_evidence(expected, native, local, violations)
-    permission = permission_evidence(expected, native)
+    permission = permission_evidence(expected, native, local, violations)
 
     if permission["status"] == "not_observed":
         violations.append("permission:read_only_native_unobserved")
@@ -250,7 +276,7 @@ def main() -> None:
     conflict = (
         route["status"] == "conflict"
         or ancestry["status"] == "conflict"
-        or permission["status"] == "broader_than_required"
+        or permission["status"] in {"broader_than_required", "conflict"}
         or identity_conflict
         or source_conflict
     )
@@ -289,6 +315,14 @@ def main() -> None:
     else:
         permission_match = None
 
+    configuration_match: bool | None
+    if route["status"] == "matched":
+        configuration_match = True
+    elif route["status"] == "conflict":
+        configuration_match = False
+    else:
+        configuration_match = None
+
     result = {
         "status": status,
         "decision": decision,
@@ -296,12 +330,10 @@ def main() -> None:
         "route_evidence": route,
         "ancestry_evidence": ancestry,
         "permission_evidence": permission,
-        "configuration_match": not any(
-            item.startswith("native:") or item.startswith("local:") for item in violations
-        ),
+        "configuration_match": configuration_match,
         "runtime_reported": native_complete,
         "local_record_observed": local_complete,
-        "source_agreement": not source_conflict,
+        "source_agreement": observed_source_agreement(native, local, violations),
         "permission_match": permission_match,
         "ancestry_match": ancestry_match,
         "violations": sorted(set(violations)),

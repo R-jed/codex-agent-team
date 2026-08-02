@@ -58,6 +58,8 @@ def test_configuration_only_is_c1_with_typed_not_observed_states():
     assert data["route_evidence"]["status"] == "not_observed"
     assert data["ancestry_evidence"]["status"] == "not_observed"
     assert data["ancestry_match"] is None
+    assert data["configuration_match"] is None
+    assert data["source_agreement"] is None
 
 
 def test_complete_native_route_is_r1():
@@ -68,6 +70,8 @@ def test_complete_native_route_is_r1():
     assert data["route_evidence"]["source"] == "native"
     assert data["runtime_reported"] is True
     assert data["ancestry_evidence"]["status"] == "matched"
+    assert data["configuration_match"] is True
+    assert data["source_agreement"] is None
 
 
 def test_empty_native_object_never_counts_as_r1():
@@ -76,6 +80,7 @@ def test_empty_native_object_never_counts_as_r1():
     assert data["evidence_grade"] == "C1_configuration_only"
     assert data["runtime_reported"] is False
     assert data["route_evidence"]["status"] == "not_observed"
+    assert data["configuration_match"] is None
 
 
 def test_partial_native_route_never_counts_as_r1():
@@ -86,6 +91,7 @@ def test_partial_native_route_never_counts_as_r1():
     assert data["evidence_grade"] == "C1_configuration_only"
     assert data["route_evidence"]["status"] == "partial"
     assert data["route_evidence"]["observed_fields"] == ["agent_role"]
+    assert data["configuration_match"] is None
 
 
 def test_runtime_required_rejects_partial_native_route():
@@ -108,6 +114,7 @@ def test_complete_local_route_is_l1_not_runtime_proof():
     assert data["evidence_grade"] == "L1_local_record_observed"
     assert data["runtime_reported"] is False
     assert data["local_record_observed"] is True
+    assert data["configuration_match"] is True
 
 
 def test_two_partial_observations_never_count_as_r2():
@@ -117,6 +124,8 @@ def test_two_partial_observations_never_count_as_r2():
     assert data["evidence_grade"] == "C1_configuration_only"
     assert data["route_evidence"]["status"] == "partial"
     assert data["route_evidence"]["source"] == "none"
+    assert data["source_agreement"] is True
+    assert data["configuration_match"] is None
 
 
 def test_complete_native_and_local_agreement_is_r2():
@@ -124,9 +133,10 @@ def test_complete_native_and_local_agreement_is_r2():
     assert result.returncode == 0, result.stderr
     assert data["evidence_grade"] == "R2_runtime_reported_and_local_record_agree"
     assert data["route_evidence"]["source"] == "both"
+    assert data["source_agreement"] is True
 
 
-def test_cross_source_conflict_is_quarantined():
+def test_cross_source_route_conflict_is_quarantined():
     result, data = run_verifier(
         {
             "expected": expected(),
@@ -138,6 +148,8 @@ def test_cross_source_conflict_is_quarantined():
     assert data["decision"] == "quarantine"
     assert data["evidence_grade"] == "X0_conflicted"
     assert data["route_evidence"]["status"] == "conflict"
+    assert data["configuration_match"] is False
+    assert data["source_agreement"] is False
 
 
 def test_missing_parent_is_not_reported_as_ancestry_match():
@@ -156,6 +168,23 @@ def test_wrong_parent_is_quarantined():
     assert data["decision"] == "quarantine"
     assert data["ancestry_evidence"]["status"] == "conflict"
     assert data["ancestry_match"] is False
+    assert data["route_evidence"]["status"] == "matched"
+
+
+def test_cross_source_parent_conflict_is_typed_even_when_parent_is_not_required():
+    result, data = run_verifier(
+        {
+            "expected": expected(parent_thread_id=None),
+            "native": observation(),
+            "local": observation(parent_thread_id="22222222-2222-7222-8222-222222222222"),
+        }
+    )
+    assert result.returncode == 0, result.stderr
+    assert data["decision"] == "quarantine"
+    assert data["evidence_grade"] == "X0_conflicted"
+    assert data["route_evidence"]["status"] == "matched"
+    assert data["ancestry_evidence"] == {"status": "conflict", "source": "both"}
+    assert data["source_agreement"] is False
 
 
 def test_ancestry_conflict_does_not_poison_matched_route_evidence():
@@ -196,3 +225,20 @@ def test_broader_than_required_read_only_is_quarantined():
     assert data["decision"] == "quarantine"
     assert data["permission_evidence"]["status"] == "broader_than_required"
     assert data["permission_match"] is False
+
+
+def test_cross_source_permission_conflict_is_typed_without_poisoning_route():
+    result, data = run_verifier(
+        {
+            "expected": expected(requires_enforced_read_only=True),
+            "native": observation(sandbox_policy_type="read-only"),
+            "local": observation(sandbox_policy_type="workspace-write"),
+        }
+    )
+    assert result.returncode == 0, result.stderr
+    assert data["decision"] == "quarantine"
+    assert data["evidence_grade"] == "X0_conflicted"
+    assert data["route_evidence"]["status"] == "matched"
+    assert data["permission_evidence"] == {"status": "conflict", "source": "both"}
+    assert data["permission_match"] is False
+    assert data["source_agreement"] is False
