@@ -1,7 +1,7 @@
 # Codex Agent Team
 
 <p align="center">
-  <img src="assets/readme/hero.svg" alt="Codex Agent Team: keep small tasks in the main session and delegate only when the work benefits from it" width="100%">
+  <img src="assets/readme/hero.svg" alt="Codex Agent Team: the main session owns the task, Subagents own bounded work" width="100%">
 </p>
 
 <p align="center">
@@ -11,11 +11,11 @@
   <a href="docs/behavioral-evals.md">Evals</a>
 </p>
 
-Codex can already create Subagents. The harder part is deciding when to split a task, which specialist to use, who may write to the workspace, when an independent review is worth the cost, and who accepts the result.
+Codex can already spawn Subagents. The missing piece is operating policy: when to delegate, which specialist to call, who may write to the workspace, when independent review is warranted, and who accepts the result.
 
-Codex Agent Team turns those choices into a small set of rules. You keep working in the current main session. Small work stays there. When delegation has a concrete payoff, Luna, Terra, or Sol takes a clearly bounded responsibility, and the result comes back to the main session for acceptance.
+Codex Agent Team makes those decisions explicit. The current main session always owns scope, risk, and acceptance. Luna, Terra, and Sol take bounded responsibilities only when their trigger is met.
 
-## Install in 30 seconds
+## Install
 
 Add this repository marketplace to Codex:
 
@@ -23,54 +23,31 @@ Add this repository marketplace to Codex:
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Reopen the ChatGPT desktop app, install `Codex Agent Team` from its marketplace in the Plugins Directory, then invoke it explicitly when you want to:
+Reopen the ChatGPT desktop app and install `Codex Agent Team` from its marketplace in the Plugins Directory. You can then invoke it explicitly:
 
 ```text
 /codex-agent-team
 ```
 
-You can also just describe the job:
+You can also describe the development task normally. The Skill first decides whether delegation is useful at all.
 
-```text
-Check the payment callback for a concurrency bug, fix it, and run the tests. If the change crosses a security boundary, add an independent review.
-```
-
-The Skill decides whether delegation actually helps.
-
-## One concrete example
+## One task, one concrete route
 
 <p align="center">
-  <img src="assets/readme/example.svg" alt="A concrete concurrency-fix example showing when the main session uses Luna and Terra" width="100%">
+  <img src="assets/readme/example.svg" alt="A payment-callback concurrency issue routed through Codex Agent Team" width="100%">
 </p>
 
-A task like this normally starts in the main session. Heavy tracing or bounded implementation can move to Luna. Terra joins only when the change is risky enough that a detached review improves acceptance confidence. If the task is already small and isolated, it simply stays in the main session.
+Take a concurrency bug in a payment callback. The main session first sets scope and acceptance checks. Heavy tracing or bounded implementation can move to Luna. If the change crosses a security boundary, Terra can review it independently. The result still comes back to the main session for diff, test, and evidence checks.
 
-Sol is rare. It is reserved for unresolved high-consequence judgment after explicit user consent.
+If the task is already small and isolated, the main session simply completes it. Sol is reserved for rare unresolved high-consequence judgment and requires explicit user consent.
 
-## What the Skill actually manages
-
-Codex already provides the native `spawn_agent` primitive. Codex Agent Team manages the policy above it:
-
-| Decision | Default rule |
-| --- | --- |
-| Should this task be delegated? | Keep it in the main session unless delegation has a concrete benefit |
-| Who explores and implements? | Luna |
-| When is a second view useful? | Use Terra for risky changes where detached judgment matters |
-| Who may write to one workspace? | At most 1 active Writing Worker |
-| When can Sol be used? | Only for unresolved high-consequence judgment after consent |
-| Who accepts the work? | The main session checks files, diffs, commands, tests, and evidence |
+## Operating model
 
 <p align="center">
-  <img src="assets/readme/workflow.svg" alt="Codex Agent Team flow from decision to execution, review, and main-session acceptance" width="100%">
+  <img src="assets/readme/operating-model.svg" alt="Codex Agent Team operating model: one main session with Luna, Terra, and Sol as specialist Subagents" width="100%">
 </p>
 
-Zero Subagents is a normal outcome. Most tasks should not traverse the full chain.
-
-## Four roles
-
-<p align="center">
-  <img src="assets/readme/roles.svg" alt="Codex Agent Team roles: main session, Luna, Terra, and Sol" width="100%">
-</p>
+This is the core of the workflow: the main session owns the full task; each Subagent receives only a bounded responsibility. If a trigger is absent, that specialist is not created.
 
 | Role | Default route | Main responsibility |
 | --- | --- | --- |
@@ -83,7 +60,7 @@ Luna has explorer and worker profiles. Terra is a reviewer, not an implementatio
 
 ## What you see
 
-When real delegation happens, or when an orchestration check materially changes execution, the Skill adds a compact receipt:
+When a Subagent is actually created, or when an orchestration check materially changes execution, the Skill adds a compact receipt:
 
 ```text
 Agent Team

@@ -1,7 +1,7 @@
 # Codex Agent Team
 
 <p align="center">
-  <img src="assets/readme/hero-zh.svg" alt="Codex Agent Team：小任务留在主会话，复杂任务再分工" width="100%">
+  <img src="assets/readme/hero-zh.svg" alt="Codex Agent Team：主会话负责全局，子代理只接局部任务" width="100%">
 </p>
 
 <p align="center">
@@ -11,11 +11,11 @@
   <a href="docs/behavioral-evals.md">评测</a>
 </p>
 
-Codex 已经能创建子代理（Subagent）。真正麻烦的是后面的选择：这个任务要不要拆，交给谁，谁可以改文件，什么时候值得多做一次独立复核。
+Codex 已经能创建子代理（Subagent）。难的是后面的分工：什么时候该委派，交给谁，谁可以改文件，什么时候需要独立复核，结果由谁验收。
 
-Codex Agent Team 做的就是把这些分工规则固定下来。平时照常描述任务，小任务留在主会话；确实需要分工时，再调用 Luna、Terra 或 Sol。所有结果最后都回到主会话验收。
+Codex Agent Team 把这些决定固定成一套可执行规则。当前主会话始终负责范围、风险和验收；Luna、Terra、Sol 只在对应条件满足时接手局部任务。
 
-## 30 秒安装
+## 安装
 
 先把这个仓库的 marketplace 加到 Codex：
 
@@ -29,48 +29,25 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 /codex-agent-team
 ```
 
-也可以直接说要做什么：
+也可以直接描述开发任务。Skill 会先判断有没有委派的必要。
 
-```text
-帮我检查支付回调里的并发问题，修好后跑测试。如果改动碰到安全边界，再安排一次独立复核。
-```
-
-Skill 会先判断这个任务有没有分工的必要。
-
-## 先看一个例子
+## 一个任务怎么分
 
 <p align="center">
-  <img src="assets/readme/example-zh.svg" alt="一个支付回调并发问题在 Codex Agent Team 中的实际分工示例" width="100%">
+  <img src="assets/readme/example-zh.svg" alt="支付回调并发问题在 Codex Agent Team 中的分工示例" width="100%">
 </p>
 
-上面这类任务通常先由主会话确认范围。需要大量代码追踪或有边界的实现时交给 Luna；改动风险足够高时，再让 Terra 独立检查。任务本身已经很清楚，就由主会话直接做完。
+比如支付回调出现并发问题。主会话先确认影响范围和验收条件；需要大量代码追踪或有边界的实现时，交给 Luna；如果修改触及安全边界，再让 Terra 独立复核。最后仍由主会话检查 diff、测试和证据。
 
-Sol 很少出现。只有高后果分歧仍然没有解决，而且用户明确同意，才会调用一次 Sol。
+任务本身已经很小、上下文也清楚时，主会话直接完成。Sol 只处理少量仍未解决的高后果分歧，而且必须先取得用户授权。
 
-## 它管的是分工
-
-Codex 原生 `spawn_agent` 已经提供了创建子代理的能力。Codex Agent Team 负责上层的协作规则：
-
-| 要决定什么 | 默认规则 |
-| --- | --- |
-| 要不要分工 | 没有具体收益就留在主会话 |
-| 谁负责搜索和实现 | Luna |
-| 什么时候加第二个视角 | 高风险修改确实需要独立判断时使用 Terra |
-| 谁能写同一个 Workspace | 同时最多 1 个 Writing Worker |
-| 什么时候找 Sol | 高后果分歧未解决，并且先取得用户授权 |
-| 谁验收 | 主会话检查文件、diff、命令、测试和证据 |
+## 运行方式
 
 <p align="center">
-  <img src="assets/readme/workflow-zh.svg" alt="Codex Agent Team 从判断、执行、复核到主会话验收的任务流程" width="100%">
+  <img src="assets/readme/operating-model-zh.svg" alt="Codex Agent Team：一个主会话与 Luna、Terra、Sol 三类专业子代理的运行关系" width="100%">
 </p>
 
-一个子代理都不开也很正常。大多数任务不需要完整走完这条链路。
-
-## 四个角色
-
-<p align="center">
-  <img src="assets/readme/roles-zh.svg" alt="Codex Agent Team 中主会话、Luna、Terra 与 Sol 的职责" width="100%">
-</p>
+这张图是整个工作流的核心：主会话拥有完整任务，子代理只拿到边界清楚的局部责任。没有触发条件，就不会创建对应的 Subagent。
 
 | 角色 | 默认路由 | 主要工作 |
 | --- | --- | --- |
@@ -79,7 +56,7 @@ Codex 原生 `spawn_agent` 已经提供了创建子代理的能力。Codex Agent
 | Terra | GPT-5.6 Terra `xhigh` | 独立复核高风险修改、冲突证据和关键假设 |
 | Sol | GPT-5.6 Sol `high` | 处理少量未决的高后果判断，需要用户授权 |
 
-Luna 有探索和执行两个 profile。Terra 只做独立复核。Sol 不承担日常实现。
+Luna 有探索和执行两个 profile。Terra 只做独立复核。Sol 不承担日常实现，也不会固定出现在每个任务末尾。
 
 ## 你会看到什么
 
