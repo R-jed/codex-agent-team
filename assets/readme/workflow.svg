@@ -18,14 +18,16 @@
   <text x="56" y="138" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.62">WORKFLOW</text>
   <text x="56" y="202" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="48" font-weight="700" fill="#0a1f3d">Delegate only</text>
   <text x="56" y="258" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="48" font-weight="700" fill="#0a1f3d">when it adds value.</text>
-  <text x="56" y="316" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="400" fill="#0a1f3d" opacity="0.74">The active session keeps ownership of intent, risk, acceptance, and delivery.</text>
+  <text x="56" y="314" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.74">The active session keeps ownership of intent,</text>
+  <text x="56" y="344" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.74">risk, acceptance, and delivery.</text>
 
-  <rect x="56" y="382" width="300" height="136" fill="#0a1f3d"/>
-  <text x="82" y="420" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.7">OPTIONAL JUDGMENT</text>
-  <text x="82" y="462" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#f1f3f5">Sol · Senior judgment</text>
-  <text x="82" y="496" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.78">Only for unresolved high-consequence decisions, after explicit consent.</text>
+  <rect x="56" y="388" width="300" height="150" fill="#0a1f3d"/>
+  <text x="82" y="426" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.7">OPTIONAL JUDGMENT</text>
+  <text x="82" y="466" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="29" font-weight="700" fill="#f1f3f5">Sol · Senior judgment</text>
+  <text x="82" y="500" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="18" font-weight="500" fill="#f1f3f5" opacity="0.78">Only for unresolved high-consequence</text>
+  <text x="82" y="526" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="18" font-weight="500" fill="#f1f3f5" opacity="0.78">decisions, after explicit consent.</text>
 
-  <g transform="translate(414,118)">
+  <g transform="translate(414,110)">
     <line x1="0" y1="0" x2="730" y2="0" stroke="#0a1f3d" stroke-width="2"/>
     <line x1="0" y1="122" x2="730" y2="122" stroke="#0a1f3d" stroke-width="1" opacity="0.28"/>
     <line x1="0" y1="244" x2="730" y2="244" stroke="#0a1f3d" stroke-width="1" opacity="0.28"/>
@@ -39,17 +41,20 @@
 
     <text x="0" y="170" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="42" font-weight="700" fill="#0a1f3d">02</text>
     <text x="88" y="164" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Luna executes</text>
-    <text x="88" y="198" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.68">Search, implementation, debugging, and tests inside a bounded task.</text>
+    <text x="88" y="196" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="400" fill="#0a1f3d" opacity="0.68">Search, implementation, debugging, and tests</text>
+    <text x="88" y="220" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="400" fill="#0a1f3d" opacity="0.68">inside a clearly bounded task.</text>
     <text x="650" y="170" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" fill="#0a1f3d" opacity="0.6">EXECUTE</text>
 
     <text x="0" y="292" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="42" font-weight="700" fill="#0a1f3d">03</text>
     <text x="88" y="286" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Terra reviews</text>
-    <text x="88" y="320" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.68">Added only when a detached view materially improves confidence.</text>
+    <text x="88" y="318" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="400" fill="#0a1f3d" opacity="0.68">Added only when a detached view materially</text>
+    <text x="88" y="342" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="400" fill="#0a1f3d" opacity="0.68">improves confidence.</text>
     <text x="650" y="292" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" fill="#0a1f3d" opacity="0.6">REVIEW</text>
 
     <text x="0" y="414" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="42" font-weight="700" fill="#0a1f3d">04</text>
     <text x="88" y="408" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Root verifies and delivers</text>
-    <text x="88" y="442" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#0a1f3d" opacity="0.68">Evidence is checked, conflicts are resolved, and Root makes the final call.</text>
+    <text x="88" y="440" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="400" fill="#0a1f3d" opacity="0.68">Evidence is checked, conflicts are resolved,</text>
+    <text x="88" y="464" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="400" fill="#0a1f3d" opacity="0.68">and Root makes the final call.</text>
     <text x="650" y="414" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" fill="#0a1f3d" opacity="0.6">DELIVER</text>
   </g>
 
