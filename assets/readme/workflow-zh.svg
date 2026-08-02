@@ -18,14 +18,16 @@
   <text x="56" y="138" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.62">工作流</text>
   <text x="56" y="202" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="48" font-weight="700" fill="#0a1f3d">任务只在</text>
   <text x="56" y="258" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="48" font-weight="700" fill="#0a1f3d">有收益时分流。</text>
-  <text x="56" y="316" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="400" fill="#0a1f3d" opacity="0.74">当前会话始终掌握目标、风险、验收与最终交付。</text>
+  <text x="56" y="314" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="400" fill="#0a1f3d" opacity="0.74">当前会话始终掌握目标、风险、验收</text>
+  <text x="56" y="344" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="400" fill="#0a1f3d" opacity="0.74">与最终交付。</text>
 
-  <rect x="56" y="382" width="300" height="136" fill="#0a1f3d"/>
-  <text x="82" y="420" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.7">OPTIONAL JUDGMENT</text>
-  <text x="82" y="462" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#f1f3f5">Sol · 高级裁决</text>
-  <text x="82" y="496" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.78">仅用于高后果分歧，并需要用户明确授权。</text>
+  <rect x="56" y="388" width="300" height="150" fill="#0a1f3d"/>
+  <text x="82" y="426" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.7">OPTIONAL JUDGMENT</text>
+  <text x="82" y="466" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#f1f3f5">Sol · 高级裁决</text>
+  <text x="82" y="500" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="500" fill="#f1f3f5" opacity="0.78">仅用于高后果分歧，</text>
+  <text x="82" y="526" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="500" fill="#f1f3f5" opacity="0.78">并需要用户明确授权。</text>
 
-  <g transform="translate(414,118)">
+  <g transform="translate(414,110)">
     <line x1="0" y1="0" x2="730" y2="0" stroke="#0a1f3d" stroke-width="2"/>
     <line x1="0" y1="122" x2="730" y2="122" stroke="#0a1f3d" stroke-width="1" opacity="0.28"/>
     <line x1="0" y1="244" x2="730" y2="244" stroke="#0a1f3d" stroke-width="1" opacity="0.28"/>
