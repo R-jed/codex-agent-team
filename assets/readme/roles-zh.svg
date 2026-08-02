@@ -36,14 +36,16 @@
   <line x1="478" y1="308" x2="1144" y2="308" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="364" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#f1f3f5">TERRA</text>
   <text x="478" y="408" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="27" font-weight="700" fill="#f1f3f5">独立复核</text>
-  <text x="818" y="364" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · XHIGH</text>
-  <text x="818" y="408" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.78">冲突证据 · 关键假设 · 脱离实现路径检查</text>
+  <text x="818" y="358" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · XHIGH</text>
+  <text x="818" y="402" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.78">冲突证据 · 关键假设</text>
+  <text x="818" y="430" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.78">脱离实现路径检查</text>
 
   <line x1="478" y1="448" x2="1144" y2="448" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="504" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="40" font-weight="700" fill="#f1f3f5">SOL</text>
   <text x="478" y="544" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="25" font-weight="700" fill="#f1f3f5">授权后裁决</text>
-  <text x="818" y="504" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · HIGH</text>
-  <text x="818" y="544" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.78">仅用于少量高后果问题 · 需要用户明确授权</text>
+  <text x="818" y="498" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#f1f3f5" opacity="0.62">GPT-5.6 · HIGH</text>
+  <text x="818" y="540" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.78">少量高后果问题</text>
+  <text x="818" y="568" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.78">需要用户明确授权</text>
 
   <text x="56" y="634" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="18" font-weight="500" fill="#f1f3f5" opacity="0.68">Skill 不会暗中切换当前 Root 的模型或 reasoning effort。</text>
   <text x="1144" y="634" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.58">BOUNDED DELEGATION</text>
