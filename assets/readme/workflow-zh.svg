@@ -22,7 +22,7 @@
   <text x="56" y="360" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="500" fill="#0a1f3d" opacity="0.72">创建更多 Agent 从来不是目标。</text>
 
   <rect x="56" y="418" width="304" height="154" fill="#0a1f3d"/>
-  <text x="82" y="456" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="600" fill="#f1f3f5" opacity="0.7">最终责任</text>
+  <text x="82" y="456" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.7">最终责任</text>
   <text x="82" y="498" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#f1f3f5">回到主会话</text>
   <text x="82" y="534" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.8">检查文件、diff、测试与证据，</text>
   <text x="82" y="562" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.8">再决定是否接受结果。</text>
@@ -37,22 +37,22 @@
     <text x="0" y="52" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">01</text>
     <text x="88" y="46" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">主会话直接做</text>
     <text x="88" y="84" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">任务小、上下文清楚，直接完成最省事。</text>
-    <text x="690" y="50" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">默认</text>
+    <text x="690" y="50" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">默认</text>
 
     <text x="0" y="180" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">02</text>
     <text x="88" y="174" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">Luna 执行</text>
     <text x="88" y="212" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">搜索量大、上下文重，或实现边界已经清楚。</text>
-    <text x="690" y="178" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">执行</text>
+    <text x="690" y="178" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">执行</text>
 
     <text x="0" y="308" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">03</text>
     <text x="88" y="302" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">Terra 复核</text>
     <text x="88" y="340" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">修改风险高，第二个独立视角确实能提高置信度。</text>
-    <text x="690" y="306" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">复核</text>
+    <text x="690" y="306" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">复核</text>
 
     <text x="0" y="436" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">04</text>
     <text x="88" y="430" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">Sol 裁决</text>
     <text x="88" y="468" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">高后果分歧仍未解决，先征得用户授权。</text>
-    <text x="690" y="434" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">授权</text>
+    <text x="690" y="434" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">授权</text>
   </g>
 
   <text x="56" y="688" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.7">0 个子代理很正常 · 所有结果最终由主会话验收</text>
