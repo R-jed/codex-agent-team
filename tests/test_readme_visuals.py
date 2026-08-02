@@ -64,12 +64,13 @@ def test_english_readme_svgs_remain_english_only():
         assert not re.search(r"[\u4e00-\u9fff]", load_svg(name))
 
 
-def test_role_spread_preserves_control_hierarchy():
-    for name in ["roles-zh.svg", "roles.svg"]:
-        svg = load_svg(name)
-        root_x = svg.index(">ROOT<")
-        luna_x = svg.index(">LUNA<")
-        terra_x = svg.index(">TERRA<")
-        sol_x = svg.index(">SOL<")
-        assert root_x < luna_x < terra_x < sol_x
+def test_role_spread_preserves_main_session_control_hierarchy():
+    zh = load_svg("roles-zh.svg")
+    en = load_svg("roles.svg")
+
+    assert zh.index(">主会话<") < zh.index(">LUNA<") < zh.index(">TERRA<") < zh.index(">SOL<")
+    assert en.index(">MAIN SESSION<") < en.index(">LUNA<") < en.index(">TERRA<") < en.index(">SOL<")
+
+    for svg in [zh, en]:
+        assert ">ROOT<" not in svg
         assert 'x="478" y="118" width="666" height="172"' in svg
