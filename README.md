@@ -15,29 +15,25 @@
 
 小而明确的任务留在当前 Root。需要隔离上下文或有边界的执行时交给 Luna。高风险修改真正需要独立判断时增加 Terra。高后果分歧仍未解决时，非 Sol Root 可以在用户明确同意后增加一次 Sol 裁决。
 
-## 推荐安装：Codex Plugin
+## 安装
 
-Plugin 是推荐的社区分发方式。它安装工作流 Skills，并保留当前会话作为 Root。
+Codex Plugin 是唯一支持的分发方式。
 
-先用 Codex CLI 注册这个仓库提供的 marketplace：
+先注册仓库提供的 marketplace：
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-然后重新打开 ChatGPT desktop app，在 Plugins Directory 中选择 `Codex Agent Team` marketplace，并安装 `Codex Agent Team`。这条路径与当前 OpenAI Plugin 文档保持一致，避免依赖不同 Codex build 可能变化的额外安装命令。
+然后重新打开 ChatGPT desktop app，在 Plugins Directory 中选择 `Codex Agent Team` marketplace，并安装 `Codex Agent Team`。
 
-### 安装 companion custom agents
-
-Plugin 安装完成后，还需要一次显式的 Agent setup。官方 Plugin manifest 当前原生声明 Skills、MCP、hooks 与界面资源，custom Agent TOML 仍由 Codex 从 `~/.codex/agents/` 或项目 `.codex/agents/` 读取，因此它们作为 companion profiles 单独安装。
-
-在 Codex 中调用：
+安装完成后只需要记住一个入口：
 
 ```text
-/codex-agent-team-setup
+/codex-agent-team
 ```
 
-Setup Skill 会调用随 Plugin 打包的安全 installer，安装并逐字节校验：
+第一次运行时，主 Skill 会检查四个项目 custom Agent profiles：
 
 ```text
 luna_explorer
@@ -46,37 +42,21 @@ terra_reviewer
 sol_judge
 ```
 
-完成后新建一个 Codex task，让 native `spawn_agent` surface 重新发现这些 roles。
+如果 profiles 缺失，Skill 会先说明将写入的范围并请求授权。获得授权后，它调用 Plugin 内置的 fail-closed installer，安装并逐字节校验四个 profiles，然后重新检查当前 native `spawn_agent` role surface。
 
-## Standalone 安装
+如果当前 task 已经能够发现新 roles，流程可以继续。如果当前 runtime 尚未刷新 role discovery，Skill 会要求新建一个 Codex task，然后再次运行 `/codex-agent-team`。
 
-不使用 Plugin 时，仓库 installer 会一次安装主 Skill 和全部 custom agents：
+不会修改 `config.toml`、其他 Agent profiles、MCP 配置、凭据或无关文件。
 
-```bash
-git clone https://github.com/R-jed/codex-agent-team.git
-cd codex-agent-team
-python scripts/install.py
-python scripts/install.py --check
-python scripts/doctor.py
-```
-
-只安装 Skill 并使用 Portable Mode：
-
-```bash
-python scripts/install.py --skill-only
-```
-
-Standalone installer 会把 profiles 安装到 `~/.codex/agents/`，记录 package-managed hashes，并拒绝覆盖用户自行修改过的托管文件。
-
-## 日常怎么用
+## 日常使用
 
 显式调用：
 
 ```text
-$codex-agent-team
+/codex-agent-team
 ```
 
-也可以直接描述开发任务。Skill 允许隐式调用，并优先判断有没有具体委派收益。
+也可以直接描述开发任务。Skill 允许隐式调用，并先判断委派有没有具体收益。
 
 ```text
 帮我修复这个认证问题，运行相关测试，再判断是否真的需要独立 review。
@@ -129,7 +109,7 @@ Agent Team: Root only
 Why: change already isolated; delegation had no concrete benefit
 ```
 
-这让“为什么创建 Agent”和“为什么没有创建 Agent”都保持可见，同时避免给隐式的小任务增加额外噪音。
+这样“为什么创建 Agent”和“为什么没有创建 Agent”都会保持可见，同时避免给隐式的小任务增加额外噪音。
 
 ## 核心规则
 
@@ -158,7 +138,7 @@ Codex Agent Team 直接使用 Codex 原生 `spawn_agent`，不会建立第二套
 
 ## 验证状态
 
-仓库包含 policy regression、routing cases、installer lifecycle、runtime evidence、deterministic verifier 与 live behavioral benchmark harness。静态测试结果不会被描述成真实 Codex runtime 证据。
+仓库包含 policy regression、routing cases、Plugin packaging、custom-Agent installer lifecycle、runtime evidence、deterministic verifier 与 live behavioral benchmark harness。静态测试结果不会被描述成真实 Codex runtime 证据。
 
 ## License
 
