@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0",
+  "skill_name": "codex-agent-team",
+  "cases": [
+    {
+      "id": "ordinary-route-observation-unavailable",
+      "input": {
+        "route_assurance": "profile_locked",
+        "runtime_observation": "not_exposed",
+        "runtime_observation_required": false
+      },
+      "expected": {
+        "decision": "continue",
+        "claim": "configuration_assured_only"
+      }
+    },
+    {
+      "id": "high-consequence-model-independence-unobservable",
+      "input": {
+        "route_assurance": "profile_locked",
+        "runtime_observation": "not_exposed",
+        "runtime_observation_required": true,
+        "reason": "verified_cross_model_independence"
+      },
+      "expected": {
+        "decision": "return_to_root",
+        "claim": "stronger_assurance_unavailable"
+      }
+    },
+    {
+      "id": "native-runtime-route-match",
+      "input": {
+        "configured_route": "gpt-5.6-luna/max",
+        "native_observed_route": "gpt-5.6-luna/max"
+      },
+      "expected": {
+        "decision": "continue",
+        "observation_status": "matched"
+      }
+    },
+    {
+      "id": "native-local-attestation-conflict",
+      "input": {
+        "native_observed_route": "gpt-5.6-luna/max",
+        "local_observed_route": "gpt-5.6-terra/xhigh"
+      },
+      "expected": {
+        "decision": "quarantine",
+        "observation_status": "mismatch"
+      }
+    },
+    {
+      "id": "required-read-only-unobservable",
+      "input": {
+        "requires_enforced_read_only": true,
+        "observed_sandbox": null
+      },
+      "expected": {
+        "decision": "return_to_root",
+        "permission_guarantee": "unknown"
+      }
+    },
+    {
+      "id": "broadened-reviewer-sandbox-behavioral-readonly",
+      "input": {
+        "requires_enforced_read_only": false,
+        "observed_sandbox": "workspace-write",
+        "explicit_no_write_instruction": true,
+        "before_after_state_equal": true
+      },
+      "expected": {
+        "decision": "continue",
+        "permission_guarantee": "instruction_enforced",
+        "residual_risk_required": true
+      }
+    },
+    {
+      "id": "unused-role-unavailable-does-not-block-team",
+      "input": {
+        "selected_responsibilities": ["execution_worker"],
+        "luna_available": true,
+        "terra_available": false,
+        "sol_available": false
+      },
+      "expected": {
+        "decision": "delegate",
+        "workers": ["execution_worker"]
+      }
+    },
+    {
+      "id": "small-mechanical-change-no-detached-review",
+      "input": {
+        "deterministic_verification": true,
+        "material_judgment_calls": false,
+        "consequence": "low"
+      },
+      "expected": {
+        "decision": "root_acceptance",
+        "independent_critic": false
+      }
+    },
+    {
+      "id": "material-worker-judgment-triggers-review-gate",
+      "input": {
+        "deterministic_verification": true,
+        "material_judgment_calls": true,
+        "cross_module_invariant": true
+      },
+      "expected": {
+        "decision": "independent_review",
+        "independent_critic": true,
+        "review_route": "gpt-5.6-terra/xhigh"
+      }
+    },
+    {
+      "id": "unresolved-high-consequence-terra-conflict-needs-sol-consent",
+      "input": {
+        "root_model": "gpt-5.6-luna",
+        "terra_review_status": "findings",
+        "root_disagrees": true,
+        "consequence": "high"
+      },
+      "expected": {
+        "decision": "ask_consent",
+        "senior_judge_route": "gpt-5.6-sol/high"
+      }
+    }
+  ]
+}
