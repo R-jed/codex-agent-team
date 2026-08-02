@@ -119,14 +119,15 @@ def read_only_observed(observation: dict[str, str | None] | None) -> bool | None
     return sandbox.lower() in READ_ONLY_SANDBOXES
 
 
-def choose_permission_observation(
-    native: dict[str, str | None] | None,
-    local: dict[str, str | None] | None,
-) -> bool | None:
-    native_read_only = read_only_observed(native)
-    if native_read_only is not None:
-        return native_read_only
-    return read_only_observed(local)
+def is_conflict(violations: list[str]) -> bool:
+    for item in violations:
+        if item.startswith("source_conflict:"):
+            return True
+        if item.startswith("native:") or item.startswith("local:"):
+            return True
+        if item == "permission:read_only_not_enforced":
+            return True
+    return False
 
 
 def evidence_grade(
@@ -134,7 +135,7 @@ def evidence_grade(
     local: dict[str, str | None] | None,
     violations: list[str],
 ) -> str:
-    if violations:
+    if is_conflict(violations):
         return "X0_conflicted"
     if native is not None and local is not None:
         return "R2_runtime_reported_and_local_record_agree"
@@ -163,22 +164,22 @@ def main() -> None:
         violations.extend(compare_sources(native, local))
 
     requires_read_only = bool(expected.get("requires_enforced_read_only", False))
-    observed_read_only = choose_permission_observation(native, local)
     if requires_read_only:
-        if observed_read_only is None:
-            violations.append("permission:read_only_unobserved")
-        elif not observed_read_only:
+        native_read_only = read_only_observed(native)
+        if native_read_only is None:
+            violations.append("permission:read_only_native_unobserved")
+        elif not native_read_only:
             violations.append("permission:read_only_not_enforced")
 
     grade = evidence_grade(native, local, violations)
     runtime_observation_required = bool(expected.get("runtime_observation_required", False))
 
-    if violations:
+    if is_conflict(violations):
         status = "mismatch"
         decision = "quarantine"
-        if violations == ["permission:read_only_unobserved"]:
-            status = "not_exposed"
-            decision = "return_to_root"
+    elif "permission:read_only_native_unobserved" in violations:
+        status = "not_exposed"
+        decision = "return_to_root"
     elif runtime_observation_required and native is None:
         status = "not_exposed"
         decision = "return_to_root"
