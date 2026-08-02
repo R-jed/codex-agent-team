@@ -1,36 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team</title>
-  <desc id="desc">Swiss International Style title card for a small Native Subagent team controlled by the active Codex session.</desc>
-  <rect width="1200" height="520" fill="#fafaf8"/>
-  <line x1="60" y1="72" x2="1140" y2="72" stroke="#d4d4d2" stroke-width="1"/>
-  <line x1="60" y1="448" x2="1140" y2="448" stroke="#d4d4d2" stroke-width="1"/>
+  <desc id="desc">Indigo porcelain editorial e-ink cover for a small Native Subagent team controlled by the active Codex session.</desc>
+  <rect width="1200" height="560" fill="#0a1f3d"/>
 
-  <g font-family="Inter, Helvetica Neue, Arial, sans-serif">
-    <text x="60" y="48" font-size="20" font-weight="600" letter-spacing="1.7" fill="#737373">CODEX NATIVE SUBAGENTS · TEAM POLICY</text>
-    <text x="60" y="190" font-size="86" font-weight="200" letter-spacing="-3.5" fill="#0a0a0a">CODEX</text>
-    <text x="60" y="270" font-size="86" font-weight="200" letter-spacing="-3.5" fill="#0a0a0a">AGENT TEAM</text>
-    <text x="64" y="326" font-size="28" font-weight="400" fill="#0a0a0a">Build a team only when the work benefits from one.</text>
-    <text x="64" y="366" font-size="22" font-weight="500" fill="#737373">Luna executes · Terra reviews · Sol judges only with explicit consent</text>
-    <text x="60" y="486" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">MINIMUM TEAM · DEPTH 1 · ONE WRITER · EVIDENCE FIRST</text>
+  <g fill="none" stroke="#f1f3f5" stroke-width="1.2" opacity="0.15">
+    <path d="M780 46 C900 8 1058 26 1158 112 C1226 170 1234 260 1174 322 C1104 396 974 368 908 446 C872 488 880 530 916 560"/>
+    <path d="M812 70 C918 38 1046 48 1130 122 C1186 170 1190 246 1140 300 C1082 364 980 346 926 412 C894 450 900 494 936 528"/>
+    <path d="M846 100 C936 74 1034 80 1104 140 C1150 180 1150 236 1110 282 C1062 334 986 322 944 376 C918 410 924 450 956 482"/>
+    <path d="M878 134 C952 112 1022 118 1078 166 C1112 196 1116 232 1084 266 C1046 308 994 302 960 344 C940 370 944 404 974 432"/>
+  </g>
+  <g fill="none" stroke="#f1f3f5" stroke-width="1" opacity="0.07">
+    <circle cx="998" cy="254" r="188"/>
+    <circle cx="998" cy="254" r="146"/>
+    <circle cx="998" cy="254" r="104"/>
   </g>
 
-  <g>
-    <rect x="835" y="126" width="248" height="124" fill="#0a0a0a"/>
-    <text x="863" y="173" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#fafaf8">ROOT</text>
-    <text x="863" y="211" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#fafaf8">plan · risk · accept</text>
+  <line x1="60" y1="76" x2="1140" y2="76" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
+  <line x1="60" y1="486" x2="1140" y2="486" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
 
-    <rect x="903" y="274" width="180" height="94" fill="#002FA7"/>
-    <text x="929" y="314" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#ffffff">LUNA</text>
-    <text x="929" y="346" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#ffffff">execute / explore</text>
+  <text x="60" y="48" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" letter-spacing="1.4" fill="#f1f3f5" opacity="0.78">CODEX AGENT TEAM · VOL. 01</text>
+  <text x="1140" y="48" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" letter-spacing="1.2" fill="#f1f3f5" opacity="0.78">NATIVE SUBAGENTS · TEAM POLICY</text>
 
-    <rect x="835" y="392" width="128" height="58" fill="#fafaf8" stroke="#0a0a0a" stroke-width="1.5"/>
-    <text x="857" y="429" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a0a0a">TERRA</text>
+  <text x="60" y="132" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5" opacity="0.72">Build the team only when the work deserves one.</text>
+  <text x="54" y="270" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="96" font-weight="700" letter-spacing="-2.5" fill="#f1f3f5">CODEX</text>
+  <text x="54" y="360" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="96" font-weight="700" letter-spacing="-2.5" fill="#f1f3f5">AGENT TEAM</text>
 
-    <rect x="987" y="392" width="96" height="58" fill="#f0f0ee"/>
-    <text x="1009" y="429" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a0a0a">SOL</text>
+  <text x="60" y="420" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="29" font-weight="600" fill="#f1f3f5">Root directs. Luna executes. Terra reviews. Sol judges only with consent.</text>
 
-    <path d="M959 250 V274" stroke="#0a0a0a" stroke-width="1.5"/>
-    <path d="M959 368 V380 H899 V392" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
-    <path d="M959 380 H1035 V392" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
-  </g>
+  <text x="60" y="526" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.72">MINIMUM TEAM · DEPTH 1 · ONE WRITER · EVIDENCE FIRST</text>
+  <text x="1140" y="526" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.72">ROOT STAYS IN CONTROL</text>
 </svg>
