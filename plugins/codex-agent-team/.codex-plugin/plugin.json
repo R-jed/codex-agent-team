@@ -24,7 +24,7 @@
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": [
-      "Interactive",
+      "Read",
       "Write"
     ],
     "websiteURL": "https://github.com/R-jed/codex-agent-team",
