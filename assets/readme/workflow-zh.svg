@@ -13,7 +13,7 @@
     <text x="88" y="258" font-size="34" font-weight="400" fill="#0a0a0a">委派是否带来</text>
     <text x="88" y="302" font-size="34" font-weight="400" fill="#0a0a0a">明确收益？</text>
     <line x1="88" y1="330" x2="302" y2="330" stroke="#d4d4d2" stroke-width="1"/>
-    <text x="88" y="372" font-size="21" font-weight="500" fill="#737373">无收益 → 留在当前会话</text>
+    <text x="88" y="372" font-size="21" font-weight="500" fill="#737373">无收益 → 当前会话</text>
 
     <text x="390" y="122" font-size="20" font-weight="600" fill="#737373">02 · 按需组队</text>
     <rect x="390" y="144" width="360" height="126" fill="#002FA7"/>
@@ -30,7 +30,7 @@
     <text x="838" y="254" font-size="32" font-weight="400" fill="#0a0a0a">验证证据</text>
     <text x="838" y="298" font-size="32" font-weight="400" fill="#0a0a0a">处理冲突</text>
     <text x="838" y="342" font-size="32" font-weight="400" fill="#0a0a0a">作出决定</text>
-    <text x="838" y="378" font-size="20" font-weight="500" fill="#737373">最终回答由当前会话交付</text>
+    <text x="838" y="378" font-size="20" font-weight="500" fill="#737373">当前会话负责交付</text>
 
     <rect x="810" y="452" width="270" height="88" fill="#0a0a0a" stroke="#737373" stroke-width="1.5"/>
     <text x="838" y="486" font-size="20" font-weight="600" fill="#737373">可选 · 用户授权后</text>
