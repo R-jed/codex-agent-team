@@ -348,7 +348,10 @@ def restore_manifest(path: Path, previous: bytes | None) -> list[str]:
 
 
 def install(codex_home: Path, check_only: bool) -> None:
-    codex_home = codex_home.expanduser().resolve()
+    codex_home = codex_home.expanduser()
+    if codex_home.is_symlink():
+        fail(f"Refusing symlinked Codex home: {codex_home}")
+    codex_home = codex_home.resolve()
     agents_dir = codex_home / "agents"
     manifest_path = codex_home / MANIFEST_NAME
     full_manifest_path = codex_home / FULL_MANIFEST_NAME

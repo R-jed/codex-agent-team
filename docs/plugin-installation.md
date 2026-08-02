@@ -75,7 +75,7 @@ The current semantic profiles are installed independently and verified byte-for-
 The bundled installer:
 
 - writes only the four current Agent profiles plus `.codex-agent-team-agents.json` under Codex home;
-- rejects symlinked destinations;
+- rejects a symlinked Codex home and symlinked managed destination entries;
 - rejects another TOML file that claims a current reserved project role name;
 - refuses to overwrite a differing current profile unless its bytes match the active previous managed hash;
 - removes an old model-named profile only when active previous managed ownership is proven;

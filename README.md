@@ -24,7 +24,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 仓库已经完成当前架构周期的静态收口。静态测试覆盖 Plugin packaging、managed Agent profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired behavioral eval tooling。
 
-当前远端分支审计共发现 11 个分支。`main` 之外的 10 个分支全部对应已经合并的历史 PR，没有任何分支需要再次合并。它们只剩远端 ref 清理，具体命令写在 [`HEADOFF.md`](HEADOFF.md)。
+远端分支清理已经完成。审计确认 `main` 之外的 10 个分支全部对应已经合并的历史 PR，无需再次合并；当前远端只保留 `origin/main`。
 
 下一阶段固定为**本地真实运行验证**。静态 CI 无法证明真实 Codex runtime 的角色发现、模型路由、sandbox、parent thread、Agent lifecycle、证据复用、成本或质量表现。接手本地测试前请先完整执行 `HEADOFF.md`，不要先重构当前 orchestration model。
 

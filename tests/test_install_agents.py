@@ -62,6 +62,21 @@ def test_companion_installer_installs_only_current_agent_profiles(tmp_path: Path
     assert set(manifest["profile_hashes"]) == set(PROFILE_FILES)
 
 
+def test_symlinked_codex_home_is_rejected_without_writing_target(tmp_path: Path):
+    real_home = tmp_path / "real-home"
+    real_home.mkdir()
+    link_home = tmp_path / "link-home"
+    link_home.symlink_to(real_home, target_is_directory=True)
+    before = installed_state(real_home)
+
+    result = run_installer(link_home)
+
+    assert result.returncode != 0
+    assert "Refusing symlinked Codex home" in result.stderr
+    assert installed_state(real_home) == before
+    assert list(real_home.iterdir()) == []
+
+
 def test_companion_check_is_non_mutating(tmp_path: Path):
     home = tmp_path / "codex-home"
     assert run_installer(home).returncode == 0

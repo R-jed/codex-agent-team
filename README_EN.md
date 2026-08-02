@@ -24,7 +24,7 @@ Invoke it explicitly when needed:
 
 The repository has completed the static closure pass for the current architecture cycle. Deterministic tests cover Plugin packaging, the managed Agent profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired behavioral-eval tooling.
 
-The current remote branch audit found 11 branches. The 10 non-main branches are historical heads of already merged PRs. None contains work that should be merged again. They only need remote-ref cleanup, with the exact command in [`HEADOFF.md`](HEADOFF.md).
+Remote branch cleanup is complete. The audit confirmed that all 10 non-main branches were historical heads of already merged PRs and required no further merge; only `origin/main` remains.
 
 The next phase is fixed: **local real-runtime validation**. Static CI cannot establish live Codex role discovery, model routing, sandbox behavior, parent-thread metadata, Agent lifecycle behavior, evidence-reuse compliance, cost, or task quality. A local takeover should execute `HEADOFF.md` before redesigning the orchestration model.
 
