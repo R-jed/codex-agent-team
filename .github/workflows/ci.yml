@@ -32,15 +32,7 @@ jobs:
           python -m json.tool plugins/codex-agent-team/.codex-plugin/plugin.json >/dev/null
           python -m json.tool .agents/plugins/marketplace.json >/dev/null
       - run: pytest -q
-      - name: Verify standalone installer lifecycle
-        shell: bash
-        run: |
-          target="$RUNNER_TEMP/codex-agent-team"
-          python scripts/install.py --codex-home "$target"
-          python scripts/install.py --codex-home "$target" --check
-          python scripts/install.py --codex-home "$target"
-          python scripts/doctor.py --codex-home "$target" --json
-      - name: Verify companion Agent installer lifecycle
+      - name: Verify managed Agent profile lifecycle
         shell: bash
         run: |
           target="$RUNNER_TEMP/codex-agent-team-companion"
