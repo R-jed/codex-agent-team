@@ -13,10 +13,9 @@
   <rect x="60" y="228" width="300" height="342" fill="#002FA7"/>
   <text x="88" y="274" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="600" fill="#dfe6ff">FULL TASK</text>
   <text x="88" y="334" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="40" font-weight="500" fill="#ffffff">MAIN SESSION</text>
-  <text x="88" y="392" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">understand intent</text>
-  <text x="88" y="438" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">set scope + own risk</text>
-  <text x="88" y="480" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">define acceptance checks</text>
-  <text x="88" y="532" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">decide whether to delegate</text>
+  <text x="88" y="400" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">intent · scope</text>
+  <text x="88" y="452" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="400" fill="#ffffff">risk · acceptance</text>
+  <text x="88" y="520" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">decide whether to delegate</text>
 
   <rect x="430" y="228" width="360" height="108" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
   <text x="456" y="266" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">LUNA</text>
@@ -30,7 +29,7 @@
 
   <rect x="430" y="472" width="360" height="108" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
   <text x="456" y="510" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">SOL</text>
-  <text x="456" y="544" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">unresolved high-consequence judgment</text>
+  <text x="456" y="544" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">high-consequence dispute unresolved</text>
   <text x="456" y="574" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#666661">one judgment after user consent</text>
 
   <rect x="860" y="228" width="280" height="342" fill="#0a0a0a"/>
