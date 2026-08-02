@@ -11,45 +11,61 @@
   <a href="docs/model-route-assurance.md">Route Assurance</a>
 </p>
 
-A small-team policy Skill for Codex Native Subagents.
+Code normally. Codex Agent Team adds a specialist Subagent only when it has concrete value.
 
-The current session always stays in control as Root. GPT-5.6 Luna Max handles clearly bounded execution and exploration. GPT-5.6 Terra XHigh provides detached review. A non-Sol Root may request one GPT-5.6 Sol High judgment for an unresolved high-consequence decision, only after user consent.
+Small, already-isolated work stays in the current Root. Context-heavy or clearly bounded execution can go to Luna. Terra is added only when a risky change benefits from detached judgment. If a high-consequence disagreement still remains, a non-Sol Root may request one Sol judgment after explicit user consent.
 
-## When it helps
+## Recommended install: Codex Plugin
 
-- source, logs, or tests would consume a large amount of Root context;
-- implementation can be delegated with a clear scope and acceptance criteria;
-- an important change benefits from a reviewer who did not produce it;
-- a task contains genuinely independent branches that can run in parallel.
+The Plugin is the recommended community distribution path. It installs the workflow Skills while keeping the current session as Root.
 
-Small, already-isolated fixes usually stay in Root. The Skill does not create Subagents just to increase agent count.
+```bash
+codex plugin marketplace add R-jed/codex-agent-team --ref main
+codex plugin add codex-agent-team@codex-agent-team
+```
 
-## Quick start
+### Install companion custom agents
 
-Requirements: Python >= 3.11, Git, and a Codex environment with Native Subagents.
+After the Plugin is installed, complete one explicit Agent setup step. The four role-pinned profiles live under `~/.codex/agents/`; the workflow never assumes Plugin installation registered them automatically.
 
-The installer places the Skill under `~/.codex/skills/`, four model-pinned Agent profiles under `~/.codex/agents/`, and records package-managed hashes. Future upgrades may replace a managed file only when it is still unchanged from the previous managed install; user-modified artifacts fail closed.
+Invoke in Codex:
+
+```text
+$codex-agent-team-setup
+```
+
+The setup Skill runs the bundled fail-closed installer and byte-exactly verifies:
+
+```text
+luna_explorer
+luna_worker
+terra_reviewer
+sol_judge
+```
+
+Then start a new Codex task so the native `spawn_agent` surface can discover the roles.
+
+## Standalone install
+
+Without the Plugin, the repository installer installs the main Skill and all companion custom agents in one transaction:
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
 cd codex-agent-team
 python scripts/install.py
-```
-
-Run non-mutating integrity and environment checks after installation:
-
-```bash
 python scripts/install.py --check
 python scripts/doctor.py
 ```
 
-Restart or reopen Codex after installation. Default profiles: `luna_explorer`, `luna_worker`, `terra_reviewer`, `sol_judge`.
-
-Skill-only Portable Mode:
+Skill-only Portable Mode remains available:
 
 ```bash
 python scripts/install.py --skill-only
 ```
+
+The standalone installer places profiles under `~/.codex/agents/`, records package-managed hashes, and refuses to overwrite user-modified managed files.
+
+## Daily use
 
 Explicit invocation:
 
@@ -57,21 +73,26 @@ Explicit invocation:
 $codex-agent-team
 ```
 
-Or simply describe the task:
+You can also describe the development task normally. The Skill allows implicit invocation and first asks whether delegation has a concrete benefit.
 
 ```text
-Fix this authentication issue, run the relevant tests, then independently check whether existing Session behavior is affected.
+Fix this authentication issue, run the relevant tests, then decide whether independent review is actually warranted.
 ```
-
-## How it works
 
 <p align="center">
   <img src="assets/readme/workflow.svg" alt="Codex Agent Team workflow" width="100%">
 </p>
 
-Root first decides whether delegation has a concrete benefit. Luna handles bounded exploration or execution. Terra is added when detached review materially improves confidence. Results return to Root for verification and integration.
+Typical decision shape:
 
-If the required route, permission, scope, or external-impact boundary cannot be established safely, the work stays in Root. Consequential tasks may compare effective route, parent-thread, and permission evidence. The project distinguishes configuration assurance, native runtime reports, and mutable local rollout records; local records are never presented as authoritative runtime proof.
+```text
+small and isolated          -> Root
+context-heavy / bounded     -> Luna
+independent judgment pays   -> Terra
+unresolved high consequence -> consent -> Sol
+```
+
+Minimum Team keeps ordinary development lightweight while still adding execution or review capacity when the task earns it.
 
 ## Roles
 
@@ -82,9 +103,30 @@ If the required route, permission, scope, or external-impact boundary cannot be 
 | Role | Default route | Responsibility |
 | --- | --- | --- |
 | Root Controller | current session | intent, planning, risk, acceptance, final answer |
-| Explorer / Worker | GPT-5.6 Luna `max` | search, tracing, implementation, debugging, tests |
+| Explorer / Worker | GPT-5.6 Luna `max` | search, tracing, bounded implementation, debugging, tests |
 | Independent Critic | GPT-5.6 Terra `xhigh` | detached review, conflicting evidence, assumption checks |
 | Senior Judge | GPT-5.6 Sol `high` | rare high-consequence adjudication after consent |
+
+## What the user sees
+
+When explicitly invoked, when a child is actually created, or when an orchestration gate materially changes execution, the Skill emits a compact receipt such as:
+
+```text
+Agent Team
+Luna Worker: implemented bounded auth refresh change
+Terra Reviewer: triggered by security boundary; verdict clear
+Runtime evidence: Luna R1, Terra R2
+Verification: 38 tests passed
+```
+
+When explicit invocation correctly stays Root-only:
+
+```text
+Agent Team: Root only
+Why: change already isolated; delegation had no concrete benefit
+```
+
+This makes both delegation and deliberate non-delegation visible without adding noise to trivial implicit tasks.
 
 ## Core rules
 
@@ -95,6 +137,8 @@ If the required route, permission, scope, or external-impact boundary cannot be 
 - Fail closed: unprovable exact routes or required permissions return work to Root.
 - Evidence first: Worker reports are claims; Root accepts work from actual files, diffs, commands, tests, and reproducible evidence.
 
+If the required route, permission, scope, or external-impact boundary cannot be established safely, the responsibility stays in Root. The project distinguishes configuration assurance, native runtime reports, and mutable local rollout records; local records are never presented as authoritative runtime proof.
+
 Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create a second Agent runtime, persistent task DAG, or background scheduler.
 
 ## Documentation
@@ -104,12 +148,13 @@ Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create
 - [Model Route Assurance](docs/model-route-assurance.md)
 - [Runtime Evidence](skill/codex-agent-team/references/runtime-assurance.md)
 - [Compatibility](docs/compatibility.md)
+- [Behavioral Evals](docs/behavioral-evals.md)
 - [OpenAI References](docs/openai-references.md)
 - Policy: [Routing](skill/codex-agent-team/references/routing-policy.md) · [Safety](skill/codex-agent-team/references/safety-policy.md) · [Consent](skill/codex-agent-team/references/consent-policy.md)
 
 ## Validation status
 
-The repository includes policy regressions, routing cases, installer lifecycle tests, runtime-evidence fixtures, and a deterministic verifier. Real Codex behavioral benchmarks are tracked separately; static tests are not presented as live-runtime evidence.
+The repository includes policy regressions, routing cases, installer lifecycle tests, runtime-evidence fixtures, a deterministic verifier, and a live behavioral benchmark harness. Static tests are never presented as real Codex runtime evidence.
 
 ## License
 
