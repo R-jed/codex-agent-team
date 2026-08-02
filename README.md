@@ -36,6 +36,12 @@ cd codex-agent-team
 python scripts/install.py
 ```
 
+安装器会先完成全量冲突检查，再提交变更；已有不同内容的锁定 Agent profile 不会被覆盖。安装后可执行只读完整性检查：
+
+```bash
+python scripts/install.py --check
+```
+
 安装后重新打开 Codex。默认 profiles：`luna_explorer`、`luna_worker`、`terra_reviewer`、`sol_judge`。
 
 只安装 Skill，使用 Portable Mode：
@@ -64,7 +70,7 @@ $codex-agent-team
 
 Root 先判断委派有没有具体收益。需要执行或探索时交给 Luna，需要独立复核时交给 Terra。所有结果都回到 Root 验证和整合。
 
-模型、权限、范围或外部影响无法安全确认时，任务留在 Root。高影响操作也始终由 Root 控制。
+模型、权限、范围或外部影响无法安全确认时，任务留在 Root。高影响操作也始终由 Root 控制。关键任务还可以核对实际 Subagent 路由与权限状态；运行环境无法提供观测证据时，Skill 会保留 `not_exposed`，不会把配置值伪装成运行时事实。
 
 ## 角色分工
 
@@ -86,7 +92,7 @@ Root 先判断委派有没有具体收益。需要执行或探索时交给 Luna�
 - One Writer：一个共享 Workspace 同时最多 1 个 Writing Worker。
 - Depth 1：Worker 不继续创建新的 Subagent 团队。
 - Fail closed：精确路由或必要权限无法证明时，任务回到 Root。
-- Evidence first：Root 根据文件、命令、测试和可复现证据验收结果。
+- Evidence first：Worker 报告只作为声明，Root 根据实际文件、diff、命令、测试和可复现证据验收结果。
 
 Codex Agent Team 直接使用 Codex 原生 `spawn_agent`，不会建立第二套 Agent Runtime、持久 Task DAG 或后台调度器。
 
@@ -96,13 +102,14 @@ Codex Agent Team 直接使用 Codex 原生 `spawn_agent`，不会建立第二套
 
 - [Architecture](docs/architecture.md)：控制模型、生命周期与范围边界。
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)：`spawn_agent`、Subagent 与 Agent thread。
-- [Model Route Assurance](docs/model-route-assurance.md)：Profile Mode、Portable Mode 与 fail-closed 路由。
+- [Model Route Assurance](docs/model-route-assurance.md)：Profile Mode、Portable Mode 与配置级路由保证。
+- [Runtime Assurance](skill/codex-agent-team/references/runtime-assurance.md)：运行时路由、权限观测与安全降级。
 - [OpenAI References](docs/openai-references.md)：模型、定价、Codex runtime 与设计依据。
 - Policy：[Routing](skill/codex-agent-team/references/routing-policy.md) · [Safety](skill/codex-agent-team/references/safety-policy.md) · [Consent](skill/codex-agent-team/references/consent-policy.md)
 
 ## 验证状态
 
-仓库包含 policy regression tests 和 routing eval cases。Native runtime 行为仍以当前 Codex build 实际暴露的能力为准。
+仓库包含 policy regression tests、routing eval cases、installer regression 和 runtime-attestation fixtures。Native runtime 行为仍以当前 Codex build 实际暴露的能力为准。
 
 ## License
 
