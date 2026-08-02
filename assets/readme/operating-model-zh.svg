@@ -13,10 +13,9 @@
   <rect x="60" y="228" width="300" height="342" fill="#002FA7"/>
   <text x="88" y="274" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="600" fill="#dfe6ff">完整任务</text>
   <text x="88" y="334" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="40" font-weight="500" fill="#ffffff">主会话</text>
-  <text x="88" y="392" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">理解需求 · 定范围</text>
-  <text x="88" y="438" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">控制风险</text>
-  <text x="88" y="480" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">设验收条件</text>
-  <text x="88" y="532" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">决定是否委派</text>
+  <text x="88" y="400" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">理解需求 · 定范围</text>
+  <text x="88" y="452" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="400" fill="#ffffff">控制风险 · 设验收</text>
+  <text x="88" y="520" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">决定是否委派</text>
 
   <rect x="430" y="228" width="360" height="108" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
   <text x="456" y="266" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">LUNA</text>
