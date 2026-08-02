@@ -143,23 +143,32 @@ def preflight_agents_dir(path: Path, *, check_only: bool) -> None:
         fail(f"Required agents directory is missing: {path}")
 
 
-def previous_managed_hashes(*manifests: dict | None) -> dict[str, str]:
-    """Merge known ownership hashes, preferring earlier arguments on duplicate keys."""
-    result: dict[str, str] = {}
-    for manifest in reversed(manifests):
-        if manifest is None:
-            continue
-        hashes = manifest.get("profile_hashes", {})
-        if not isinstance(hashes, dict):
-            continue
-        result.update(
-            {
-                str(key): str(value)
-                for key, value in hashes.items()
-                if isinstance(key, str) and isinstance(value, str)
-            }
-        )
-    return result
+def manifest_profile_hashes(manifest: dict | None) -> dict[str, str]:
+    if manifest is None:
+        return {}
+    hashes = manifest.get("profile_hashes", {})
+    if not isinstance(hashes, dict):
+        return {}
+    return {
+        str(key): str(value)
+        for key, value in hashes.items()
+        if isinstance(key, str) and isinstance(value, str)
+    }
+
+
+def managed_ownership_hashes(
+    companion_manifest: dict | None, full_manifest: dict | None
+) -> dict[str, str]:
+    """Return the one authoritative ownership epoch for this install.
+
+    Once the companion manifest exists it is authoritative. The older standalone
+    manifest is used only as a one-time migration seed before the companion manifest
+    has ever been written. This prevents stale legacy hashes from granting permanent
+    deletion authority over files a user may intentionally recreate later.
+    """
+    if companion_manifest is not None:
+        return manifest_profile_hashes(companion_manifest)
+    return manifest_profile_hashes(full_manifest)
 
 
 def preflight_profiles(
@@ -328,7 +337,7 @@ def install(codex_home: Path, check_only: bool) -> None:
     preflight_agents_dir(agents_dir, check_only=check_only)
     companion_manifest = load_json_manifest(manifest_path, require_supported_schema=True)
     full_manifest = load_json_manifest(full_manifest_path, require_supported_schema=False)
-    old_hashes = previous_managed_hashes(companion_manifest, full_manifest)
+    old_hashes = managed_ownership_hashes(companion_manifest, full_manifest)
     upgrades, removable_legacy = preflight_profiles(
         agents_dir, check_only=check_only, old_hashes=old_hashes
     )
