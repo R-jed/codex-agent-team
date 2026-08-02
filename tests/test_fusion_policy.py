@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "skill" / "codex-agent-team"
+SKILL = ROOT / "plugins" / "codex-agent-team" / "skills" / "codex-agent-team"
 
 
 def read(path: str) -> str:
