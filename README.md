@@ -11,45 +11,61 @@
   <a href="docs/model-route-assurance.md">Route Assurance</a>
 </p>
 
-让 Codex 只在真正值得的时候组建一支小型 Native Subagent 团队。
+正常写代码。Codex Agent Team 只在真正值得的时候增加专业 Subagent。
 
-当前会话始终是 Root。GPT-5.6 Luna Max 负责有明确边界的执行和探索，GPT-5.6 Terra XHigh 负责独立复核。高后果问题仍有实质分歧时，非 Sol Root 可以在用户明确同意后增加一次 GPT-5.6 Sol High 裁决。
+小而明确的任务留在当前 Root。需要隔离上下文或有边界的执行时交给 Luna。高风险修改真正需要独立判断时增加 Terra。高后果分歧仍未解决时，非 Sol Root 可以在用户明确同意后增加一次 Sol 裁决。
 
-## 什么时候值得用
+## 推荐安装：Codex Plugin
 
-- 大量源码、日志或测试会挤占当前会话上下文。
-- 实现工作可以清楚限定范围，并交给独立 Worker 完成。
-- 重要修改需要一个没有参与实现的 Reviewer 再看一遍。
-- 复杂任务存在真正可以并行处理的独立分支。
+Plugin 是推荐的社区分发方式。它安装工作流 Skills，并保留当前会话作为 Root。
 
-已经定位清楚的小修改通常直接留在 Root。Skill 不会为了展示多 Agent 能力而额外组队。
+```bash
+codex plugin marketplace add R-jed/codex-agent-team --ref main
+codex plugin add codex-agent-team@codex-agent-team
+```
 
-## 快速开始
+### 安装 companion custom agents
 
-需要 Python >= 3.11、Git，以及支持 Native Subagents 的 Codex 环境。
+Plugin 安装完成后，还需要一次显式的 Agent setup。4 个 role-pinned profiles 位于 `~/.codex/agents/`，不会假设它们已随 Plugin 自动注册。
 
-默认安装器会把 Skill 安装到 `~/.codex/skills/`、4 个锁定模型的 Agent profiles 安装到 `~/.codex/agents/`，并记录 package-managed hash。后续升级只会自动替换仍保持上一版原样的托管文件；用户自行修改过的 profile 会拒绝覆盖。
+在 Codex 中调用：
+
+```text
+$codex-agent-team-setup
+```
+
+Setup Skill 会调用随 Plugin 打包的安全 installer，安装并逐字节校验：
+
+```text
+luna_explorer
+luna_worker
+terra_reviewer
+sol_judge
+```
+
+完成后新建一个 Codex task，让 native `spawn_agent` surface 重新发现这些 roles。
+
+## Standalone 安装
+
+不使用 Plugin 时，仓库 installer 会一次安装主 Skill 和全部 custom agents：
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
 cd codex-agent-team
 python scripts/install.py
-```
-
-安装后可以执行只读完整性与环境诊断：
-
-```bash
 python scripts/install.py --check
 python scripts/doctor.py
 ```
 
-安装后重新打开 Codex。默认 profiles：`luna_explorer`、`luna_worker`、`terra_reviewer`、`sol_judge`。
-
-只安装 Skill，使用 Portable Mode：
+只安装 Skill 并使用 Portable Mode：
 
 ```bash
 python scripts/install.py --skill-only
 ```
+
+Standalone installer 会把 profiles 安装到 `~/.codex/agents/`，记录 package-managed hashes，并拒绝覆盖用户自行修改过的托管文件。
+
+## 日常怎么用
 
 显式调用：
 
@@ -57,21 +73,26 @@ python scripts/install.py --skill-only
 $codex-agent-team
 ```
 
-也可以直接描述任务：
+也可以直接描述开发任务。Skill 允许隐式调用，并优先判断有没有具体委派收益。
 
 ```text
-帮我修复这个认证问题，运行相关测试，再独立检查是否影响现有 Session 行为。
+帮我修复这个认证问题，运行相关测试，再判断是否真的需要独立 review。
 ```
-
-## 它怎么工作
 
 <p align="center">
   <img src="assets/readme/workflow-zh.svg" alt="Codex Agent Team 工作流程" width="100%">
 </p>
 
-Root 先判断委派有没有具体收益。需要执行或探索时交给 Luna，需要独立复核时交给 Terra。所有结果都回到 Root 验证和整合。
+典型决策：
 
-模型、权限、范围或外部影响无法安全确认时，任务留在 Root。关键任务可核对实际 Subagent 路由、父线程与权限状态；项目严格区分配置保证、native runtime report 与可变的本地 rollout 记录，不把本地记录包装成权威运行时证明。
+```text
+小而明确              -> Root
+上下文重 / 有边界执行 -> Luna
+独立判断有真实价值    -> Terra
+高后果争议仍未解决    -> consent -> Sol
+```
+
+Minimum Team 的目标是让大多数日常任务保持轻量，同时让真正复杂的任务获得额外执行或复核能力。
 
 ## 角色分工
 
@@ -82,9 +103,30 @@ Root 先判断委派有没有具体收益。需要执行或探索时交给 Luna�
 | 角色 | 默认路由 | 负责什么 |
 | --- | --- | --- |
 | Root Controller | 当前会话 | 目标、规划、风险、验收、最终回答 |
-| Explorer / Worker | GPT-5.6 Luna `max` | 搜索、追踪、实现、调试、测试 |
+| Explorer / Worker | GPT-5.6 Luna `max` | 搜索、追踪、有边界实现、调试、测试 |
 | Independent Critic | GPT-5.6 Terra `xhigh` | detached review、冲突证据、重大假设检查 |
 | Senior Judge | GPT-5.6 Sol `high` | 少量高后果裁决，需要用户授权 |
+
+## 用户能看到什么
+
+显式调用、实际创建 child、或关键 orchestration gate 改变执行路径时，Skill 会返回一个轻量 receipt，例如：
+
+```text
+Agent Team
+Luna Worker: implemented bounded auth refresh change
+Terra Reviewer: triggered by security boundary; verdict clear
+Runtime evidence: Luna R1, Terra R2
+Verification: 38 tests passed
+```
+
+如果显式调用后发现完全不值得委派：
+
+```text
+Agent Team: Root only
+Why: change already isolated; delegation had no concrete benefit
+```
+
+这让“为什么创建 Agent”和“为什么没有创建 Agent”都保持可见，同时避免给隐式的小任务增加额外噪音。
 
 ## 核心规则
 
@@ -95,21 +137,24 @@ Root 先判断委派有没有具体收益。需要执行或探索时交给 Luna�
 - Fail closed：精确路由或必要权限无法证明时，任务回到 Root。
 - Evidence first：Worker 报告只作为声明，Root 根据实际文件、diff、命令、测试和可复现证据验收结果。
 
+模型、权限、范围或外部影响无法安全确认时，任务留在 Root。项目区分配置保证、native runtime report 与可变的本地 rollout 记录，不把本地记录包装成权威运行时证明。
+
 Codex Agent Team 直接使用 Codex 原生 `spawn_agent`，不会建立第二套 Agent Runtime、持久 Task DAG 或后台调度器。
 
 ## 文档
 
-- [Architecture](docs/architecture.md)：控制模型、生命周期与范围边界。
-- [Native Subagent Runtime](docs/native-subagent-runtime.md)：`spawn_agent`、Subagent 与 Agent thread。
-- [Model Route Assurance](docs/model-route-assurance.md)：Profile Mode、Portable Mode 与配置级路由保证。
-- [Runtime Evidence](skill/codex-agent-team/references/runtime-assurance.md)：证据等级、双源核对与安全降级。
-- [Compatibility](docs/compatibility.md)：离线可验证能力与必须在 live Codex 中确认的能力。
-- [OpenAI References](docs/openai-references.md)：模型、定价、Codex runtime 与设计依据。
+- [Architecture](docs/architecture.md)
+- [Native Subagent Runtime](docs/native-subagent-runtime.md)
+- [Model Route Assurance](docs/model-route-assurance.md)
+- [Runtime Evidence](skill/codex-agent-team/references/runtime-assurance.md)
+- [Compatibility](docs/compatibility.md)
+- [Behavioral Evals](docs/behavioral-evals.md)
+- [OpenAI References](docs/openai-references.md)
 - Policy：[Routing](skill/codex-agent-team/references/routing-policy.md) · [Safety](skill/codex-agent-team/references/safety-policy.md) · [Consent](skill/codex-agent-team/references/consent-policy.md)
 
 ## 验证状态
 
-仓库包含 policy regression、routing cases、installer lifecycle、runtime evidence 与 deterministic verifier tests。真实 Codex 行为 benchmark 单独记录，不会用静态测试结果替代 live runtime 结论。
+仓库包含 policy regression、routing cases、installer lifecycle、runtime evidence、deterministic verifier 与 live behavioral benchmark harness。静态测试结果不会被描述成真实 Codex runtime 证据。
 
 ## License
 
