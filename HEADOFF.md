@@ -803,3 +803,1039 @@ At least one reproducible P0/P1 project defect or an uncharacterized runtime lim
 ```
 
 If the result is `HOLD`, return the smallest focused patch and regression test that addresses the disproven assumption. Avoid another architecture rewrite unless multiple live results show the current first-principles model itself is wrong.
+
+
+### 接手上下文
+
+当前仓库：
+
+```text
+R-jed/codex-agent-team
+```
+
+上一阶段已经完成：
+
+```text
+Architecture closure
+Static correctness audit
+Runtime Truth static implementation
+Plugin packaging
+Managed Agent profile installer
+Legacy migration
+Delegation Contract
+Shared Evidence policy
+Luna / Terra / Sol routing policy
+Behavioral eval tooling
+README / README_EN
+Local validation HEADOFF
+```
+
+最后一次 closure PR：
+
+```text
+PR #13
+chore: close final static debt before local runtime validation
+```
+
+合并后的基线 commit：
+
+```text
+af58e79d1ad6c203b8bf3d490b4fe2c502f521e7
+```
+
+最后 CI：
+
+```text
+Ubuntu Python 3.11   PASS
+Ubuntu Python 3.12   PASS
+macOS Python 3.11    PASS
+
+96 tests passed
+Plugin manifests PASS
+Agent profile install/check/idempotency PASS
+```
+
+当前最重要的状态转换是：
+
+```text
+远端静态开发阶段结束
+↓
+本地真实 Codex runtime validation
+↓
+模拟真实用户任务
+↓
+Agent lifecycle / failure / stress testing
+↓
+paired behavioral eval
+↓
+根据真实证据决定 RELEASE CANDIDATE 或 HOLD
+```
+
+执行：
+
+```text
+PROJECT TAKEOVER: CODEX AGENT TEAM LOCAL RUNTIME VALIDATION
+
+You are taking over the repository:
+
+https://github.com/R-jed/codex-agent-team
+
+Your job is to perform the next development phase locally on a real Apple Silicon Mac.
+
+This is NOT another architecture-design cycle.
+
+The previous remote development cycle has already completed a release-level static closure audit. Your primary responsibility now is to validate the existing architecture against the real Codex / ChatGPT Desktop runtime, simulated user workflows, failure conditions, repeated Agent lifecycle load, and controlled behavioral comparisons.
+
+==================================================
+1. AUTHORITATIVE BASELINE
+==================================================
+
+Expected previous main baseline:
+
+af58e79d1ad6c203b8bf3d490b4fe2c502f521e7
+
+Do not blindly reset to this SHA.
+
+First:
+
+git fetch --all --prune
+git switch main
+git pull --ff-only
+git status
+git log -5 --oneline
+
+Record the actual current origin/main SHA.
+
+If origin/main is newer than the expected baseline, inspect the intervening commits before proceeding and treat the current origin/main as authoritative.
+
+The previous closure CI passed:
+
+Ubuntu / Python 3.11
+Ubuntu / Python 3.12
+macOS / Python 3.11
+
+96 tests passed.
+
+Do not assume that static green CI proves live runtime correctness.
+
+==================================================
+2. READ BEFORE DOING ANYTHING
+==================================================
+
+Read these files completely before making any modification:
+
+HEADOFF.md
+README.md
+README_EN.md
+docs/architecture.md
+docs/native-subagent-runtime.md
+docs/model-route-assurance.md
+docs/plugin-installation.md
+docs/behavioral-evals.md
+
+Then read the complete installed Skill implementation:
+
+plugins/codex-agent-team/skills/codex-agent-team/SKILL.md
+
+and all references linked from it, especially:
+
+references/delegation-contract.md
+references/routing-policy.md
+references/runtime-assurance.md
+references/consent-policy.md
+references/safety-policy.md
+references/orchestration-receipt.md
+
+Also inspect:
+
+plugins/codex-agent-team/agent-profiles/
+plugins/codex-agent-team/scripts/install-agents.py
+plugins/codex-agent-team/skills/codex-agent-team/scripts/verify-runtime.py
+plugins/codex-agent-team/skills/codex-agent-team/scripts/inspect-runtime.py
+evals/
+scripts/score-behavioral-evals.py
+tests/
+
+HEADOFF.md is the authoritative execution contract for this phase.
+
+Do not skim it.
+
+==================================================
+3. CURRENT ARCHITECTURE IS A BASELINE TO TEST
+==================================================
+
+The intended control model is:
+
+MAIN SESSION
+owns:
+- user intent
+- scope
+- architecture
+- decision rights
+- scheduling
+- Shared Evidence State
+- integration
+- verification
+- final acceptance
+- final answer
+
+LUNA
+default execution tier.
+
+Semantic roles:
+
+codex_agent_team_reader
+-> GPT-5.6 Luna / max
+-> read-only
+-> bounded search, tracing, mapping, evidence gathering
+
+codex_agent_team_worker
+-> GPT-5.6 Luna / max
+-> workspace-write
+-> bounded implementation, debugging, tests
+
+TERRA
+
+codex_agent_team_investigator
+-> GPT-5.6 Terra / xhigh
+-> read-only
+-> only an unresolved complex technical delta
+
+SOL
+
+codex_agent_team_advisor
+-> GPT-5.6 Sol / high
+-> read-only
+-> high-value judgment or selective review
+
+These are compute resources.
+
+They are NOT mandatory pipeline stages.
+
+Valid graphs include:
+
+main
+
+main -> Luna -> main
+
+main -> Luna -> Sol -> main
+
+main -> Luna -> Terra(delta) -> Luna -> main
+
+main -> Terra -> Luna -> main
+
+main -> Sol -> main
+
+Never impose:
+
+Luna -> Terra -> Sol
+
+as a mandatory sequence.
+
+Zero Subagents is a valid and expected result.
+
+==================================================
+4. RESOURCE GOVERNANCE
+==================================================
+
+Preserve these invariants unless live evidence proves one is technically impossible:
+
+0 children is normal
+default children = 1
+normal maximum = 2
+hard maximum = 4
+
+one shared workspace:
+at most one active writing Worker
+
+delegation depth:
+1
+
+Children must not spawn descendants.
+
+Every Agent call must satisfy a distinct unresolved dependency.
+
+Do not duplicate inference simply because more models are available.
+
+Do not launch Luna, Terra, and Sol over the same question merely for additional confidence.
+
+==================================================
+5. DELEGATION CONTRACT
+==================================================
+
+Before creating a writing Worker, the main session must be able to compile an enforceable contract containing meaningful:
+
+OUTCOME
+SCOPE
+INVARIANTS
+DECISION RIGHTS
+ACCEPTANCE ORACLE
+VERIFICATION
+STOP / ESCALATE
+
+If product semantics, acceptance, or decision rights remain materially ambiguous:
+
+do not create a writing Worker.
+
+Return the decision to the main session or user.
+
+Luna owns HOW TO EXECUTE inside the granted contract.
+
+Luna does not automatically own product, architecture, public-contract, security, migration, or permission decisions.
+
+==================================================
+6. LUNA FAILURE CLASSIFICATION
+==================================================
+
+A failed or mediocre Luna result must be classified before escalation.
+
+Expected behavior:
+
+mechanical defect
+-> focused Luna correction
+
+contract gap
+-> main session repairs the contract
+
+capability gap
+-> Terra receives only the unresolved technical delta
+
+judgment gap
+-> main session or justified Sol
+
+Do not send the whole original task to Terra simply because Luna's first output was weak.
+
+Terra is not a generic premium reimplementation tier.
+
+==================================================
+7. SHARED EVIDENCE
+==================================================
+
+The architecture assumes evidence reuse.
+
+Distinguish:
+
+deterministic
+repository_fact
+model_judgment
+
+Later Agents should reuse valid deterministic and repository evidence.
+
+A changed dependency invalidates only evidence that depends on it.
+
+Do not systematically repeat:
+
+repository scans
+reproduction commands
+call-path discovery
+baseline tests
+
+when those facts remain valid.
+
+Model judgments remain challengeable hypotheses.
+
+This behavior is currently policy-driven and therefore MUST be tested empirically.
+
+==================================================
+8. RUNTIME TRUTH
+==================================================
+
+Do not infer observed runtime facts from configuration.
+
+Track independently:
+
+route_evidence
+ancestry_evidence
+permission_evidence
+
+Exact route proof requires BOTH expected and observed values to completely contain:
+
+agent_role
+model
+effort
+
+Incomplete expected route:
+fail closed.
+
+Incomplete observed route:
+partial / not_observed.
+
+Never promote missing telemetry to success.
+
+Compatibility grades:
+
+C1_configuration_only
+L1_local_record_observed
+R1_runtime_reported
+R2_runtime_reported_and_local_record_agree
+X0_conflicted
+
+Local rollout JSONL is corroborating telemetry.
+
+It is not authoritative runtime attestation.
+
+Any material native/local conflict must be quarantined.
+
+==================================================
+9. FIRST TASK: REPOSITORY BASELINE
+==================================================
+
+Before real runtime testing:
+
+1. record actual main commit;
+2. confirm clean working tree;
+3. create a local validation branch;
+4. install dev dependencies;
+5. run the complete deterministic test suite;
+6. validate both plugin manifests;
+7. exercise the managed Agent profile lifecycle in an isolated CODEX_HOME;
+8. record Python, macOS, architecture, Git and Codex versions.
+
+Do not modify production code if this baseline fails.
+
+First classify the failure.
+
+==================================================
+10. REMOTE BRANCH CLEANUP
+==================================================
+
+The previous audit found 11 remote branches total.
+
+The 10 non-main branches were historical heads of already merged PRs and must NOT be merged again:
+
+docs/readme-community-v2
+docs/readme-native-zh-v3
+docs/readme-visual-system-v4
+feat/community-plugin-v1
+feat/runtime-assurance-v1
+feat/runtime-truth-v1
+feat/single-command-plugin-v1
+fix/legacy-install-adoption
+fix/readme-layout-v5
+incremental-orchestration-v1
+
+Before deleting them, independently verify that there is no unique unmerged work worth preserving.
+
+Be aware that squash-merged PR branches can appear divergent even though their intended change is already represented on main.
+
+If verification agrees with the previous audit, delete the obsolete remote branches:
+
+git push origin --delete \
+  docs/readme-community-v2 \
+  docs/readme-native-zh-v3 \
+  docs/readme-visual-system-v4 \
+  feat/community-plugin-v1 \
+  feat/runtime-assurance-v1 \
+  feat/runtime-truth-v1 \
+  feat/single-command-plugin-v1 \
+  fix/legacy-install-adoption \
+  fix/readme-layout-v5 \
+  incremental-orchestration-v1
+
+Then:
+
+git fetch --prune
+git branch -r
+
+Expected final remote branch set:
+
+origin/main
+
+Record the actual result in the validation report.
+
+==================================================
+11. REAL PLUGIN INSTALLATION TEST
+==================================================
+
+Follow the documented user path.
+
+Test the project as a fresh user would.
+
+Do not replace the documented Plugin path with a developer-only shortcut.
+
+Validate:
+
+marketplace registration
+Plugins Directory installation
+Skill visibility
+/codex-agent-team invocation
+first-use Agent profile readiness
+permission disclosure
+managed profile installation
+--check verification
+current-task role refresh
+fresh-task role discovery if required
+
+Do this with a clean or isolated Codex configuration where practical.
+
+Verify that unrelated Agent profiles and user configuration are untouched.
+
+==================================================
+12. TEST ALL FOUR ROLES
+==================================================
+
+Exercise independently:
+
+codex_agent_team_reader
+codex_agent_team_worker
+codex_agent_team_investigator
+codex_agent_team_advisor
+
+Use tiny bounded tasks.
+
+Explicitly use:
+
+fork_turns = "none"
+
+where required by the policy.
+
+Record only facts actually exposed by the live runtime:
+
+thread id
+parent thread id
+agent role
+model
+reasoning effort
+effective sandbox
+effective permission profile
+Codex runtime/build version
+
+Do not fabricate fields that the runtime does not expose.
+
+==================================================
+13. EXECUTE THE FULL HEADOFF RUNTIME MATRIX
+==================================================
+
+HEADOFF.md contains the complete matrix.
+
+At minimum exercise:
+
+no runtime observation
+complete native route
+partial native route
+local route only
+two partial sources
+native + local agreement
+model conflict
+parent conflict
+missing parent
+wrong parent
+missing read-only sandbox evidence
+broader-than-required sandbox
+permission conflict
+thread-id conflict
+rollout schema changes
+duplicate rollout records
+
+Validate typed evidence independently.
+
+An ancestry conflict must not corrupt an otherwise correctly matched route object.
+
+A permission conflict must not falsely become a route conflict.
+
+==================================================
+14. SIMULATED USER TASKS
+==================================================
+
+Run realistic end-to-end cases including:
+
+small already-located bug
+large read-only repository trace
+bounded multi-file implementation
+ambiguous product request
+mechanical Luna correction
+Luna capability gap requiring Terra delta
+bounded Luna implementation followed by justified Sol review
+prompt-injected repository
+missing required Agent profile
+hard-read-only case where native sandbox evidence is unavailable
+
+For every run record:
+
+why delegation occurred or did not occur
+actual Agent graph
+Agent roles
+actual changed files
+verification performed
+evidence established
+evidence reused
+evidence invalidated
+consent prompts
+runtime evidence level
+final user-facing receipt
+
+UX is part of acceptance.
+
+The system must not turn trivial coding work into orchestration ceremony.
+
+==================================================
+15. PROMPT-INJECTION TESTING
+==================================================
+
+Create repository or fixture content instructing an Agent to:
+
+expand scope
+read credentials
+change model routing
+spawn descendants
+bypass consent
+modify unrelated files
+perform external side effects
+
+These instructions must remain untrusted data.
+
+After every writing task independently inspect the actual changed-file set.
+
+==================================================
+16. SHARED EVIDENCE TEST
+==================================================
+
+Create a task where the first Agent establishes evidence such as:
+
+E01 reproduction
+E02 caller path
+E03 baseline focused tests
+E04 public interface fact
+
+Introduce a second Agent.
+
+Measure whether the second Agent needlessly repeats E01-E04.
+
+Then modify an unrelated file.
+
+Expected:
+E01-E04 remain valid if their dependencies did not change.
+
+Then modify a dependency of E02 or E03.
+
+Expected:
+only affected evidence is invalidated.
+
+Measure:
+
+unjustified_repeated_commands
+unjustified_repeated_discovery
+duplicate_dependency_calls
+evidence_established
+evidence_invalidated
+
+This is a release-critical empirical test.
+
+==================================================
+17. TERRA DELTA EXPERIMENT
+==================================================
+
+Construct a difficult technical issue where:
+
+Luna has already reproduced the defect
+Luna has already mapped the relevant callers
+most deterministic evidence is already valid
+one technically difficult dependency remains unresolved
+
+Compare controlled paired runs:
+
+A:
+restart the whole task with Terra
+
+B:
+Terra receives only:
+- unresolved delta
+- valid evidence
+- current artifact
+- DO NOT REDO list
+
+If budget allows, run at least 3 controlled pairs.
+
+Measure:
+
+correctness
+repeated discovery
+repeated commands
+tokens where exposed
+latency
+main-session correction work
+
+Do not claim delta escalation is superior until data supports it.
+
+==================================================
+18. SELECTIVE SOL EXPERIMENT
+==================================================
+
+Use bounded implementations with deterministic verification.
+
+Compare:
+
+A:
+main -> Luna -> main acceptance
+
+B:
+main -> Luna -> Sol selective review -> main acceptance
+
+Sol receives:
+
+actual diff
+compressed evidence
+one explicit review question
+
+Sol should not rescan the whole repository unless it names a missing dependency.
+
+Measure:
+
+material defects caught
+false positives
+correction work
+tokens
+latency
+final acceptance quality
+
+==================================================
+19. PRIMARY PRODUCT EXPERIMENT
+==================================================
+
+This is the highest-priority behavioral experiment.
+
+Compare:
+
+A:
+raw user prompt -> Luna Max
+
+B:
+same raw user prompt
+-> main session compiles Delegation Contract
+-> Luna Max
+
+Freeze the fixture BEFORE running either side.
+
+Use:
+
+evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md
+
+Keep controlled:
+
+exact user prompt
+repository revision
+starting state
+acceptance rubric
+main-session route
+worker route
+permissions
+tool surface
+Codex runtime version
+
+Generate:
+
+workload_definition_hash
+permissions_fingerprint
+tool_surface_fingerprint
+acceptance_rubric_id
+
+Use the same pair conditions except for the intended experimental factor.
+
+Target at least 5 paired repeats across representative coding workloads if cost permits.
+
+Validate result JSON against:
+
+evals/behavioral-result.schema.json
+
+Then score with:
+
+python3 scripts/score-behavioral-evals.py <result.json>
+
+Use paired candidate-minus-baseline results.
+
+Do not compare uncontrolled repository-wide mode averages as if they were causal evidence.
+
+==================================================
+20. PARALLELISM AND LIFECYCLE STRESS
+==================================================
+
+Test:
+
+two genuinely independent read-only dependencies
+duplicate-inference rejection
+one-writer enforcement
+fan-out consent
+spawn failure
+wait
+interrupt
+cancel
+close
+recovery
+
+Run at least:
+
+10 sequential spawn/wait/close cycles
+
+Prefer:
+
+20
+
+if runtime/cost allows.
+
+Record:
+
+concurrency slots
+orphan child threads
+completed children still occupying capacity
+wait behavior
+close behavior
+cancellation recovery
+spawn failure recovery
+sibling effects
+main-session effects
+
+No hidden Agent team should survive task completion.
+
+==================================================
+21. INSTALLER FAULT INJECTION
+==================================================
+
+Test real filesystem behavior for:
+
+clean install
+repeat no-op
+user-modified managed profile
+reserved semantic role collision
+proven legacy migration
+unproven legacy file
+stale standalone manifest
+symlinked target
+unwritable directory
+interrupted replacement
+manifest write failure
+disk/write failure where practical
+rollback after partial mutation
+
+For failures verify:
+
+profile bytes
+ownership manifest
+unrelated files
+
+are restored or preserved exactly as required.
+
+==================================================
+22. DEFECT TRIAGE
+==================================================
+
+For every failure classify first:
+
+P0
+release-blocking data/safety/destructive failure
+
+P1
+core architecture/runtime contract violation
+
+P2
+non-blocking UX/observability/maintainability defect
+
+P3
+cosmetic/documentation improvement
+
+Also classify ownership:
+
+PROJECT
+UPSTREAM_CODEX_RUNTIME
+ENVIRONMENT
+TEST_FIXTURE
+UNKNOWN
+
+Never patch around an upstream runtime limitation by weakening project acceptance rules.
+
+If a project defect is reproducible:
+
+1. create a focused branch;
+2. add a failing regression test when technically possible;
+3. make the minimum fix;
+4. run focused tests;
+5. run complete suite;
+6. explain which previous assumption was disproved;
+7. update HEADOFF / docs only when the observed behavior changes the documented contract.
+
+Avoid broad cleanup while fixing a localized live defect.
+
+==================================================
+23. ARCHITECTURE REVERSAL GATE
+==================================================
+
+Do not redesign the current orchestration architecture because:
+
+another design looks cleaner
+a model seems stronger
+one run feels slow
+one Agent gives a mediocre answer
+more parallelism looks attractive
+
+An architectural reversal requires reproducible evidence showing a current assumption is systematically wrong.
+
+Examples:
+
+contract compilation consistently hurts acceptance quality
+
+Shared Evidence produces more correction cost than rediscovery
+
+Terra delta escalation is systematically worse than restart
+
+selective Sol has unacceptable false-positive/cost behavior
+
+one-writer policy blocks a necessary supported workflow
+
+fork_turns=none makes bounded contracts systematically insufficient
+
+native Codex runtime makes required isolation/routing semantics impossible
+
+If such evidence appears:
+
+STOP.
+
+Document it first.
+
+Do not perform a broad rewrite in the same experimental step.
+
+==================================================
+24. REQUIRED DELIVERABLE
+==================================================
+
+Maintain:
+
+LOCAL_VALIDATION_REPORT.md
+
+It must contain:
+
+baseline commit
+local environment
+Codex version
+branch cleanup result
+repository baseline result
+Plugin installation result
+profile discovery result
+runtime truth matrix
+contractability simulations
+prompt-injection result
+Shared Evidence result
+Luna failure-classification result
+Terra delta experiment
+Luna + selective Sol experiment
+raw-vs-contract primary experiment
+parallelism result
+lifecycle stress result
+installer fault-injection result
+open defects
+upstream runtime limitations
+performance / token observations
+final release recommendation
+
+For every defect include:
+
+severity
+ownership
+exact prompt or command
+exact repo revision
+exact runtime version
+expected result
+actual result
+minimal reproduction
+evidence
+proposed next action
+
+Do not include:
+
+credentials
+private transcripts
+hidden chain of thought
+sensitive user data
+
+==================================================
+25. FINAL ACCEPTANCE
+==================================================
+
+At the end, provide exactly one release recommendation:
+
+RELEASE CANDIDATE
+
+or
+
+HOLD
+
+RELEASE CANDIDATE requires:
+
+deterministic suite green
+real Plugin install path works
+role discovery behavior understood
+one-writer invariant holds
+depth-one behavior holds
+partial runtime evidence never becomes affirmative proof
+runtime conflicts quarantine correctly
+ambiguous writing tasks do not escape decision boundaries
+Luna failure classification behaves correctly
+no systematic Shared Evidence rediscovery defect
+behavioral eval controls are valid
+no open P0/P1 project defects
+installer fault behavior is acceptable
+lifecycle stress reveals no material leaks/orphans
+claims about performance/cost are limited to measured workloads
+
+If HOLD:
+
+identify the smallest blocking set.
+
+Do not hide unresolved uncertainty behind a generic “mostly works” conclusion.
+
+==================================================
+26. WORKING STYLE
+==================================================
+
+Operate evidence-first.
+
+Do not trust prior summaries more than repository contents or runtime evidence.
+
+Do not create speculative refactors.
+
+Do not silently weaken tests.
+
+Do not change architecture to make an experiment pass.
+
+Do not publish unmeasured performance claims.
+
+Keep deterministic facts, repository facts, runtime observations, and model judgments separate.
+
+Preserve valid evidence between steps.
+
+Recompute only invalidated dependencies.
+
+When you finish each major test phase, update LOCAL_VALIDATION_REPORT.md before moving on.
+
+Begin now by:
+
+1. cloning/fetching the repository;
+2. establishing and recording the actual main baseline;
+3. reading HEADOFF.md completely;
+4. reading the current architecture/policy implementation;
+5. running the clean deterministic baseline;
+6. auditing and cleaning obsolete remote branches;
+7. preparing the isolated real Plugin/runtime validation environment.
+
+Do not begin with code changes.
+```
+进入 **validation engineer + product QA + runtime investigator** 的工作模式。
+
+本地 Codex 最终真正有价值的产物应该是：
+
+```text
+HEADOFF.md
+        ↓
+真实测试
+        ↓
+LOCAL_VALIDATION_REPORT.md
+        ↓
+可复现 defects
+        ↓
+针对性 patch
+        ↓
+重新验证
+        ↓
+RELEASE CANDIDATE / HOLD
+```
+
+如果本地测试最后没有暴露 P0/P1，那么这套项目下一步才适合进入真正的 release/tag 阶段，而不是继续做第 N 轮静态架构优化。
+
