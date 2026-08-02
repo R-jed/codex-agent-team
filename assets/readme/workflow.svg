@@ -1,31 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
-  <title id="title">Codex Agent Team workflow</title>
-  <desc id="desc">Editorial e-ink workflow. Root decides whether delegation is worthwhile, Luna executes, Terra reviews independently, results return to Root for verification, and Sol is reserved for consent-gated high-consequence judgment.</desc>
+  <title id="title">Codex Agent Team task routing</title>
+  <desc id="desc">Editorial workflow. Small work stays in the main session, Luna handles bounded execution, Terra reviews risky changes independently, and Sol is used only after consent for unresolved high-consequence judgment.</desc>
   <rect width="1200" height="720" fill="#f1f3f5"/>
 
-  <g fill="none" stroke="#0a1f3d" stroke-width="1" opacity="0.07">
-    <path d="M-44 148 C78 54 204 82 282 170 C350 246 338 334 254 382 C168 430 58 392 -18 486"/>
-    <path d="M-14 182 C92 104 194 122 258 192 C314 252 304 318 236 360 C166 402 80 374 10 446"/>
-    <path d="M20 220 C108 158 188 170 238 220 C280 264 274 310 220 342 C166 374 100 354 44 412"/>
+  <g fill="none" stroke="#0a1f3d" stroke-width="1" opacity="0.065">
+    <path d="M-42 144 C82 52 202 82 282 170 C350 246 338 334 254 382 C168 430 60 392 -18 486"/>
+    <path d="M-10 182 C94 106 194 122 258 192 C314 252 304 318 236 360 C166 402 80 374 12 446"/>
+    <path d="M24 220 C110 160 188 170 238 220 C280 264 274 310 220 342 C166 374 100 354 46 412"/>
   </g>
 
   <line x1="56" y1="76" x2="1144" y2="76" stroke="#0a1f3d" stroke-width="1" opacity="0.34"/>
   <line x1="56" y1="646" x2="1144" y2="646" stroke="#0a1f3d" stroke-width="1" opacity="0.34"/>
 
-  <text x="56" y="48" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1.1" fill="#0a1f3d" opacity="0.72">WORKFLOW · TASK DELEGATION</text>
-  <text x="1144" y="48" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1" fill="#0a1f3d" opacity="0.72">DELEGATE ONLY WHEN IT HELPS · 02 / 03</text>
+  <text x="56" y="48" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1" fill="#0a1f3d" opacity="0.72">WORKFLOW · WHEN TO USE A SUBAGENT</text>
+  <text x="1144" y="48" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1" fill="#0a1f3d" opacity="0.72">MINIMUM TEAM · 02 / 03</text>
 
-  <text x="56" y="142" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#0a1f3d" opacity="0.62">DECIDE → EXECUTE → REVIEW → ACCEPT</text>
-  <text x="56" y="214" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="50" font-weight="700" fill="#0a1f3d">Delegate only</text>
-  <text x="56" y="272" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="50" font-weight="700" fill="#0a1f3d">when it adds value.</text>
-  <text x="56" y="326" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="500" fill="#0a1f3d" opacity="0.74">The active session keeps ownership of intent,</text>
-  <text x="56" y="360" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="500" fill="#0a1f3d" opacity="0.74">risk, acceptance, and final delivery.</text>
+  <text x="56" y="150" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#0a1f3d" opacity="0.58">DECIDE FIRST, THEN DELEGATE</text>
+  <text x="56" y="214" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="47" font-weight="700" fill="#0a1f3d">Does this task really</text>
+  <text x="56" y="272" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="47" font-weight="700" fill="#0a1f3d">need a Subagent?</text>
+  <text x="56" y="326" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a1f3d" opacity="0.72">No concrete benefit means the main session</text>
+  <text x="56" y="360" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a1f3d" opacity="0.72">simply does the work.</text>
 
-  <rect x="56" y="410" width="304" height="162" fill="#0a1f3d"/>
-  <text x="82" y="450" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" letter-spacing="0.9" fill="#f1f3f5" opacity="0.72">OPTIONAL JUDGMENT</text>
-  <text x="82" y="492" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#f1f3f5">Sol · Senior judgment</text>
-  <text x="82" y="530" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.8">Only for unresolved high-consequence</text>
-  <text x="82" y="560" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.8">decisions, after explicit user consent.</text>
+  <rect x="56" y="418" width="304" height="154" fill="#0a1f3d"/>
+  <text x="82" y="456" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#f1f3f5" opacity="0.7">FINAL OWNERSHIP</text>
+  <text x="82" y="498" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#f1f3f5">Back to main session</text>
+  <text x="82" y="534" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.8">Inspect files, diffs, tests, and evidence</text>
+  <text x="82" y="562" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.8">before accepting the result.</text>
 
   <g transform="translate(414 116)">
     <line x1="0" y1="0" x2="730" y2="0" stroke="#0a1f3d" stroke-width="2"/>
@@ -35,29 +35,26 @@
     <line x1="0" y1="512" x2="730" y2="512" stroke="#0a1f3d" stroke-width="2"/>
 
     <text x="0" y="52" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">01</text>
-    <text x="88" y="46" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="31" font-weight="700" fill="#0a1f3d">Root decides</text>
-    <text x="88" y="84" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a1f3d" opacity="0.7">No concrete benefit means no Subagent.</text>
-    <text x="690" y="50" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">DECIDE</text>
+    <text x="88" y="46" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Main session</text>
+    <text x="88" y="84" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Small task, clear context, lowest coordination cost.</text>
+    <text x="690" y="50" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">DEFAULT</text>
 
     <text x="0" y="180" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">02</text>
-    <text x="88" y="174" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="31" font-weight="700" fill="#0a1f3d">Luna executes</text>
-    <text x="88" y="212" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Search, implementation, debugging, and tests</text>
-    <text x="88" y="242" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">inside a clearly bounded task.</text>
-    <text x="690" y="178" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">EXECUTE</text>
+    <text x="88" y="174" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Luna executes</text>
+    <text x="88" y="212" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Heavy search, noisy context, or bounded implementation.</text>
+    <text x="690" y="178" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">EXECUTE</text>
 
     <text x="0" y="308" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">03</text>
-    <text x="88" y="302" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="31" font-weight="700" fill="#0a1f3d">Terra reviews</text>
-    <text x="88" y="340" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Added only when a detached view materially</text>
-    <text x="88" y="370" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">improves confidence.</text>
-    <text x="690" y="306" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">REVIEW</text>
+    <text x="88" y="302" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Terra reviews</text>
+    <text x="88" y="340" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Risk is high enough that an independent view matters.</text>
+    <text x="690" y="306" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">REVIEW</text>
 
     <text x="0" y="436" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">04</text>
-    <text x="88" y="430" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="31" font-weight="700" fill="#0a1f3d">Root verifies and delivers</text>
-    <text x="88" y="468" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Evidence is checked, conflicts are resolved,</text>
-    <text x="88" y="498" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">and Root makes the final call.</text>
-    <text x="690" y="434" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">DELIVER</text>
+    <text x="88" y="430" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Sol judges</text>
+    <text x="88" y="468" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">High-consequence disagreement remains; ask first.</text>
+    <text x="690" y="434" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">CONSENT</text>
   </g>
 
-  <text x="56" y="688" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.7">Unprovable route → Root · High-impact action → Root + consent</text>
-  <text x="1144" y="688" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.62">FAIL CLOSED</text>
+  <text x="56" y="688" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.7">Zero Subagents is normal · The main session accepts every result</text>
+  <text x="1144" y="688" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.62">DELEGATE WHEN USEFUL</text>
 </svg>
