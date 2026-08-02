@@ -1,17 +1,10 @@
 # Native Subagent Runtime Contract
 
-This document answers two practical questions:
+Codex Agent Team uses Codex's native `spawn_agent` primitive. A **Subagent** is the delegated actor; an **Agent thread** is the child thread/session where that actor runs.
 
-1. How does Codex Agent Team make a requested model and reasoning effort actually land on the child?
-2. What does the Skill create when it delegates work?
+## Native mechanism
 
-## 1. The Skill creates Native Subagents
-
-Codex Agent Team calls Codex's native `spawn_agent` tool. OpenAI's Codex documentation defines a **Subagent** as a delegated agent started for a specific task and an **Agent thread** as the thread where that Subagent does its work.
-
-That means “Subagent” and “child task session/thread” describe different layers of the same native mechanism. The Subagent is the delegated actor; the child thread is its runtime container.
-
-Current Codex marks the created child as `SubAgent / ThreadSpawn`:
+Current Codex represents a spawned child as `SubAgent / ThreadSpawn`:
 
 ```text
 SessionSource::SubAgent(
@@ -22,79 +15,71 @@ SessionSource::SubAgent(
 Conceptually:
 
 ```text
-Root Codex session
-└── spawn_agent(task_name="auth_fix", ...)
-    └── Native Subagent: /root/auth_fix
-        └── backed internally by a child Codex thread/session
+main Codex session
+└── spawn_agent(...)
+    └── Native Subagent
+        └── child Codex thread/session
 ```
 
-The child thread/session is the runtime container for the Subagent. The Skill does not create an App Thread, a second user-facing chat, a custom task scheduler, or an external agent framework.
+The project does not create an App Thread, second user-facing chat, external Agent runtime, persistent DAG, or custom scheduler.
 
-## 2. How this differs from plain Codex Subagent use
+## What Codex Agent Team adds
 
-The runtime primitive is the same. Codex Agent Team adds an opinionated operating policy around it.
+The native primitive stays the same. The Skill adds policy around when and how to use it.
 
-| Native Codex capability | Codex Agent Team policy |
+| Native capability | Agent Team policy |
 | --- | --- |
-| Generic `spawn_agent` | Delegation Gate decides whether a child has concrete value |
-| Model may inherit or be explicitly overridden | Route Assurance permits only provable model/effort paths |
-| Generic roles | Luna Max execution, Terra XHigh critic, Sol High judge |
-| `fork_turns` can default to full history | Role-specific spawns set it explicitly |
-| Native children can have Subagent tools | Skill fixes delegation depth to 1 |
-| Multiple children are possible | Minimum Team limits default fan-out |
-| Runtime permissions govern tools | One Writer and permission guarantees add policy constraints |
-| Child result returns to Root | Evidence contract and deterministic verification gate acceptance |
-| Powerful operations are possible | Consent Gate and high-impact actions stay with Root |
+| Generic `spawn_agent` | delegation must satisfy a distinct unresolved dependency |
+| Arbitrary task prompt | main session compiles a bounded Delegation Contract |
+| Multiple children | Minimum Team and useful-parallelism rules limit fan-out |
+| Generic custom roles | namespaced semantic Reader / Worker / Investigator / Advisor roles |
+| Context forking | role-specific spawns set `fork_turns` explicitly |
+| Child reports | actual artifacts and deterministic evidence gate acceptance |
+| Child Subagent capability | project delegation depth stays at 1 |
+| Runtime tool permissions | one-writer and read-only evidence rules add safety constraints |
 
-Codex Agent Team does not replace Codex Subagents. It makes native delegation more repeatable, model-aware, context-aware, and auditable.
+## Semantic roles and exact profile routing
 
-## 3. Model and effort assurance
-
-The Skill separates:
+Current project roles are:
 
 ```text
-preferred_route   what policy wants
-configured_route  what exact native path was accepted
-route_assurance   why the exact configuration is trusted
-observed_route    what runtime explicitly reports after spawn
+codex_agent_team_reader        -> gpt-5.6-luna / max
+codex_agent_team_worker        -> gpt-5.6-luna / max
+codex_agent_team_investigator  -> gpt-5.6-terra / xhigh
+codex_agent_team_advisor       -> gpt-5.6-sol / high
 ```
 
-Current MultiAgentV2 spawn/list output does not expose a universal effective child model/reasoning receipt, so post-spawn observation is usually unavailable. This means the current guarantee is configuration-level: the exact route is locked or accepted by the native configuration path, while runtime observation remains separate.
+The role name describes responsibility. The model/effort binding is a route policy and may change in a future release without renaming the semantic role.
 
-Allowed `route_assurance` states:
+Model-specific delegation uses only the exact custom project profile. There is no Portable Mode or built-in-role substitution.
 
-### `profile_locked`
-
-A custom role such as `luna_worker` pins the exact model and effort, and live role guidance confirms those values are locked.
-
-### `native_explicit_validated`
-
-Portable Mode explicitly sends model + effort. Current Codex validates the requested model against the available MultiAgent models and validates reasoning effort against the selected model before spawning. The Skill also confirms the selected role is not locked to an incompatible route.
-
-If neither `profile_locked` nor `native_explicit_validated` can establish the exact tuple, keep the task in Root with `preferred_route_unavailable`.
-
-The Skill does not use inherited model/effort as proof of an exact route because Codex can apply configured default Subagent model/effort values when request fields are omitted.
-
-## 4. Why role shadowing matters
-
-Current Codex lets user-defined Agent roles shadow built-in names. A user configuration can therefore redefine `worker`, `explorer`, or `default`.
-
-Portable Mode inspects live role guidance before using a built-in name. If that role is locked to a different model or reasoning effort, the requested route is rejected by policy.
-
-Profile Mode avoids this ambiguity by using project-specific names:
+Before spawn, the Skill keeps:
 
 ```text
-luna_explorer
-luna_worker
-terra_reviewer
-sol_judge
+preferred_route
+configured_route
+route_assurance = profile_locked
 ```
 
-## 5. Context and child identity
+separate from post-spawn runtime evidence.
 
-MultiAgentV2 assigns the Subagent a canonical task path such as `/root/auth_fix` and internally a child thread ID.
+## Runtime observation
 
-`fork_turns` controls how much parent history initializes that child:
+Runtime Truth v2 separates:
+
+```text
+route_evidence
+ancestry_evidence
+permission_evidence
+```
+
+Complete route proof requires observed role, model, and effort. A partial observation remains partial.
+
+See `model-route-assurance.md` and the installed `references/runtime-assurance.md`.
+
+## Context and child identity
+
+`fork_turns` controls how much main-session history initializes a child:
 
 ```text
 none       fresh child context
@@ -102,27 +87,44 @@ N          recent N turns
 all        full history
 ```
 
-Codex Agent Team uses `none` by default for role-specific work. This keeps exploration and detached review isolated from Root history.
+Role-specific work uses `none` by default because the Delegation Contract carries the task-local facts that the child actually needs.
 
-## 6. Recursion policy
+The main session may pass a small recent-N only when a user decision cannot be safely repacked.
 
-Codex's native Subagent tool can give spawned Agents the ability to create additional Subagents. Codex Agent Team deliberately does not use that freedom.
+## Evidence instead of repeated history
+
+Fresh context does not mean rediscovering the task from zero.
+
+The main session passes:
+
+- the bounded contract;
+- valid established evidence needed by the responsibility;
+- the current artifact or unresolved delta;
+- explicit items that should not be recomputed when their dependencies are still valid.
+
+Private model reasoning is not propagated as task state.
+
+## Recursion policy
+
+Codex can allow native children to spawn further children. Agent Team deliberately fixes delegation depth at 1:
 
 ```text
-Root -> child
+main session -> child
 child -> no further delegation
 ```
 
-The Skill keeps delegation depth at 1 so Root remains the single coordinator and final integration point.
+This keeps one control plane and makes evidence ownership, permissions, and acceptance tractable.
 
-## 7. User-facing takeaway
+## User-facing takeaway
 
-Codex already has a capable Native Subagent engine. Codex Agent Team adds a stable contract for how that engine is used:
+The runtime is native Codex. Agent Team changes the scheduling discipline:
 
 ```text
-simple work -> Root
-heavy bounded execution -> Luna Max
-important detached judgment -> Terra XHigh
-rare high-consequence adjudication -> Sol High after consent
-unprovable route -> Root
+simple work -> main session
+bounded execution -> Luna Max
+unresolved complex technical delta -> Terra
+high-value judgment/review -> Sol
+missing exact project profile -> main session
 ```
+
+These are selectable resources, not mandatory pipeline stages.
