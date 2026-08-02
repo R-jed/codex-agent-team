@@ -126,7 +126,7 @@ def test_required_runtime_observation_cannot_be_satisfied_by_local_record_only()
     assert data["evidence_grade"] == "L1_local_record_observed"
 
 
-def test_required_read_only_requires_observed_read_only():
+def test_required_read_only_requires_native_observed_read_only():
     result, data = run_verifier(
         {
             "expected": expected(requires_enforced_read_only=True),
@@ -135,13 +135,13 @@ def test_required_read_only_requires_observed_read_only():
     )
     assert result.returncode == 0, result.stderr
     assert data["decision"] == "quarantine"
+    assert data["evidence_grade"] == "X0_conflicted"
     assert data["permission_match"] is False
     assert "permission:read_only_not_enforced" in data["violations"]
 
 
-def test_required_read_only_unobserved_returns_to_root():
-    obs = observation()
-    obs["sandbox_policy_type"] = None
+def test_required_read_only_unobserved_returns_to_root_without_conflict_grade():
+    obs = observation(sandbox_policy_type=None)
     result, data = run_verifier(
         {
             "expected": expected(requires_enforced_read_only=True),
@@ -151,3 +151,20 @@ def test_required_read_only_unobserved_returns_to_root():
     assert result.returncode == 0, result.stderr
     assert data["decision"] == "return_to_root"
     assert data["status"] == "not_exposed"
+    assert data["evidence_grade"] == "R1_runtime_reported"
+    assert "permission:read_only_native_unobserved" in data["violations"]
+
+
+def test_local_read_only_record_cannot_establish_runtime_enforced():
+    result, data = run_verifier(
+        {
+            "expected": expected(requires_enforced_read_only=True),
+            "native": None,
+            "local": observation(sandbox_policy_type="read-only"),
+        }
+    )
+    assert result.returncode == 0, result.stderr
+    assert data["decision"] == "return_to_root"
+    assert data["evidence_grade"] == "L1_local_record_observed"
+    assert data["runtime_reported"] is False
+    assert "permission:read_only_native_unobserved" in data["violations"]
