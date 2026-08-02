@@ -73,7 +73,7 @@ ancestry_evidence
 permission_evidence
 ```
 
-Complete route proof requires observed role, model, and effort. A partial observation remains partial.
+Exact route proof requires a complete expected role/model/effort tuple and a complete matching observed role/model/effort tuple. Incomplete expectations fail closed; partial observations stay partial.
 
 See `model-route-assurance.md` and the installed `references/runtime-assurance.md`.
 
