@@ -10,8 +10,9 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 INSTALLER = ROOT / "scripts" / "install.py"
-SKILL_SOURCE = ROOT / "skill" / "codex-agent-team"
-PROFILE_SOURCE = ROOT / "examples" / "agents"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+SKILL_SOURCE = PLUGIN_ROOT / "skills" / "codex-agent-team"
+PROFILE_SOURCE = PLUGIN_ROOT / "agent-profiles"
 MANIFEST_NAME = ".codex-agent-team-install.json"
 PROFILE_FILES = (
     "luna-explorer.toml",
