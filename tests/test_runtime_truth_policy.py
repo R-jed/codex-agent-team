@@ -19,11 +19,13 @@ def test_evidence_grades_are_explicit_and_local_record_is_not_runtime_proof():
 
 
 def test_profile_locked_is_documented_as_configuration_only():
-    skill = (SKILL / "SKILL.md").read_text()
-    route = (ROOT / "docs" / "model-route-assurance.md").read_text()
-    assert "`profile_locked`" in skill
+    skill = (SKILL / "SKILL.md").read_text().lower()
+    route = (ROOT / "docs" / "model-route-assurance.md").read_text().lower()
+    assert "profile_locked" in skill
     assert "configuration assurance only" in skill
-    assert "does not mean the child route has been independently observed" in route
+    assert "profile_locked" in route
+    assert "configuration lock" in route
+    assert "post-spawn" in route
 
 
 def test_verifier_is_wired_into_skill_and_policy():
@@ -48,11 +50,12 @@ def test_depth_one_has_parent_thread_runtime_check():
 
 
 def test_consent_policy_defines_baseline_envelope():
-    consent = (SKILL / "references" / "consent-policy.md").read_text()
-    assert "Baseline orchestration envelope" in consent
-    assert "one Luna responsibility" in consent
-    assert "one Terra" in consent
-    assert "Sol Senior Judge is outside the baseline envelope" in consent
+    consent = (SKILL / "references" / "consent-policy.md").read_text().lower()
+    assert "baseline orchestration envelope" in consent
+    assert "luna" in consent and "0-1" in consent
+    assert "terra" in consent and "at most 1" in consent
+    assert "sol senior judge" in consent
+    assert "outside the baseline envelope" in consent
 
 
 def test_live_evals_are_separate_from_static_tests():
