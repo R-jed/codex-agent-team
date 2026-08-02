@@ -168,6 +168,40 @@ def test_full_installer_manifest_can_seed_legacy_ownership(tmp_path: Path):
     assert (home / MANIFEST).is_file()
 
 
+def test_full_manifest_legacy_ownership_is_consumed_after_migration(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    legacy_name = "luna-worker.toml"
+    legacy_data = b"# old standalone luna-worker.toml\n"
+    (agents / legacy_name).write_bytes(legacy_data)
+    (home / FULL_MANIFEST).write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "mode": "profile",
+                "skill_hash": "placeholder",
+                "profile_hashes": {legacy_name: sha(legacy_data)},
+            }
+        )
+    )
+
+    first = run_installer(home)
+    assert first.returncode == 0, first.stderr
+    assert not (agents / legacy_name).exists()
+    assert json.loads((home / MANIFEST).read_text())["schema_version"] == 2
+
+    # A user may intentionally recreate the old filename later. A stale standalone
+    # manifest must not retain deletion authority after the companion ownership epoch
+    # has been established.
+    (agents / legacy_name).write_bytes(legacy_data)
+    second = run_installer(home)
+
+    assert second.returncode == 0, second.stderr
+    assert (agents / legacy_name).read_bytes() == legacy_data
+    assert "no changes made" in second.stdout
+
+
 def test_exact_current_profiles_can_be_adopted_without_overwrite(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
