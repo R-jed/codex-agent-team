@@ -2,9 +2,9 @@
 """Install Codex Agent Team and its locked Agent profiles.
 
 The installer validates all shipped sources and destination conflicts before mutation.
-A normal install stages the Skill, creates only missing exact Agent profiles, swaps the
-Skill atomically within the destination filesystem, and verifies the final state.
-`--check` is strictly non-mutating.
+A normal install stages the Skill when an update is needed, creates only missing exact
+Agent profiles, swaps the Skill within the destination filesystem, and verifies the
+final state. An already exact install is a no-op. `--check` is strictly non-mutating.
 """
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import tomllib
+from typing import NoReturn
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,18 +59,8 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def fail(message: str) -> "NoReturn":
+def fail(message: str) -> NoReturn:
     raise SystemExit(message)
-
-
-def reject_symlink_or_wrong_type(path: Path, expected: str) -> None:
-    if path.is_symlink():
-        fail(f"Refusing symlinked {expected}: {path}")
-    if path.exists():
-        if expected == "directory" and not path.is_dir():
-            fail(f"Expected a directory: {path}")
-        if expected == "file" and not path.is_file():
-            fail(f"Expected a regular file: {path}")
 
 
 def validate_source_tree(root: Path) -> None:
@@ -216,10 +207,13 @@ def verify_installed(target_skill: Path, agents_dir: Path, skill_only: bool) -> 
 def stage_skill(skills_dir: Path) -> tuple[Path, Path]:
     stage_root = Path(tempfile.mkdtemp(prefix=".codex-agent-team-stage-", dir=skills_dir))
     staged_skill = stage_root / "codex-agent-team"
-    shutil.copytree(SKILL_SOURCE, staged_skill)
-    if not skill_is_exact(staged_skill):
+    try:
+        shutil.copytree(SKILL_SOURCE, staged_skill)
+        if not skill_is_exact(staged_skill):
+            fail("Staged Skill failed exactness verification")
+    except BaseException:
         shutil.rmtree(stage_root, ignore_errors=True)
-        fail("Staged Skill failed exactness verification")
+        raise
     return stage_root, staged_skill
 
 
@@ -282,12 +276,18 @@ def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
         print("CHECK PASSED: installed Codex Agent Team matches shipped artifacts exactly.")
         return
 
+    skill_already_exact = target_skill.exists() and skill_is_exact(target_skill)
+
     codex_home.mkdir(parents=True, exist_ok=True)
     skills_dir.mkdir(parents=True, exist_ok=True)
     if not skill_only:
         agents_dir.mkdir(parents=True, exist_ok=True)
 
-    stage_root, staged_skill = stage_skill(skills_dir)
+    stage_root: Path | None = None
+    staged_skill: Path | None = None
+    if not skill_already_exact:
+        stage_root, staged_skill = stage_skill(skills_dir)
+
     created_profiles: list[Path] = []
     backup: Path | None = None
     installed_new_skill = not target_skill.exists()
@@ -296,15 +296,17 @@ def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
         if not skill_only:
             created_profiles = install_missing_profiles(agents_dir)
 
-        if target_skill.exists():
-            backup = skills_dir / f".codex-agent-team-backup-{uuid.uuid4().hex}"
-            target_skill.rename(backup)
-        try:
-            staged_skill.rename(target_skill)
-        except BaseException:
-            if backup is not None and backup.exists() and not target_skill.exists():
-                backup.rename(target_skill)
-            raise
+        if not skill_already_exact:
+            assert staged_skill is not None
+            if target_skill.exists():
+                backup = skills_dir / f".codex-agent-team-backup-{uuid.uuid4().hex}"
+                target_skill.rename(backup)
+            try:
+                staged_skill.rename(target_skill)
+            except BaseException:
+                if backup is not None and backup.exists() and not target_skill.exists():
+                    backup.rename(target_skill)
+                raise
 
         verify_installed(target_skill, agents_dir, skill_only)
     except BaseException:
@@ -320,9 +322,10 @@ def install(codex_home: Path, skill_only: bool, check_only: bool) -> None:
         raise
     else:
         if backup is not None:
-            shutil.rmtree(backup)
+            shutil.rmtree(backup, ignore_errors=True)
     finally:
-        shutil.rmtree(stage_root, ignore_errors=True)
+        if stage_root is not None:
+            shutil.rmtree(stage_root, ignore_errors=True)
 
     print(f"Installed Skill: {target_skill}")
     if skill_only:
