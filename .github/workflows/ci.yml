@@ -29,7 +29,7 @@ jobs:
       - name: Validate plugin manifests
         shell: bash
         run: |
-          python -m json.tool .codex-plugin/plugin.json >/dev/null
+          python -m json.tool plugins/codex-agent-team/.codex-plugin/plugin.json >/dev/null
           python -m json.tool .agents/plugins/marketplace.json >/dev/null
       - run: pytest -q
       - name: Verify standalone installer lifecycle
@@ -44,6 +44,6 @@ jobs:
         shell: bash
         run: |
           target="$RUNNER_TEMP/codex-agent-team-companion"
-          python scripts/install-agents.py --codex-home "$target"
-          python scripts/install-agents.py --codex-home "$target" --check
-          python scripts/install-agents.py --codex-home "$target"
+          python plugins/codex-agent-team/scripts/install-agents.py --codex-home "$target"
+          python plugins/codex-agent-team/scripts/install-agents.py --codex-home "$target" --check
+          python plugins/codex-agent-team/scripts/install-agents.py --codex-home "$target"
