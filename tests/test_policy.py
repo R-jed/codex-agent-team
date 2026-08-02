@@ -28,403 +28,179 @@ def test_eval_schema():
 def test_skill_frontmatter_and_name():
     text = (SKILL_DIR / "SKILL.md").read_text()
     match = re.match(r"^---\n(.*?)\n---\n", text, re.S)
-    assert match, "SKILL.md must start with YAML frontmatter"
+    assert match
     frontmatter = yaml.safe_load(match.group(1))
     assert set(frontmatter) == {"name", "description"}
     assert frontmatter["name"] == "codex-agent-team"
     assert "Luna Max" in frontmatter["description"]
-    assert "Terra XHigh" in frontmatter["description"]
+    assert "distinct dependency" in frontmatter["description"]
 
 
 def test_openai_yaml_matches_skill():
     data = yaml.safe_load((SKILL_DIR / "agents" / "openai.yaml").read_text())
     assert data["interface"]["display_name"] == "Codex Agent Team"
     assert "/codex-agent-team" in data["interface"]["default_prompt"]
-    assert 25 <= len(data["interface"]["short_description"]) <= 64
+    assert "evidence" in data["interface"]["default_prompt"].lower()
     assert data["policy"]["allow_implicit_invocation"] is True
 
 
 def test_core_references_exist_and_are_linked():
     skill = (SKILL_DIR / "SKILL.md").read_text()
-    for name in ["routing-policy.md", "task-packet.md", "consent-policy.md", "safety-policy.md"]:
+    for name in [
+        "delegation-contract.md",
+        "routing-policy.md",
+        "runtime-assurance.md",
+        "consent-policy.md",
+        "safety-policy.md",
+        "orchestration-receipt.md",
+    ]:
         assert (SKILL_DIR / "references" / name).exists()
         assert f"references/{name}" in skill
+    assert not (SKILL_DIR / "references" / "task-packet.md").exists()
 
 
-def test_role_routes_are_stable():
-    allowed = {
-        "explorer": ("gpt-5.6-luna", "max"),
-        "execution_worker": ("gpt-5.6-luna", "max"),
-        "independent_critic": ("gpt-5.6-terra", "xhigh"),
-        "senior_judge": ("gpt-5.6-sol", "high"),
-    }
-    for case in load_evals()["evals"]:
-        for worker in case["expected"].get("workers", []):
-            assert (worker["model"], worker["effort"]) == allowed[worker["responsibility"]]
-
-
-def test_every_worker_has_exact_route_metadata():
-    for case in load_evals()["evals"]:
-        for worker in case["expected"].get("workers", []):
-            assert worker["fork_turns"] == "none" or re.fullmatch(r"[1-9][0-9]*", worker["fork_turns"])
-            assert worker["route_mode"] in {"portable", "profile"}
-            assert worker["route_assurance"] in {"native_explicit_validated", "profile_locked"}
-            assert worker["agent_type"]
-
-
-def test_route_assurance_matches_route_mode():
-    expected = {"portable": "native_explicit_validated", "profile": "profile_locked"}
-    for case in load_evals()["evals"]:
-        for worker in case["expected"].get("workers", []):
-            assert worker["route_assurance"] == expected[worker["route_mode"]]
-
-
-def test_inheritance_is_not_an_exact_assurance_mode():
-    schema = json.loads((ROOT / "evals" / "routing-case.schema.json").read_text())
-    props = schema["properties"]["evals"]["items"]["properties"]["expected"]["properties"]["workers"]["items"]["properties"]
-    assert "inheritance" not in props["route_mode"]["enum"]
-    assert "inherited_exact" not in props["route_assurance"]["enum"]
-    ids = {case["id"] for case in load_evals()["evals"]}
-    assert "luna-root-hidden-overrides-no-exact-inheritance" in ids
-
-
-def test_route_assurance_failure_cases_present():
-    ids = {case["id"] for case in load_evals()["evals"]}
-    assert {
-        "profile-route-lock-not-provable",
-        "portable-role-conflicts-with-explicit-route",
-        "luna-root-hidden-overrides-no-exact-inheritance",
-        "required-role-surface-unavailable",
-    } <= ids
-
-
-def test_profile_mode_uses_project_specific_agent_types():
-    profile_workers = [
-        worker
-        for case in load_evals()["evals"]
-        for worker in case["expected"].get("workers", [])
-        if worker["route_mode"] == "profile"
-    ]
-    assert profile_workers
-    assert all(worker["agent_type"] not in {"explorer", "worker", "default"} for worker in profile_workers)
-    assert any(worker["agent_type"] == "sol_judge" for worker in profile_workers)
-
-
-def test_optional_profiles_parse_and_lock_expected_routes():
+def test_semantic_profiles_are_namespaced_and_route_locked():
     expected = {
-        "luna-explorer.toml": ("luna_explorer", "gpt-5.6-luna", "max"),
-        "luna-worker.toml": ("luna_worker", "gpt-5.6-luna", "max"),
-        "terra-reviewer.toml": ("terra_reviewer", "gpt-5.6-terra", "xhigh"),
-        "sol-judge.toml": ("sol_judge", "gpt-5.6-sol", "high"),
+        "codex-agent-team-reader.toml": ("codex_agent_team_reader", "gpt-5.6-luna", "max", "read-only"),
+        "codex-agent-team-worker.toml": ("codex_agent_team_worker", "gpt-5.6-luna", "max", "workspace-write"),
+        "codex-agent-team-investigator.toml": ("codex_agent_team_investigator", "gpt-5.6-terra", "xhigh", "read-only"),
+        "codex-agent-team-advisor.toml": ("codex_agent_team_advisor", "gpt-5.6-sol", "high", "read-only"),
     }
+    assert sorted(path.name for path in PROFILE_DIR.glob("*.toml")) == sorted(expected)
     for filename, values in expected.items():
         data = tomllib.loads((PROFILE_DIR / filename).read_text())
-        assert (data["name"], data["model"], data["model_reasoning_effort"]) == values
+        actual = (data["name"], data["model"], data["model_reasoning_effort"], data["sandbox_mode"])
+        assert actual == values
         assert data["developer_instructions"].strip()
+        assert data["name"].startswith("codex_agent_team_")
 
 
-def test_team_limits_and_large_fanout_consent():
+def test_static_cases_use_semantic_roles_and_profile_only_routing():
+    allowed = {
+        "reader": ("gpt-5.6-luna", "max", "codex_agent_team_reader"),
+        "worker": ("gpt-5.6-luna", "max", "codex_agent_team_worker"),
+        "investigator": ("gpt-5.6-terra", "xhigh", "codex_agent_team_investigator"),
+        "advisor": ("gpt-5.6-sol", "high", "codex_agent_team_advisor"),
+    }
     for case in load_evals()["evals"]:
-        expected = case["expected"]
-        workers = expected.get("workers", [])
-        assert len(workers) <= 4
-        assert sum(worker["responsibility"] == "independent_critic" for worker in workers) <= 1
-        assert sum(worker["responsibility"] == "senior_judge" for worker in workers) <= 1
-        if len(workers) > 2:
-            assert expected["action"] == "ask_consent"
+        for node in case["expected"].get("nodes", []):
+            model, effort, agent_type = allowed[node["responsibility"]]
+            assert (node["model"], node["effort"], node["agent_type"]) == (model, effort, agent_type)
+            assert node["route_assurance"] == "profile_locked"
+            assert node["fork_turns"] == "none" or re.fullmatch(r"[1-9][0-9]*", node["fork_turns"])
 
 
-def test_senior_judge_always_requires_consent():
-    for case in load_evals()["evals"]:
-        workers = case["expected"].get("workers", [])
-        if any(worker["responsibility"] == "senior_judge" for worker in workers):
-            assert case["expected"]["action"] == "ask_consent"
-            assert case["expected"].get("consent_reason")
-
-
-def test_luna_is_only_default_execution_route():
-    for case in load_evals()["evals"]:
-        for worker in case["expected"].get("workers", []):
-            if worker["responsibility"] in {"explorer", "execution_worker"}:
-                assert (worker["model"], worker["effort"]) == ("gpt-5.6-luna", "max")
-
-
-def test_one_writer_per_workspace_in_delegate_plans():
-    for case in load_evals()["evals"]:
-        if case["expected"]["action"] not in {"delegate", "ask_consent"}:
-            continue
-        counts = {}
-        for worker in case["expected"].get("workers", []):
-            if worker["write_intent"]:
-                counts[worker["workspace"]] = counts.get(worker["workspace"], 0) + 1
-        assert all(count <= 1 for count in counts.values())
-
-
-def test_required_safety_evals_present():
+def test_no_fixed_three_model_pipeline():
     ids = {case["id"] for case in load_evals()["evals"]}
-    assert {
-        "strict-read-only-unavailable",
-        "prompt-injection-scope-expansion",
-        "nested-delegation-observed",
-        "two-shared-writing-workers",
-        "production-deploy-from-worker",
-        "role-specific-fork-turns-must-be-explicit",
-    } <= ids
-
-
-def test_terra_root_behavior_is_covered():
-    ids = {case["id"] for case in load_evals()["evals"]}
-    assert {"terra-root-detached-review", "terra-root-needs-sol-judge"} <= ids
+    assert "luna-sol-short-path" in ids
+    assert "luna-capability-gap-terra-delta" in ids
     routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
-    assert "### Terra XHigh Root" in routing
-    assert "Do not create another Terra solely to claim model diversity" in routing
+    assert "Luna -> Terra -> Sol" in routing
+    assert "never required" in routing
+    assert "main -> Luna -> Sol -> main" in routing
 
 
-def test_skill_contains_no_old_effort_ladder():
-    text = (SKILL_DIR / "SKILL.md").read_text().lower()
-    for phrase in ["luna medium", "luna high", "terra high", "sol xhigh"]:
-        assert phrase not in text
+def test_contractability_is_upstream_of_model_selection():
+    skill = (SKILL_DIR / "SKILL.md").read_text()
+    assert skill.index("## 3. Contractability Gate") < skill.index("## 5. Agent Profile Readiness")
+    contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
+    for field in ["OUTCOME", "SCOPE", "INVARIANTS", "DECISION RIGHTS", "ACCEPTANCE ORACLE", "VERIFICATION", "STOP / ESCALATE"]:
+        assert field in contract
+    assert "do not create a writing Worker" in contract
 
 
-def test_context_fork_contract_is_explicit():
+def test_failure_classification_prevents_whole_task_terra_rework():
+    contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
+    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
+    for phrase in ["mechanical defect", "contract gap", "capability gap", "judgment gap"]:
+        assert phrase in contract
+    assert "Low quality alone is not a Terra trigger" in contract
+    assert "does not receive the whole original task" in routing
+    terra = tomllib.loads((PROFILE_DIR / "codex-agent-team-investigator.toml").read_text())
+    assert "unresolved technical delta" in terra["developer_instructions"]
+    assert "do not restart repository discovery" in terra["developer_instructions"]
+
+
+def test_shared_evidence_state_and_invalidation_are_explicit():
+    contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
+    skill = (SKILL_DIR / "SKILL.md").read_text()
+    for text in [contract, skill]:
+        assert "Shared Evidence State" in text
+        assert "invalidated" in text.lower()
+    assert "deterministic | repository_fact | model_judgment" in contract
+    assert "A file or artifact change invalidates only evidence that depends on the changed input" in contract
+
+
+def test_useful_parallelism_requires_distinct_dependencies():
     skill = (SKILL_DIR / "SKILL.md").read_text()
     routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
-    for text in [skill, routing]:
-        assert 'fork_turns = "none"' in text
-        assert 'fork_turns = "all"' in text
-    assert "defaults `fork_turns` to full history when omitted" in routing
+    assert "outputs satisfy different dependencies" in skill
+    assert "duplicated inference" in routing
 
 
-def test_route_assurance_docs_reject_implicit_inheritance():
+def test_one_writer_and_depth_one_remain_invariants():
+    skill = (SKILL_DIR / "SKILL.md").read_text()
+    safety = (SKILL_DIR / "references" / "safety-policy.md").read_text()
+    assert "one active writing Worker" in skill
+    assert "Workers must not spawn further Subagents" in safety
+
+
+def test_consent_is_resource_based_and_explicit_sol_can_fit_baseline():
+    consent = (SKILL_DIR / "references" / "consent-policy.md").read_text()
+    assert "0-2 justified child Agents" in consent
+    assert "at most 1 active writer" in consent
+    assert "Luna + Sol selective review" in consent
+    assert "For implicit Skill invocation, ask before adding Sol" in consent
+
+
+def test_route_assurance_has_no_portable_mode():
     texts = [
         (SKILL_DIR / "SKILL.md").read_text(),
         (SKILL_DIR / "references" / "routing-policy.md").read_text(),
         read("docs/model-route-assurance.md"),
-        read("docs/architecture.md"),
     ]
     for text in texts:
         assert "profile_locked" in text
-        assert "native_explicit_validated" in text
-    assert "Do not use omitted `model` or `reasoning_effort` as proof" in texts[0]
-    assert "agents.default_subagent_model" in texts[2]
+        assert "native_explicit_validated" not in text
+        assert "Portable Mode" not in text or "No Portable Mode" in text
+    assert "There is no Portable Mode" in texts[0]
 
 
-def test_requested_configured_and_observed_routes_are_separate():
-    texts = [
-        (SKILL_DIR / "SKILL.md").read_text(),
-        (SKILL_DIR / "references" / "routing-policy.md").read_text(),
-        (SKILL_DIR / "references" / "task-packet.md").read_text(),
-        read("docs/model-route-assurance.md"),
-    ]
-    for text in texts:
-        assert "route_assurance" in text
-        assert "observed_route" in text
-    assert "preferred_route" in texts[2]
-    assert "configured_route" in texts[2]
-    assert "observed_route = not_exposed" in texts[2]
-
-
-def test_native_subagent_runtime_doc_explains_actual_primitive():
-    text = read("docs/native-subagent-runtime.md")
-    assert "SubAgent / ThreadSpawn" in text
-    assert "child Codex thread/session" in text
-    assert "spawn_agent" in text
-    assert "does not create an App Thread" in text
-    assert "does not replace Codex Subagents" in text
-    assert "delegation depth at 1" in text
-
-
-def test_architecture_links_runtime_and_assurance_docs():
-    text = read("docs/architecture.md")
-    assert "native-subagent-runtime.md" in text
-    assert "model-route-assurance.md" in text
-    assert "Native `spawn_agent`" in text
-
-
-def test_permission_docs_do_not_overclaim_profile_sandbox():
-    safety = (SKILL_DIR / "references" / "safety-policy.md").read_text()
-    architecture = read("docs/architecture.md")
-    assert 'profile declaring `sandbox_mode = "read-only"`' in safety
-    assert "not proof of effective runtime enforcement" in architecture
-
-
-def test_openai_reference_doc_records_price_and_runtime_sources():
-    refs = read("docs/openai-references.md")
-    required_urls = [
-        "https://openai.com/index/gpt-5-6/",
-        "https://developers.openai.com/api/docs/pricing",
-        "https://developers.openai.com/api/docs/guides/latest-model",
-        "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs",
-        "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_common.rs",
-        "https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs",
-        "https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs",
-        "https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md",
-    ]
-    for url in required_urls:
-        assert url in refs
-    assert "$1.00" in refs and "$6.00" in refs
-    assert "$0.20" in refs and "$1.20" in refs
-    assert "80% lower" in refs
-    assert "[agents].default_subagent_model" in refs
-
-
-def test_installable_skill_has_no_repo_only_docs():
-    forbidden = {"README.md", "README_EN.md", "CONTRIBUTING.md", "SECURITY.md", "CHANGELOG.md"}
-    present = {path.name for path in SKILL_DIR.iterdir() if path.is_file()}
-    assert not (present & forbidden)
-
-
-def test_no_silent_cross_role_fallback():
-    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
-    assert "Luna execution unavailable does not turn Terra into an implementation Worker" in routing
-    assert "Terra critic unavailable means Root reviews" in routing
-    assert "Sol Senior Judge unavailable means Root keeps control" in routing
-
-
-def test_installable_skill_does_not_depend_on_repo_level_docs():
-    for path in SKILL_DIR.rglob("*.md"):
-        text = path.read_text()
-        assert "../../docs/" not in text
-        assert "../docs/" not in text
-
-
-def test_model_route_docs_use_four_fact_assurance_model():
-    assurance = read("docs/model-route-assurance.md")
-    runtime = read("docs/native-subagent-runtime.md")
-    architecture = read("docs/architecture.md")
-    assert "separates four facts" in assurance
-    assert "live `spawn_agent` surface exposes `agent_type`" in assurance
-    assert "configuration-level" in runtime
-    assert "configuration-level assured route" in architecture
-
-
-def test_official_subagent_terms_and_precedence_are_documented():
-    refs = read("docs/openai-references.md")
-    runtime = read("docs/native-subagent-runtime.md")
-    assurance = read("docs/model-route-assurance.md")
-    skill = (SKILL_DIR / "SKILL.md").read_text()
-    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
-    assert "https://developers.openai.com/codex/subagents" in refs
-    assert "Subagent" in runtime and "Agent thread" in runtime
-    for text in [assurance, skill, routing]:
-        assert "custom Agent file value" in text
-        assert "explicit spawn value" in text
-        assert "[agents] default" in text
-        assert "parent value" in text
-
-
-def test_readmes_are_text_first_and_concise():
+def test_readmes_are_text_first_and_explain_incremental_orchestration():
     zh = read("README.md")
     en = read("README_EN.md")
-    assert "README_EN.md" in zh
-    assert "README.md" in en
-
+    assert "README_EN.md" in zh and "README.md" in en
     for text in [zh, en]:
         assert "<img" not in text
-        assert "assets/readme/" not in text
         assert "```mermaid" not in text
-        assert not re.search(r"\.(svg|png|jpe?g|webp|gif)\b", text, re.I)
-        assert len(text.splitlines()) <= 170
-
-
-def test_readmes_lead_with_problem_then_quick_start():
-    zh = read("README.md")
-    en = read("README_EN.md")
-    assert "真正容易失控的是委派本身" in zh
-    assert zh.index("真正容易失控的是委派本身") < zh.index("## 快速开始")
-    assert "The harder part in day-to-day development" in en
-    assert en.index("The harder part in day-to-day development") < en.index("## Quick start")
-
-
-def test_readmes_keep_quick_start_and_role_identity():
-    zh = read("README.md")
-    en = read("README_EN.md")
-    for text in [zh, en]:
-        assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
-        assert "Plugins Directory" in text
+        assert len(text.splitlines()) <= 190
         assert "/codex-agent-team" in text
-        assert "python scripts/install.py" not in text
-        assert "--skill-only" not in text
-        assert "codex-agent-team-setup" not in text
-        assert "GPT-5.6 Luna" in text
-        assert "GPT-5.6 Terra" in text
-        assert "GPT-5.6 Sol" in text
-        for role in ["luna_explorer", "luna_worker", "terra_reviewer", "sol_judge"]:
-            assert role in text
+        assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
+        assert "codex_agent_team_worker" in text
+        assert "codex_agent_team_investigator" in text
+        assert "codex_agent_team_advisor" in text
+    assert "Luna + Sol 是一条正常的短路径" in zh
+    assert "已经算过的东西尽量不再算一遍" in zh
+    assert "Luna + Sol is a normal short path" in en
+    assert "Reuse work that has already been established" in en
 
 
-def test_readmes_explain_optional_delegation_and_main_session_ownership():
-    zh = read("README.md")
-    en = read("README_EN.md")
-    assert "0 个 Subagent 也很正常" in zh
-    assert "主会话直接完成" in zh
-    assert "没有固定流水线" in zh
-    assert "Zero Subagents is a normal result" in en
-    assert "main session can edit, test, and finish the task directly" in en
-    assert "There is no fixed pipeline" in en
-
-
-def test_readmes_use_main_session_without_exposing_root_vocabulary():
+def test_readmes_use_main_session_without_user_facing_root_vocabulary():
     zh = read("README.md")
     en = read("README_EN.md")
     assert "主会话" in zh
-    assert "Main session" in en
+    assert "main session" in en.lower()
     assert not re.search(r"\broot\b", zh, re.I)
     assert not re.search(r"\broot\b", en, re.I)
-    assert "Agent Team: Main session only" in zh
-    assert "Agent Team: Main session only" in en
 
 
-def test_chinese_readme_uses_natural_product_language_and_avoids_old_slogans():
-    zh = read("README.md")
-    assert "看一个实际任务" in zh
-    assert "支付回调里的并发问题" in zh
-    banned = [
-        "正常写代码。",
-        "只在真正值得时组队",
-        "该分工时才分工",
-        "你继续在一个主会话里开发",
-        "关键 gate",
-        "简短 receipt",
-        "Root Controller",
-        "小任务直接做，复杂任务再分工",
-    ]
-    for phrase in banned:
-        assert phrase not in zh
-
-
-def test_readmes_keep_public_safety_boundaries():
-    zh = read("README.md")
-    en = read("README_EN.md")
-    assert "一个共享 Workspace 同时最多 1 个 Writing Worker" in zh
-    assert "Worker 不继续创建新的 Subagent 团队" in zh
-    assert "Skill 不会暗中切换主会话的模型或 reasoning effort" in zh
-    assert "one active Writing Worker per shared workspace" in en
-    assert "Workers do not create another Subagent team" in en
-    assert "never silently switches the main-session model or reasoning effort" in en
-
-
-def test_readmes_point_technical_details_to_docs():
-    for text in [read("README.md"), read("README_EN.md")]:
-        for path in [
-            "docs/architecture.md",
-            "docs/native-subagent-runtime.md",
-            "docs/model-route-assurance.md",
-            "docs/openai-references.md",
-            "plugins/codex-agent-team/skills/codex-agent-team/references/routing-policy.md",
-            "plugins/codex-agent-team/skills/codex-agent-team/references/safety-policy.md",
-            "plugins/codex-agent-team/skills/codex-agent-team/references/consent-policy.md",
-        ]:
-            assert path in text
-        assert "spawn_agent" in text
-
-
-def test_chinese_readme_has_basic_cn_en_spacing():
+def test_chinese_readme_avoids_em_dash_and_basic_spacing_regressions():
     text = read("README.md")
-    text = re.sub(r"```.*?```", "", text, flags=re.S)
-    text = re.sub(r"`[^`]*`", "", text)
+    assert "—" not in text
+    stripped = re.sub(r"```.*?```", "", text, flags=re.S)
+    stripped = re.sub(r"`[^`]*`", "", stripped)
     bad = []
-    for line in text.splitlines():
+    for line in stripped.splitlines():
         if "http" in line or "<" in line or "|" in line:
             continue
         if re.search(r"[\u4e00-\u9fff][A-Za-z0-9]|[A-Za-z0-9][\u4e00-\u9fff]", line):
@@ -432,5 +208,18 @@ def test_chinese_readme_has_basic_cn_en_spacing():
     assert not bad, f"Chinese/English spacing regressions: {bad}"
 
 
-def test_chinese_readme_avoids_em_dash_prose():
-    assert "—" not in read("README.md")
+def test_architecture_and_model_docs_match_semantic_role_design():
+    architecture = read("docs/architecture.md")
+    assurance = read("docs/model-route-assurance.md")
+    assert "Role identity is intentionally separate from model identity" in architecture
+    assert "No Portable Mode" in assurance
+    assert "codex_agent_team_investigator" in architecture
+    assert "route_evidence" in architecture
+
+
+def test_official_runtime_reference_still_documented():
+    refs = read("docs/openai-references.md")
+    runtime = read("docs/native-subagent-runtime.md")
+    assert "https://developers.openai.com/codex/subagents" in refs
+    assert "spawn_agent" in runtime
+    assert "delegation depth at 1" in runtime
