@@ -5,7 +5,7 @@ description: Build the smallest useful native Codex Subagent team for context-he
 
 # Codex Agent Team
 
-Use this Skill as a policy layer over Codex Native Subagents. The Skill does not create a parallel agent runtime. It decides when to call the native `spawn_agent` tool, which exact route is acceptable, how much context the child receives, how results are verified, and when the user must approve an escalation.
+Use this Skill as a policy layer over Codex Native Subagents. It decides when delegation has concrete value, which exact configuration route is acceptable, what evidence is required after spawn, how results are verified, and when user consent is required.
 
 ## Core invariants
 
@@ -16,34 +16,30 @@ Use this Skill as a policy layer over Codex Native Subagents. The Skill does not
 5. Workers do not create further Subagents.
 6. One shared workspace has at most one active writing Worker.
 7. Role-specific spawns always set `fork_turns` explicitly.
-8. Material capability, permission, scope, cost, or external-impact escalation requires user consent unless already clearly authorized.
+8. Material permission, scope, external-impact, large-fanout, or out-of-envelope capability/cost escalation requires user consent unless already clearly authorized.
 9. Role-to-route bindings are fixed; team composition is dynamic. The Skill does not silently change the current Root model or reasoning effort.
-10. Configuration assurance and runtime observation are separate facts. Never relabel configured values as observed telemetry.
+10. Configuration assurance and runtime observation are separate facts. Never relabel configured values or mutable local records as authoritative runtime telemetry.
 11. Worker reports are claims. Root accepts work from actual artifacts, deterministic verification, and reproducible evidence.
 
-## Step 1: Interpret the Root task
+## 1. Interpret the Root task
 
-Identify the user objective, acceptance criteria, existing authorization, consequence of error, and whether Root can complete the task efficiently without delegation.
+Identify the user objective, acceptance criteria, existing authorization, consequence of error, and whether Root can complete the task efficiently without delegation. Do not assume Root is Sol.
 
-If Root model or reasoning effort is observable, record it as runtime context. Do not assume Root is Sol.
-
-## Step 2: Apply the Delegation Gate
+## 2. Delegation Gate
 
 Delegate only when at least one concrete benefit exists:
 
 - **Context isolation**: noisy code, logs, tests, documents, or tool output can stay outside Root and return as compact evidence.
-- **Real parallelism**: independent branches can make progress concurrently without waiting on each other's intermediate conclusions.
-- **Independent verification**: a consequential result benefits from a detached reviewer that did not produce it.
+- **Real parallelism**: independent branches can progress concurrently.
+- **Independent verification**: a consequential result benefits from a reviewer that did not produce it.
 
-Task length, file count, apparent difficulty, spare concurrency, or Luna's lower price do not justify delegation by themselves.
+Task length, file count, apparent difficulty, spare concurrency, or Luna's lower price do not justify delegation by themselves. If no concrete benefit exists, continue in Root.
 
-If no concrete benefit exists, continue in Root.
+## 3. Route Assurance Gate
 
-## Step 3: Apply the Route Assurance Gate
+Before a model-specific child is spawned, inspect the live native `spawn_agent` contract and role guidance.
 
-Before any model-specific child is spawned, inspect the live native `spawn_agent` contract and role guidance.
-
-Track route intent, accepted configuration, and runtime observation separately:
+Keep these facts separate:
 
 ```text
 preferred_route
@@ -52,13 +48,18 @@ route_assurance
 observed_route
 ```
 
-A successful exact spawn can establish `configured_route`, while `observed_route` may still be `not_exposed`. Never copy the preferred or configured route into the observed route.
+### Profile Mode
 
-A child route is allowed only with one of these configuration-assurance states:
+Prefer an installed project profile when live role guidance confirms that it pins the intended model and reasoning effort.
 
-### A. Profile Locked (Profile Mode)
+```text
+luna_explorer   -> gpt-5.6-luna / max
+luna_worker     -> gpt-5.6-luna / max
+terra_reviewer  -> gpt-5.6-terra / xhigh
+sol_judge       -> gpt-5.6-sol / high
+```
 
-Prefer an installed project profile when the live role guidance confirms that the profile pins the intended model and reasoning effort.
+Record `route_assurance = profile_locked`. This is configuration assurance only; it does not prove the effective post-spawn route.
 
 Example:
 
@@ -67,24 +68,11 @@ agent_type = luna_worker
 fork_turns = none
 ```
 
-The profile owns `model` and `model_reasoning_effort`; omit competing explicit overrides.
+Do not combine a route-pinning profile with competing explicit model/effort overrides.
 
-Expected locked routes:
+### Portable Mode
 
-```text
-luna_explorer -> gpt-5.6-luna / max
-luna_worker   -> gpt-5.6-luna / max
-terra_reviewer -> gpt-5.6-terra / xhigh
-sol_judge     -> gpt-5.6-sol / high
-```
-
-Record `route_assurance = profile_locked`.
-
-### B. Native Explicit Validated (Portable Mode)
-
-When no exact profile is installed, use a built-in native role plus explicit `model` and `reasoning_effort` only when the live tool exposes the required `agent_type`, `fork_turns`, `model`, and `reasoning_effort` surface and the selected role is not locked to an incompatible route.
-
-Example:
+When no exact profile is installed, use a built-in native role plus explicit `model` and `reasoning_effort` only when the live tool exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`, the selected role is not locked to an incompatible route, and Codex accepts the exact tuple.
 
 ```text
 agent_type = worker
@@ -93,13 +81,9 @@ reasoning_effort = max
 fork_turns = none
 ```
 
-Codex validates the requested model against the available MultiAgent backend models and validates the effort against that model before spawning. A rejected tuple is a failed route, not a reason to improvise another model.
-
-Record `route_assurance = native_explicit_validated` only after the native spawn accepts the exact request.
+Record `route_assurance = native_explicit_validated` only after the exact request is accepted.
 
 ### Effective selection precedence
-
-Current Codex resolves model and reasoning settings with this precedence when a custom Agent is involved:
 
 ```text
 custom Agent file value
@@ -108,17 +92,17 @@ custom Agent file value
   -> parent value
 ```
 
-Model and reasoning effort resolve independently. Profile Mode and Portable Mode are alternative route paths; do not combine a route-pinning profile with competing explicit model/effort overrides.
+Model and reasoning effort resolve independently.
 
-### Do not treat inheritance as exact assurance
+### No inheritance assumption
 
-Do not use omitted `model` or `reasoning_effort` as proof of a model-specific route. Current Codex can apply configured default Subagent model/effort values before role configuration. If explicit overrides are hidden and no exact locked profile is available, return the child task to Root with `preferred_route_unavailable`.
+Do not use omitted `model` or `reasoning_effort` as proof of a model-specific route. If explicit overrides are hidden and no exact locked profile is available, return the child task to Root with `preferred_route_unavailable`.
 
-Read `references/routing-policy.md` for the detailed routing contract and `references/runtime-assurance.md` for optional post-spawn attestation. Repository-level design notes are documentation only and are not required by the installed Skill.
+Read `references/routing-policy.md` for full route and fallback rules.
 
-## Step 4: Route by responsibility
+## 4. Route by responsibility
 
-| Responsibility | Portable native role | Default route | Purpose |
+| Responsibility | Portable role | Default route | Purpose |
 | --- | --- | --- | --- |
 | explorer | `explorer` | GPT-5.6 Luna `max` | mapping, search, tracing, evidence collection |
 | execution_worker | `worker` | GPT-5.6 Luna `max` | bounded implementation, debugging, testing, local refactor |
@@ -127,26 +111,19 @@ Read `references/routing-policy.md` for the detailed routing contract and `refer
 
 Do not create a Sol Worker for routine execution. Use Terra because independent judgment has concrete value, not because a task merely looks difficult.
 
-## Step 5: Apply the Consent Gate
+## 5. Consent Gate
 
-Normal in-scope teamwork does not require repeated prompts.
+The normal enabled-Skill envelope is one Luna responsibility plus, when Review Gate justifies it, one Terra critic. Do not ask repeatedly inside that envelope.
 
-Ask in plain language when the next action materially expands:
+Ask in plain language before an expansion in permission, scope, external impact, fan-out beyond the normal two-child team, or capability/cost outside the baseline envelope such as one Sol Senior Judge from a non-Sol Root.
 
-- model cost or capability, such as a one-time Sol Senior Judge from a non-Sol Root
-- filesystem or tool permissions
-- task scope beyond the user's clear request
-- destructive or difficult-to-reverse changes
-- production, publication, sending, payment, account, or other external effects
-- fan-out beyond the normal two-child team unless the user already requested broad parallel work
+Use `references/consent-policy.md` for details.
 
-Explain why the escalation helps, what changes, whether files or external systems will be modified, and the likely cost/risk effect. Consent applies only to the described action.
+## 6. Task packet and context fork
 
-## Step 6: Build the minimum task packet and context fork
+Use `references/task-packet.md`. For bounded coding work, prefer its Implementation Preset.
 
-Use `references/task-packet.md`. For bounded coding work, use its Implementation Preset when that is more precise than the generic packet.
-
-For role-specific spawns, always set `fork_turns` explicitly:
+Role-specific spawns always set `fork_turns` explicitly:
 
 - Explorer: `fork_turns = "none"`.
 - Independent Critic: `fork_turns = "none"`.
@@ -156,41 +133,38 @@ For role-specific spawns, always set `fork_turns` explicitly:
 
 Every packet includes the prompt-injection boundary and no-further-delegation rule.
 
-## Step 7: Permission and safety checks
+## 7. Permission and safety checks
 
-Use `references/safety-policy.md` when a Worker may write, handle sensitive material, or consume untrusted content.
+Use `references/safety-policy.md` when a child may write, handle sensitive material, or consume untrusted content.
 
-Distinguish `runtime_enforced`, `instruction_enforced`, and `unknown`. A profile sandbox declaration is a default configuration value, not proof of effective runtime enforcement.
+Distinguish `runtime_enforced`, `instruction_enforced`, and `unknown`. A profile sandbox declaration is a configuration default, not proof of effective enforcement.
 
-If a task is safe only with enforced read-only access and current runtime cannot confirm it, keep the task in Root.
+If safety depends on host-enforced read-only access and current runtime cannot report it, keep the responsibility in Root.
 
-## Step 8: Execute, observe, and verify
+## 8. Execute, observe, and verify
 
-After a Subagent returns:
+After a child returns:
 
-1. Treat the child report as a claim, not self-validating evidence.
-2. Inspect actual files, diff, scope, commands, tests, uncertainty, `judgment_calls`, and policy violations.
+1. Treat its report as a claim.
+2. Inspect actual files/diff/scope, commands, tests, uncertainty, `judgment_calls`, and policy violations.
 3. Rerun deterministic verification when available.
-4. Obtain runtime observation when exposed. For ordinary tasks, missing telemetry may remain `not_exposed`; when safety or a high-consequence independence claim depends on effective route or sandbox, apply `references/runtime-assurance.md` as an acceptance requirement.
-5. If native metadata and local rollout evidence both exist, require agreement on overlapping fields.
-6. Allow at most one focused follow-up to the same child when evidence is incomplete.
-7. Reject or quarantine affected results when route observation conflicts, unexpected mutation occurs, or nested delegation is observed.
+4. Collect public native runtime metadata when useful or required.
+5. Optionally collect a matching local rollout record with `scripts/inspect-runtime.py` when public metadata is incomplete.
+6. Use `scripts/verify-runtime.py` when route, parent-thread identity, source agreement, or effective read-only must be checked deterministically.
+7. Use the evidence grades in `references/runtime-assurance.md`: `C1_configuration_only`, `L1_local_record_observed`, `R1_runtime_reported`, `R2_runtime_reported_and_local_record_agree`, `X0_conflicted`.
+8. A local rollout record alone never satisfies a requirement for a native runtime report.
+9. When Root thread id is known, verify the child's `parent_thread_id`; quarantine a mismatch.
+10. Allow at most one focused follow-up when evidence is incomplete.
 
-## Step 9: Apply the Review Gate
+## 9. Review Gate
 
 Detached review is risk-triggered, not mandatory for every implementation.
 
-Add one Terra Independent Critic when fresh judgment materially improves acceptance, especially for:
+Add one Terra Independent Critic when fresh judgment materially improves acceptance, especially for security/permission/concurrency/state-consistency logic, cross-module invariants, public contracts, migrations, weak deterministic oracles, material Worker `judgment_calls`, or conflicting evidence.
 
-- security, permission, concurrency, or state-consistency logic;
-- cross-module invariants, public contracts, migrations, or wide blast radius;
-- weak deterministic oracles where tests alone do not establish correctness;
-- substantial Worker `judgment_calls` outside mechanical execution;
-- conflicting evidence or a consequential assumption that should be challenged independently.
+Give the critic the actual artifact/diff, objective, constraints, verification evidence, and material assumptions without the producer's private reasoning.
 
-Do not add Terra merely because the task was long or difficult. Give the critic the actual artifact or diff, objective, constraints, verification evidence, and material assumptions without the producer's private reasoning.
-
-The critic returns one review status:
+The critic returns:
 
 ```text
 clear
@@ -198,16 +172,16 @@ findings
 insufficient_evidence
 ```
 
-Root still owns acceptance. Bounded findings return to the Worker or Root for correction and deterministic re-verification. A fresh Terra review is required only when the correction materially changes the reviewed risk. If a high-consequence conflict remains unresolved and Root is not Sol, the Consent Gate may authorize one Sol Senior Judge.
+Root still owns acceptance. If high-consequence disagreement remains and Root is not Sol, Consent Gate may authorize one Sol Senior Judge.
 
-## Step 10: Close Subagents
+## 10. Close children
 
-Close completed, rejected, or no-longer-needed Subagents promptly so they do not continue occupying concurrency.
+Close completed, rejected, or no-longer-needed Subagents promptly.
 
 ## References
 
-- `references/routing-policy.md`: team selection, route assurance, context fork, review gate, failure behavior
-- `references/runtime-assurance.md`: post-spawn route and permission observation
-- `references/task-packet.md`: progressive child packet, implementation preset, and route record
-- `references/consent-policy.md`: plain-language one-time consent
-- `references/safety-policy.md`: permissions, prompt injection, recursion, side effects
+- `references/routing-policy.md`: team selection, configuration route assurance, context fork, review gate, failure behavior
+- `references/runtime-assurance.md`: runtime evidence grades, ancestry, source reconciliation, deterministic verifier
+- `references/task-packet.md`: progressive child packet, implementation preset, and attempt record
+- `references/consent-policy.md`: baseline envelope and one-time escalation consent
+- `references/safety-policy.md`: permissions, prompt injection, recursion, workspace mutation, side effects
