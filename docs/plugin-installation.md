@@ -64,6 +64,8 @@ The ownership model has an explicit migration epoch:
 
 - when `.codex-agent-team-agents.json` already exists, that companion manifest is authoritative;
 - the older standalone `.codex-agent-team-install.json` may seed ownership only before the companion manifest exists;
+- that standalone seed is accepted only for the historical schema `1`, `mode = "profile"` manifest shape actually written by the former profile installer;
+- an unknown schema or any other mode is never accepted as legacy-profile deletion authority;
 - after migration writes the companion manifest, stale standalone hashes no longer grant deletion authority over a legacy filename that a user may intentionally recreate later.
 
 The current semantic profiles are installed independently and verified byte-for-byte.
@@ -77,6 +79,7 @@ The bundled installer:
 - rejects another TOML file that claims a current reserved project role name;
 - refuses to overwrite a differing current profile unless its bytes match the active previous managed hash;
 - removes an old model-named profile only when active previous managed ownership is proven;
+- accepts the retired standalone manifest as a one-time ownership seed only for its exact historical schema-1 profile-install shape;
 - stages replacements and rolls back managed changes if installation fails;
 - supports a strictly non-mutating `--check` mode.
 

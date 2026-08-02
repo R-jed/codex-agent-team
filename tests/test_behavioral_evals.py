@@ -101,6 +101,26 @@ def test_behavioral_result_schema_requires_paired_run_controls():
     assert errors
 
 
+def test_behavioral_result_schema_requires_explicit_worker_route_for_luna_modes():
+    schema = json.loads(SCHEMA.read_text())
+    validator = jsonschema.Draft202012Validator(schema)
+
+    missing = base_run("contract_luna")
+    missing.pop("worker_route")
+    payload = {
+        "schema_version": "2.1",
+        "suite": "codex-agent-team-live-behavior",
+        "runtime": {"codex_version": "fixture", "date": "2026-08-02"},
+        "runs": [base_run("raw_prompt_luna"), missing],
+    }
+    assert list(validator.iter_errors(payload))
+
+    null_route = base_run("contract_luna")
+    null_route["worker_route"] = None
+    payload["runs"] = [base_run("raw_prompt_luna"), null_route]
+    assert list(validator.iter_errors(payload))
+
+
 def test_scorer_reports_paired_delta_and_keeps_global_modes_descriptive_only(tmp_path: Path):
     raw = base_run("raw_prompt_luna")
     raw.update({"acceptance_score": 7, "correction_turns": 2, "input_tokens": 1000})

@@ -19,6 +19,29 @@ contract_luna_selective_sol
 
 Optional research modes may include Terra delta investigation when a workload exposes a genuine capability gap.
 
+## Freeze the executable workload before running a pair
+
+The registry in `evals/behavioral-workloads.json` defines experiment shapes. A live comparison still needs an exact executable local fixture before the first run.
+
+For every workload used in a paired experiment, freeze and record at least:
+
+```text
+exact user prompt bytes
+repository + base revision
+required setup / starting state
+acceptance rubric and rubric id
+allowed verification commands
+main-session route
+Worker route when applicable
+permissions / approval posture
+available tool surface
+Codex runtime version
+```
+
+Hash the frozen workload definition and use that value as `workload_definition_hash` in every run of the pair. Do not edit the prompt, setup, rubric, verification commands, route, or tool/permission controls between baseline and candidate runs. If any controlled input changes, create a new pair id and workload-definition hash.
+
+The local validation report should contain the sanitized frozen fixture definition or enough information to reproduce it without private repository data.
+
 ## Pairing rules
 
 A comparison is valid only when paired runs keep these fixed:
@@ -37,12 +60,15 @@ Result schema `2.1` makes the main controls machine-checkable. Every run records
 ```text
 workload_definition_hash
 main_session_route
+worker_route
 permissions_fingerprint
 tool_surface_fingerprint
 acceptance_rubric_id
 ```
 
-The scorer requires those values to be identical inside a pair. It also rejects mixed Worker routes when both candidates report one.
+`worker_route` is always an explicit field. It must be a non-empty route for `raw_prompt_luna`, `contract_luna`, and `contract_luna_selective_sol`; modes without a Worker may record `null`.
+
+The scorer requires the controlled values to be identical inside a pair. It also rejects mixed Worker routes when both candidates report one.
 
 Record a `repeat_index` for repeated trials. Workloads that declare `primary_comparison` must contain exactly those two modes in each comparison pair. The scorer rejects a pair that mixes workload/revision/repeat metadata, duplicates a mode, or changes a controlled fingerprint.
 

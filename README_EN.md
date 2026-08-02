@@ -155,15 +155,17 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-If a required profile is missing, the Skill discloses the complete managed file scope before asking permission. The installer manages only these four current profiles and its ownership manifest. Older model-named profiles such as `luna_worker` and `terra_reviewer` are removed only when their current bytes are proven by the active previous project ownership manifest. User-modified, unproven, or intentionally recreated legacy files do not inherit deletion authority from a stale standalone manifest.
+If a required profile is missing, the Skill discloses the complete managed file scope before asking permission. The installer manages only these four current profiles and its ownership manifest. Older model-named profiles such as `luna_worker` and `terra_reviewer` are removed only when their current bytes are proven by the active previous project ownership manifest. The retired standalone manifest is accepted only as a one-time migration seed before a companion manifest exists, and only for the historical schema `1`, `profile`-mode shape. User-modified, unproven, or intentionally recreated legacy files do not inherit deletion authority from a stale standalone manifest.
 
 </details>
 
 ## Project status
 
-The current architecture has completed its static closure pass. CI and deterministic tests cover Plugin packaging, the managed profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired-eval tooling. Static results cannot prove that a live Codex build exposes roles, models, sandboxes, or parent-thread metadata as expected, nor that contracts, Terra delta escalation, or Sol review improve real task economics or quality.
+The current architecture has completed its static closure pass. The final static audit found no remaining reproducible P0/P1 repository defect. CI and deterministic tests cover Plugin packaging, the managed profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired-eval tooling. This statement applies only to the repository's static state; it is not a claim that the live Codex runtime has passed user-side validation.
 
-The next phase is local runtime validation. Follow [`HEADOFF.md`](HEADOFF.md) for ChatGPT Desktop/Codex user-flow simulation, Runtime Truth adversarial testing, Agent lifecycle stress, installer fault injection, and paired behavioral evals. Result controls lock workload definition, main-session route, permissions, tool surface, and acceptance rubric; missing telemetry remains missing.
+Static results cannot prove that a live Codex build exposes roles, models, sandboxes, or parent-thread metadata as expected, nor that contracts, Terra delta escalation, or Sol review improve real task economics or quality. Every remaining runtime, UX, and performance unknown is tracked in [`HEADOFF.md`](HEADOFF.md).
+
+The next phase is local runtime validation. Follow `HEADOFF.md` for ChatGPT Desktop/Codex user-flow simulation, Runtime Truth adversarial testing, Agent lifecycle stress, installer fault injection, and paired behavioral evals. Before any formal A/B pair, freeze a reproducible workload fixture containing the exact prompt, base revision, setup, acceptance rubric, verification, route, permissions, and tool surface, then derive `workload_definition_hash`. Missing telemetry remains missing.
 
 Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses requiring representative live workload evidence. Do not publish cost, latency, or quality-improvement claims before that evidence exists.
 

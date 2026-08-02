@@ -153,15 +153,17 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-缺少 profile 时，Skill 会先说明完整的项目管理文件范围并请求授权。Installer 只管理这 4 个当前 profiles 和 ownership manifest；旧版本的 `luna_worker`、`terra_reviewer` 等 model-named profiles 只有在当前文件字节能够由上一轮项目 ownership manifest 精确证明时才会清理。用户修改过、无法证明归属，或者在迁移完成后重新创建的 legacy 文件都不会因为陈旧 manifest 被再次删除。
+缺少 profile 时，Skill 会先说明完整的项目管理文件范围并请求授权。Installer 只管理这 4 个当前 profiles 和 ownership manifest；旧版本的 `luna_worker`、`terra_reviewer` 等 model-named profiles 只有在当前文件字节能够由上一轮项目 ownership manifest 精确证明时才会清理。旧 standalone manifest 只在 companion manifest 尚不存在时作为一次迁移种子，而且只接受历史上真实写出的 schema `1`、`profile` 模式。用户修改过、无法证明归属，或者在迁移完成后重新创建的 legacy 文件都不会因为陈旧 manifest 被再次删除。
 
 </details>
 
 ## 项目状态
 
-当前架构已经完成静态收口。CI 和 deterministic tests 覆盖 Plugin packaging、managed profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired-eval tooling。静态结果无法证明真实 Codex 运行时一定按预期暴露角色、模型、sandbox、parent thread，也无法证明 Contract、Terra delta escalation 或 Sol review 在真实任务上一定降低成本或提高质量。
+当前架构已经完成静态收口。最终静态审计未发现仍开放的可复现 P0/P1 repository defect；CI 和 deterministic tests 覆盖 Plugin packaging、managed profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired-eval tooling。这个结论只代表仓库静态状态，不代表真实 Codex runtime 已经通过用户侧验证。
 
-下一阶段固定为本地真实运行验证。请按 [`HEADOFF.md`](HEADOFF.md) 完成 ChatGPT Desktop / Codex 用户侧模拟、Runtime Truth 对抗测试、Agent lifecycle 压力测试、installer fault injection 和 paired behavioral eval。评测 schema 会锁定 workload definition、主会话 route、permissions、tool surface 和 acceptance rubric；缺失 telemetry 保持缺失，不估算。
+静态结果无法证明真实 Codex 运行时一定按预期暴露角色、模型、sandbox、parent thread，也无法证明 Contract、Terra delta escalation 或 Sol review 在真实任务上一定降低成本或提高质量。所有仍待验证的 runtime / UX / performance 未知项都集中记录在 [`HEADOFF.md`](HEADOFF.md)。
+
+下一阶段固定为本地真实运行验证。请按 `HEADOFF.md` 完成 ChatGPT Desktop / Codex 用户侧模拟、Runtime Truth 对抗测试、Agent lifecycle 压力测试、installer fault injection 和 paired behavioral eval。正式 A/B 之前必须冻结可复现的 workload fixture，包括精确 prompt、base revision、setup、acceptance rubric、verification、route、permission 和 tool surface，再生成 `workload_definition_hash`。缺失 telemetry 保持缺失，不估算。
 
 Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍是需要真实 workload 证明的 route hypotheses。没有真实数据前，不发布成本、延迟或质量提升结论。
 
