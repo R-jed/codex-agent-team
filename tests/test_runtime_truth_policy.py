@@ -2,6 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "plugins" / "codex-agent-team" / "skills" / "codex-agent-team"
+PLUGIN = ROOT / "plugins" / "codex-agent-team"
 
 
 def test_evidence_grades_are_explicit_and_local_record_is_not_runtime_proof():
@@ -66,8 +67,9 @@ def test_live_evals_are_separate_from_static_tests():
     assert "no claimed benchmark results" in workloads
 
 
-def test_doctor_and_compatibility_docs_exist():
-    assert (ROOT / "scripts" / "doctor.py").exists()
+def test_plugin_profile_lifecycle_and_compatibility_docs_exist():
+    assert (PLUGIN / "scripts" / "install-agents.py").exists()
     compatibility = (ROOT / "docs" / "compatibility.md").read_text().lower()
     assert "requires active codex runtime" in compatibility
     assert "r1_runtime_reported" in compatibility
+    assert "/codex-agent-team" in compatibility
