@@ -168,6 +168,54 @@ def test_full_installer_manifest_can_seed_legacy_ownership(tmp_path: Path):
     assert (home / MANIFEST).is_file()
 
 
+def test_unrecognized_full_manifest_schema_cannot_seed_legacy_deletion(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    legacy = agents / "luna-worker.toml"
+    legacy_data = b"# user data that happens to match a supplied hash\n"
+    legacy.write_bytes(legacy_data)
+    (home / FULL_MANIFEST).write_text(
+        json.dumps(
+            {
+                "schema_version": 999,
+                "mode": "profile",
+                "profile_hashes": {legacy.name: sha(legacy_data)},
+            }
+        )
+    )
+
+    result = run_installer(home)
+
+    assert result.returncode == 0, result.stderr
+    assert legacy.read_bytes() == legacy_data
+    assert (agents / "codex-agent-team-worker.toml").is_file()
+
+
+def test_non_profile_full_manifest_cannot_seed_legacy_deletion(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    legacy = agents / "luna-worker.toml"
+    legacy_data = b"# legacy filename under a non-profile manifest\n"
+    legacy.write_bytes(legacy_data)
+    (home / FULL_MANIFEST).write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "mode": "skill_only",
+                "profile_hashes": {legacy.name: sha(legacy_data)},
+            }
+        )
+    )
+
+    result = run_installer(home)
+
+    assert result.returncode == 0, result.stderr
+    assert legacy.read_bytes() == legacy_data
+    assert (agents / "codex-agent-team-worker.toml").is_file()
+
+
 def test_full_manifest_legacy_ownership_is_consumed_after_migration(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
