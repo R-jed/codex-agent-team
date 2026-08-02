@@ -165,19 +165,12 @@ If a required profile is missing, the Skill discloses the complete managed file 
 
 ## What to validate next
 
-[`HEADOFF.md`](HEADOFF.md) is the authoritative local Codex takeover contract. It covers:
+[`HEADOFF.md`](HEADOFF.md) is the authoritative local Codex takeover contract, organized around four test domains:
 
-- clean-user Plugin installation and first-run profile consent;
-- live route, sandbox, and ancestry facts for all four semantic roles;
-- the Runtime Truth adversarial matrix;
-- Contractability and `JUDGMENT_REQUIRED` behavior;
-- Shared Evidence reuse and dependency invalidation;
-- Luna failure classification and Terra delta escalation;
-- real value from Luna + selective Sol;
-- paired raw-prompt versus compiled-contract evaluation;
-- useful parallelism, one-writer, fan-out, and spawn/wait/close stress;
-- installer migration and real filesystem fault injection;
-- remote historical branch cleanup.
+- Plugin installation, profile consent, live route / sandbox / ancestry, and Runtime Truth;
+- Contractability, Shared Evidence, Luna failure classification, Terra delta, and selective Sol;
+- paired raw-prompt versus compiled-contract evaluation, useful parallelism, and Agent lifecycle stress;
+- installer fault injection, historical branch cleanup, and the final release gate.
 
 Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses requiring representative live workload evidence. Do not publish cost, latency, or quality-improvement claims before that evidence exists.
 
