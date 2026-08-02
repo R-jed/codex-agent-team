@@ -7,9 +7,9 @@ Codex Agent Team supports two distribution paths:
 
 ## Why Plugin setup has two stages
 
-The Codex Plugin package provides the workflow Skills. The model-pinned custom Agent profiles are user-level Codex files under `~/.codex/agents/`, so Codex Agent Team treats them as explicit companion setup rather than assuming Plugin installation registered them.
+The current OpenAI Plugin package model natively declares Skills, MCP servers, hooks, and install-surface assets. Codex custom Agent definitions remain standalone TOML files discovered from `~/.codex/agents/` for personal agents or `.codex/agents/` for project-scoped agents.
 
-This keeps the boundary visible:
+Codex Agent Team therefore keeps Plugin installation and custom-Agent installation as two explicit stages:
 
 ```text
 Plugin package
@@ -23,12 +23,19 @@ Companion setup
   -> sol_judge
 ```
 
+This avoids claiming that the Plugin manifest automatically registers custom Agent TOML files when the current Plugin manifest has no custom-agent component field.
+
 ## Install the Plugin
+
+Register the GitHub repository as a marketplace source:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
-codex plugin add codex-agent-team@codex-agent-team
 ```
+
+Then reopen the ChatGPT desktop app, open the Plugins Directory, choose the `Codex Agent Team` marketplace, and install `Codex Agent Team`.
+
+This is the documented marketplace flow and remains valid without depending on an extra convenience command that may vary across Codex builds.
 
 Then invoke:
 
