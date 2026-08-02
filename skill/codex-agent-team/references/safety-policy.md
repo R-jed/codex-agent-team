@@ -18,13 +18,15 @@ Track three distinct facts:
 - `requires_enforced_read_only`: whether safety depends on runtime preventing writes
 - `permission_guarantee`: `runtime_enforced`, `instruction_enforced`, or `unknown`
 
-Prompt text alone does not establish a runtime permission guarantee. A custom Agent profile declaring `sandbox_mode = "read-only"` is also only a role-level default until the live child runtime confirms the effective permission state.
+Prompt text does not establish a runtime permission guarantee. A custom Agent profile declaring `sandbox_mode = "read-only"` is a configuration default until the live child runtime reports the effective permission state.
 
-Use `runtime-assurance.md` to record effective sandbox or permission metadata when the runtime exposes it.
+Use `runtime-assurance.md` and `scripts/verify-runtime.py` to reconcile effective sandbox or permission metadata when it is exposed.
 
-If `requires_enforced_read_only` is true and current runtime cannot confirm read-only enforcement, return the task to Root with `permission_requirement_unmet`.
+`runtime_enforced` requires a native runtime report of effective read-only enforcement. A mutable local rollout record may corroborate that report but does not establish `runtime_enforced` by itself.
 
-Never report `runtime_enforced` without runtime evidence.
+If `requires_enforced_read_only` is true and current native runtime cannot report read-only enforcement, return the task to Root with `permission_requirement_unmet`.
+
+Never report `runtime_enforced` from profile configuration or local record evidence alone.
 
 ## 2. Behavioral read-only fallback
 
@@ -47,7 +49,7 @@ mutation_check = passed
 
 Do not upgrade behavioral read-only to `runtime_enforced`.
 
-If any mutation is observed, quarantine the review result. If hard isolation is required, effective sandbox state is unavailable, or the before/after state cannot be verified, keep the review responsibility in Root.
+If any mutation is observed, quarantine the review result. If hard isolation is required, native effective sandbox state is unavailable, or the before/after state cannot be verified, keep the review responsibility in Root.
 
 ## 3. Prompt-injection boundary
 
@@ -73,7 +75,9 @@ Workers must not spawn further Subagents, background Agent teams, or persistent 
 
 Every Worker packet includes the no-further-delegation rule.
 
-If runtime can expose the Agent tree, Root should check for descendants before accepting a consequential result.
+When Root knows its own thread id and child ancestry is observable, compare the child's `parent_thread_id` against Root. A mismatch is a delegation-depth policy violation and the affected result is quarantined.
+
+If runtime can expose the Agent tree, Root should also check for unexpected descendants before accepting a consequential result.
 
 If unexpected descendants are observed:
 
@@ -119,8 +123,9 @@ Required behaviors:
 - report failed verification
 - report uncertainty and missing access
 - compare reported changed files with the actual mutation when write access was granted
-- do not fabricate observed model, effort, sandbox, or permission properties
+- do not fabricate observed model, effort, sandbox, permission, or ancestry properties
 - use `not_exposed` when the runtime does not expose a property
-- quarantine a result when independent runtime sources conflict on route or permission facts
+- describe local rollout data as `L1_local_record_observed`, not authoritative runtime proof
+- quarantine a result when expected facts or independent runtime sources conflict
 
 Root should prefer deterministic verification over confidence language. A child's completion claim, self-reported diff summary, or confidence score is insufficient by itself.
