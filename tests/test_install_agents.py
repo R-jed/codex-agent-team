@@ -7,8 +7,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-INSTALLER = ROOT / "scripts" / "install-agents.py"
-PROFILE_SOURCE = ROOT / "examples" / "agents"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+INSTALLER = PLUGIN_ROOT / "scripts" / "install-agents.py"
+PROFILE_SOURCE = PLUGIN_ROOT / "agent-profiles"
 PROFILE_FILES = (
     "luna-explorer.toml",
     "luna-worker.toml",
