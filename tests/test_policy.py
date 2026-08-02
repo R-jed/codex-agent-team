@@ -115,7 +115,8 @@ def test_failure_classification_prevents_whole_task_terra_rework():
     for phrase in ["mechanical defect", "contract gap", "capability gap", "judgment gap"]:
         assert phrase in contract
     assert "Low quality alone is not a Terra trigger" in contract
-    assert "does not receive the whole original task" in routing
+    assert "Terra is not a mandatory reviewer and not a generic second implementation attempt" in routing
+    assert "unresolved delta" in routing
     terra = tomllib.loads((PROFILE_DIR / "codex-agent-team-investigator.toml").read_text())
     assert "unresolved technical delta" in terra["developer_instructions"]
     assert "do not restart repository discovery" in terra["developer_instructions"]
@@ -135,7 +136,7 @@ def test_useful_parallelism_requires_distinct_dependencies():
     skill = (SKILL_DIR / "SKILL.md").read_text()
     routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
     assert "outputs satisfy different dependencies" in skill
-    assert "duplicated inference" in routing
+    assert "Do not parallelize multiple models over the same question" in routing
 
 
 def test_one_writer_and_depth_one_remain_invariants():
@@ -154,16 +155,15 @@ def test_consent_is_resource_based_and_explicit_sol_can_fit_baseline():
 
 
 def test_route_assurance_has_no_portable_mode():
-    texts = [
-        (SKILL_DIR / "SKILL.md").read_text(),
-        (SKILL_DIR / "references" / "routing-policy.md").read_text(),
-        read("docs/model-route-assurance.md"),
-    ]
-    for text in texts:
+    skill = (SKILL_DIR / "SKILL.md").read_text()
+    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
+    assurance = read("docs/model-route-assurance.md")
+    for text in [skill, routing, assurance]:
         assert "profile_locked" in text
         assert "native_explicit_validated" not in text
-        assert "Portable Mode" not in text or "No Portable Mode" in text
-    assert "There is no Portable Mode" in texts[0]
+    assert "There is no Portable Mode" in skill
+    assert "There is no Portable Mode" in routing
+    assert "## No Portable Mode" in assurance
 
 
 def test_readmes_are_text_first_and_explain_incremental_orchestration():
