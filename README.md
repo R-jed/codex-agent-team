@@ -28,7 +28,7 @@
 
 需要 Python >= 3.11、Git，以及支持 Native Subagents 的 Codex 环境。
 
-默认安装器会安装 Skill 与 4 个锁定模型的 Agent profiles，并记录 package-managed hash，后续升级只会自动替换仍保持上一版原样的托管文件；用户自行修改过的 profile 会拒绝覆盖。
+默认安装器会把 Skill 安装到 `~/.codex/skills/`、4 个锁定模型的 Agent profiles 安装到 `~/.codex/agents/`，并记录 package-managed hash。后续升级只会自动替换仍保持上一版原样的托管文件；用户自行修改过的 profile 会拒绝覆盖。
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
