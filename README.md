@@ -143,6 +143,7 @@ Codex Agent Team 直接使用 Codex 原生 `spawn_agent`，不会建立第二套
 
 ## 文档
 
+- [Plugin Installation](docs/plugin-installation.md)
 - [Architecture](docs/architecture.md)
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)
 - [Model Route Assurance](docs/model-route-assurance.md)
