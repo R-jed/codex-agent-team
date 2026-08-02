@@ -1,6 +1,6 @@
 {
   "name": "codex-agent-team",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A minimum-team Codex workflow that keeps the current Root in control and adds role-pinned native Subagents only when they provide concrete value.",
   "author": {
     "name": "R-jed",
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Codex Agent Team",
     "shortDescription": "Use the smallest useful native Subagent team for each coding task.",
-    "longDescription": "Codex Agent Team keeps the current session in control, leaves small isolated work in Root, delegates bounded execution to Luna, adds Terra only when detached review has concrete value, and reserves Sol for consent-gated high-consequence adjudication. Companion custom-agent profiles are installed separately through the bundled setup skill.",
+    "longDescription": "Codex Agent Team keeps the current session in control, leaves small isolated work in Root, delegates bounded execution to Luna, adds Terra only when detached review has concrete value, and reserves Sol for consent-gated high-consequence adjudication. The single /codex-agent-team entry point also performs first-run managed custom-Agent readiness when required.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": [
@@ -29,9 +29,9 @@
     ],
     "websiteURL": "https://github.com/R-jed/codex-agent-team",
     "defaultPrompt": [
-      "Use Codex Agent Team to decide whether this coding task needs any Subagents, then execute it with the smallest useful team.",
-      "Use Codex Agent Team to investigate this issue without creating unnecessary agents.",
-      "Use Codex Agent Team to implement this change and add independent review only if the risk justifies it."
+      "Use /codex-agent-team to decide whether this coding task needs any Subagents, then execute it with the smallest useful team.",
+      "Use /codex-agent-team to investigate this issue without creating unnecessary agents.",
+      "Use /codex-agent-team to implement this change and add independent review only if the risk justifies it."
     ]
   }
 }
