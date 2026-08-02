@@ -1,62 +1,65 @@
 # Codex Agent Team
 
-<p align="center">
-  <img src="assets/readme/hero.svg" alt="Codex Agent Team: the main session owns the task, Subagents own bounded work" width="100%">
-</p>
+[中文](README.md) · [Install](docs/plugin-installation.md) · [Architecture](docs/architecture.md) · [Evals](docs/behavioral-evals.md)
 
-<p align="center">
-  <a href="README.md">中文</a> ·
-  <a href="docs/plugin-installation.md">Install</a> ·
-  <a href="docs/architecture.md">Architecture</a> ·
-  <a href="docs/behavioral-evals.md">Evals</a>
-</p>
+Codex already knows how to spawn Subagents. The harder part in day-to-day development is deciding when delegation helps, which specialist should take the work, who may write to the workspace, when a second opinion is worth the cost, and who ultimately owns the result.
 
-Codex can already spawn Subagents. The missing piece is operating policy: when to delegate, which specialist to call, who may write to the workspace, when independent review is warranted, and who accepts the result.
+Codex Agent Team is a workflow policy built on Codex native `spawn_agent`. The current Codex session remains the **main session** and keeps ownership of scope, risk, and final acceptance. Luna, Terra, and Sol take bounded responsibilities only when their trigger is met.
 
-Codex Agent Team makes those decisions explicit. The current main session always owns scope, risk, and acceptance. Luna, Terra, and Sol take bounded responsibilities only when their trigger is met.
+## Quick start
 
-## Install
-
-Add this repository marketplace to Codex:
+Add the project marketplace to Codex:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Reopen the ChatGPT desktop app and install `Codex Agent Team` from its marketplace in the Plugins Directory. You can then invoke it explicitly:
+Reopen the ChatGPT desktop app and install `Codex Agent Team` from the Plugins Directory.
+
+Invoke it explicitly when needed:
 
 ```text
 /codex-agent-team
 ```
 
-You can also describe the development task normally. The Skill first decides whether delegation is useful at all.
+You can also describe the development task normally. The Skill first decides whether delegation would help before creating a Subagent.
 
-## One task, one concrete route
+## How work is assigned
 
-<p align="center">
-  <img src="assets/readme/example.svg" alt="A payment-callback concurrency issue routed through Codex Agent Team" width="100%">
-</p>
+| Role | When it appears | Default route | Responsibility |
+| --- | --- | --- | --- |
+| Main session | always | current Codex session | understand intent, set scope, own risk, accept work, deliver the final answer |
+| Luna | heavy search, code tracing, or bounded implementation | GPT-5.6 Luna `max` | explore, implement, debug, test |
+| Terra | a risky change benefits from an independent view | GPT-5.6 Terra `xhigh` | detached review of changes, conflicting evidence, and key assumptions |
+| Sol | a high-consequence disagreement remains unresolved and the user consents | GPT-5.6 Sol `high` | one senior judgment |
 
-Take a concurrency bug in a payment callback. The main session first sets scope and acceptance checks. Heavy tracing or bounded implementation can move to Luna. If the change crosses a security boundary, Terra can review it independently. The result still comes back to the main session for diff, test, and evidence checks.
+Luna has `luna_explorer` and `luna_worker` profiles. Terra uses `terra_reviewer` and stays in the reviewer role. Sol uses `sol_judge` and is not a mandatory final step.
 
-If the task is already small and isolated, the main session simply completes it. Sol is reserved for rare unresolved high-consequence judgment and requires explicit user consent.
+There is no fixed pipeline. Small tasks can stay in the main session from start to finish. Terra and Sol appear only when their conditions are actually met.
 
-## Operating model
+## A concrete task
 
-<p align="center">
-  <img src="assets/readme/operating-model.svg" alt="Codex Agent Team operating model: one main session with Luna, Terra, and Sol as specialist Subagents" width="100%">
-</p>
+Suppose you ask Codex to do this:
 
-This is the core of the workflow: the main session owns the full task; each Subagent receives only a bounded responsibility. If a trigger is absent, that specialist is not created.
+```text
+Check the payment callback for a concurrency bug, fix it, and run the tests.
+If the change crosses a security boundary, add an independent review.
+```
 
-| Role | Default route | Main responsibility |
-| --- | --- | --- |
-| Main session | current Codex session | understand intent, set scope, own risk, accept work, deliver the final answer |
-| Luna | GPT-5.6 Luna `max` | search, code tracing, bounded implementation, debugging, tests |
-| Terra | GPT-5.6 Terra `xhigh` | detached review of risky changes, conflicting evidence, and key assumptions |
-| Sol | GPT-5.6 Sol `high` | rare unresolved high-consequence judgment after user consent |
+The main session first establishes scope, risk, and acceptance checks.
 
-Luna has explorer and worker profiles. Terra is a reviewer, not an implementation fallback. Sol does not sit at the end of every task.
+1. If the issue is already well isolated, the main session can edit, test, and finish the task directly.
+2. If the work needs substantial search or code tracing, the main session can delegate that bounded responsibility to Luna.
+3. If the change crosses a security boundary, Terra can review the actual change independently.
+4. Regardless of how many Subagents were used, the result returns to the main session for diff, test, and evidence checks.
+
+Sol would normally stay out of this task. It is reserved for unresolved high-consequence judgment, and the main session asks for user consent before using it.
+
+## Zero Subagents is a normal result
+
+When the task is small, the context is already clear, and the edit location is known, delegation often adds more coordination and verification cost than value. A one-line configuration change, a local bug fix, or a focused test may be completed entirely in the main session.
+
+Task length, file count, or a cheaper model are not enough on their own to justify delegation. The default goal is the smallest team that can complete the work well.
 
 ## What you see
 
@@ -79,13 +82,14 @@ Verification: 12 tests passed
 
 The receipt reports observed facts only. Agents that were considered but never created are omitted, and runtime evidence is never claimed when it was not observed.
 
-## Safety boundaries
+## Boundaries
 
-- Zero Subagents is normal, the default is 1, and the normal maximum is 2.
-- There is at most one active writing Worker per shared workspace.
+- Zero Subagents is normal. The default is 1, the normal maximum is 2, and the hard maximum is 4.
+- There is at most one active Writing Worker per shared workspace.
 - Workers do not create another Subagent team; delegation stays one layer deep.
-- The Skill never silently switches the main session model or reasoning effort.
-- If an exact route, permission boundary, or scope cannot be established, responsibility returns to the main session.
+- The Skill never silently switches the main-session model or reasoning effort.
+- If Luna is unavailable, Terra does not become an implementation Worker. If Terra is unavailable, review returns to the main session.
+- If an exact route, permission boundary, or task scope cannot be established, responsibility returns to the main session.
 - A Subagent completion report is a claim. The main session still accepts the work from actual files, diffs, commands, tests, and reproducible evidence.
 
 The project uses Codex native `spawn_agent`. There is no second Agent runtime, persistent task DAG, or background scheduler in this repository.
@@ -110,7 +114,7 @@ The Skill then rechecks which roles are visible on the current `spawn_agent` sur
 
 ## Documentation
 
-Use the README for the normal workflow. Use these docs for implementation details:
+The README covers the normal workflow. Implementation details live here:
 
 - [Plugin installation and first run](docs/plugin-installation.md)
 - [Architecture](docs/architecture.md)
@@ -124,7 +128,9 @@ Use the README for the normal workflow. Use these docs for implementation detail
 
 ## Current validation scope
 
-CI covers Plugin packaging, the custom-Agent installer lifecycle, routing policy, runtime evidence, and the deterministic verifier on Ubuntu Python 3.11 / 3.12 and macOS Python 3.11. Real Codex behavior still requires live behavioral evaluation and runtime evidence; repository tests are not presented as runtime results.
+CI covers Plugin packaging, the custom-Agent installer lifecycle, routing policy, runtime evidence, and the deterministic verifier on Ubuntu Python 3.11 / 3.12 and macOS Python 3.11.
+
+These tests show that the repository rules and tooling satisfy their current contracts. Real Codex behavior still requires live behavioral evaluation and runtime evidence; static repository tests are not presented as task-performance results.
 
 ## License
 
