@@ -10,10 +10,10 @@
     <text x="60" y="122" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">01 · DECIDE</text>
     <rect x="60" y="144" width="270" height="264" fill="#fafaf8"/>
     <text x="88" y="194" font-size="21" font-weight="600" fill="#737373">ROOT</text>
-    <text x="88" y="254" font-size="34" font-weight="400" fill="#0a0a0a">Does delegation</text>
-    <text x="88" y="298" font-size="34" font-weight="400" fill="#0a0a0a">add real value?</text>
-    <line x1="88" y1="330" x2="302" y2="330" stroke="#d4d4d2" stroke-width="1"/>
-    <text x="88" y="372" font-size="21" font-weight="500" fill="#737373">No benefit → stay in Root</text>
+    <text x="88" y="270" font-size="38" font-weight="300" fill="#0a0a0a">DELEGATE?</text>
+    <text x="88" y="316" font-size="21" font-weight="500" fill="#737373">Only when it adds real value.</text>
+    <line x1="88" y1="340" x2="302" y2="340" stroke="#d4d4d2" stroke-width="1"/>
+    <text x="88" y="378" font-size="20" font-weight="600" fill="#737373">NO BENEFIT → ROOT</text>
 
     <text x="390" y="122" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">02 · OPTIONAL TEAM</text>
     <rect x="390" y="144" width="360" height="126" fill="#002FA7"/>
@@ -24,13 +24,13 @@
     <text x="420" y="338" font-size="22" font-weight="600" fill="#d4d4d2">TERRA</text>
     <text x="420" y="380" font-size="28" font-weight="400" fill="#fafaf8">Independent review</text>
 
-    <text x="810" y="122" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">03 · VERIFY + DECIDE</text>
+    <text x="810" y="122" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">03 · ROOT VERIFY</text>
     <rect x="810" y="144" width="270" height="264" fill="#fafaf8"/>
     <text x="838" y="194" font-size="21" font-weight="600" fill="#737373">ROOT</text>
-    <text x="838" y="250" font-size="31" font-weight="400" fill="#0a0a0a">Verify evidence</text>
-    <text x="838" y="294" font-size="31" font-weight="400" fill="#0a0a0a">Resolve conflicts</text>
-    <text x="838" y="338" font-size="31" font-weight="400" fill="#0a0a0a">Make the call</text>
-    <text x="838" y="378" font-size="20" font-weight="500" fill="#737373">Root delivers the final answer</text>
+    <text x="838" y="252" font-size="34" font-weight="300" fill="#0a0a0a">VERIFY</text>
+    <text x="838" y="300" font-size="34" font-weight="300" fill="#0a0a0a">RESOLVE</text>
+    <text x="838" y="348" font-size="34" font-weight="300" fill="#0a0a0a">DECIDE</text>
+    <text x="838" y="382" font-size="20" font-weight="600" fill="#737373">ROOT DELIVERS</text>
 
     <rect x="810" y="452" width="270" height="88" fill="#0a0a0a" stroke="#737373" stroke-width="1.5"/>
     <text x="838" y="486" font-size="20" font-weight="600" fill="#737373">OPTIONAL · WITH CONSENT</text>
