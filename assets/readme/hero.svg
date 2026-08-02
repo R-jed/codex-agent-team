@@ -1,11 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team</title>
-  <desc id="desc">Minimal Swiss-style title card for Codex Agent Team.</desc>
-  <rect width="1600" height="520" fill="#fafaf8"/>
-  <line x1="80" y1="92" x2="1520" y2="92" stroke="#d4d4d2" stroke-width="1"/>
-  <text x="80" y="62" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" letter-spacing="2" fill="#737373">CODEX NATIVE SUBAGENT POLICY</text>
-  <text x="80" y="240" font-family="Inter, Helvetica, Arial, sans-serif" font-size="112" font-weight="200" letter-spacing="-5" fill="#0a0a0a">CODEX</text>
-  <text x="80" y="342" font-family="Inter, Helvetica, Arial, sans-serif" font-size="112" font-weight="200" letter-spacing="-5" fill="#002FA7">AGENT TEAM</text>
-  <text x="85" y="418" font-family="Inter, Helvetica, Arial, sans-serif" font-size="30" font-weight="400" fill="#0a0a0a">Small teams for complex work. Root stays in control.</text>
-  <text x="80" y="482" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#737373">Native Subagents · bounded delegation · evidence-led acceptance</text>
+  <desc id="desc">Swiss International Style title card for a small Native Subagent team controlled by the active Codex session.</desc>
+  <rect width="1200" height="520" fill="#fafaf8"/>
+  <line x1="60" y1="72" x2="1140" y2="72" stroke="#d4d4d2" stroke-width="1"/>
+  <line x1="60" y1="448" x2="1140" y2="448" stroke="#d4d4d2" stroke-width="1"/>
+
+  <g font-family="Inter, Helvetica Neue, Arial, sans-serif">
+    <text x="60" y="48" font-size="20" font-weight="600" letter-spacing="1.7" fill="#737373">CODEX NATIVE SUBAGENTS · TEAM POLICY</text>
+    <text x="60" y="190" font-size="86" font-weight="200" letter-spacing="-3.5" fill="#0a0a0a">CODEX</text>
+    <text x="60" y="270" font-size="86" font-weight="200" letter-spacing="-3.5" fill="#0a0a0a">AGENT TEAM</text>
+    <text x="64" y="326" font-size="28" font-weight="400" fill="#0a0a0a">Build a team only when the work benefits from one.</text>
+    <text x="64" y="366" font-size="22" font-weight="500" fill="#737373">Luna executes · Terra reviews · Sol judges only with explicit consent</text>
+    <text x="60" y="486" font-size="20" font-weight="600" letter-spacing="1" fill="#737373">MINIMUM TEAM · DEPTH 1 · ONE WRITER · EVIDENCE FIRST</text>
+  </g>
+
+  <g>
+    <rect x="835" y="126" width="248" height="124" fill="#0a0a0a"/>
+    <text x="863" y="173" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#fafaf8">ROOT</text>
+    <text x="863" y="211" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#fafaf8">plan · risk · accept</text>
+
+    <rect x="903" y="274" width="180" height="94" fill="#002FA7"/>
+    <text x="929" y="314" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#ffffff">LUNA</text>
+    <text x="929" y="346" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#ffffff">execute / explore</text>
+
+    <rect x="835" y="392" width="128" height="58" fill="#fafaf8" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="857" y="429" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a0a0a">TERRA</text>
+
+    <rect x="987" y="392" width="96" height="58" fill="#f0f0ee"/>
+    <text x="1009" y="429" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a0a0a">SOL</text>
+
+    <path d="M959 250 V274" stroke="#0a0a0a" stroke-width="1.5"/>
+    <path d="M959 368 V380 H899 V392" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+    <path d="M959 380 H1035 V392" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+  </g>
 </svg>
