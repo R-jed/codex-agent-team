@@ -7,7 +7,9 @@ import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_DIR = ROOT / "skill" / "codex-agent-team"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-agent-team"
+PROFILE_DIR = PLUGIN_ROOT / "agent-profiles"
 
 
 def load_evals():
@@ -116,7 +118,7 @@ def test_optional_profiles_parse_and_lock_expected_routes():
         "sol-judge.toml": ("sol_judge", "gpt-5.6-sol", "high"),
     }
     for filename, values in expected.items():
-        data = tomllib.loads((ROOT / "examples" / "agents" / filename).read_text())
+        data = tomllib.loads((PROFILE_DIR / filename).read_text())
         assert (data["name"], data["model"], data["model_reasoning_effort"]) == values
         assert data["developer_instructions"].strip()
 
@@ -374,9 +376,9 @@ def test_readmes_point_technical_details_to_docs():
             "docs/native-subagent-runtime.md",
             "docs/model-route-assurance.md",
             "docs/openai-references.md",
-            "skill/codex-agent-team/references/routing-policy.md",
-            "skill/codex-agent-team/references/safety-policy.md",
-            "skill/codex-agent-team/references/consent-policy.md",
+            "plugins/codex-agent-team/skills/codex-agent-team/references/routing-policy.md",
+            "plugins/codex-agent-team/skills/codex-agent-team/references/safety-policy.md",
+            "plugins/codex-agent-team/skills/codex-agent-team/references/consent-policy.md",
         ]:
             assert path in text
         assert "spawn_agent" in text

@@ -7,7 +7,15 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VERIFIER = ROOT / "skill" / "codex-agent-team" / "scripts" / "verify-runtime.py"
+VERIFIER = (
+    ROOT
+    / "plugins"
+    / "codex-agent-team"
+    / "skills"
+    / "codex-agent-team"
+    / "scripts"
+    / "verify-runtime.py"
+)
 THREAD = "11111111-1111-7111-8111-111111111111"
 PARENT = "00000000-0000-7000-8000-000000000000"
 

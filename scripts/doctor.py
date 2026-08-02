@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect local Codex Agent Team installation and runtime prerequisites.
-
-The doctor is intentionally non-mutating. It checks local package integrity and the
-availability of runtime evidence surfaces that can be inspected without spawning a
-model. Live child routing still has to be verified inside an active Codex session.
-"""
+"""Inspect local Codex Agent Team installation and runtime prerequisites."""
 
 from __future__ import annotations
 
@@ -19,8 +14,9 @@ import sys
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_SOURCE = ROOT / "skill" / "codex-agent-team"
-PROFILE_SOURCE = ROOT / "examples" / "agents"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+SKILL_SOURCE = PLUGIN_ROOT / "skills" / "codex-agent-team"
+PROFILE_SOURCE = PLUGIN_ROOT / "agent-profiles"
 PROFILE_FILES = (
     "luna-explorer.toml",
     "luna-worker.toml",
@@ -78,6 +74,17 @@ def manifest_status(path: Path) -> str:
     return "exact" if payload == expected_manifest(mode) else "stale"
 
 
+def installed_skill_status(path: Path) -> str:
+    if path.is_symlink():
+        return "unsafe_symlink"
+    if not path.is_dir():
+        return "missing"
+    try:
+        return "exact" if tree_hash(path) == tree_hash(SKILL_SOURCE) else "different"
+    except OSError:
+        return "unreadable"
+
+
 def codex_version() -> str | None:
     binary = shutil.which("codex")
     if not binary:
@@ -124,25 +131,16 @@ def main() -> None:
         else:
             profile_status[filename] = "different"
 
-    if installed_skill.is_symlink():
-        skill_status = "unsafe_symlink"
-    elif not installed_skill.is_dir():
-        skill_status = "missing"
-    else:
-        try:
-            skill_status = "exact" if tree_hash(installed_skill) == tree_hash(SKILL_SOURCE) else "different"
-        except OSError:
-            skill_status = "unreadable"
-
-    managed_manifest = manifest_status(manifest)
-    profile_exact = all(v == "exact" for v in profile_status.values())
+    skill_status = installed_skill_status(installed_skill)
+    managed = manifest_status(manifest)
+    all_profiles_exact = all(value == "exact" for value in profile_status.values())
     result: dict[str, Any] = {
         "python": sys.version.split()[0],
         "codex_version": codex_version(),
         "codex_home": str(home),
         "skill_integrity": skill_status,
         "profiles": profile_status,
-        "managed_manifest": managed_manifest,
+        "managed_manifest": managed,
         "local_sessions_store": "available" if sessions_dir.is_dir() else "unavailable",
         "local_rollout_adapter": "available" if (SKILL_SOURCE / "scripts" / "inspect-runtime.py").is_file() else "missing",
         "runtime_verifier": "available" if (SKILL_SOURCE / "scripts" / "verify-runtime.py").is_file() else "missing",
@@ -150,7 +148,7 @@ def main() -> None:
         "native_runtime_metadata": "requires_in_session_check",
         "recommended_mode": (
             "profile_mode"
-            if skill_status == "exact" and profile_exact and managed_manifest == "exact"
+            if skill_status == "exact" and all_profiles_exact and managed == "exact"
             else "repair_or_portable_mode"
         ),
     }
@@ -166,7 +164,7 @@ def main() -> None:
     print(f"Skill integrity:         {skill_status}")
     for filename, status in profile_status.items():
         print(f"Profile {filename:<21} {status}")
-    print(f"Managed manifest:        {managed_manifest}")
+    print(f"Managed manifest:        {managed}")
     print(f"Local sessions store:    {result['local_sessions_store']}")
     print(f"Runtime verifier:        {result['runtime_verifier']}")
     print("Live spawn/model/effort: requires an active Codex session")
