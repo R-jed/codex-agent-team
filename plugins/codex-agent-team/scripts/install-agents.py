@@ -144,17 +144,22 @@ def preflight_agents_dir(path: Path, *, check_only: bool) -> None:
 
 
 def previous_managed_hashes(*manifests: dict | None) -> dict[str, str]:
-    for manifest in manifests:
+    """Merge known ownership hashes, preferring earlier arguments on duplicate keys."""
+    result: dict[str, str] = {}
+    for manifest in reversed(manifests):
         if manifest is None:
             continue
         hashes = manifest.get("profile_hashes", {})
-        if isinstance(hashes, dict):
-            return {
+        if not isinstance(hashes, dict):
+            continue
+        result.update(
+            {
                 str(key): str(value)
                 for key, value in hashes.items()
                 if isinstance(key, str) and isinstance(value, str)
             }
-    return {}
+        )
+    return result
 
 
 def preflight_profiles(
@@ -250,14 +255,14 @@ def backup_target(target: Path) -> Path:
     return backup
 
 
-def install_profiles(
+def apply_profile_changes(
     agents_dir: Path,
     upgrades: set[str],
     removable_legacy: set[str],
-) -> tuple[list[Path], dict[Path, Path]]:
-    created: list[Path] = []
-    backups: dict[Path, Path] = {}
-
+    created: list[Path],
+    backups: dict[Path, Path],
+) -> None:
+    """Apply changes while recording rollback state before every irreversible step."""
     for filename in PROFILE_FILES:
         source = PROFILE_SOURCE / filename
         target = agents_dir / filename
@@ -266,7 +271,8 @@ def install_profiles(
         staged = stage_file(agents_dir, source.read_bytes())
         try:
             if target.exists():
-                backups[target] = backup_target(target)
+                backup = backup_target(target)
+                backups[target] = backup
             staged.rename(target)
             if target not in backups:
                 created.append(target)
@@ -277,9 +283,8 @@ def install_profiles(
     for filename in removable_legacy:
         target = agents_dir / filename
         if target.exists():
-            backups[target] = backup_target(target)
-
-    return created, backups
+            backup = backup_target(target)
+            backups[target] = backup
 
 
 def rollback_profiles(created: list[Path], backups: dict[Path, Path]) -> list[str]:
@@ -350,7 +355,7 @@ def install(codex_home: Path, check_only: bool) -> None:
     backups: dict[Path, Path] = {}
 
     try:
-        created, backups = install_profiles(agents_dir, upgrades, removable_legacy)
+        apply_profile_changes(agents_dir, upgrades, removable_legacy, created, backups)
         verify_profiles(agents_dir)
         write_manifest(manifest_path, desired_manifest())
         verify_profiles(agents_dir)
