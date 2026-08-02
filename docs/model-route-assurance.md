@@ -90,7 +90,7 @@ ancestry_evidence
 permission_evidence
 ```
 
-A complete matched route requires observed role, model, and effort. A partial observation is explicitly partial.
+Exact route proof is two-sided: the verifier input must declare a complete expected `agent_role`, `model`, and `effort`, and the accepted observation source must expose all three values. Missing expected route fields fail closed; missing observed route fields remain partial or not observed.
 
 Compatibility grades remain derived summaries:
 
@@ -111,6 +111,7 @@ project profile missing -> managed readiness flow
 profile exact but current task cannot discover role -> fresh task
 profile route provable -> spawn may proceed
 profile route unprovable -> main session
+verifier expected route incomplete -> fail closed
 post-spawn route partial when runtime proof is required -> main session
 post-spawn evidence conflict -> quarantine
 ```
