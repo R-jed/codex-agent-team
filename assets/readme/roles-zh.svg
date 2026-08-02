@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
-  <title id="title">Codex Agent Team 角色层级</title>
-  <desc id="desc">电子杂志风角色层级图。Root 是控制层，Luna 是主要执行路线，Terra 提供独立复核，Sol 只在授权后参与少量高级裁决。</desc>
+  <title id="title">Codex Agent Team 角色分工</title>
+  <desc id="desc">电子杂志风角色图。主会话负责方向和验收，Luna 负责执行，Terra 负责独立复核，Sol 只在用户授权后处理少量高后果裁决。</desc>
   <rect width="1200" height="700" fill="#0a1f3d"/>
 
-  <g fill="none" stroke="#f1f3f5" stroke-width="1.05" opacity="0.09">
+  <g fill="none" stroke="#f1f3f5" stroke-width="1.05" opacity="0.085">
     <path d="M-48 210 C68 96 222 106 310 212 C370 286 350 382 270 434 C184 490 72 444 -20 548"/>
     <path d="M-12 244 C84 152 208 158 280 242 C328 300 314 372 248 414 C178 458 90 426 14 510"/>
     <path d="M26 278 C108 206 198 210 256 270 C292 310 284 358 232 390 C176 426 112 404 48 468"/>
@@ -12,40 +12,40 @@
   <line x1="56" y1="76" x2="1144" y2="76" stroke="#f1f3f5" stroke-width="1" opacity="0.34"/>
   <line x1="56" y1="632" x2="1144" y2="632" stroke="#f1f3f5" stroke-width="1" opacity="0.34"/>
 
-  <text x="56" y="48" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.72">角色层级 · 责任边界</text>
-  <text x="1144" y="48" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.72">主控集中 · 委派有界 · 03 / 03</text>
+  <text x="56" y="48" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.72">角色分工 · 谁负责什么</text>
+  <text x="1144" y="48" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.72">主会话掌控 · 专业子代理协作 · 03 / 03</text>
 
-  <text x="56" y="140" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="600" fill="#f1f3f5" opacity="0.62">当前会话</text>
-  <text x="50" y="258" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="92" font-weight="700" letter-spacing="-2" fill="#f1f3f5">ROOT</text>
-  <text x="56" y="310" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="36" font-weight="700" fill="#f1f3f5">主控层</text>
+  <text x="56" y="140" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.6">你正在使用的当前会话</text>
+  <text x="50" y="246" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="76" font-weight="700" letter-spacing="-1.5" fill="#f1f3f5">主会话</text>
+  <text x="56" y="300" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="31" font-weight="700" fill="#f1f3f5">方向、风险、验收都在这里</text>
 
-  <text x="56" y="378" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">规划任务</text>
-  <text x="56" y="420" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">控制风险与范围</text>
-  <text x="56" y="462" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">验证证据</text>
-  <text x="56" y="504" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">负责最终回答</text>
+  <text x="56" y="374" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">理解需求并规划任务</text>
+  <text x="56" y="416" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">控制范围与高影响操作</text>
+  <text x="56" y="458" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">检查 diff、测试与证据</text>
+  <text x="56" y="500" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">决定是否接受并最终交付</text>
 
   <line x1="436" y1="116" x2="436" y2="588" stroke="#f1f3f5" stroke-width="1" opacity="0.26"/>
 
   <rect x="478" y="118" width="666" height="172" fill="#f1f3f5"/>
   <text x="510" y="178" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="54" font-weight="700" fill="#0a1f3d">LUNA</text>
-  <text x="510" y="226" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">主要执行路线</text>
-  <text x="816" y="176" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#0a1f3d" opacity="0.68">GPT-5.6 · MAX</text>
+  <text x="510" y="226" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="700" fill="#0a1f3d">执行者</text>
+  <text x="816" y="176" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.68">GPT-5.6 · MAX</text>
   <text x="816" y="220" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="600" fill="#0a1f3d">搜索 · 实现 · 调试 · 测试</text>
-  <text x="510" y="266" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">任务边界清楚时承担重执行与探索。</text>
+  <text x="510" y="266" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="500" fill="#0a1f3d" opacity="0.7">上下文重或任务边界清楚时承担主要执行。</text>
 
   <line x1="478" y1="332" x2="1144" y2="332" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="392" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="47" font-weight="700" fill="#f1f3f5">TERRA</text>
-  <text x="478" y="438" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="29" font-weight="700" fill="#f1f3f5">独立复核</text>
-  <text x="816" y="388" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · XHIGH</text>
-  <text x="816" y="430" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.82">冲突证据 · 关键假设</text>
-  <text x="816" y="462" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.82">脱离实现路径检查</text>
+  <text x="478" y="438" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="29" font-weight="700" fill="#f1f3f5">复核者</text>
+  <text x="816" y="388" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · XHIGH</text>
+  <text x="816" y="430" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.82">高风险修改 · 冲突证据</text>
+  <text x="816" y="462" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.82">脱离实现路径做独立检查</text>
 
   <line x1="478" y1="486" x2="1144" y2="486" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="546" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="43" font-weight="700" fill="#f1f3f5">SOL</text>
-  <text x="478" y="588" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="27" font-weight="700" fill="#f1f3f5">授权后裁决</text>
-  <text x="816" y="542" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · HIGH</text>
-  <text x="816" y="582" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.82">少量高后果问题 · 需要用户明确授权</text>
+  <text x="478" y="588" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="27" font-weight="700" fill="#f1f3f5">裁决者</text>
+  <text x="816" y="542" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · HIGH</text>
+  <text x="816" y="582" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.82">少量高后果分歧 · 需要用户明确授权</text>
 
-  <text x="56" y="674" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">不会暗中切换当前 Root 的模型或推理强度。</text>
-  <text x="1144" y="674" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.62">边界明确的委派</text>
+  <text x="56" y="674" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">子代理负责局部工作，主会话负责最终决定。</text>
+  <text x="1144" y="674" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.62">边界清楚的协作</text>
 </svg>
