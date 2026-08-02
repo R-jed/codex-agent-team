@@ -1,39 +1,46 @@
 # Codex Agent Team
 
 <p align="center">
-  <img src="assets/readme/hero.svg" alt="Codex Agent Team" width="100%">
+  <img src="assets/readme/hero.svg" alt="Codex Agent Team: use a specialist Subagent only when it adds real value" width="100%">
 </p>
 
 <p align="center">
   <a href="README.md">中文</a> ·
+  <a href="docs/plugin-installation.md">Install</a> ·
   <a href="docs/architecture.md">Architecture</a> ·
-  <a href="docs/native-subagent-runtime.md">Native Runtime</a> ·
-  <a href="docs/model-route-assurance.md">Route Assurance</a>
+  <a href="docs/model-route-assurance.md">Routing & Evidence</a>
 </p>
 
-Code normally. Codex Agent Team adds a specialist Subagent only when it has concrete value.
+**Let Codex form a team only when the task earns it.**
 
-Small, already-isolated work stays in the current Root. Context-heavy or clearly bounded execution can go to Luna. Terra is added only when a risky change benefits from detached judgment. If a high-consequence disagreement still remains, a non-Sol Root may request one Sol judgment after explicit user consent.
+You keep working in one main session. Small, already-isolated tasks stay there. When a task benefits from heavy exploration, bounded implementation, or independent review, the right part can move to Luna, Terra, or Sol. You do not have to design an agent graph before you start coding.
 
-## Install
+> “Main session” means the Codex session you are already using. The architecture docs call it the `Root Controller`; this README uses the more approachable “main session” throughout.
 
-Codex Plugin is the only supported distribution path.
+## Start in 30 seconds
 
-First register the repository marketplace:
+Codex Plugin is the only supported distribution path. Register this repository marketplace first:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Then reopen the ChatGPT desktop app, choose the `Codex Agent Team` marketplace in the Plugins Directory, and install `Codex Agent Team`.
-
-After installation there is only one user entry point to remember:
+Reopen the ChatGPT desktop app, choose the `Codex Agent Team` marketplace in the Plugins Directory, and install the plugin. After that, there is one command to remember:
 
 ```text
 /codex-agent-team
 ```
 
-On first use, the main Skill checks the four project custom Agent profiles:
+You can also describe the development task normally. The Skill decides whether creating a Subagent has a concrete benefit.
+
+```text
+Fix this authentication issue, run the relevant tests, then decide whether an independent review is actually useful.
+```
+
+<details>
+<summary>What happens on first use?</summary>
+
+The first time a model-specific Subagent is needed, the plugin checks these 4 managed custom Agent profiles:
 
 ```text
 luna_explorer
@@ -42,89 +49,73 @@ terra_reviewer
 sol_judge
 ```
 
-If profiles are missing, the Skill explains the exact write scope and asks for permission. After approval it runs the Plugin-bundled fail-closed installer, installs and byte-exactly verifies the four profiles, then rechecks the current native `spawn_agent` role surface.
+If they are missing, the Skill explains the exact write scope and asks for permission. After approval, it installs and verifies only those 4 profiles plus their ownership manifest. It does not edit `config.toml`, MCP configuration, credentials, or unrelated Agent profiles.
 
-If the current task can already discover the new roles, execution may continue immediately. If the runtime has not refreshed role discovery yet, the Skill asks the user to start a fresh Codex task and run `/codex-agent-team` again.
+After installation, the Skill rechecks the current native `spawn_agent` role surface. If the current task can already discover the new roles, work continues immediately. A fresh Codex task is requested only when role discovery has not refreshed yet.
 
-The setup path does not edit `config.toml`, unrelated Agent profiles, MCP configuration, credentials, or unrelated files.
+</details>
 
-## Daily use
-
-Explicit invocation:
-
-```text
-/codex-agent-team
-```
-
-You can also describe the development task normally. The Skill allows implicit invocation and first asks whether delegation has a concrete benefit.
-
-```text
-Fix this authentication issue, run the relevant tests, then decide whether independent review is actually warranted.
-```
+## How it decides whether to form a team
 
 <p align="center">
-  <img src="assets/readme/workflow.svg" alt="Codex Agent Team workflow" width="100%">
+  <img src="assets/readme/workflow.svg" alt="Codex Agent Team delegation flow" width="100%">
 </p>
 
-Typical decision shape:
+| Task shape | Default handling |
+| --- | --- |
+| Small and already isolated | Main session handles it directly |
+| Heavy search, noisy context, or clearly bounded implementation | Luna explores, implements, debugs, and tests |
+| Risky change where a detached view materially improves confidence | Terra performs an independent review |
+| High-consequence disagreement remains unresolved | Ask for consent, then use one Sol judgment |
 
-```text
-small and isolated          -> Root
-context-heavy / bounded     -> Luna
-independent judgment pays   -> Terra
-unresolved high consequence -> consent -> Sol
-```
+Zero Subagents is a normal result. Codex Agent Team aims for the smallest useful team, rather than adding agents for its own sake.
 
-Minimum Team keeps ordinary development lightweight while still adding execution or review capacity when the task earns it.
-
-## Roles
+## Who does what
 
 <p align="center">
-  <img src="assets/readme/roles.svg" alt="Codex Agent Team role map" width="100%">
+  <img src="assets/readme/roles.svg" alt="Codex Agent Team roles: main session, Luna, Terra, and Sol" width="100%">
 </p>
 
 | Role | Default route | Responsibility |
 | --- | --- | --- |
-| Root Controller | current session | intent, planning, risk, acceptance, final answer |
-| Explorer / Worker | GPT-5.6 Luna `max` | search, tracing, bounded implementation, debugging, tests |
-| Independent Critic | GPT-5.6 Terra `xhigh` | detached review, conflicting evidence, assumption checks |
-| Senior Judge | GPT-5.6 Sol `high` | rare high-consequence adjudication after consent |
+| Main session | current Codex session | understand intent, plan, own scope and risk, accept work, deliver the final answer |
+| Luna executor | GPT-5.6 Luna `max` | search, tracing, bounded implementation, debugging, tests |
+| Terra reviewer | GPT-5.6 Terra `xhigh` | detached review of risky changes, conflicting evidence, and key assumptions |
+| Sol judge | GPT-5.6 Sol `high` | rare high-consequence adjudication after explicit user consent |
 
-## What the user sees
+Luna is the normal execution route. Terra appears only when independent judgment has real acceptance value. Sol is reserved for unresolved high-consequence decisions.
 
-When explicitly invoked, when a child is actually created, or when an orchestration gate materially changes execution, the Skill emits a compact receipt such as:
+## What you see
+
+When `/codex-agent-team` is invoked explicitly, a child is actually created, or an orchestration gate materially changes execution, the Skill emits a compact receipt. It reports what happened without turning normal coding into ceremony.
 
 ```text
 Agent Team
 Luna Worker: implemented bounded auth refresh change
 Terra Reviewer: triggered by security boundary; verdict clear
-Runtime evidence: Luna R1, Terra R2
 Verification: 38 tests passed
 ```
 
-When explicit invocation correctly stays Root-only:
+When the main session is the better choice:
 
 ```text
-Agent Team: Root only
+Agent Team: Main session only
 Why: change already isolated; delegation had no concrete benefit
+Verification: 12 tests passed
 ```
 
-This makes both delegation and deliberate non-delegation visible without adding noise to trivial implicit tasks.
+## What the workflow protects
 
-## Core rules
+- **Minimum Team**: zero Subagents is normal, the default is 1, and the normal maximum is 2.
+- **The main session keeps final control**: the Skill never silently switches the main session model or reasoning effort. If route, permission, or scope cannot be established safely, the responsibility stays in the main session.
+- **One writer, one delegation layer**: one active writing Worker per shared workspace. Workers do not create another Subagent team.
+- **Evidence first**: Worker reports are claims. The main session accepts work from actual files, diffs, commands, tests, and reproducible evidence.
 
-- Minimum Team: zero Subagents is normal; default 1; normal maximum 2.
-- Root stays in control: the Skill never silently switches the active Root model or reasoning effort.
-- One Writer: one active writing Worker per shared workspace.
-- Depth 1: Workers do not create another Subagent team; when observable, Root verifies the child's `parent_thread_id`.
-- Fail closed: unprovable exact routes or required permissions return work to Root.
-- Evidence first: Worker reports are claims; Root accepts work from actual files, diffs, commands, tests, and reproducible evidence.
+Codex Agent Team uses Codex’s native `spawn_agent` primitive. It does not create a second Agent runtime, a persistent task DAG, or a background scheduler, and it does not force every task through detached review.
 
-If the required route, permission, scope, or external-impact boundary cannot be established safely, the responsibility stays in Root. The project distinguishes configuration assurance, native runtime reports, and mutable local rollout records; local records are never presented as authoritative runtime proof.
+## Deeper documentation
 
-Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create a second Agent runtime, persistent task DAG, or background scheduler.
-
-## Documentation
+This README keeps the daily workflow approachable. Implementation details and evidence semantics live here:
 
 - [Plugin Installation](docs/plugin-installation.md)
 - [Architecture](docs/architecture.md)
@@ -138,7 +129,7 @@ Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create
 
 ## Validation status
 
-The repository includes policy regressions, routing cases, Plugin packaging, custom-Agent installer lifecycle tests, runtime-evidence fixtures, a deterministic verifier, and a live behavioral benchmark harness. Static tests are never presented as real Codex runtime evidence.
+CI covers Plugin packaging, the custom-Agent installer lifecycle, routing policy, runtime evidence, and the deterministic verifier across Ubuntu Python 3.11 / 3.12 and macOS Python 3.11. Static tests establish repository contracts; real Codex behavior still depends on live behavioral evaluation and runtime evidence.
 
 ## License
 
