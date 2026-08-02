@@ -51,6 +51,15 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def tree_hash(root: Path) -> str:
+    snapshot = {
+        path.relative_to(root).as_posix(): sha(path.read_bytes())
+        for path in sorted(root.rglob("*"))
+        if path.is_file() and not path.is_symlink()
+    }
+    return sha(json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode())
+
+
 def test_default_installer_installs_skill_profiles_and_manifest(tmp_path: Path):
     target = tmp_path / "codex-home"
     result = run_installer(target)
@@ -61,6 +70,7 @@ def test_default_installer_installs_skill_profiles_and_manifest(tmp_path: Path):
     manifest = json.loads((target / MANIFEST_NAME).read_text())
     assert manifest["schema_version"] == 1
     assert manifest["mode"] == "profile"
+    assert manifest["skill_hash"] == tree_hash(SKILL_SOURCE)
     assert set(manifest["profile_hashes"]) == set(PROFILE_FILES)
 
 
@@ -132,6 +142,40 @@ def test_user_modified_managed_profile_is_not_overwritten(tmp_path: Path):
     assert result.returncode != 0
     assert "not proven unchanged" in result.stderr
     assert profile.read_bytes() == before
+
+
+def test_managed_previous_skill_can_upgrade(tmp_path: Path):
+    target = tmp_path / "codex-home"
+    first = run_installer(target)
+    assert first.returncode == 0, first.stderr
+    skill = target / "skills" / "codex-agent-team"
+    skill_md = skill / "SKILL.md"
+    skill_md.write_text(skill_md.read_text() + "\n<!-- previous managed package -->\n")
+    manifest_path = target / MANIFEST_NAME
+    manifest = json.loads(manifest_path.read_text())
+    manifest["skill_hash"] = tree_hash(skill)
+    manifest_path.write_text(json.dumps(manifest))
+
+    upgrade = run_installer(target)
+
+    assert upgrade.returncode == 0, upgrade.stderr
+    assert tree_bytes(skill) == tree_bytes(SKILL_SOURCE)
+    assert json.loads(manifest_path.read_text())["skill_hash"] == tree_hash(SKILL_SOURCE)
+
+
+def test_user_modified_managed_skill_is_not_overwritten(tmp_path: Path):
+    target = tmp_path / "codex-home"
+    first = run_installer(target)
+    assert first.returncode == 0, first.stderr
+    skill_md = target / "skills" / "codex-agent-team" / "SKILL.md"
+    skill_md.write_text(skill_md.read_text() + "\n<!-- user modification -->\n")
+    before = skill_md.read_bytes()
+
+    result = run_installer(target)
+
+    assert result.returncode != 0
+    assert "not proven unchanged" in result.stderr
+    assert skill_md.read_bytes() == before
 
 
 def test_profile_conflict_without_manifest_causes_zero_partial_install(tmp_path: Path):
