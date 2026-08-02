@@ -34,11 +34,8 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ```text
 主会话
-
 主会话 -> Luna -> 主会话
-
 主会话 -> Luna -> Sol -> 主会话
-
 主会话 -> Luna -> Terra（只处理未决问题）-> Luna / 主会话
 ```
 
@@ -75,17 +72,10 @@ STOP / ESCALATE  什么情况必须停下来交回主会话
 主会话先判断失败属于哪一类：
 
 ```text
-机械错误
--> Luna 定点修正
-
-合同缺口
--> 主会话补齐合同，再继续受影响的部分
-
-能力缺口
--> Terra 只接收尚未解决的技术问题
-
-判断缺口
--> 主会话决定，或在确有价值时交给 Sol
+机械错误 -> Luna 定点修正
+合同缺口 -> 主会话补齐合同，再继续受影响的部分
+能力缺口 -> Terra 只接收尚未解决的技术问题
+判断缺口 -> 主会话决定，或在确有价值时交给 Sol
 ```
 
 Terra 默认是 read-only 的复杂问题调查层。它会收到已经确认的证据、当前 artifact、未决问题和明确的 `DO NOT REDO` 项，而不是重新扫描整个仓库或把 Luna 的实现从头做一遍。
@@ -169,13 +159,11 @@ codex_agent_team_advisor
 
 ## 项目状态
 
-当前架构已经完成静态收口。CI 和 deterministic tests 覆盖 Plugin packaging、managed profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired-eval tooling。
+当前架构已经完成静态收口。CI 和 deterministic tests 覆盖 Plugin packaging、managed profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired-eval tooling。静态结果无法证明真实 Codex 运行时一定按预期暴露角色、模型、sandbox、parent thread，也无法证明 Contract、Terra delta escalation 或 Sol review 在真实任务上一定降低成本或提高质量。
 
-这些静态结果不能证明真实 Codex 运行时一定按预期暴露角色、模型、sandbox、parent thread，也不能证明 Contract、Terra delta escalation 或 Sol review 在真实任务上一定降低成本或提高质量。
+下一阶段固定为本地真实运行验证。请按 [`HEADOFF.md`](HEADOFF.md) 完成 ChatGPT Desktop / Codex 用户侧模拟、Runtime Truth 对抗测试、Agent lifecycle 压力测试、installer fault injection 和 paired behavioral eval。评测 schema 会锁定 workload definition、主会话 route、permissions、tool surface 和 acceptance rubric；缺失 telemetry 保持缺失，不估算。
 
-下一阶段已经固定为本地真实运行验证，不再继续扩架构。请按 [`HEADOFF.md`](HEADOFF.md) 完成 ChatGPT Desktop / Codex 用户侧模拟、Runtime Truth 对抗测试、Agent lifecycle 压力测试、installer fault injection 和 paired behavioral eval。
-
-Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍是需要真实 workload 证明的 route hypotheses。
+Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍是需要真实 workload 证明的 route hypotheses。没有真实数据前，不发布成本、延迟或质量提升结论。
 
 ## 文档
 
@@ -188,10 +176,6 @@ Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍是需要真实 
 - [Runtime Evidence](plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md)
 - [Behavioral Evals](docs/behavioral-evals.md)
 - [OpenAI References](docs/openai-references.md)
-
-## 当前验证范围
-
-真实任务效果只通过受控 paired live behavioral eval 验证。评测结果 schema 会锁定 workload definition、主会话 route、permissions、tool surface 和 acceptance rubric；缺失 telemetry 保持缺失，不估算。没有真实 workload 数据前，不发布成本、延迟或质量提升结论。
 
 ## License
 
