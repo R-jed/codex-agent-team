@@ -22,7 +22,7 @@
   <text x="56" y="360" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#0a1f3d" opacity="0.72">simply does the work.</text>
 
   <rect x="56" y="418" width="304" height="154" fill="#0a1f3d"/>
-  <text x="82" y="456" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#f1f3f5" opacity="0.7">FINAL OWNERSHIP</text>
+  <text x="82" y="456" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.7">FINAL OWNERSHIP</text>
   <text x="82" y="498" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#f1f3f5">Back to main session</text>
   <text x="82" y="534" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.8">Inspect files, diffs, tests, and evidence</text>
   <text x="82" y="562" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#f1f3f5" opacity="0.8">before accepting the result.</text>
@@ -37,22 +37,22 @@
     <text x="0" y="52" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">01</text>
     <text x="88" y="46" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Main session</text>
     <text x="88" y="84" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Small task, clear context, lowest coordination cost.</text>
-    <text x="690" y="50" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">DEFAULT</text>
+    <text x="690" y="50" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">DEFAULT</text>
 
     <text x="0" y="180" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">02</text>
     <text x="88" y="174" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Luna executes</text>
     <text x="88" y="212" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Heavy search, noisy context, or bounded implementation.</text>
-    <text x="690" y="178" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">EXECUTE</text>
+    <text x="690" y="178" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">EXECUTE</text>
 
     <text x="0" y="308" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">03</text>
     <text x="88" y="302" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Terra reviews</text>
     <text x="88" y="340" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Risk is high enough that an independent view matters.</text>
-    <text x="690" y="306" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">REVIEW</text>
+    <text x="690" y="306" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">REVIEW</text>
 
     <text x="0" y="436" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="44" font-weight="700" fill="#0a1f3d">04</text>
     <text x="88" y="430" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Sol judges</text>
     <text x="88" y="468" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">High-consequence disagreement remains; ask first.</text>
-    <text x="690" y="434" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="19" font-weight="600" fill="#0a1f3d" opacity="0.58">CONSENT</text>
+    <text x="690" y="434" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.58">CONSENT</text>
   </g>
 
   <text x="56" y="688" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.7">Zero Subagents is normal · The main session accepts every result</text>
