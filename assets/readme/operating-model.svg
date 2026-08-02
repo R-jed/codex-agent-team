@@ -13,21 +13,25 @@
   <rect x="60" y="228" width="300" height="342" fill="#002FA7"/>
   <text x="88" y="274" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="600" fill="#dfe6ff">FULL TASK</text>
   <text x="88" y="334" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="40" font-weight="500" fill="#ffffff">MAIN SESSION</text>
-  <text x="88" y="392" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">understand intent · set scope</text>
-  <text x="88" y="438" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">own risk · define acceptance</text>
-  <text x="88" y="520" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">decide whether to delegate</text>
+  <text x="88" y="392" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">understand intent</text>
+  <text x="88" y="438" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">set scope + own risk</text>
+  <text x="88" y="480" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">define acceptance checks</text>
+  <text x="88" y="532" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">decide whether to delegate</text>
 
-  <rect x="430" y="228" width="360" height="100" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
-  <text x="456" y="269" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">LUNA</text>
-  <text x="456" y="304" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">heavy tracing / bounded build → execute</text>
+  <rect x="430" y="228" width="360" height="108" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+  <text x="456" y="266" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">LUNA</text>
+  <text x="456" y="300" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">heavy tracing / bounded build</text>
+  <text x="456" y="330" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#666661">explore · implement · debug · test</text>
 
-  <rect x="430" y="350" width="360" height="100" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
-  <text x="456" y="391" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">TERRA</text>
-  <text x="456" y="426" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">risky change / detached view matters → review</text>
+  <rect x="430" y="350" width="360" height="108" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+  <text x="456" y="388" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">TERRA</text>
+  <text x="456" y="422" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">risky change / detached view matters</text>
+  <text x="456" y="452" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#666661">independent review</text>
 
-  <rect x="430" y="472" width="360" height="100" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
-  <text x="456" y="513" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">SOL</text>
-  <text x="456" y="548" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">unresolved high consequence + consent → judge</text>
+  <rect x="430" y="472" width="360" height="108" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+  <text x="456" y="510" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#002FA7">SOL</text>
+  <text x="456" y="544" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">unresolved high-consequence judgment</text>
+  <text x="456" y="574" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#666661">one judgment after user consent</text>
 
   <rect x="860" y="228" width="280" height="342" fill="#0a0a0a"/>
   <text x="888" y="274" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="600" fill="#bdbdb7">FINAL OWNERSHIP</text>
@@ -37,12 +41,12 @@
   <text x="888" y="484" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">accept or keep fixing</text>
 
   <g stroke="#0a0a0a" stroke-width="2" fill="#0a0a0a">
-    <line x1="360" y1="278" x2="430" y2="278"/><polygon points="430,278 416,270 416,286"/>
-    <line x1="790" y1="278" x2="860" y2="278"/><polygon points="860,278 846,270 846,286"/>
-    <line x1="360" y1="400" x2="430" y2="400"/><polygon points="430,400 416,392 416,408"/>
-    <line x1="790" y1="400" x2="860" y2="400"/><polygon points="860,400 846,392 846,408"/>
-    <line x1="360" y1="522" x2="430" y2="522"/><polygon points="430,522 416,514 416,530"/>
-    <line x1="790" y1="522" x2="860" y2="522"/><polygon points="860,522 846,514 846,530"/>
+    <line x1="360" y1="282" x2="430" y2="282"/><polygon points="430,282 416,274 416,290"/>
+    <line x1="790" y1="282" x2="860" y2="282"/><polygon points="860,282 846,274 846,290"/>
+    <line x1="360" y1="404" x2="430" y2="404"/><polygon points="430,404 416,396 416,412"/>
+    <line x1="790" y1="404" x2="860" y2="404"/><polygon points="860,404 846,396 846,412"/>
+    <line x1="360" y1="526" x2="430" y2="526"/><polygon points="430,526 416,518 416,534"/>
+    <line x1="790" y1="526" x2="860" y2="526"/><polygon points="860,526 846,518 846,534"/>
   </g>
 
   <line x1="60" y1="620" x2="1140" y2="620" stroke="#0a0a0a" stroke-width="1"/>
