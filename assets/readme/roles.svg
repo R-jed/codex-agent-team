@@ -15,7 +15,7 @@
     <text x="90" y="374" font-size="26" font-weight="400" fill="#fafaf8">Verify evidence</text>
     <text x="90" y="414" font-size="26" font-weight="400" fill="#fafaf8">Deliver the final answer</text>
     <line x1="90" y1="456" x2="360" y2="456" stroke="#737373" stroke-width="1"/>
-    <text x="90" y="496" font-size="20" font-weight="600" fill="#737373">Never silently replaced by the Skill</text>
+    <text x="90" y="496" font-size="20" font-weight="600" fill="#737373">Root never changes silently</text>
 
     <rect x="420" y="118" width="720" height="180" fill="#002FA7"/>
     <text x="450" y="176" font-size="44" font-weight="200" fill="#ffffff">LUNA</text>
@@ -28,11 +28,11 @@
     <text x="450" y="372" font-size="38" font-weight="200" fill="#0a0a0a">TERRA</text>
     <text x="450" y="416" font-size="26" font-weight="500" fill="#0a0a0a">Independent review</text>
     <text x="790" y="372" font-size="21" font-weight="600" fill="#737373">GPT-5.6 · xhigh</text>
-    <text x="790" y="416" font-size="21" font-weight="500" fill="#737373">Conflicting evidence · assumption checks · detached review</text>
+    <text x="790" y="416" font-size="21" font-weight="500" fill="#737373">Conflicts · assumptions</text>
 
     <rect x="420" y="478" width="720" height="68" fill="#f0f0ee"/>
     <text x="450" y="521" font-size="30" font-weight="300" fill="#0a0a0a">SOL</text>
     <text x="560" y="521" font-size="22" font-weight="500" fill="#0a0a0a">Senior judgment</text>
-    <text x="790" y="521" font-size="20" font-weight="600" fill="#737373">GPT-5.6 · high · explicit user consent</text>
+    <text x="790" y="521" font-size="20" font-weight="600" fill="#737373">GPT-5.6 · high · consent required</text>
   </g>
 </svg>
