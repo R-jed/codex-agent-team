@@ -1,21 +1,25 @@
 # Consent Policy
 
-## Contents
-
-1. Purpose
-2. What does not require a new prompt
-3. What requires consent
-4. How to ask
-5. One-time scope
-6. Examples
-
 ## 1. Purpose
 
 Consent Gate protects meaningful boundaries without turning normal Codex work into repeated permission questions.
 
-The user should understand the practical effect of the next action. Internal terms such as route IDs, reasoning ladders, and policy booleans are secondary.
+The user should understand the practical effect of the next action. Internal route IDs and policy booleans are secondary.
 
-## 2. What does not require a new prompt
+## 2. Baseline orchestration envelope
+
+When the user has enabled this Skill for an in-scope task, the normal orchestration envelope is already authorized:
+
+```text
+0-1 Luna Explorer or Worker when Delegation Gate has concrete value
++ at most 1 risk-triggered Terra Independent Critic when Review Gate has concrete value
+```
+
+This normal envelope does not require a separate consent prompt. The Skill still applies Minimum Team and does not add Terra merely because capability or concurrency is available.
+
+A Sol Senior Judge is outside the baseline envelope when Root is not Sol and always requires the consent conditions below.
+
+## 3. What does not require a new prompt
 
 Do not ask again for actions already clearly authorized by the current user request.
 
@@ -23,11 +27,11 @@ Examples:
 
 - "Fix this bug and run tests" authorizes normal in-scope edits and tests.
 - "Review this branch" authorizes read-only inspection and ordinary verification commands that fit the current runtime permissions.
-- Normal Luna Worker or Terra Critic creation within the default team policy does not require a separate consent prompt.
+- Normal Luna Worker or risk-triggered Terra Critic creation inside the baseline envelope does not require a separate consent prompt.
 
-## 3. What requires consent
+## 4. What requires consent
 
-Ask before a material expansion in any of these dimensions.
+Ask before a material expansion beyond the baseline envelope.
 
 ### Capability or cost
 
@@ -49,7 +53,7 @@ Always keep publishing, sending, payment, account changes, production changes, d
 
 A team larger than the normal two-child maximum should normally ask first unless the user explicitly requested broad parallel analysis.
 
-## 4. How to ask
+## 5. How to ask
 
 Use plain language and answer four questions:
 
@@ -59,8 +63,6 @@ Use plain language and answer four questions:
 4. What additional cost or risk should the user expect?
 
 Keep the question short. Offer a safe alternative when practical.
-
-Avoid exposing internal settings as the primary choice.
 
 Bad:
 
@@ -74,7 +76,7 @@ Better:
 The two independent analyses disagree on a decision that affects the whole implementation. I recommend one stronger model pass to break the tie. It will only analyze the evidence, will not modify files, and will use additional model capacity. Continue?
 ```
 
-## 5. One-time scope
+## 6. One-time scope
 
 Consent applies only to the described action.
 
@@ -86,7 +88,7 @@ Approval to prepare a deployment does not imply approval to deploy it.
 
 If the next step crosses another material boundary, ask again.
 
-## 6. Examples
+## 7. Examples
 
 ### Analysis to write
 
