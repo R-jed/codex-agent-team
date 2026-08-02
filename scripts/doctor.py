@@ -27,22 +27,55 @@ PROFILE_FILES = (
     "terra-reviewer.toml",
     "sol-judge.toml",
 )
+MANIFEST_NAME = ".codex-agent-team-install.json"
+MANIFEST_SCHEMA = 1
+
+
+def digest_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def digest(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return digest_bytes(path.read_bytes())
 
 
-def tree_digest(root: Path) -> str:
-    h = hashlib.sha256()
-    for path in sorted(root.rglob("*")):
-        if not path.is_file() or path.is_symlink():
-            continue
-        h.update(path.relative_to(root).as_posix().encode())
-        h.update(b"\0")
-        h.update(path.read_bytes())
-        h.update(b"\0")
-    return h.hexdigest()
+def tree_hash(root: Path) -> str:
+    snapshot = {
+        path.relative_to(root).as_posix(): digest(path)
+        for path in sorted(root.rglob("*"))
+        if path.is_file() and not path.is_symlink()
+    }
+    return digest_bytes(json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode())
+
+
+def expected_manifest(mode: str) -> dict[str, Any]:
+    return {
+        "schema_version": MANIFEST_SCHEMA,
+        "mode": mode,
+        "skill_hash": tree_hash(SKILL_SOURCE),
+        "profile_hashes": (
+            {}
+            if mode == "skill_only"
+            else {filename: digest(PROFILE_SOURCE / filename) for filename in PROFILE_FILES}
+        ),
+    }
+
+
+def manifest_status(path: Path) -> str:
+    if path.is_symlink():
+        return "unsafe_symlink"
+    if not path.is_file():
+        return "missing"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return "invalid"
+    if not isinstance(payload, dict) or payload.get("schema_version") != MANIFEST_SCHEMA:
+        return "invalid"
+    mode = payload.get("mode")
+    if mode not in {"profile", "skill_only"}:
+        return "invalid"
+    return "exact" if payload == expected_manifest(mode) else "stale"
 
 
 def codex_version() -> str | None:
@@ -76,7 +109,7 @@ def main() -> None:
     installed_skill = home / "skills" / "codex-agent-team"
     agents_dir = home / "agents"
     sessions_dir = home / "sessions"
-    manifest = home / ".codex-agent-team-install.json"
+    manifest = home / MANIFEST_NAME
 
     profile_status: dict[str, str] = {}
     for filename in PROFILE_FILES:
@@ -97,17 +130,19 @@ def main() -> None:
         skill_status = "missing"
     else:
         try:
-            skill_status = "exact" if tree_digest(installed_skill) == tree_digest(SKILL_SOURCE) else "different"
+            skill_status = "exact" if tree_hash(installed_skill) == tree_hash(SKILL_SOURCE) else "different"
         except OSError:
             skill_status = "unreadable"
 
+    managed_manifest = manifest_status(manifest)
+    profile_exact = all(v == "exact" for v in profile_status.values())
     result: dict[str, Any] = {
         "python": sys.version.split()[0],
         "codex_version": codex_version(),
         "codex_home": str(home),
         "skill_integrity": skill_status,
         "profiles": profile_status,
-        "managed_manifest": "present" if manifest.is_file() else "missing",
+        "managed_manifest": managed_manifest,
         "local_sessions_store": "available" if sessions_dir.is_dir() else "unavailable",
         "local_rollout_adapter": "available" if (SKILL_SOURCE / "scripts" / "inspect-runtime.py").is_file() else "missing",
         "runtime_verifier": "available" if (SKILL_SOURCE / "scripts" / "verify-runtime.py").is_file() else "missing",
@@ -115,7 +150,7 @@ def main() -> None:
         "native_runtime_metadata": "requires_in_session_check",
         "recommended_mode": (
             "profile_mode"
-            if skill_status == "exact" and all(v == "exact" for v in profile_status.values())
+            if skill_status == "exact" and profile_exact and managed_manifest == "exact"
             else "repair_or_portable_mode"
         ),
     }
@@ -131,7 +166,7 @@ def main() -> None:
     print(f"Skill integrity:         {skill_status}")
     for filename, status in profile_status.items():
         print(f"Profile {filename:<21} {status}")
-    print(f"Managed manifest:        {result['managed_manifest']}")
+    print(f"Managed manifest:        {managed_manifest}")
     print(f"Local sessions store:    {result['local_sessions_store']}")
     print(f"Runtime verifier:        {result['runtime_verifier']}")
     print("Live spawn/model/effort: requires an active Codex session")
