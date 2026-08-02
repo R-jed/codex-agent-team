@@ -49,7 +49,8 @@ def test_delegation_contract_records_decision_rights_and_evidence_state():
         assert section in contract
     assert "Shared Evidence State" in contract
     assert "unresolved_delta" in contract
-    assert "Worker reports are claims" in safety
+    assert "Child reports are claims" in safety
+    assert "independently inspectable artifacts and evidence" in safety
 
 
 def test_sol_review_is_selective_and_terra_is_delta_investigation():
