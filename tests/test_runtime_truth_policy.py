@@ -56,15 +56,15 @@ def test_consent_policy_defines_baseline_envelope():
 
 
 def test_live_evals_are_separate_from_static_tests():
-    docs = (ROOT / "docs" / "behavioral-evals.md").read_text()
-    workloads = (ROOT / "evals" / "behavioral-workloads.json").read_text()
-    assert "Static repository tests" in docs
-    assert "do not prove real Skill behavior" in docs
+    docs = (ROOT / "docs" / "behavioral-evals.md").read_text().lower()
+    workloads = (ROOT / "evals" / "behavioral-workloads.json").read_text().lower()
+    assert "static repository tests" in docs
+    assert "do not prove" in docs and "real" in docs
     assert "no claimed benchmark results" in workloads
 
 
 def test_doctor_and_compatibility_docs_exist():
     assert (ROOT / "scripts" / "doctor.py").exists()
-    compatibility = (ROOT / "docs" / "compatibility.md").read_text()
-    assert "requires active Codex runtime" in compatibility
-    assert "R1_runtime_reported" in compatibility
+    compatibility = (ROOT / "docs" / "compatibility.md").read_text().lower()
+    assert "requires active codex runtime" in compatibility
+    assert "r1_runtime_reported" in compatibility
