@@ -28,7 +28,7 @@ Small, already-isolated fixes usually stay in Root. The Skill does not create Su
 
 Requirements: Python >= 3.11, Git, and a Codex environment with Native Subagents.
 
-The installer places the Skill and four model-pinned Agent profiles under Codex home and records package-managed hashes. Future upgrades may replace a profile only when it is still unchanged from the previous managed install; user-modified profiles fail closed.
+The installer places the Skill under `~/.codex/skills/`, four model-pinned Agent profiles under `~/.codex/agents/`, and records package-managed hashes. Future upgrades may replace a managed file only when it is still unchanged from the previous managed install; user-modified artifacts fail closed.
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
