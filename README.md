@@ -19,14 +19,17 @@
 
 Plugin 是推荐的社区分发方式。它安装工作流 Skills，并保留当前会话作为 Root。
 
+先用 Codex CLI 注册这个仓库提供的 marketplace：
+
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
-codex plugin add codex-agent-team@codex-agent-team
 ```
+
+然后重新打开 ChatGPT desktop app，在 Plugins Directory 中选择 `Codex Agent Team` marketplace，并安装 `Codex Agent Team`。这条路径与当前 OpenAI Plugin 文档保持一致，避免依赖不同 Codex build 可能变化的额外安装命令。
 
 ### 安装 companion custom agents
 
-Plugin 安装完成后，还需要一次显式的 Agent setup。4 个 role-pinned profiles 位于 `~/.codex/agents/`，不会假设它们已随 Plugin 自动注册。
+Plugin 安装完成后，还需要一次显式的 Agent setup。官方 Plugin manifest 当前原生声明 Skills、MCP、hooks 与界面资源，custom Agent TOML 仍由 Codex 从 `~/.codex/agents/` 或项目 `.codex/agents/` 读取，因此它们作为 companion profiles 单独安装。
 
 在 Codex 中调用：
 
