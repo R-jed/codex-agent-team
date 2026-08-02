@@ -22,26 +22,26 @@
   <text x="60" y="300" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="500" fill="#666661">Scope, risk, and final acceptance stay in the current session.</text>
 
   <g transform="translate(60 356)">
-    <rect x="0" y="0" width="180" height="84" fill="#efefec"/>
-    <text x="90" y="53" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="500" fill="#0a0a0a">TASK</text>
+    <rect x="0" y="0" width="160" height="84" fill="#efefec"/>
+    <text x="80" y="53" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="500" fill="#0a0a0a">TASK</text>
 
-    <line x1="180" y1="42" x2="230" y2="42" stroke="#0a0a0a" stroke-width="2"/>
-    <polygon points="230,42 216,34 216,50" fill="#0a0a0a"/>
+    <line x1="160" y1="42" x2="200" y2="42" stroke="#0a0a0a" stroke-width="2"/>
+    <polygon points="200,42 186,34 186,50" fill="#0a0a0a"/>
 
-    <rect x="230" y="0" width="250" height="84" fill="#002FA7"/>
-    <text x="355" y="53" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="600" fill="#ffffff">MAIN SESSION</text>
+    <rect x="200" y="0" width="220" height="84" fill="#002FA7"/>
+    <text x="310" y="53" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="600" fill="#ffffff">MAIN SESSION</text>
 
-    <line x1="480" y1="42" x2="530" y2="42" stroke="#0a0a0a" stroke-width="2"/>
-    <polygon points="530,42 516,34 516,50" fill="#0a0a0a"/>
+    <line x1="420" y1="42" x2="460" y2="42" stroke="#0a0a0a" stroke-width="2"/>
+    <polygon points="460,42 446,34 446,50" fill="#0a0a0a"/>
 
-    <rect x="530" y="0" width="340" height="84" fill="#ffffff" stroke="#002FA7" stroke-width="2"/>
-    <text x="700" y="35" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="600" fill="#002FA7">LUNA · TERRA · SOL</text>
-    <text x="700" y="67" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">bounded specialist work</text>
+    <rect x="460" y="0" width="340" height="84" fill="#ffffff" stroke="#002FA7" stroke-width="2"/>
+    <text x="630" y="35" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="600" fill="#002FA7">LUNA · TERRA · SOL</text>
+    <text x="630" y="67" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#0a0a0a">bounded specialist work</text>
 
-    <line x1="870" y1="42" x2="920" y2="42" stroke="#0a0a0a" stroke-width="2"/>
-    <polygon points="920,42 906,34 906,50" fill="#0a0a0a"/>
+    <line x1="800" y1="42" x2="840" y2="42" stroke="#0a0a0a" stroke-width="2"/>
+    <polygon points="840,42 826,34 826,50" fill="#0a0a0a"/>
 
-    <rect x="920" y="0" width="220" height="84" fill="#0a0a0a"/>
-    <text x="1030" y="53" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="500" fill="#ffffff">ACCEPTANCE</text>
+    <rect x="840" y="0" width="300" height="84" fill="#0a0a0a"/>
+    <text x="990" y="53" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="500" fill="#ffffff">ACCEPTANCE</text>
   </g>
 </svg>
