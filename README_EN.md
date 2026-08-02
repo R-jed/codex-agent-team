@@ -12,7 +12,7 @@ Codex Agent Team puts those decisions into one workflow. The current Codex sessi
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Reopen the ChatGPT desktop app and install `Codex Agent Team` from the Plugins Directory.
+Reopen ChatGPT Desktop and install `Codex Agent Team` from the Plugins Directory.
 
 Invoke it explicitly when needed:
 
@@ -20,7 +20,15 @@ Invoke it explicitly when needed:
 /codex-agent-team
 ```
 
-## How the work is divided
+## Current status
+
+The repository has completed the static closure pass for the current architecture cycle. Deterministic tests cover Plugin packaging, the managed Agent profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired behavioral-eval tooling.
+
+The current remote branch audit found 11 branches. The 10 non-main branches are historical heads of already merged PRs. None contains work that should be merged again. They only need remote-ref cleanup, with the exact command in [`HEADOFF.md`](HEADOFF.md).
+
+The next phase is fixed: **local real-runtime validation**. Static CI cannot establish live Codex role discovery, model routing, sandbox behavior, parent-thread metadata, Agent lifecycle behavior, evidence-reuse compliance, cost, or task quality. A local takeover should execute `HEADOFF.md` before redesigning the orchestration model.
+
+## How work is divided
 
 | Tier | Current route | Primary use |
 | --- | --- | --- |
@@ -39,7 +47,7 @@ main session -> Luna -> Sol -> main session
 main session -> Luna -> Terra (unresolved delta only) -> Luna / main session
 ```
 
-`Luna -> Terra -> Sol` is never a sequence that every task must complete.
+`Luna -> Terra -> Sol` is never a sequence every task must complete.
 
 ## Compile a delegation contract before execution
 
@@ -69,9 +77,7 @@ Later Agents reuse evidence while those dependencies remain valid. A changed inp
 
 Model judgments are kept separate from established facts. A hypothesis stays challengeable even if multiple Agents repeat it.
 
-## A weak Luna result does not automatically become a full Terra rerun
-
-The main session classifies the failure first:
+## Classify a weak Luna result before escalation
 
 ```text
 mechanical defect -> focused Luna correction
@@ -80,13 +86,13 @@ capability gap -> Terra receives only the unresolved technical delta
 judgment gap -> main session decides, or uses Sol when that adds real value
 ```
 
-Terra is a read-only complex-investigation tier by default. It receives established evidence, the current artifact, the unresolved question, and explicit `DO NOT REDO` items. It does not rescan the repository or reimplement the entire Luna responsibility by default.
+Terra is a read-only complex-investigation tier by default. It receives established evidence, the current artifact, the unresolved question, and explicit `DO NOT REDO` items. A mediocre Luna result does not automatically trigger a whole-repository scan or full reimplementation by Terra.
 
 Once Terra resolves the technical dependency, bounded implementation normally returns to Luna or the main session.
 
 ## Luna + Sol is a normal short path
 
-Some tasks have clear implementation standards but still benefit from higher-value judgment over the finished artifact. A normal path can be:
+Some tasks have clear implementation standards but still benefit from higher-value judgment over the finished artifact:
 
 ```text
 main session
@@ -95,7 +101,7 @@ main session
 -> main-session acceptance
 ```
 
-Terra does not appear just to complete a three-tier structure.
+Terra does not appear merely to complete a three-tier structure.
 
 When deterministic tests and acceptance oracles are already strong enough, the path may stop at:
 
@@ -107,11 +113,9 @@ Or use zero Subagents.
 
 ## Parallelism is for independent dependencies
 
-Useful parallelism means concurrent work produces different inputs required by the task.
+Useful parallelism means concurrent work produces different inputs required by the task. Examples include two independent read-only investigations, or the main session preparing acceptance and risk checks while Luna performs bounded implementation.
 
-Examples include two independent read-only investigations, or the main session preparing acceptance and risk checks while Luna performs bounded implementation.
-
-Running Luna, Terra, and Sol over the same question simply to keep compute busy is duplicated inference.
+Running Luna, Terra, and Sol over the same question simply to keep compute busy is duplicated inference. Every Agent call must add value that existing valid work cannot already provide.
 
 ## What you see
 
@@ -138,9 +142,9 @@ Verification: 12 tests passed
 - Zero Subagents is normal. The default is 1, the normal maximum is 2, and the hard maximum is 4.
 - There is at most one active Writing Worker per shared workspace.
 - Child Agents do not create further Subagents; delegation stays one layer deep.
-- Every Agent call must add a dependency that existing valid work cannot already satisfy.
 - The Skill never silently switches the main-session model or reasoning effort.
 - A missing exact project profile returns the responsibility to the main session; there is no cross-role substitution.
+- Runtime route proof requires both the expected route and observed route to contain role, model, and effort completely; missing exact-route fields fail closed.
 - A Subagent completion report is a claim. Final acceptance uses actual files, diffs, commands, tests, and reproducible evidence.
 
 The project uses Codex native `spawn_agent`. It does not implement a second Agent runtime, persistent task DAG, or background scheduler.
@@ -155,17 +159,18 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-If a required profile is missing, the Skill discloses the complete managed file scope before asking permission. The installer manages only these four current profiles and its ownership manifest. Older model-named profiles such as `luna_worker` and `terra_reviewer` are removed only when their current bytes are proven by the active previous project ownership manifest. The retired standalone manifest is accepted only as a one-time migration seed before a companion manifest exists, and only for the historical schema `1`, `profile`-mode shape. User-modified, unproven, or intentionally recreated legacy files do not inherit deletion authority from a stale standalone manifest.
+If a required profile is missing, the Skill discloses the complete managed file scope before asking permission. The installer manages only these four current profiles and its ownership manifest. Older model-named profiles are removed only when their current bytes are proven by the active previous project ownership manifest. User-modified, unproven, or intentionally recreated legacy files do not inherit deletion authority from stale ownership data.
 
 </details>
 
-## Project status
+## What to validate next
 
-The current architecture has completed its static closure pass. The final static audit found no remaining reproducible P0/P1 repository defect. CI and deterministic tests cover Plugin packaging, the managed profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired-eval tooling. This statement applies only to the repository's static state; it is not a claim that the live Codex runtime has passed user-side validation.
+[`HEADOFF.md`](HEADOFF.md) is the authoritative local Codex takeover contract, organized around four test domains:
 
-Static results cannot prove that a live Codex build exposes roles, models, sandboxes, or parent-thread metadata as expected, nor that contracts, Terra delta escalation, or Sol review improve real task economics or quality. Every remaining runtime, UX, and performance unknown is tracked in [`HEADOFF.md`](HEADOFF.md).
-
-The next phase is local runtime validation. Follow `HEADOFF.md` for ChatGPT Desktop/Codex user-flow simulation, Runtime Truth adversarial testing, Agent lifecycle stress, installer fault injection, and paired behavioral evals. Before any formal A/B pair, freeze a reproducible workload fixture containing the exact prompt, base revision, setup, acceptance rubric, verification, route, permissions, and tool surface, then derive `workload_definition_hash`. Missing telemetry remains missing.
+- Plugin installation, profile consent, live route / sandbox / ancestry, and Runtime Truth;
+- Contractability, Shared Evidence, Luna failure classification, Terra delta, and selective Sol;
+- paired raw-prompt versus compiled-contract evaluation, useful parallelism, and Agent lifecycle stress;
+- installer fault injection, historical branch cleanup, and the final release gate.
 
 Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses requiring representative live workload evidence. Do not publish cost, latency, or quality-improvement claims before that evidence exists.
 
@@ -182,5 +187,4 @@ Luna Max is the current execution baseline. Terra XHigh and Sol High remain rout
 - [OpenAI References](docs/openai-references.md)
 
 ## License
-
 [MIT](LICENSE)

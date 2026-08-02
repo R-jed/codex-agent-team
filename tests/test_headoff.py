@@ -26,9 +26,11 @@ def test_local_runtime_handoff_is_linked_from_both_readmes():
 def test_handoff_protects_release_critical_live_validation_scope():
     text = HANDOFF.read_text()
     for phrase in [
+        "## Audit snapshot",
         "## 2. Stop line",
         "## 5. Remote branch cleanup",
         "## 8. Runtime Truth adversarial matrix",
+        "incomplete `expected` exact route",
         "## 11. Shared Evidence State and invalidation",
         "## 13. Terra delta-escalation experiment",
         "## 14. Luna + selective Sol experiment",
@@ -36,10 +38,14 @@ def test_handoff_protects_release_critical_live_validation_scope():
         "## 16. Parallelism and stress tests",
         "## 17. Installer migration and fault injection",
         "## 19. Current unknown technical debt register",
+        "## Defect triage during local validation",
         "## 20. Release acceptance gate",
         "## 21. Required local deliverables",
+        "## Local takeover completion condition",
         "LOCAL_VALIDATION_REPORT.md",
         "behavioral-result.schema.json",
+        "RELEASE CANDIDATE",
+        "HOLD",
     ]:
         assert phrase in text
 

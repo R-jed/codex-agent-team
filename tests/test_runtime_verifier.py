@@ -50,6 +50,17 @@ def observation(**overrides):
     return value
 
 
+def test_expected_exact_route_must_name_role_model_and_effort():
+    for field in ("agent_role", "model", "effort"):
+        incomplete = expected()
+        incomplete.pop(field)
+        result, data = run_verifier({"expected": incomplete, "native": observation()})
+        assert result.returncode != 0
+        assert data is None
+        assert "expected exact route requires" in result.stderr
+        assert field in result.stderr
+
+
 def test_configuration_only_is_c1_with_typed_not_observed_states():
     result, data = run_verifier({"expected": expected(), "native": None, "local": None})
     assert result.returncode == 0, result.stderr

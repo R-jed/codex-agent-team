@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Deterministically reconcile expected and observed native Subagent runtime facts.
 
-Evidence is typed by route, ancestry, and permission. Observation-object presence is
-never enough to establish a matched route: agent_role, model, and effort must all be
-present and agree before L1/R1/R2 can be emitted.
+Evidence is typed by route, ancestry, and permission. Neither expectation nor
+observation-object presence is enough to establish a matched route: expected and
+observed agent_role, model, and effort must all be present and agree before
+L1/R1/R2 can be emitted.
 """
 
 from __future__ import annotations
@@ -54,6 +55,15 @@ def object_or_none(value: Any, field: str) -> dict[str, Any] | None:
 
 def string_or_none(value: Any) -> str | None:
     return value if isinstance(value, str) and value else None
+
+
+def validate_expected_route(expected: dict[str, Any]) -> None:
+    missing = [field for field in ROUTE_FIELDS if string_or_none(expected.get(field)) is None]
+    if missing:
+        fail(
+            "expected exact route requires non-empty agent_role, model, and effort; "
+            f"missing: {', '.join(missing)}"
+        )
 
 
 def normalized_observation(value: dict[str, Any] | None) -> dict[str, str | None] | None:
@@ -116,11 +126,11 @@ def route_complete(
     if observation is None:
         return False
     for field in ROUTE_FIELDS:
-        if string_or_none(expected.get(field)) is not None and observation.get(field) is None:
+        if observation.get(field) is None:
             return False
         if f"{source}:{field}_mismatch" in violations:
             return False
-    return all(observation.get(field) is not None for field in ROUTE_FIELDS)
+    return True
 
 
 def evidence_source(native: bool, local: bool) -> str:
@@ -248,6 +258,7 @@ def main() -> None:
     expected = object_or_none(payload.get("expected"), "expected")
     if expected is None:
         fail("expected is required")
+    validate_expected_route(expected)
     native = normalized_observation(object_or_none(payload.get("native"), "native"))
     local = normalized_observation(object_or_none(payload.get("local"), "local"))
 

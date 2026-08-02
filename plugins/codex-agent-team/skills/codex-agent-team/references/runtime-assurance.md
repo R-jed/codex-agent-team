@@ -32,9 +32,9 @@ source: none | native | local | both
 observed_fields: [agent_role, model, effort]
 ```
 
-`matched` requires complete observed `agent_role`, `model`, and `effort` for the accepted source path and agreement with expected values.
+`matched` requires a complete expected exact route and complete observed `agent_role`, `model`, and `effort` for the accepted source path. All three observed values must agree with the expected values.
 
-A native object that exists but omits one or more route fields is `partial`, not `matched`.
+A verifier input whose `expected` object omits `agent_role`, `model`, or `effort` is invalid and fails closed. An observation that exists but omits one or more route fields is `partial`, not `matched`.
 
 ### Ancestry evidence
 
@@ -100,19 +100,19 @@ native  optional normalized runtime metadata
 local   optional normalized local rollout metadata
 ```
 
-Expected may include:
+Expected requires an exact route and may additionally include identity and safety requirements:
 
 ```text
+agent_role   required
+model        required
+effort       required
 thread_id
 parent_thread_id
-agent_role
-model
-effort
 runtime_observation_required
 requires_enforced_read_only
 ```
 
-The verifier returns typed route, ancestry, and permission evidence plus a compact compatibility grade and decision.
+The verifier rejects an incomplete expected exact route instead of allowing missing expectations to weaken a runtime proof. It then returns typed route, ancestry, and permission evidence plus a compact compatibility grade and decision.
 
 If `runtime_observation_required` is true, complete matching native route evidence is required. A native object with missing role/model/effort fields does not satisfy that requirement.
 
@@ -171,6 +171,9 @@ Ordinary bounded work may proceed from `profile_locked` configuration assurance 
 ## 10. Failure behavior
 
 ```text
+incomplete expected exact route
+-> invalid verifier input; fail closed
+
 configuration route unavailable
 -> do not spawn model-specific child
 
