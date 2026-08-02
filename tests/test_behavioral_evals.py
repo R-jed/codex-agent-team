@@ -20,7 +20,12 @@ def base_run(mode: str, *, success: bool = True) -> dict:
         "pair_id": "bounded-1",
         "repeat_index": 1,
         "repo_revision": "abc123",
+        "workload_definition_hash": "sha256:workload-fixture",
         "main_session_route": "gpt-5.6-sol/high",
+        "worker_route": "gpt-5.6-luna/max",
+        "permissions_fingerprint": "workspace-write+default-approval",
+        "tool_surface_fingerprint": "spawn-agent-v2+shell+git",
+        "acceptance_rubric_id": "bounded-fix-v1",
         "success": success,
         "decision": "complete",
         "agent_count": 1 if mode != "main_session_only" else 0,
@@ -46,7 +51,7 @@ def run_score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[s
     result_file.write_text(
         json.dumps(
             {
-                "schema_version": "2.0",
+                "schema_version": "2.1",
                 "suite": "codex-agent-team-live-behavior",
                 "runtime": {"codex_version": "fixture", "date": "2026-08-02"},
                 "runs": runs,
@@ -79,15 +84,21 @@ def test_behavioral_workloads_cover_contract_and_resource_coordination():
     assert "no claimed benchmark results" in payload["note"]
 
 
-def test_behavioral_result_schema_accepts_paired_runs():
+def test_behavioral_result_schema_requires_paired_run_controls():
     schema = json.loads(SCHEMA.read_text())
     payload = {
-        "schema_version": "2.0",
+        "schema_version": "2.1",
         "suite": "codex-agent-team-live-behavior",
         "runtime": {"codex_version": "fixture", "date": "2026-08-02"},
         "runs": [base_run("raw_prompt_luna"), base_run("contract_luna")],
     }
     jsonschema.Draft202012Validator(schema).validate(payload)
+
+    incomplete = base_run("contract_luna")
+    incomplete.pop("tool_surface_fingerprint")
+    invalid = {**payload, "runs": [base_run("raw_prompt_luna"), incomplete]}
+    errors = list(jsonschema.Draft202012Validator(schema).iter_errors(invalid))
+    assert errors
 
 
 def test_scorer_reports_paired_delta_and_keeps_global_modes_descriptive_only(tmp_path: Path):
@@ -108,6 +119,7 @@ def test_scorer_reports_paired_delta_and_keeps_global_modes_descriptive_only(tmp
     assert pair["comparison"]["metric_deltas"]["acceptance_score"] == 2
     assert pair["comparison"]["metric_deltas"]["correction_turns"] == -2
     assert pair["comparison"]["metric_deltas"]["input_tokens"] == -200
+    assert pair["controls"]["permissions_fingerprint"] == "workspace-write+default-approval"
     comparison = summary["comparisons"]["bounded-implementation:raw_prompt_luna->contract_luna"]
     assert comparison["pair_count"] == 1
     assert comparison["mean_metric_deltas"]["acceptance_score"] == 2
@@ -140,10 +152,26 @@ def test_scorer_rejects_wrong_modes_for_declared_primary_comparison(tmp_path: Pa
     assert "must contain declared primary comparison modes" in result.stderr
 
 
-def test_scorer_rejects_mixed_main_session_routes_inside_pair(tmp_path: Path):
+def test_scorer_rejects_mixed_pair_control_fields(tmp_path: Path):
+    for field, changed in [
+        ("main_session_route", "gpt-5.6-terra/high"),
+        ("workload_definition_hash", "sha256:other-workload"),
+        ("permissions_fingerprint", "read-only+default-approval"),
+        ("tool_surface_fingerprint", "spawn-agent-v3+shell+git"),
+        ("acceptance_rubric_id", "bounded-fix-v2"),
+    ]:
+        raw = base_run("raw_prompt_luna")
+        contract = base_run("contract_luna")
+        contract[field] = changed
+        result = run_score(tmp_path, [raw, contract])
+        assert result.returncode != 0
+        assert f"controlled field '{field}'" in result.stderr
+
+
+def test_scorer_rejects_mixed_worker_routes_inside_pair(tmp_path: Path):
     raw = base_run("raw_prompt_luna")
     contract = base_run("contract_luna")
-    contract["main_session_route"] = "gpt-5.6-terra/high"
+    contract["worker_route"] = "gpt-5.6-luna/high"
     result = run_score(tmp_path, [raw, contract])
     assert result.returncode != 0
-    assert "mixes main-session routes" in result.stderr
+    assert "mixes worker routes" in result.stderr
