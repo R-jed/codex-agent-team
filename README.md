@@ -2,9 +2,9 @@
 
 [English](README_EN.md) · [安装](docs/plugin-installation.md) · [架构](docs/architecture.md) · [评测](docs/behavioral-evals.md) · [本地真测交接](HEADOFF.md)
 
-Codex 已经能创建 Subagent。真正影响日常开发体验的是后面的调度：哪些工作值得交出去，交出去之前要说明到什么程度，前一个 Agent 已经查清的东西要不要重算，什么时候需要更强的模型，最后由谁验收。
+Codex 已经能创建 Subagent。日常开发真正难的是调度：哪些工作值得交出去，交出去之前要说明到什么程度，前一个 Agent 已经查清的东西要不要重算，什么时候需要更强的模型，最后由谁验收。
 
-Codex Agent Team 把这些问题收进一套工作流。当前 Codex 会话始终是**主会话**，负责理解需求、划定边界、安排计算、保存有效证据和最终验收。Luna、Terra、Sol 是按任务依赖调用的计算资源，没有固定出场顺序。
+Codex Agent Team 把这些问题收进一套工作流。当前 Codex 会话始终是**主会话**，负责理解需求、划定边界、安排计算、维护有效证据和最终验收。Luna、Terra、Sol 是按未解决依赖调用的计算资源，没有固定出场顺序。
 
 ## 快速开始
 
@@ -12,13 +12,21 @@ Codex Agent Team 把这些问题收进一套工作流。当前 Codex 会话始�
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-重新打开 ChatGPT desktop app，在 Plugins Directory 中安装 `Codex Agent Team`。
+重新打开 ChatGPT Desktop，在 Plugins Directory 中安装 `Codex Agent Team`。
 
 需要显式调用时：
 
 ```text
 /codex-agent-team
 ```
+
+## 当前状态
+
+仓库已经完成当前架构周期的静态收口。静态测试覆盖 Plugin packaging、managed Agent profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired behavioral eval tooling。
+
+当前远端分支审计共发现 11 个分支。`main` 之外的 10 个分支全部对应已经合并的历史 PR，没有任何分支需要再次合并。它们只剩远端 ref 清理，具体命令写在 [`HEADOFF.md`](HEADOFF.md)。
+
+下一阶段已经固定为**本地真实运行验证**。静态 CI 无法证明真实 Codex runtime 的角色发现、模型路由、sandbox、parent thread、Agent lifecycle、证据复用、成本或质量表现。接手本地测试前请先完整执行 `HEADOFF.md`，不要先重构当前 orchestration model。
 
 ## 这套工作流怎么分工
 
@@ -30,7 +38,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 | Terra Investigator | GPT-5.6 Terra `xhigh` | 只处理尚未解决的复杂技术依赖 |
 | Sol Advisor | GPT-5.6 Sol `high` | 高价值判断和选择性复核 |
 
-模型不是流水线阶段。常见路径可以很短：
+模型没有固定流水线。常见路径可以很短：
 
 ```text
 主会话
@@ -39,7 +47,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 主会话 -> Luna -> Terra（只处理未决问题）-> Luna / 主会话
 ```
 
-`Luna -> Terra -> Sol` 从来不是必须完整走完的三级流程。
+`Luna -> Terra -> Sol` 从来不要求完整走完。
 
 ## 先把任务变成可委派的合同
 
@@ -57,19 +65,17 @@ STOP / ESCALATE  什么情况必须停下来交回主会话
 
 验收标准或决策权限说不清时，不创建 Writing Worker。
 
-这也是 Luna 的主要使用方式：主会话负责 `WHAT / WHY / SCOPE / RISK / ACCEPTANCE`，Luna 在合同内解决 `HOW TO EXECUTE`。
+主会话负责 `WHAT / WHY / SCOPE / RISK / ACCEPTANCE`，Luna 在合同内解决 `HOW TO EXECUTE`。
 
 ## 已经算过的东西尽量不再算一遍
 
 主会话维护一份精简的 Shared Evidence State。它保存已经确认的测试结果、文件关系、调用路径、接口事实和其他可复用证据，并记录这些证据依赖哪些文件或产物。
 
-后续 Agent 默认复用仍然有效的证据。只有依赖发生变化、证据互相冲突，或者当前问题确实需要重新验证时才重算。
+后续 Agent 默认复用仍然有效的证据。只有依赖变化、证据冲突，或者当前问题确实需要重新验证时才重算。
 
-模型判断和事实证据会分开处理。一个 Agent 的推测可以留给后续模型挑战，不会因为重复说了两次就变成事实。
+模型判断和事实证据分开处理。一个 Agent 的推测可以被后续模型挑战，不会因为重复出现就自动成为事实。
 
-## Luna 做不好时，不直接把整件事交给 Terra 重做
-
-主会话先判断失败属于哪一类：
+## Luna 做不好时，先分类失败
 
 ```text
 机械错误 -> Luna 定点修正
@@ -78,7 +84,7 @@ STOP / ESCALATE  什么情况必须停下来交回主会话
 判断缺口 -> 主会话决定，或在确有价值时交给 Sol
 ```
 
-Terra 默认是 read-only 的复杂问题调查层。它会收到已经确认的证据、当前 artifact、未决问题和明确的 `DO NOT REDO` 项，而不是重新扫描整个仓库或把 Luna 的实现从头做一遍。
+Terra 默认是 read-only 的复杂问题调查层。它会收到已经确认的证据、当前 artifact、未决问题和明确的 `DO NOT REDO` 项，不会因为 Luna 输出质量一般就重新扫描整个仓库或把实现从头做一遍。
 
 Terra 解决技术依赖后，具体实现通常再回到 Luna 或主会话。
 
@@ -93,9 +99,9 @@ Terra 解决技术依赖后，具体实现通常再回到 Luna 或主会话。
 -> 主会话验收
 ```
 
-Terra 不需要为了“补齐三级结构”加入。
+Terra 不需要为了补齐三级结构加入。
 
-反过来，如果测试和 deterministic oracle 已经足够强，也可能只有：
+如果 deterministic oracle 已经足够强，也可能只有：
 
 ```text
 主会话 -> Luna -> 主会话
@@ -103,17 +109,15 @@ Terra 不需要为了“补齐三级结构”加入。
 
 甚至 0 个 Subagent。
 
-## 并行不是为了把 Agent 数量拉满
-
-只有不同分支在解决不同依赖时，并行才有价值。
+## 并行只解决独立依赖
 
 适合并行的例子包括两个互不依赖的 read-only 调查，或者 Luna 实现时主会话提前准备验收清单和风险检查。
 
-让 Luna、Terra、Sol 同时分析同一个问题，只是重复消耗上下文和推理算力。
+让 Luna、Terra、Sol 同时分析同一个问题，只会重复消耗上下文和推理算力。每次 Agent 调用都必须增加一项已有结果无法替代的价值。
 
 ## 你会看到什么
 
-Skill 在实际创建 Subagent，或者调度决策明显改变执行路径时，会附上一段简短说明：
+实际创建 Subagent，或者调度决策明显改变执行路径时，Skill 会附上一段简短说明：
 
 ```text
 Agent Team
@@ -136,9 +140,9 @@ Verification: 12 tests passed
 - 0 个 Subagent 是正常结果，默认 1 个，通常最多 2 个，硬上限 4 个。
 - 一个共享 Workspace 同时最多 1 个 Writing Worker。
 - 子 Agent 不继续创建新的 Subagent，委派深度保持 1 层。
-- 每次 Agent 调用都必须增加一项已有结果无法替代的价值。
 - Skill 不会暗中切换主会话模型或 reasoning effort。
 - 缺少精确 project profile 时，责任留在主会话，不跨角色替换。
+- Runtime route proof 要求 expected route 和 observed route 都完整包含 role、model、effort；缺字段时 fail closed。
 - Subagent 的完成报告只是声明，最终验收看实际文件、diff、命令、测试和可复现证据。
 
 项目直接使用 Codex 原生 `spawn_agent`，没有第二套 Agent Runtime、持久 Task DAG 或后台调度器。
@@ -153,19 +157,27 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-缺少 profile 时，Skill 会先说明完整的项目管理文件范围并请求授权。Installer 只管理这 4 个当前 profiles 和 ownership manifest；旧版本的 `luna_worker`、`terra_reviewer` 等 model-named profiles 只有在当前文件字节能够由上一轮项目 ownership manifest 精确证明时才会清理。旧 standalone manifest 只在 companion manifest 尚不存在时作为一次迁移种子，而且只接受历史上真实写出的 schema `1`、`profile` 模式。用户修改过、无法证明归属，或者在迁移完成后重新创建的 legacy 文件都不会因为陈旧 manifest 被再次删除。
+缺少 profile 时，Skill 会先说明完整的项目管理文件范围并请求授权。Installer 只管理这 4 个当前 profiles 和 ownership manifest。旧版本的 model-named profiles 只有在当前文件字节能够由上一轮项目 ownership manifest 精确证明时才会清理。用户修改过、无法证明归属，或者在迁移完成后重新创建的 legacy 文件不会因为陈旧 manifest 被再次删除。
 
 </details>
 
-## 项目状态
+## 接下来验证什么
 
-当前架构已经完成静态收口。最终静态审计未发现仍开放的可复现 P0/P1 repository defect；CI 和 deterministic tests 覆盖 Plugin packaging、managed profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired-eval tooling。这个结论只代表仓库静态状态，不代表真实 Codex runtime 已经通过用户侧验证。
+[`HEADOFF.md`](HEADOFF.md) 是本地 Codex 接手的唯一测试合同，覆盖：
 
-静态结果无法证明真实 Codex 运行时一定按预期暴露角色、模型、sandbox、parent thread，也无法证明 Contract、Terra delta escalation 或 Sol review 在真实任务上一定降低成本或提高质量。所有仍待验证的 runtime / UX / performance 未知项都集中记录在 [`HEADOFF.md`](HEADOFF.md)。
+- 新用户 Plugin 安装和首次 profile consent；
+- 四个 semantic roles 的真实 route / sandbox / ancestry；
+- Runtime Truth 对抗矩阵；
+- Contractability 和 `JUDGMENT_REQUIRED`；
+- Shared Evidence State 的复用和依赖失效；
+- Luna 失败分类和 Terra delta escalation；
+- Luna + selective Sol 的真实收益；
+- raw prompt 对比 compiled contract 的 paired A/B；
+- useful parallelism、one-writer、fan-out、spawn/wait/close 压力测试；
+- installer migration 和真实文件系统 fault injection；
+- 远端历史分支清理。
 
-下一阶段固定为本地真实运行验证。请按 `HEADOFF.md` 完成 ChatGPT Desktop / Codex 用户侧模拟、Runtime Truth 对抗测试、Agent lifecycle 压力测试、installer fault injection 和 paired behavioral eval。正式 A/B 之前必须冻结可复现的 workload fixture，包括精确 prompt、base revision、setup、acceptance rubric、verification、route、permission 和 tool surface，再生成 `workload_definition_hash`。缺失 telemetry 保持缺失，不估算。
-
-Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍是需要真实 workload 证明的 route hypotheses。没有真实数据前，不发布成本、延迟或质量提升结论。
+Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍属于需要真实 workload 证明的 route hypotheses。没有真实数据前，不发布成本、延迟或质量提升结论。
 
 ## 文档
 
