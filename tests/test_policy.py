@@ -136,7 +136,8 @@ def test_useful_parallelism_requires_distinct_dependencies():
     skill = (SKILL_DIR / "SKILL.md").read_text()
     routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
     assert "outputs satisfy different dependencies" in skill
-    assert "Do not parallelize multiple models over the same question" in routing
+    assert "Parallel execution is useful when concurrent outputs satisfy different dependencies" in routing
+    assert "Do not launch Luna, Terra, and Sol over the same question" in routing
 
 
 def test_one_writer_and_depth_one_remain_invariants():
