@@ -1,53 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
-  <title id="title">Codex Agent Team concrete task example</title>
-  <desc id="desc">Editorial example. A payment callback concurrency issue starts in the main session, moves to Luna when bounded execution helps, adds Terra only for a real review trigger, then returns to the main session for acceptance.</desc>
-  <rect width="1200" height="680" fill="#f2ede3"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">Codex Agent Team task example</title>
+  <desc id="desc">A payment-callback concurrency issue starts with scope in the main session, moves to Luna when bounded implementation helps, adds Terra only for a real security review trigger, then returns for acceptance.</desc>
+  <rect width="1200" height="600" fill="#f7f7f5"/>
 
-  <g fill="none" stroke="#29473a" stroke-width="1" opacity="0.08">
-    <path d="M860 18 C978 52 1132 44 1198 120 C1240 170 1202 230 1128 252 C1034 282 982 246 914 302 C860 346 890 412 976 448"/>
-    <path d="M900 42 C1002 70 1118 70 1170 126 C1202 162 1174 208 1114 228 C1042 252 992 232 938 276 C898 310 918 360 982 390"/>
-    <path d="M938 70 C1018 90 1104 92 1142 134 C1168 160 1146 194 1100 210 C1046 228 1006 216 964 250 C934 276 948 314 994 338"/>
+  <line x1="60" y1="72" x2="1140" y2="72" stroke="#0a0a0a" stroke-width="1"/>
+  <text x="60" y="44" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="600" fill="#0a0a0a">TASK EXAMPLE</text>
+  <text x="1140" y="44" text-anchor="end" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#666661">PAYMENT CALLBACK · CONCURRENCY BUG</text>
+
+  <text x="60" y="136" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="400" fill="#0a0a0a">The task shape decides whether a Subagent is created.</text>
+
+  <g transform="translate(60 182)">
+    <rect x="0" y="0" width="320" height="330" fill="#002FA7"/>
+    <text x="28" y="52" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="600" fill="#ffffff">01 · SET SCOPE</text>
+    <text x="28" y="112" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="38" font-weight="500" fill="#ffffff">MAIN SESSION</text>
+    <text x="28" y="168" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">map the callback path</text>
+    <text x="28" y="212" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">mark idempotency + security</text>
+    <text x="28" y="256" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">define acceptance checks</text>
+    <text x="28" y="306" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">already small → finish here</text>
+
+    <rect x="350" y="0" width="410" height="330" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="378" y="52" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="600" fill="#0a0a0a">02 · DELEGATE IF USEFUL</text>
+    <text x="378" y="112" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="42" font-weight="500" fill="#002FA7">LUNA</text>
+    <text x="378" y="160" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#0a0a0a">trace callback → payment → order</text>
+    <text x="378" y="204" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#0a0a0a">change code · run relevant tests</text>
+    <rect x="378" y="238" width="354" height="64" fill="#efefec" stroke="#002FA7" stroke-width="2"/>
+    <text x="555" y="280" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="600" fill="#002FA7">SECURITY TRIGGER → TERRA REVIEW</text>
+
+    <rect x="790" y="0" width="350" height="330" fill="#0a0a0a"/>
+    <text x="818" y="52" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="600" fill="#bdbdb7">03 · ACCEPT</text>
+    <text x="818" y="112" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="38" font-weight="500" fill="#ffffff">MAIN SESSION</text>
+    <text x="818" y="168" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">inspect the real diff</text>
+    <text x="818" y="212" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">inspect tests + evidence</text>
+    <text x="818" y="256" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="400" fill="#ffffff">accept or keep fixing</text>
   </g>
 
-  <line x1="58" y1="72" x2="1142" y2="72" stroke="#18201a" stroke-width="1" opacity="0.5"/>
-  <text x="58" y="44" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#29473a">ONE CONCRETE TASK</text>
-  <text x="1142" y="44" text-anchor="end" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">PAYMENT CALLBACK · CONCURRENCY</text>
-
-  <text x="58" y="132" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">USER REQUEST</text>
-  <text x="58" y="192" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="34" font-weight="500" fill="#18201a">“Check the payment callback for a</text>
-  <text x="58" y="238" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="34" font-weight="500" fill="#18201a">concurrency bug, fix it, and run tests.</text>
-  <text x="58" y="284" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="34" font-weight="500" fill="#18201a">Add review if security boundaries move.”</text>
-
-  <line x1="58" y1="342" x2="530" y2="342" stroke="#18201a" stroke-width="1" opacity="0.45"/>
-  <text x="58" y="386" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="25" font-weight="500" fill="#29473a">The useful question is what the task needs.</text>
-  <text x="58" y="426" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="23" font-weight="400" fill="#4f544d">Agent count follows from that decision.</text>
-  <text x="58" y="486" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">ALREADY SMALL?</text>
-  <text x="58" y="520" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="27" font-weight="500" fill="#18201a">Stop at 01. The main session does the work.</text>
-
-  <g transform="translate(594 112)">
-    <line x1="0" y1="0" x2="548" y2="0" stroke="#18201a" stroke-width="2"/>
-
-    <text x="0" y="58" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">01</text>
-    <text x="92" y="52" font-family="Playfair Display, Georgia, serif" font-size="28" font-weight="500" fill="#18201a">Main session sets scope</text>
-    <text x="92" y="88" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#5e625c">Clarify the problem, risk, and acceptance checks.</text>
-    <line x1="0" y1="122" x2="548" y2="122" stroke="#18201a" stroke-width="1" opacity="0.28"/>
-
-    <text x="0" y="180" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">02</text>
-    <text x="92" y="174" font-family="Playfair Display, Georgia, serif" font-size="28" font-weight="500" fill="#18201a">Luna traces and implements</text>
-    <text x="92" y="210" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#5e625c">Follow the call chain, change code, run tests.</text>
-    <line x1="0" y1="244" x2="548" y2="244" stroke="#18201a" stroke-width="1" opacity="0.28"/>
-
-    <text x="0" y="302" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">03</text>
-    <text x="92" y="296" font-family="Playfair Display, Georgia, serif" font-size="28" font-weight="500" fill="#18201a">Terra joins only if triggered</text>
-    <text x="92" y="332" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#5e625c">A real security boundary earns detached review.</text>
-    <line x1="0" y1="366" x2="548" y2="366" stroke="#18201a" stroke-width="1" opacity="0.28"/>
-
-    <text x="0" y="424" font-family="Playfair Display, Georgia, serif" font-size="44" font-weight="500" fill="#29473a">04</text>
-    <text x="92" y="418" font-family="Playfair Display, Georgia, serif" font-size="28" font-weight="500" fill="#18201a">Main session accepts</text>
-    <text x="92" y="454" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="400" fill="#5e625c">Inspect the diff, tests, and evidence before accepting.</text>
-    <line x1="0" y1="488" x2="548" y2="488" stroke="#18201a" stroke-width="2"/>
-  </g>
-
-  <text x="58" y="634" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#29473a">TASK SHAPE DECIDES FLOW LENGTH · UNUSED STEPS STAY OUT</text>
-  <text x="1142" y="634" text-anchor="end" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#6d6a61">02 / EXAMPLE</text>
+  <line x1="60" y1="548" x2="1140" y2="548" stroke="#0a0a0a" stroke-width="1"/>
+  <text x="60" y="582" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="500" fill="#666661">A step stays out when its trigger is absent.</text>
 </svg>
