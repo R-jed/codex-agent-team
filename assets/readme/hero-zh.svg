@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
   <title id="title">Codex Agent Team 中文封面</title>
-  <desc id="desc">靛蓝瓷电子杂志风封面。复杂工作才委派，所有结果最终回到当前主会话验证。</desc>
+  <desc id="desc">靛蓝瓷电子杂志风封面。该分工时才分工，主会话始终负责方向、验收与最终交付。</desc>
   <rect width="1200" height="600" fill="#0a1f3d"/>
 
-  <g fill="none" stroke="#f1f3f5" stroke-width="1.15" opacity="0.14">
-    <path d="M754 34 C866 -8 1046 16 1150 116 C1228 190 1220 294 1142 352 C1064 410 960 382 900 454 C852 512 874 566 926 600"/>
-    <path d="M792 62 C892 26 1034 44 1118 126 C1180 188 1176 274 1110 324 C1044 374 966 356 916 416 C878 462 892 518 944 556"/>
-    <path d="M830 94 C914 64 1020 78 1088 144 C1134 190 1134 252 1080 294 C1026 336 970 326 930 374 C900 410 910 458 958 494"/>
-    <path d="M866 130 C934 108 1008 116 1058 164 C1092 198 1096 238 1052 272 C1012 304 974 302 944 338 C922 366 932 406 970 436"/>
+  <g fill="none" stroke="#f1f3f5" stroke-width="1.1" opacity="0.13">
+    <path d="M760 28 C876 -10 1042 20 1148 120 C1228 196 1216 294 1140 352 C1060 412 958 382 900 452 C850 512 874 568 930 600"/>
+    <path d="M800 62 C898 28 1032 48 1116 128 C1178 188 1174 270 1110 322 C1046 372 968 354 918 414 C878 462 894 518 946 556"/>
+    <path d="M840 98 C918 70 1018 82 1084 146 C1132 192 1130 250 1078 292 C1028 332 972 326 934 372 C902 410 912 458 960 494"/>
+    <path d="M876 134 C940 112 1008 120 1058 166 C1090 198 1094 238 1052 270 C1014 300 974 300 946 336 C924 364 934 404 972 434"/>
   </g>
-  <g fill="none" stroke="#f1f3f5" stroke-width="1" opacity="0.055">
+  <g fill="none" stroke="#f1f3f5" stroke-width="1" opacity="0.05">
     <circle cx="1004" cy="270" r="198"/>
     <circle cx="1004" cy="270" r="150"/>
     <circle cx="1004" cy="270" r="102"/>
@@ -18,24 +18,24 @@
   <line x1="60" y1="78" x2="1140" y2="78" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
   <line x1="60" y1="520" x2="1140" y2="520" stroke="#f1f3f5" stroke-width="1" opacity="0.38"/>
 
-  <text x="60" y="48" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.8">CODEX AGENT TEAM · 原生子代理团队</text>
-  <text x="1140" y="48" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.8">团队策略 · 第 01 期</text>
+  <text x="60" y="48" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.8">CODEX AGENT TEAM · 社区工作流插件</text>
+  <text x="1140" y="48" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.8">只在值得时组队 · 01</text>
 
-  <text x="60" y="138" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="26" font-weight="500" fill="#f1f3f5" opacity="0.74">当前主会话始终掌控任务</text>
-  <text x="52" y="284" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="102" font-weight="700" letter-spacing="-2.4" fill="#f1f3f5">CODEX</text>
-  <text x="52" y="382" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="102" font-weight="700" letter-spacing="-2.4" fill="#f1f3f5">AGENT TEAM</text>
+  <text x="60" y="142" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="25" font-weight="500" fill="#f1f3f5" opacity="0.72">你始终只面对一个主会话</text>
+  <text x="54" y="270" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="82" font-weight="700" letter-spacing="-1.5" fill="#f1f3f5">该分工时</text>
+  <text x="54" y="360" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="82" font-weight="700" letter-spacing="-1.5" fill="#f1f3f5">才分工。</text>
 
-  <text x="60" y="442" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="600" fill="#f1f3f5">复杂工作才委派，所有结果最终回到 Root 验证。</text>
-  <text x="60" y="480" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5" opacity="0.72">Luna 执行与探索 · Terra 独立复核 · Sol 仅在授权后裁决</text>
+  <text x="60" y="424" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="30" font-weight="600" fill="#f1f3f5">小任务直接做，复杂任务才交给专业子代理。</text>
+  <text x="60" y="468" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.72">Luna 执行与探索 · Terra 独立复核 · Sol 必要时裁决</text>
 
-  <g transform="translate(930 132)">
-    <text x="0" y="110" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="154" font-weight="700" fill="#f1f3f5" opacity="0.92">01</text>
-    <line x1="4" y1="140" x2="204" y2="140" stroke="#f1f3f5" stroke-width="1.5" opacity="0.7"/>
-    <text x="4" y="178" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="25" font-weight="600" fill="#f1f3f5">小团队</text>
-    <text x="4" y="214" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="25" font-weight="600" fill="#f1f3f5">明确分工</text>
-    <text x="4" y="250" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="25" font-weight="600" fill="#f1f3f5">证据优先</text>
+  <g transform="translate(930 136)">
+    <text x="0" y="104" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="150" font-weight="700" fill="#f1f3f5" opacity="0.92">01</text>
+    <line x1="4" y1="136" x2="204" y2="136" stroke="#f1f3f5" stroke-width="1.4" opacity="0.68"/>
+    <text x="4" y="176" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="25" font-weight="600" fill="#f1f3f5">主会话掌控</text>
+    <text x="4" y="214" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="25" font-weight="600" fill="#f1f3f5">最小团队</text>
+    <text x="4" y="252" font-family="Noto Serif SC, Songti SC, STSong, Georgia, serif" font-size="25" font-weight="600" fill="#f1f3f5">证据优先</text>
   </g>
 
-  <text x="60" y="562" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.72">最小团队 · 单层委派 · 单写入者 · 证据优先</text>
-  <text x="1140" y="562" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.72">当前主会话始终掌控</text>
+  <text x="60" y="562" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">原生 Subagent · 单层委派 · 单写入者 · 失败时回到主会话</text>
+  <text x="1140" y="562" text-anchor="end" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">/codex-agent-team</text>
 </svg>

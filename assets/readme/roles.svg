@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
-  <title id="title">Codex Agent Team role hierarchy</title>
-  <desc id="desc">Editorial e-ink role hierarchy. Root is the control layer, Luna is the primary execution route, Terra provides detached review, and Sol is reserved for rare consent-gated senior judgment.</desc>
+  <title id="title">Codex Agent Team roles</title>
+  <desc id="desc">Editorial role map. The main session owns direction and acceptance, Luna executes, Terra performs detached review, and Sol handles rare consent-gated high-consequence judgment.</desc>
   <rect width="1200" height="700" fill="#0a1f3d"/>
 
-  <g fill="none" stroke="#f1f3f5" stroke-width="1.05" opacity="0.09">
+  <g fill="none" stroke="#f1f3f5" stroke-width="1.05" opacity="0.085">
     <path d="M-48 210 C68 96 222 106 310 212 C370 286 350 382 270 434 C184 490 72 444 -20 548"/>
     <path d="M-12 244 C84 152 208 158 280 242 C328 300 314 372 248 414 C178 458 90 426 14 510"/>
     <path d="M26 278 C108 206 198 210 256 270 C292 310 284 358 232 390 C176 426 112 404 48 468"/>
@@ -12,40 +12,40 @@
   <line x1="56" y1="76" x2="1144" y2="76" stroke="#f1f3f5" stroke-width="1" opacity="0.34"/>
   <line x1="56" y1="632" x2="1144" y2="632" stroke="#f1f3f5" stroke-width="1" opacity="0.34"/>
 
-  <text x="56" y="48" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1.1" fill="#f1f3f5" opacity="0.72">ROLE HIERARCHY · RESPONSIBILITY BOUNDARIES</text>
-  <text x="1144" y="48" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.72">CENTRAL CONTROL · BOUNDED DELEGATION · 03 / 03</text>
+  <text x="56" y="48" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.72">ROLES · WHO OWNS WHAT</text>
+  <text x="1144" y="48" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="1" fill="#f1f3f5" opacity="0.72">MAIN SESSION CONTROL · SPECIALIST SUBAGENTS · 03 / 03</text>
 
-  <text x="56" y="140" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#f1f3f5" opacity="0.62">ACTIVE SESSION</text>
-  <text x="50" y="258" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="92" font-weight="700" letter-spacing="-2" fill="#f1f3f5">ROOT</text>
-  <text x="56" y="310" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="36" font-weight="700" fill="#f1f3f5">Control layer</text>
+  <text x="56" y="140" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.6">THE SESSION YOU ARE ALREADY USING</text>
+  <text x="50" y="246" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="72" font-weight="700" letter-spacing="-1.8" fill="#f1f3f5">MAIN SESSION</text>
+  <text x="56" y="300" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#f1f3f5">Direction, risk, acceptance, final delivery</text>
 
-  <text x="56" y="378" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">Plan the work</text>
-  <text x="56" y="420" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">Own risk and scope</text>
-  <text x="56" y="462" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">Verify evidence</text>
-  <text x="56" y="504" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="24" font-weight="500" fill="#f1f3f5">Deliver the final answer</text>
+  <text x="56" y="374" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">Understand intent and plan the work</text>
+  <text x="56" y="416" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">Own scope and high-impact decisions</text>
+  <text x="56" y="458" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">Inspect diffs, tests, and evidence</text>
+  <text x="56" y="500" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="23" font-weight="500" fill="#f1f3f5">Accept the result and answer the user</text>
 
   <line x1="436" y1="116" x2="436" y2="588" stroke="#f1f3f5" stroke-width="1" opacity="0.26"/>
 
   <rect x="478" y="118" width="666" height="172" fill="#f1f3f5"/>
   <text x="510" y="178" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="54" font-weight="700" fill="#0a1f3d">LUNA</text>
-  <text x="510" y="226" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Primary execution route</text>
-  <text x="816" y="176" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" fill="#0a1f3d" opacity="0.68">GPT-5.6 · MAX</text>
+  <text x="510" y="226" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a1f3d">Executor</text>
+  <text x="816" y="176" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#0a1f3d" opacity="0.68">GPT-5.6 · MAX</text>
   <text x="816" y="220" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#0a1f3d">Search · implement · debug · test</text>
-  <text x="510" y="266" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#0a1f3d" opacity="0.7">Heavy execution and exploration inside a bounded task.</text>
+  <text x="510" y="266" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="500" fill="#0a1f3d" opacity="0.7">Primary execution when context is heavy or scope is clear.</text>
 
   <line x1="478" y1="332" x2="1144" y2="332" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="392" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="47" font-weight="700" fill="#f1f3f5">TERRA</text>
-  <text x="478" y="438" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="29" font-weight="700" fill="#f1f3f5">Independent review</text>
-  <text x="816" y="388" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · XHIGH</text>
-  <text x="816" y="430" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.82">Conflicting evidence · key assumptions</text>
-  <text x="816" y="462" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.82">Detached verification</text>
+  <text x="478" y="438" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="29" font-weight="700" fill="#f1f3f5">Reviewer</text>
+  <text x="816" y="388" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · XHIGH</text>
+  <text x="816" y="430" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.82">Risky changes · conflicting evidence</text>
+  <text x="816" y="462" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.82">Detached verification from a fresh perspective</text>
 
   <line x1="478" y1="486" x2="1144" y2="486" stroke="#f1f3f5" stroke-width="1" opacity="0.32"/>
   <text x="478" y="546" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="43" font-weight="700" fill="#f1f3f5">SOL</text>
-  <text x="478" y="588" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="27" font-weight="700" fill="#f1f3f5">Consent-gated judgment</text>
-  <text x="816" y="542" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · HIGH</text>
-  <text x="816" y="582" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="500" fill="#f1f3f5" opacity="0.82">Rare high-consequence decisions · explicit consent required</text>
+  <text x="478" y="588" font-family="Playfair Display, Georgia, Times New Roman, serif" font-size="27" font-weight="700" fill="#f1f3f5">Judge</text>
+  <text x="816" y="542" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.66">GPT-5.6 · HIGH</text>
+  <text x="816" y="582" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="500" fill="#f1f3f5" opacity="0.82">Rare high-consequence disputes · explicit consent required</text>
 
-  <text x="56" y="674" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">The Skill never silently switches the active Root model or reasoning effort.</text>
+  <text x="56" y="674" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.72">Subagents own bounded work. The main session owns the final decision.</text>
   <text x="1144" y="674" text-anchor="end" font-family="IBM Plex Mono, SFMono-Regular, Menlo, monospace" font-size="20" font-weight="600" fill="#f1f3f5" opacity="0.62">BOUNDED DELEGATION</text>
 </svg>

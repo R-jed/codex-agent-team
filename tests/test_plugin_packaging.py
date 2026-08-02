@@ -49,7 +49,10 @@ def test_main_skill_owns_first_run_profile_setup_and_receipts():
     assert "codex-agent-team-setup" not in text
     assert "references/orchestration-receipt.md" in text
     receipt = (MAIN_SKILL / "references" / "orchestration-receipt.md").read_text()
-    assert "Agent Team: Root only" in receipt
+    assert "/codex-agent-team" in receipt
+    assert "$codex-agent-team" not in receipt
+    assert "Agent Team: Main session only" in receipt
+    assert "Root only" not in receipt
     assert "Do not claim runtime evidence that was not observed" in receipt
 
 
@@ -70,4 +73,4 @@ def test_readmes_expose_plugin_only_single_command_path():
         assert "codex-agent-team-setup" not in text
         assert "python scripts/install.py" not in text
         assert "--skill-only" not in text
-        assert "Agent Team: Root only" in text
+        assert "Agent Team: Main session only" in text

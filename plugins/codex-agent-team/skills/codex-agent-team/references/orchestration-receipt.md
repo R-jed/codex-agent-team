@@ -4,18 +4,20 @@ The receipt makes Agent Team decisions visible without turning normal coding int
 
 Emit a receipt when any of these are true:
 
-- the user explicitly invoked `$codex-agent-team`;
+- the user explicitly invoked `/codex-agent-team`;
 - at least one child Agent was created;
 - a Review Gate, Consent Gate, route failure, or runtime-evidence decision materially changed execution.
 
-For an implicit invocation that stays Root-only on a trivial isolated task, omit the receipt unless the user asks for orchestration details.
+For an implicit invocation that stays in the main session on a trivial isolated task, omit the receipt unless the user asks for orchestration details.
 
 Keep the receipt compact. Report only facts established during the task.
 
-## Root-only example
+Use **main session** in user-visible copy. `Root` and `Root Controller` remain internal architecture terms and should not be required vocabulary for ordinary users.
+
+## Main-session-only example
 
 ```text
-Agent Team: Root only
+Agent Team: Main session only
 Why: change already isolated; delegation had no concrete benefit
 Verification: 12 tests passed
 ```
