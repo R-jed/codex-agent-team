@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Install Codex Agent Team and its locked Agent profiles safely.
-
-The installer validates shipped sources and destination conflicts before mutation.
-It records hashes of package-managed artifacts so future releases can upgrade files
-that are still unchanged from the previous managed install while refusing to overwrite
-user modifications. `--check` is strictly non-mutating.
-"""
+"""Install the canonical Codex Agent Team Skill and role-pinned Agent profiles safely."""
 
 from __future__ import annotations
 
@@ -21,8 +15,9 @@ from typing import NoReturn
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_SOURCE = ROOT / "skill" / "codex-agent-team"
-PROFILE_SOURCE = ROOT / "examples" / "agents"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+SKILL_SOURCE = PLUGIN_ROOT / "skills" / "codex-agent-team"
+PROFILE_SOURCE = PLUGIN_ROOT / "agent-profiles"
 PROFILE_FILES = (
     "luna-explorer.toml",
     "luna-worker.toml",
@@ -40,9 +35,7 @@ MANIFEST_SCHEMA = 1
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Install Codex Agent Team into a Codex home directory."
-    )
+    parser = argparse.ArgumentParser(description="Install Codex Agent Team into Codex home.")
     parser.add_argument(
         "--codex-home",
         type=Path,
@@ -63,8 +56,8 @@ def parse_args() -> argparse.Namespace:
         "--adopt-legacy-install",
         action="store_true",
         help=(
-            "Explicitly allow one migration of a pre-manifest installed Skill that differs "
-            "from the current package. Use only after confirming local Skill edits may be replaced."
+            "Explicitly allow one migration of a differing pre-manifest Skill after "
+            "confirming local Skill edits may be replaced."
         ),
     )
     return parser.parse_args()
@@ -82,49 +75,9 @@ def file_hash(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
 
 
-def validate_source_tree(root: Path) -> None:
-    if root.is_symlink() or not root.is_dir():
-        fail(f"Skill source must be a real directory: {root}")
-    for path in root.rglob("*"):
-        if path.is_symlink():
-            fail(f"Refusing symlink in shipped Skill source: {path}")
-        if not path.is_file() and not path.is_dir():
-            fail(f"Refusing unsupported entry in shipped Skill source: {path}")
-
-
-def profile_data(path: Path) -> dict:
-    if path.is_symlink() or not path.is_file():
-        fail(f"Agent profile must be a regular non-symlink file: {path}")
-    try:
-        return tomllib.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, tomllib.TOMLDecodeError) as exc:
-        fail(f"Invalid Agent profile {path}: {exc}")
-
-
-def validate_sources() -> None:
-    validate_source_tree(SKILL_SOURCE)
-    seen_names: set[str] = set()
-    for filename, expected in EXPECTED_PROFILES.items():
-        data = profile_data(PROFILE_SOURCE / filename)
-        actual = (
-            str(data.get("name", "")).strip(),
-            str(data.get("model", "")).strip(),
-            str(data.get("model_reasoning_effort", "")).strip(),
-        )
-        if actual != expected:
-            fail(f"Agent profile {filename} pins {actual!r}; expected {expected!r}")
-        if not str(data.get("description", "")).strip():
-            fail(f"Agent profile has no description: {filename}")
-        if not str(data.get("developer_instructions", "")).strip():
-            fail(f"Agent profile has no developer_instructions: {filename}")
-        if expected[0] in seen_names:
-            fail(f"Duplicate shipped Agent role name: {expected[0]}")
-        seen_names.add(expected[0])
-
-
 def tree_snapshot(root: Path) -> dict[str, str]:
     if root.is_symlink() or not root.is_dir():
-        fail(f"Expected a real Skill directory: {root}")
+        fail(f"Expected a real directory: {root}")
     snapshot: dict[str, str] = {}
     for path in sorted(root.rglob("*")):
         if path.is_symlink():
@@ -142,8 +95,37 @@ def tree_hash(root: Path) -> str:
     return sha256_bytes(encoded)
 
 
-def skill_is_exact(target_skill: Path) -> bool:
-    return tree_snapshot(SKILL_SOURCE) == tree_snapshot(target_skill)
+def skill_is_exact(target: Path) -> bool:
+    return target.is_dir() and not target.is_symlink() and tree_snapshot(target) == tree_snapshot(SKILL_SOURCE)
+
+
+def validate_sources() -> None:
+    if PLUGIN_ROOT.is_symlink() or not PLUGIN_ROOT.is_dir():
+        fail(f"Plugin package is missing or unsafe: {PLUGIN_ROOT}")
+    tree_snapshot(SKILL_SOURCE)
+    seen: set[str] = set()
+    for filename, expected in EXPECTED_PROFILES.items():
+        path = PROFILE_SOURCE / filename
+        if path.is_symlink() or not path.is_file():
+            fail(f"Agent profile must be a regular non-symlink file: {path}")
+        try:
+            data = tomllib.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, tomllib.TOMLDecodeError) as exc:
+            fail(f"Invalid Agent profile {path}: {exc}")
+        actual = (
+            str(data.get("name", "")).strip(),
+            str(data.get("model", "")).strip(),
+            str(data.get("model_reasoning_effort", "")).strip(),
+        )
+        if actual != expected:
+            fail(f"Agent profile {filename} pins {actual!r}; expected {expected!r}")
+        if not str(data.get("description", "")).strip():
+            fail(f"Agent profile has no description: {filename}")
+        if not str(data.get("developer_instructions", "")).strip():
+            fail(f"Agent profile has no developer_instructions: {filename}")
+        if expected[0] in seen:
+            fail(f"Duplicate shipped Agent role name: {expected[0]}")
+        seen.add(expected[0])
 
 
 def desired_manifest(skill_only: bool) -> dict:
@@ -154,7 +136,7 @@ def desired_manifest(skill_only: bool) -> dict:
         "profile_hashes": (
             {}
             if skill_only
-            else {filename: file_hash(PROFILE_SOURCE / filename) for filename in PROFILE_FILES}
+            else {name: file_hash(PROFILE_SOURCE / name) for name in PROFILE_FILES}
         ),
     }
 
@@ -167,14 +149,14 @@ def load_manifest(path: Path) -> dict | None:
     if not path.is_file():
         fail(f"Install manifest is not a regular file: {path}")
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         fail(f"Invalid install manifest {path}: {exc}")
-    if not isinstance(data, dict) or data.get("schema_version") != MANIFEST_SCHEMA:
+    if not isinstance(payload, dict) or payload.get("schema_version") != MANIFEST_SCHEMA:
         fail(f"Unsupported install manifest: {path}")
-    if not isinstance(data.get("profile_hashes", {}), dict):
+    if not isinstance(payload.get("profile_hashes", {}), dict):
         fail(f"Invalid profile hashes in install manifest: {path}")
-    return data
+    return payload
 
 
 def preflight_parent(path: Path) -> None:
@@ -185,77 +167,73 @@ def preflight_parent(path: Path) -> None:
 
 
 def preflight_skill(
-    target_skill: Path,
+    target: Path,
     *,
     check_only: bool,
     manifest: dict | None,
-    adopt_legacy_install: bool,
-) -> None:
-    if target_skill.is_symlink():
-        fail(f"Refusing symlinked installed Skill: {target_skill}")
-    if not target_skill.exists():
-        return
-    if not target_skill.is_dir():
-        fail(f"Installed Skill path is not a directory: {target_skill}")
-    if skill_is_exact(target_skill):
-        return
+    adopt_legacy: bool,
+) -> bool:
+    """Return whether the existing Skill may be replaced."""
+    if target.is_symlink():
+        fail(f"Refusing symlinked installed Skill: {target}")
+    if not target.exists():
+        if check_only:
+            fail(f"Installed Skill is missing: {target}")
+        return True
+    if not target.is_dir():
+        fail(f"Installed Skill path is not a directory: {target}")
+    if skill_is_exact(target):
+        return False
     if check_only:
-        fail(f"Installed Skill does not exactly match shipped source: {target_skill}")
-
-    actual_hash = tree_hash(target_skill)
+        fail(f"Installed Skill does not exactly match shipped source: {target}")
+    actual = tree_hash(target)
     if manifest is None:
-        if adopt_legacy_install:
-            return
+        if adopt_legacy:
+            return True
         fail(
             "Refusing to overwrite a differing pre-manifest Skill because prior package ownership "
             "cannot be proven. Review local edits, then rerun with --adopt-legacy-install only if "
-            f"the current package may replace that Skill: {target_skill}"
+            f"the current package may replace that Skill: {target}"
         )
-    previous_managed_hash = manifest.get("skill_hash")
-    if previous_managed_hash == actual_hash:
-        return
+    if manifest.get("skill_hash") == actual:
+        return True
     fail(
         "Refusing to overwrite an installed Skill that differs from the current package "
-        f"and is not proven unchanged from the previous managed install: {target_skill}"
+        f"and is not proven unchanged from the previous managed install: {target}"
     )
 
 
 def preflight_profiles(
     agents_dir: Path, *, check_only: bool, manifest: dict | None
 ) -> set[str]:
-    desired_by_name = {
-        EXPECTED_PROFILES[filename][0]: PROFILE_SOURCE / filename
-        for filename in PROFILE_FILES
-    }
-    managed_upgrades: set[str] = set()
-
+    upgrades: set[str] = set()
     if not agents_dir.exists():
         if check_only:
             fail(f"Required agents directory is missing: {agents_dir}")
-        return managed_upgrades
-
+        return upgrades
     old_hashes = (manifest or {}).get("profile_hashes", {})
     for filename in PROFILE_FILES:
-        source = PROFILE_SOURCE / filename
         target = agents_dir / filename
+        source = PROFILE_SOURCE / filename
         if target.is_symlink():
             fail(f"Refusing symlinked Agent profile destination: {target}")
-        if target.exists():
-            if not target.is_file():
-                fail(f"Agent profile destination is not a regular file: {target}")
-            if target.read_bytes() != source.read_bytes():
-                actual_hash = file_hash(target)
-                previous_managed_hash = old_hashes.get(filename)
-                if not check_only and previous_managed_hash == actual_hash:
-                    managed_upgrades.add(filename)
-                else:
-                    fail(
-                        "Refusing to overwrite an Agent profile that differs from the current "
-                        f"package and is not proven unchanged from the previous managed install: {target}"
-                    )
-        elif check_only:
-            fail(f"Required installed Agent profile is missing: {target}")
+        if not target.exists():
+            if check_only:
+                fail(f"Required installed Agent profile is missing: {target}")
+            continue
+        if not target.is_file():
+            fail(f"Agent profile destination is not a regular file: {target}")
+        if target.read_bytes() == source.read_bytes():
+            continue
+        if not check_only and old_hashes.get(filename) == file_hash(target):
+            upgrades.add(filename)
+            continue
+        fail(
+            "Refusing to overwrite an Agent profile that differs from the current package "
+            f"and is not proven unchanged from the previous managed install: {target}"
+        )
 
+    reserved = {values[0] for values in EXPECTED_PROFILES.values()}
     for existing in agents_dir.glob("*.toml"):
         if existing.name in PROFILE_FILES or existing.is_symlink() or not existing.is_file():
             continue
@@ -263,55 +241,18 @@ def preflight_profiles(
             data = tomllib.loads(existing.read_text(encoding="utf-8"))
         except (OSError, UnicodeError, tomllib.TOMLDecodeError):
             continue
-        existing_name = str(data.get("name", "")).strip()
-        if existing_name in desired_by_name:
+        role = str(data.get("name", "")).strip()
+        if role in reserved:
             fail(
                 "Refusing to install because another Agent file uses the reserved role name "
-                f"{existing_name!r}: {existing}"
+                f"{role!r}: {existing}"
             )
-    return managed_upgrades
+    return upgrades
 
 
-def verify_installed(
-    target_skill: Path, agents_dir: Path, manifest_path: Path, skill_only: bool
-) -> None:
-    if not target_skill.exists():
-        fail(f"Installed Skill is missing: {target_skill}")
-    if not skill_is_exact(target_skill):
-        fail(f"Installed Skill does not exactly match shipped source: {target_skill}")
-
-    if not skill_only:
-        for filename in PROFILE_FILES:
-            source = PROFILE_SOURCE / filename
-            target = agents_dir / filename
-            if target.is_symlink() or not target.is_file():
-                fail(f"Installed Agent profile is missing or unsafe: {target}")
-            if target.read_bytes() != source.read_bytes():
-                fail(f"Installed Agent profile differs from shipped template: {target}")
-
-    manifest = load_manifest(manifest_path)
-    if manifest is None:
-        fail(f"Managed install manifest is missing: {manifest_path}")
-    if manifest != desired_manifest(skill_only):
-        fail(f"Managed install manifest does not match installed artifacts: {manifest_path}")
-
-
-def stage_skill(skills_dir: Path) -> tuple[Path, Path]:
-    stage_root = Path(tempfile.mkdtemp(prefix=".codex-agent-team-stage-", dir=skills_dir))
-    staged_skill = stage_root / "codex-agent-team"
-    try:
-        shutil.copytree(SKILL_SOURCE, staged_skill)
-        if not skill_is_exact(staged_skill):
-            fail("Staged Skill failed exactness verification")
-    except BaseException:
-        shutil.rmtree(stage_root, ignore_errors=True)
-        raise
-    return stage_root, staged_skill
-
-
-def stage_file(directory: Path, data: bytes, prefix: str) -> Path:
-    fd, staged_name = tempfile.mkstemp(prefix=prefix, dir=directory)
-    staged = Path(staged_name)
+def stage_bytes(directory: Path, data: bytes, prefix: str) -> Path:
+    fd, name = tempfile.mkstemp(prefix=prefix, dir=directory)
+    staged = Path(name)
     with os.fdopen(fd, "wb") as handle:
         handle.write(data)
         handle.flush()
@@ -319,87 +260,35 @@ def stage_file(directory: Path, data: bytes, prefix: str) -> Path:
     return staged
 
 
-def install_profiles(
-    agents_dir: Path, managed_upgrades: set[str]
-) -> tuple[list[Path], dict[Path, Path]]:
-    created: list[Path] = []
-    backups: dict[Path, Path] = {}
-    for filename in PROFILE_FILES:
-        source = PROFILE_SOURCE / filename
-        destination = agents_dir / filename
-        if destination.exists() and filename not in managed_upgrades:
-            continue
-        staged = stage_file(agents_dir, source.read_bytes(), ".codex-agent-profile-")
-        try:
-            if destination.exists():
-                backup = agents_dir / f".{filename}.backup-{uuid.uuid4().hex}"
-                destination.rename(backup)
-                backups[destination] = backup
-            staged.rename(destination)
-            if destination not in backups:
-                created.append(destination)
-        except BaseException:
-            staged.unlink(missing_ok=True)
-            raise
-    return created, backups
-
-
-def rollback_profiles(created: list[Path], backups: dict[Path, Path]) -> list[str]:
-    errors: list[str] = []
-    for path in reversed(created):
-        try:
-            path.unlink(missing_ok=True)
-        except OSError as exc:
-            errors.append(f"could not remove created profile {path}: {exc}")
-    for destination, backup in reversed(list(backups.items())):
-        try:
-            destination.unlink(missing_ok=True)
-            backup.rename(destination)
-        except OSError as exc:
-            errors.append(f"could not restore profile {destination}: {exc}")
-    return errors
-
-
-def discard_profile_backups(backups: dict[Path, Path]) -> None:
-    for backup in backups.values():
-        backup.unlink(missing_ok=True)
-
-
-def write_bytes_atomically(path: Path, data: bytes, prefix: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    staged = stage_file(path.parent, data, prefix)
+def write_manifest(path: Path, payload: dict) -> None:
+    data = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
+    staged = stage_bytes(path.parent, data, ".codex-agent-team-manifest-")
     try:
         os.replace(staged, path)
     finally:
         staged.unlink(missing_ok=True)
 
 
-def write_manifest(path: Path, payload: dict) -> None:
-    write_bytes_atomically(
-        path,
-        (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode(),
-        ".codex-agent-team-manifest-",
-    )
+def verify_installed(target_skill: Path, agents_dir: Path, manifest_path: Path, skill_only: bool) -> None:
+    if not skill_is_exact(target_skill):
+        fail(f"Installed Skill does not exactly match shipped source: {target_skill}")
+    if not skill_only:
+        for filename in PROFILE_FILES:
+            target = agents_dir / filename
+            source = PROFILE_SOURCE / filename
+            if target.is_symlink() or not target.is_file():
+                fail(f"Installed Agent profile is missing or unsafe: {target}")
+            if target.read_bytes() != source.read_bytes():
+                fail(f"Installed Agent profile differs from shipped template: {target}")
+    manifest = load_manifest(manifest_path)
+    if manifest is None:
+        fail(f"Managed install manifest is missing: {manifest_path}")
+    if manifest != desired_manifest(skill_only):
+        fail(f"Managed install manifest does not match installed artifacts: {manifest_path}")
 
 
-def restore_manifest(path: Path, previous: bytes | None) -> list[str]:
-    try:
-        if previous is None:
-            path.unlink(missing_ok=True)
-        else:
-            write_bytes_atomically(path, previous, ".codex-agent-team-manifest-restore-")
-    except OSError as exc:
-        return [f"could not restore install manifest {path}: {exc}"]
-    return []
-
-
-def install(
-    codex_home: Path,
-    skill_only: bool,
-    check_only: bool,
-    adopt_legacy_install: bool,
-) -> None:
-    if check_only and adopt_legacy_install:
+def install(codex_home: Path, skill_only: bool, check_only: bool, adopt_legacy: bool) -> None:
+    if check_only and adopt_legacy:
         fail("--adopt-legacy-install cannot be combined with --check")
 
     codex_home = codex_home.expanduser().resolve()
@@ -410,21 +299,20 @@ def install(
 
     validate_sources()
     manifest = load_manifest(manifest_path)
-    previous_manifest_bytes = manifest_path.read_bytes() if manifest_path.is_file() else None
     preflight_parent(skills_dir)
     if not skill_only:
         preflight_parent(agents_dir)
-    preflight_skill(
+    replace_skill = preflight_skill(
         target_skill,
         check_only=check_only,
         manifest=manifest,
-        adopt_legacy_install=adopt_legacy_install,
+        adopt_legacy=adopt_legacy,
     )
-    managed_upgrades: set[str] = set()
-    if not skill_only:
-        managed_upgrades = preflight_profiles(
-            agents_dir, check_only=check_only, manifest=manifest
-        )
+    profile_upgrades = (
+        set()
+        if skill_only
+        else preflight_profiles(agents_dir, check_only=check_only, manifest=manifest)
+    )
 
     if check_only:
         if not skills_dir.is_dir():
@@ -433,15 +321,17 @@ def install(
         print("CHECK PASSED: installed Codex Agent Team matches managed artifacts exactly.")
         return
 
-    skill_already_exact = target_skill.exists() and skill_is_exact(target_skill)
-    manifest_already_exact = manifest == desired_manifest(skill_only)
-    profiles_already_exact = skill_only or all(
-        (agents_dir / filename).is_file()
-        and not (agents_dir / filename).is_symlink()
-        and (agents_dir / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
-        for filename in PROFILE_FILES
+    desired = desired_manifest(skill_only)
+    profiles_exact = skill_only or (
+        agents_dir.is_dir()
+        and all(
+            (agents_dir / filename).is_file()
+            and not (agents_dir / filename).is_symlink()
+            and (agents_dir / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
+            for filename in PROFILE_FILES
+        )
     )
-    if skill_already_exact and profiles_already_exact and manifest_already_exact:
+    if not replace_skill and profiles_exact and manifest == desired:
         print("Already installed exactly; no changes made.")
         return
 
@@ -450,63 +340,88 @@ def install(
     if not skill_only:
         agents_dir.mkdir(parents=True, exist_ok=True)
 
-    stage_root: Path | None = None
-    staged_skill: Path | None = None
-    if not skill_already_exact:
-        stage_root, staged_skill = stage_skill(skills_dir)
-
-    created_profiles: list[Path] = []
-    profile_backups: dict[Path, Path] = {}
+    previous_manifest = manifest_path.read_bytes() if manifest_path.is_file() else None
     skill_backup: Path | None = None
-    installed_new_skill = not target_skill.exists()
+    profile_backups: dict[Path, Path] = {}
+    created_profiles: list[Path] = []
+    new_skill = not target_skill.exists()
+    staged_skill_root: Path | None = None
 
     try:
-        if not skill_only:
-            created_profiles, profile_backups = install_profiles(agents_dir, managed_upgrades)
-
-        if not skill_already_exact:
-            assert staged_skill is not None
+        if replace_skill:
+            staged_skill_root = Path(tempfile.mkdtemp(prefix=".codex-agent-team-stage-", dir=skills_dir))
+            staged_skill = staged_skill_root / "codex-agent-team"
+            shutil.copytree(SKILL_SOURCE, staged_skill)
+            if not skill_is_exact(staged_skill):
+                fail("Staged Skill failed exactness verification")
             if target_skill.exists():
                 skill_backup = skills_dir / f".codex-agent-team-backup-{uuid.uuid4().hex}"
                 target_skill.rename(skill_backup)
             staged_skill.rename(target_skill)
 
-        if not skill_is_exact(target_skill):
-            fail("Installed Skill failed exactness verification")
         if not skill_only:
             for filename in PROFILE_FILES:
-                if (agents_dir / filename).read_bytes() != (PROFILE_SOURCE / filename).read_bytes():
-                    fail(f"Installed profile failed exactness verification: {filename}")
+                source = PROFILE_SOURCE / filename
+                target = agents_dir / filename
+                if target.exists() and filename not in profile_upgrades:
+                    continue
+                staged = stage_bytes(agents_dir, source.read_bytes(), ".codex-agent-profile-")
+                try:
+                    if target.exists():
+                        backup = agents_dir / f".{filename}.backup-{uuid.uuid4().hex}"
+                        target.rename(backup)
+                        profile_backups[target] = backup
+                    staged.rename(target)
+                    if target not in profile_backups:
+                        created_profiles.append(target)
+                finally:
+                    staged.unlink(missing_ok=True)
 
-        write_manifest(manifest_path, desired_manifest(skill_only))
+        write_manifest(manifest_path, desired)
         verify_installed(target_skill, agents_dir, manifest_path, skill_only)
     except BaseException as exc:
-        rollback_errors = rollback_profiles(created_profiles, profile_backups)
-        if skill_backup is not None and skill_backup.exists():
+        rollback_errors: list[str] = []
+        for path in reversed(created_profiles):
             try:
+                path.unlink(missing_ok=True)
+            except OSError as rollback_exc:
+                rollback_errors.append(f"could not remove created profile {path}: {rollback_exc}")
+        for target, backup in reversed(list(profile_backups.items())):
+            try:
+                target.unlink(missing_ok=True)
+                backup.rename(target)
+            except OSError as rollback_exc:
+                rollback_errors.append(f"could not restore profile {target}: {rollback_exc}")
+        try:
+            if skill_backup is not None and skill_backup.exists():
                 shutil.rmtree(target_skill, ignore_errors=True)
                 skill_backup.rename(target_skill)
-            except OSError as rollback_exc:
-                rollback_errors.append(f"could not restore Skill: {rollback_exc}")
-        elif installed_new_skill:
-            try:
+            elif new_skill:
                 shutil.rmtree(target_skill, ignore_errors=True)
-            except OSError as rollback_exc:
-                rollback_errors.append(f"could not remove new Skill: {rollback_exc}")
-        rollback_errors.extend(restore_manifest(manifest_path, previous_manifest_bytes))
+        except OSError as rollback_exc:
+            rollback_errors.append(f"could not restore Skill: {rollback_exc}")
+        try:
+            if previous_manifest is None:
+                manifest_path.unlink(missing_ok=True)
+            else:
+                staged = stage_bytes(codex_home, previous_manifest, ".codex-agent-team-manifest-restore-")
+                try:
+                    os.replace(staged, manifest_path)
+                finally:
+                    staged.unlink(missing_ok=True)
+        except OSError as rollback_exc:
+            rollback_errors.append(f"could not restore install manifest: {rollback_exc}")
         if rollback_errors:
-            fail(
-                f"INSTALL FAILED: {exc}\nROLLBACK INCOMPLETE:\n- "
-                + "\n- ".join(rollback_errors)
-            )
+            fail(f"INSTALL FAILED: {exc}\nROLLBACK INCOMPLETE:\n- " + "\n- ".join(rollback_errors))
         raise
     else:
-        discard_profile_backups(profile_backups)
+        for backup in profile_backups.values():
+            backup.unlink(missing_ok=True)
         if skill_backup is not None:
             shutil.rmtree(skill_backup, ignore_errors=True)
     finally:
-        if stage_root is not None:
-            shutil.rmtree(stage_root, ignore_errors=True)
+        if staged_skill_root is not None:
+            shutil.rmtree(staged_skill_root, ignore_errors=True)
 
     print(f"Installed Skill: {target_skill}")
     print(f"Managed manifest: {manifest_path}")
@@ -522,12 +437,7 @@ def install(
 
 def main() -> None:
     args = parse_args()
-    install(
-        args.codex_home,
-        args.skill_only,
-        args.check,
-        args.adopt_legacy_install,
-    )
+    install(args.codex_home, args.skill_only, args.check, args.adopt_legacy_install)
 
 
 if __name__ == "__main__":
