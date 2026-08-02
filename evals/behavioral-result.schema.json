@@ -4,7 +4,7 @@
   "type": "object",
   "required": ["schema_version", "suite", "runtime", "runs"],
   "properties": {
-    "schema_version": {"const": "1.0"},
+    "schema_version": {"const": "2.0"},
     "suite": {"const": "codex-agent-team-live-behavior"},
     "runtime": {
       "type": "object",
@@ -12,8 +12,7 @@
       "properties": {
         "codex_version": {"type": "string", "minLength": 1},
         "date": {"type": "string", "minLength": 1},
-        "platform": {"type": ["string", "null"]},
-        "root_model": {"type": ["string", "null"]}
+        "platform": {"type": ["string", "null"]}
       },
       "additionalProperties": true
     },
@@ -21,23 +20,60 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["workload_id", "mode", "success", "agent_count", "roles", "decision"],
+        "required": [
+          "workload_id",
+          "mode",
+          "pair_id",
+          "repeat_index",
+          "repo_revision",
+          "success",
+          "agent_count",
+          "roles",
+          "decision"
+        ],
         "properties": {
           "workload_id": {"type": "string", "minLength": 1},
-          "mode": {"enum": ["root_only", "agent_team", "external_baseline"]},
+          "mode": {
+            "enum": [
+              "main_session_only",
+              "raw_prompt_luna",
+              "contract_luna",
+              "contract_luna_selective_sol",
+              "contract_delta_terra",
+              "external_baseline"
+            ]
+          },
+          "pair_id": {"type": "string", "minLength": 1},
+          "repeat_index": {"type": "integer", "minimum": 1},
+          "repo_revision": {"type": "string", "minLength": 1},
+          "main_session_route": {"type": ["string", "null"]},
+          "worker_route": {"type": ["string", "null"]},
           "success": {"type": "boolean"},
+          "acceptance_score": {"type": ["number", "null"], "minimum": 0},
           "decision": {"type": "string"},
           "agent_count": {"type": "integer", "minimum": 0},
           "roles": {"type": "array", "items": {"type": "string"}},
           "route_evidence_grade": {"type": ["string", "null"]},
           "policy_violations": {"type": "array", "items": {"type": "string"}},
+          "scope_violations": {"type": "integer", "minimum": 0},
+          "wrong_edits": {"type": "integer", "minimum": 0},
+          "regressions": {"type": "integer", "minimum": 0},
+          "correction_turns": {"type": "integer", "minimum": 0},
+          "main_session_correction_tokens": {"type": ["integer", "null"], "minimum": 0},
+          "main_session_correction_ms": {"type": ["integer", "null"], "minimum": 0},
           "review_findings": {"type": "integer", "minimum": 0},
           "review_caught_material_issue": {"type": ["boolean", "null"]},
+          "review_false_positives": {"type": "integer", "minimum": 0},
           "consent_prompts": {"type": "integer", "minimum": 0},
           "input_tokens": {"type": ["integer", "null"], "minimum": 0},
           "output_tokens": {"type": ["integer", "null"], "minimum": 0},
           "reasoning_tokens": {"type": ["integer", "null"], "minimum": 0},
           "latency_ms": {"type": ["integer", "null"], "minimum": 0},
+          "evidence_established": {"type": "integer", "minimum": 0},
+          "evidence_invalidated": {"type": "integer", "minimum": 0},
+          "unjustified_repeated_commands": {"type": "integer", "minimum": 0},
+          "unjustified_repeated_discovery": {"type": "integer", "minimum": 0},
+          "duplicate_dependency_calls": {"type": "integer", "minimum": 0},
           "notes": {"type": ["string", "null"]}
         },
         "additionalProperties": true

@@ -1,75 +1,67 @@
 # Model Route Assurance
 
-Codex Agent Team uses model-specific Subagents only when it can establish a concrete configuration-assurance path for both model and reasoning effort. Post-spawn evidence is a separate layer.
+Codex Agent Team uses model-specific Subagents only through its namespaced custom-Agent profiles. Route policy is separate from semantic responsibility, and post-spawn runtime evidence is a separate layer again.
 
 ## Why this exists
 
-A routing table that says “Luna Max” is useful only if the native runtime can accept a route to `gpt-5.6-luna` with `max` reasoning. The Skill therefore separates four facts:
+Keep three configuration facts distinct:
 
 ```text
-preferred_route   what policy wants
-configured_route  what the accepted native configuration path targets
-route_assurance   why that configuration is trusted
-observed_route    what post-spawn evidence actually reports or records
+preferred_route
+configured_route
+route_assurance
 ```
 
-A configuration-level assured route never becomes observed telemetry merely because spawn succeeded.
+Runtime observation is recorded separately in typed evidence objects.
 
-## Primary assurance path: Profile Locked
+A role name such as `codex_agent_team_worker` describes responsibility. Its current route may change in a future version without changing the role contract.
 
-The supported Plugin workflow provisions role-pinned custom Agent profiles on first use. A profile pins model and reasoning effort:
+## Supported route path: Profile Locked
 
-```toml
-name = "luna_worker"
-model = "gpt-5.6-luna"
-model_reasoning_effort = "max"
+The Plugin provisions four custom Agent profiles:
+
+```text
+codex_agent_team_reader        -> gpt-5.6-luna / max
+codex_agent_team_worker        -> gpt-5.6-luna / max
+codex_agent_team_investigator  -> gpt-5.6-terra / xhigh
+codex_agent_team_advisor       -> gpt-5.6-sol / high
 ```
 
-When the live `spawn_agent` surface exposes `agent_type` and live role guidance confirms the exact lock, record:
+When live role guidance exposes the exact required project role with its expected lock, record:
 
 ```text
 route_assurance = profile_locked
 ```
 
-`profile_locked` is the stable policy identifier for a configuration lock. It does not mean the child route has been independently observed after spawn.
+The spawn supplies the semantic `agent_type` and explicit `fork_turns`; the profile owns model and reasoning effort.
 
-Profile Mode omits competing explicit `model` and `reasoning_effort` fields.
-
-The normal Plugin path requires these project roles:
+Example:
 
 ```text
-luna_explorer
-luna_worker
-terra_reviewer
-sol_judge
-```
-
-If they are missing, `/codex-agent-team` performs the managed first-run readiness flow. Missing profiles never trigger an automatic route substitution.
-
-## Internal compatibility path: Native Explicit Validated
-
-`native_explicit_validated` remains an internal compatibility concept for environments that explicitly require profile-free operation. It is not a public installation mode and it is never an automatic fallback for missing project profiles.
-
-When the live `spawn_agent` surface exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`, an explicit compatibility route can request:
-
-```text
-agent_type = worker
-model = gpt-5.6-luna
-reasoning_effort = max
+agent_type = codex_agent_team_worker
 fork_turns = none
 ```
 
-The Skill also checks live role guidance because user-defined roles can shadow built-in names. After the native spawn accepts the exact tuple, record:
+`profile_locked` is configuration assurance. It does not mean the effective route has been observed after spawn.
+
+## No Portable Mode
+
+The public and internal policy no longer uses built-in roles plus explicit model/effort as a compatibility route.
+
+If a required project profile cannot be proven available:
 
 ```text
-route_assurance = native_explicit_validated
+keep responsibility in main session
+or repair managed profile readiness
 ```
 
-This proves the request was accepted through the exposed configuration surface. Post-spawn runtime identity still belongs to the runtime-evidence layer.
+Do not substitute another role, another model, another effort, or inherited defaults.
 
-## Effective precedence in current Codex
+This removes an unnecessary second routing system from the supported architecture.
 
-OpenAI's current Subagents documentation defines the effective selection order for each setting:
+## Effective Codex precedence
+
+Current Codex documentation defines setting resolution broadly as:
 
 ```text
 custom Agent file value
@@ -78,17 +70,29 @@ custom Agent file value
   -> parent value
 ```
 
-Model and reasoning effort are resolved independently.
+Codex Agent Team intentionally uses the first path for model and effort. It does not rely on omission or inheritance for exact model-specific routing.
 
-## Why inheritance is not an assurance path
+## Current policy routes are hypotheses
 
-Omitting model/effort can look like a convenient way to inherit Root. Current Codex also supports configured default Subagent values (`agents.default_subagent_model` and `agents.default_subagent_reasoning_effort`), so omission does not prove exact inheritance.
+Luna Max is fixed as the current default execution baseline.
 
-For model-specific policy routes, Codex Agent Team therefore requires `profile_locked` in the normal Plugin workflow. An explicitly requested compatibility route may use `native_explicit_validated`. If neither is available, the child task stays in Root.
+Terra XHigh and Sol High remain policy choices that must be evaluated on representative workloads. The project does not claim they are globally optimal simply because they are stronger reasoning settings.
+
+Future route tuning should change profile contents and benchmark evidence, not semantic role names or task contracts.
 
 ## Post-spawn evidence
 
-Runtime evidence is graded separately:
+Runtime Truth v2 tracks:
+
+```text
+route_evidence
+ancestry_evidence
+permission_evidence
+```
+
+A complete matched route requires observed role, model, and effort. A partial observation is explicitly partial.
+
+Compatibility grades remain derived summaries:
 
 ```text
 C1_configuration_only
@@ -98,20 +102,15 @@ R2_runtime_reported_and_local_record_agree
 X0_conflicted
 ```
 
-A local rollout record is mutable implementation-coupled telemetry. It may corroborate a runtime report but cannot establish `R1_runtime_reported` by itself.
-
-Use the installed Skill reference `references/runtime-assurance.md` and deterministic `scripts/verify-runtime.py` for expected-vs-observed reconciliation, source agreement, parent-thread identity, and effective read-only requirements.
+See the installed Skill reference `references/runtime-assurance.md` and `scripts/verify-runtime.py`.
 
 ## Failure rule
 
 ```text
-project profile missing -> first-run managed readiness flow
+project profile missing -> managed readiness flow
 profile exact but current task cannot discover role -> fresh task
-exact configuration route provable -> spawn may proceed
-exact configuration route rejected -> Root
-exact configuration route unprovable -> Root
-post-spawn evidence conflicts -> quarantine
-native report required but unavailable -> Root
+profile route provable -> spawn may proceed
+profile route unprovable -> main session
+post-spawn route partial when runtime proof is required -> main session
+post-spawn evidence conflict -> quarantine
 ```
-
-The Skill does not silently substitute Terra for Luna, Sol for Terra, or another reasoning effort.

@@ -2,108 +2,97 @@
 
 ## 1. Purpose
 
-Consent Gate protects meaningful boundaries without turning normal Codex work into repeated permission questions.
+Consent protects meaningful user boundaries without turning ordinary orchestration into repeated prompts.
 
-The user should understand the practical effect of the next action. Internal route IDs and policy booleans are secondary.
+The user should understand practical changes in scope, permission, external impact, fan-out, or material model cost.
 
-## 2. Baseline orchestration envelope
+## 2. Baseline resource envelope
 
-When the user has enabled this Skill for an in-scope task, the normal orchestration envelope is already authorized:
+When the user explicitly invokes `/codex-agent-team`, the normal orchestration envelope is:
 
 ```text
-0-1 Luna Explorer or Worker when Delegation Gate has concrete value
-+ at most 1 risk-triggered Terra Independent Critic when Review Gate has concrete value
+0-2 justified child Agents
+at most 1 active writer per shared workspace
+no permission expansion
+no scope expansion
+no external side effect
 ```
 
-This normal envelope does not require a separate consent prompt. The Skill still applies Minimum Team and does not add Terra merely because capability or concurrency is available.
+The exact team shape is dynamic. Examples that may fit inside the baseline when justified:
 
-A Sol Senior Judge is outside the baseline envelope when Root is not Sol and always requires the consent conditions below.
+```text
+Luna only
+Luna Reader + Luna Worker
+Luna + Terra delta investigation
+Luna + Sol selective review
+Terra + Luna
+Sol only
+```
+
+No Agent is mandatory, and using two Agents is not a goal by itself.
+
+A single read-only Sol advisor may fit inside the explicit `/codex-agent-team` baseline when it satisfies a distinct judgment or review dependency. Do not ask again merely because the selected tier is Sol.
+
+For implicit Skill invocation, ask before adding Sol unless the current user request already clearly authorizes a stronger model review.
 
 ## 3. What does not require a new prompt
 
-Do not ask again for actions already clearly authorized by the current user request.
+Do not ask again for actions already clearly authorized by the current request and baseline envelope.
 
 Examples:
 
-- "Fix this bug and run tests" authorizes normal in-scope edits and tests.
-- "Review this branch" authorizes read-only inspection and ordinary verification commands that fit the current runtime permissions.
-- Normal Luna Worker or risk-triggered Terra Critic creation inside the baseline envelope does not require a separate consent prompt.
+- "Fix this bug and run tests" authorizes ordinary in-scope edits and verification.
+- "Review this branch carefully" can authorize one justified read-only Sol review when the Skill was explicitly invoked.
+- Two independent read-only branches may run concurrently when they satisfy different dependencies and remain inside the normal two-child envelope.
+- A Terra delta investigation does not require a separate prompt when it remains read-only, bounded, and replaces duplicated rework.
 
 ## 4. What requires consent
 
-Ask before a material expansion beyond the baseline envelope.
-
-### Capability or cost
-
-Example: Root is Luna and a one-time Sol Senior Judge would materially improve a high-consequence unresolved decision.
+Ask before a material boundary change.
 
 ### Permission
 
-Example: the task began as analysis and now requires file writes, privileged tools, workspace-external access, or stronger sandbox permissions.
+Write access, privileged tools, workspace-external access, or stronger sandbox capability that the task did not already authorize.
 
 ### Scope
 
-Example: the user asked for a local bug fix but a complete solution requires changing additional critical modules or public contracts.
+A local task requires changes to additional critical modules, public contracts, data migrations, or other responsibilities outside the agreed outcome.
 
 ### External impact
 
-Always keep publishing, sending, payment, account changes, production changes, destructive deletion, or similarly consequential external actions with Root and obtain clear authorization when the current request did not already grant it.
+Publishing, sending, deployment, payment, account changes, destructive deletion, production changes, or similarly consequential actions remain with the main session and require clear authorization when not already granted.
 
 ### Large fan-out
 
-A team larger than the normal two-child maximum should normally ask first unless the user explicitly requested broad parallel analysis.
+More than two child Agents normally requires consent unless the user explicitly requested broad parallel work.
+
+### Material compute expansion
+
+Ask when orchestration would exceed the normal enabled envelope, such as repeated Sol calls, multiple expensive investigation branches, or a retry pattern that materially changes expected cost without a new dependency.
 
 ## 5. How to ask
 
-Use plain language and answer four questions:
+Use plain language and answer:
 
-1. Why is this useful now?
-2. What exactly will change?
-3. Will files or external systems be modified?
-4. What additional cost or risk should the user expect?
-
-Keep the question short. Offer a safe alternative when practical.
+1. What unresolved dependency remains?
+2. Why can existing evidence or current Agents not satisfy it?
+3. What new scope, permission, external effect, or compute cost is being added?
+4. What safe alternative exists?
 
 Bad:
 
 ```text
-Enable allow_upscale=true?
+Enable higher capability?
 ```
 
 Better:
 
 ```text
-The two independent analyses disagree on a decision that affects the whole implementation. I recommend one stronger model pass to break the tie. It will only analyze the evidence, will not modify files, and will use additional model capacity. Continue?
+The implementation is complete, but the change alters a public authentication contract and deterministic tests cannot answer the compatibility tradeoff. I recommend one read-only Sol review of the diff and evidence. No files or external systems will be changed. Continue?
 ```
 
 ## 6. One-time scope
 
-Consent applies only to the described action.
+Consent applies only to the described expansion.
 
-Approval for one Sol review does not authorize future Sol reviews automatically.
-
-Approval to modify the named files does not authorize unrelated modules.
-
-Approval to prepare a deployment does not imply approval to deploy it.
-
-If the next step crosses another material boundary, ask again.
-
-## 7. Examples
-
-### Analysis to write
-
-```text
-I found the cause. Fixing it requires changes to three project files and then running the existing tests. I have not changed anything yet. Should I apply the fix?
-```
-
-### Scope expansion
-
-```text
-A local patch can stop the immediate error, but a complete fix also needs a change in the session compatibility layer. That is broader than the original issue. Should I make the complete fix or keep the change local?
-```
-
-### High-impact operation
-
-```text
-The next step would run a database migration that can affect existing data. I can first inspect the migration plan and backup status, then return for confirmation before any migration runs.
-```
+Approval for one additional Sol pass does not authorize repeated Sol retries. Approval to broaden one module does not authorize unrelated modules. Approval to prepare an external action does not authorize executing it.

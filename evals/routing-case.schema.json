@@ -1,153 +1,52 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Codex Agent Team routing evals",
+  "title": "Codex Agent Team orchestration cases",
   "type": "object",
-  "required": [
-    "schema_version",
-    "skill_name",
-    "evals"
-  ],
+  "required": ["schema_version", "skill_name", "evals"],
   "properties": {
-    "schema_version": {
-      "const": "1.0"
-    },
-    "skill_name": {
-      "const": "codex-agent-team"
-    },
+    "schema_version": {"const": "2.0"},
+    "skill_name": {"const": "codex-agent-team"},
     "evals": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": [
-          "id",
-          "category",
-          "input",
-          "expected"
-        ],
+        "required": ["id", "category", "input", "expected"],
         "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1
-          },
+          "id": {"type": "string", "minLength": 1},
           "category": {
-            "type": "string",
-            "enum": [
-              "delegation",
-              "routing",
-              "capability",
-              "consent",
-              "safety",
-              "lifecycle"
-            ]
+            "enum": ["delegation", "contractability", "routing", "escalation", "consent", "safety", "lifecycle"]
           },
-          "input": {
-            "type": "object"
-          },
+          "input": {"type": "object"},
           "expected": {
             "type": "object",
-            "required": [
-              "action"
-            ],
+            "required": ["action"],
             "properties": {
-              "action": {
-                "type": "string",
-                "enum": [
-                  "root",
-                  "delegate",
-                  "ask_consent",
-                  "reject_result"
-                ]
-              },
-              "workers": {
+              "action": {"enum": ["main_session", "delegate", "ask_consent", "reject_result"]},
+              "nodes": {
                 "type": "array",
                 "maxItems": 4,
                 "items": {
                   "type": "object",
-                  "required": [
-                    "responsibility",
-                    "model",
-                    "effort",
-                    "write_intent",
-                    "workspace",
-                    "fork_turns",
-                    "route_mode",
-                    "agent_type",
-                    "route_assurance"
-                  ],
+                  "required": ["responsibility", "model", "effort", "write_intent", "workspace", "fork_turns", "agent_type", "route_assurance"],
                   "properties": {
-                    "responsibility": {
-                      "enum": [
-                        "explorer",
-                        "execution_worker",
-                        "independent_critic",
-                        "senior_judge"
-                      ]
-                    },
-                    "model": {
-                      "enum": [
-                        "gpt-5.6-luna",
-                        "gpt-5.6-terra",
-                        "gpt-5.6-sol"
-                      ]
-                    },
-                    "effort": {
-                      "enum": [
-                        "high",
-                        "xhigh",
-                        "max"
-                      ]
-                    },
-                    "write_intent": {
-                      "type": "boolean"
-                    },
-                    "workspace": {
-                      "type": "string"
-                    },
-                    "fork_turns": {
-                      "type": "string",
-                      "pattern": "^(none|[1-9][0-9]*)$"
-                    },
-                    "route_mode": {
-                      "type": "string",
-                      "enum": [
-                        "portable",
-                        "profile"
-                      ]
-                    },
-                    "agent_type": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "route_assurance": {
-                      "type": "string",
-                      "enum": [
-                        "native_explicit_validated",
-                        "profile_locked"
-                      ]
-                    }
+                    "responsibility": {"enum": ["reader", "worker", "investigator", "advisor"]},
+                    "model": {"enum": ["gpt-5.6-luna", "gpt-5.6-terra", "gpt-5.6-sol"]},
+                    "effort": {"enum": ["high", "xhigh", "max"]},
+                    "write_intent": {"type": "boolean"},
+                    "workspace": {"type": "string"},
+                    "fork_turns": {"type": "string", "pattern": "^(none|[1-9][0-9]*)$"},
+                    "agent_type": {"enum": ["codex_agent_team_reader", "codex_agent_team_worker", "codex_agent_team_investigator", "codex_agent_team_advisor"]},
+                    "route_assurance": {"const": "profile_locked"},
+                    "unresolved_delta_only": {"type": "boolean"}
                   },
                   "additionalProperties": true
                 }
               },
-              "consent_reason": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "root_reason": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "policy_violation": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              }
+              "failure_class": {"type": ["string", "null"], "enum": [null, "mechanical_defect", "contract_gap", "capability_gap", "judgment_gap"]},
+              "consent_reason": {"type": ["string", "null"]},
+              "main_reason": {"type": ["string", "null"]},
+              "policy_violation": {"type": ["string", "null"]}
             },
             "additionalProperties": true
           }

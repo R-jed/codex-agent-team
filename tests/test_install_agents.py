@@ -11,6 +11,12 @@ PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
 INSTALLER = PLUGIN_ROOT / "scripts" / "install-agents.py"
 PROFILE_SOURCE = PLUGIN_ROOT / "agent-profiles"
 PROFILE_FILES = (
+    "codex-agent-team-reader.toml",
+    "codex-agent-team-worker.toml",
+    "codex-agent-team-investigator.toml",
+    "codex-agent-team-advisor.toml",
+)
+LEGACY_PROFILE_FILES = (
     "luna-explorer.toml",
     "luna-worker.toml",
     "terra-reviewer.toml",
@@ -44,7 +50,7 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def test_companion_installer_installs_only_agent_profiles(tmp_path: Path):
+def test_companion_installer_installs_only_current_agent_profiles(tmp_path: Path):
     home = tmp_path / "codex-home"
     result = run_installer(home)
     assert result.returncode == 0, result.stderr
@@ -52,14 +58,13 @@ def test_companion_installer_installs_only_agent_profiles(tmp_path: Path):
     for filename in PROFILE_FILES:
         assert (home / "agents" / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
     manifest = json.loads((home / MANIFEST).read_text())
-    assert manifest["schema_version"] == 1
+    assert manifest["schema_version"] == 2
     assert set(manifest["profile_hashes"]) == set(PROFILE_FILES)
 
 
 def test_companion_check_is_non_mutating(tmp_path: Path):
     home = tmp_path / "codex-home"
-    install = run_installer(home)
-    assert install.returncode == 0, install.stderr
+    assert run_installer(home).returncode == 0
     before = installed_state(home)
     check = run_installer(home, "--check")
     after = installed_state(home)
@@ -80,81 +85,97 @@ def test_repeat_companion_install_is_true_no_op(tmp_path: Path):
     assert before == after
 
 
-def test_user_modified_profile_is_never_overwritten(tmp_path: Path):
+def test_user_modified_current_profile_is_never_overwritten(tmp_path: Path):
     home = tmp_path / "codex-home"
-    first = run_installer(home)
-    assert first.returncode == 0, first.stderr
-    profile = home / "agents" / "luna-worker.toml"
+    assert run_installer(home).returncode == 0
+    profile = home / "agents" / "codex-agent-team-worker.toml"
     profile.write_bytes(profile.read_bytes() + b"\n# user change\n")
     before = profile.read_bytes()
-
     result = run_installer(home)
-
     assert result.returncode != 0
     assert "not proven unchanged" in result.stderr
     assert profile.read_bytes() == before
 
 
-def test_previous_companion_managed_profile_can_upgrade(tmp_path: Path):
+def test_previous_current_managed_profile_can_upgrade(tmp_path: Path):
     home = tmp_path / "codex-home"
-    first = run_installer(home)
-    assert first.returncode == 0, first.stderr
-    profile = home / "agents" / "luna-worker.toml"
+    assert run_installer(home).returncode == 0
+    profile = home / "agents" / "codex-agent-team-worker.toml"
     old = profile.read_bytes() + b"\n# simulated previous package\n"
     profile.write_bytes(old)
     manifest_path = home / MANIFEST
     manifest = json.loads(manifest_path.read_text())
-    manifest["profile_hashes"]["luna-worker.toml"] = sha(old)
+    manifest["profile_hashes"]["codex-agent-team-worker.toml"] = sha(old)
     manifest_path.write_text(json.dumps(manifest))
+    result = run_installer(home)
+    assert result.returncode == 0, result.stderr
+    assert profile.read_bytes() == (PROFILE_SOURCE / "codex-agent-team-worker.toml").read_bytes()
+
+
+def test_managed_legacy_profiles_are_removed_during_semantic_migration(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    legacy_hashes: dict[str, str] = {}
+    for filename in LEGACY_PROFILE_FILES:
+        data = f"# legacy managed {filename}\n".encode()
+        (agents / filename).write_bytes(data)
+        legacy_hashes[filename] = sha(data)
+    (home / MANIFEST).write_text(json.dumps({"schema_version": 1, "profile_hashes": legacy_hashes}))
 
     result = run_installer(home)
 
     assert result.returncode == 0, result.stderr
-    assert profile.read_bytes() == (PROFILE_SOURCE / "luna-worker.toml").read_bytes()
+    assert all(not (agents / filename).exists() for filename in LEGACY_PROFILE_FILES)
+    assert all((agents / filename).is_file() for filename in PROFILE_FILES)
+    manifest = json.loads((home / MANIFEST).read_text())
+    assert manifest["schema_version"] == 2
+    assert set(manifest["profile_hashes"]) == set(PROFILE_FILES)
 
 
-def test_full_installer_manifest_can_seed_companion_upgrade_ownership(tmp_path: Path):
+def test_unproven_legacy_profile_is_left_untouched(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    legacy = agents / "luna-worker.toml"
+    legacy.write_text('name = "luna_worker"\n# user-owned legacy file\n')
+    before = legacy.read_bytes()
+
+    result = run_installer(home)
+
+    assert result.returncode == 0, result.stderr
+    assert legacy.read_bytes() == before
+    assert (agents / "codex-agent-team-worker.toml").is_file()
+
+
+def test_full_installer_manifest_can_seed_legacy_ownership(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
     agents.mkdir(parents=True)
     old_hashes: dict[str, str] = {}
-    for filename in PROFILE_FILES:
-        current = (PROFILE_SOURCE / filename).read_bytes()
-        installed = current
-        if filename == "terra-reviewer.toml":
-            installed = current + b"\n# simulated previous standalone package\n"
-        (agents / filename).write_bytes(installed)
-        old_hashes[filename] = sha(installed)
+    for filename in LEGACY_PROFILE_FILES:
+        data = f"# old standalone {filename}\n".encode()
+        (agents / filename).write_bytes(data)
+        old_hashes[filename] = sha(data)
     (home / FULL_MANIFEST).write_text(
-        json.dumps(
-            {
-                "schema_version": 1,
-                "mode": "profile",
-                "skill_hash": "placeholder",
-                "profile_hashes": old_hashes,
-            }
-        )
+        json.dumps({"schema_version": 1, "mode": "profile", "skill_hash": "placeholder", "profile_hashes": old_hashes})
     )
 
     result = run_installer(home)
 
     assert result.returncode == 0, result.stderr
-    assert (agents / "terra-reviewer.toml").read_bytes() == (
-        PROFILE_SOURCE / "terra-reviewer.toml"
-    ).read_bytes()
+    assert all(not (agents / filename).exists() for filename in LEGACY_PROFILE_FILES)
     assert (home / MANIFEST).is_file()
 
 
-def test_exact_profiles_can_be_adopted_without_overwrite(tmp_path: Path):
+def test_exact_current_profiles_can_be_adopted_without_overwrite(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
     agents.mkdir(parents=True)
     for filename in PROFILE_FILES:
         (agents / filename).write_bytes((PROFILE_SOURCE / filename).read_bytes())
     before = {filename: (agents / filename).read_bytes() for filename in PROFILE_FILES}
-
     result = run_installer(home)
-
     assert result.returncode == 0, result.stderr
     assert (home / MANIFEST).is_file()
     assert all((agents / filename).read_bytes() == before[filename] for filename in PROFILE_FILES)

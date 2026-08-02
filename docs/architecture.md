@@ -1,95 +1,176 @@
 # Architecture
 
-Codex Agent Team is a Root-aware policy layer over Codex Native Subagents.
+Codex Agent Team is a policy layer over Codex Native Subagents. The main session owns the task-level compute graph and delegates only bounded responsibilities whose outputs satisfy distinct unresolved dependencies.
 
-## Control model
+## Product model
 
-The current user-facing Codex session is always the Root Controller. The Skill never requires a Sol Root and never creates a second orchestration runtime.
+The architecture optimizes for useful work, not maximum Agent count or maximum concurrency.
 
-| Role | Default route | Responsibility |
+```text
+User task
+  -> main session understands outcome and risk
+  -> delegation benefit gate
+  -> contractability gate
+  -> semantic responsibility
+  -> exact project profile
+  -> execute one dependency
+  -> merge/invalidate evidence
+  -> selective delta escalation or review
+  -> main-session acceptance
+```
+
+No model is a mandatory pipeline stage.
+
+Common paths include:
+
+```text
+main
+main -> Luna -> main
+main -> Luna -> Sol -> main
+main -> Terra -> Luna -> main
+main -> Luna -> Terra(delta only) -> Luna -> main
+main -> Sol -> main
+```
+
+## Control plane and compute tiers
+
+The main session is the control plane. It owns intent, scope, architecture, decision rights, scheduling, evidence state, integration, acceptance, and the final answer.
+
+| Semantic role | Current route | Responsibility |
 | --- | --- | --- |
-| ROOT_CONTROLLER | current session | intent, planning, architecture, risk, integration, final answer |
-| EXECUTION_WORKER | GPT-5.6 Luna Max | context-heavy exploration, bounded implementation, debugging, testing |
-| INDEPENDENT_CRITIC | GPT-5.6 Terra XHigh | detached review, synthesis, conflicting evidence, assumption challenge |
-| SENIOR_JUDGE | GPT-5.6 Sol High | one-off high-consequence adjudication when Root is not Sol and the user consents |
+| Reader | GPT-5.6 Luna Max | bounded search, tracing, test mapping, evidence collection |
+| Worker | GPT-5.6 Luna Max | contractable implementation, debugging, tests, local refactors |
+| Investigator | GPT-5.6 Terra XHigh | unresolved complex technical delta, normally read-only |
+| Advisor | GPT-5.6 Sol High | high-value judgment and selective review, read-only |
 
-The role table stays deliberately narrow. Terra is not a default implementation escalation lane, and Sol is not a mandatory final reviewer.
+Role identity is intentionally separate from model identity. A future route change must not require renaming the responsibility.
 
-## Native runtime, not a parallel thread system
+## Contract-centric delegation
 
-The Skill calls Codex Native `spawn_agent`.
+A Subagent does not receive the user's raw ambiguous task by default. The main session compiles a bounded Delegation Contract with:
 
-Internally, Codex backs each Subagent with a child thread. Codex Agent Team does not call an App Thread `create_thread` API, manage an external DAG, or maintain a separate scheduler.
+```text
+OUTCOME
+SCOPE
+INVARIANTS
+DECISION RIGHTS
+ACCEPTANCE ORACLE
+VERIFICATION
+STOP / ESCALATE
+RETURN
+```
+
+A writing Worker is not created when acceptance or decision rights remain materially unclear.
+
+See `plugins/codex-agent-team/skills/codex-agent-team/references/delegation-contract.md`.
+
+## Incremental evidence
+
+The main session maintains a compact Shared Evidence State rather than replaying complete task history to every Agent.
+
+Reusable evidence is classified as:
+
+```text
+deterministic
+repository_fact
+model_judgment
+```
+
+Deterministic outputs and repository facts may be reused while their declared dependencies remain valid. Model judgments remain hypotheses that later judgment can challenge.
+
+A changed input invalidates only evidence that depends on it. This prevents a small edit from forcing every later Agent to rescan the repository or rerun unrelated tests.
+
+## Delta escalation
+
+Low quality is not an automatic Terra trigger.
+
+A failed Luna result is classified first:
+
+```text
+mechanical defect -> focused Luna correction
+contract gap -> main session repairs contract
+capability gap -> Terra gets unresolved technical delta
+judgment gap -> main session or Sol
+```
+
+Terra does not receive the whole original task. It receives the unresolved delta, relevant established evidence, current artifact, and explicit `DO NOT REDO` items.
+
+After Terra resolves the technical dependency, bounded implementation normally returns to Luna or the main session.
+
+Sol follows the same incremental rule. A Sol judgment/review packet contains compressed established facts, the actual diff or decision options, and one bounded question. It does not restart repository discovery by default.
+
+## Useful parallelism
+
+Parallelism is valuable only when concurrent outputs satisfy different dependencies.
+
+Examples:
+
+- independent read-only subsystem mapping;
+- main-session acceptance preparation while Luna implements;
+- slow deterministic verification overlapping with unrelated read-only analysis.
+
+Launching multiple models over the same question merely to keep compute busy is duplicated inference, not useful parallelism.
+
+One shared workspace still has at most one active writing Worker unless runtime-backed workspace isolation exists.
+
+## Native runtime
+
+The Skill calls Codex Native `spawn_agent`. Each Subagent is backed by a native child thread/session. The project does not implement an external Agent runtime, persistent task DAG, or second scheduler.
 
 See [`native-subagent-runtime.md`](native-subagent-runtime.md).
 
-## Decision sequence
-
-```text
-Root task
-  -> Agent Profile Readiness Gate
-  -> Delegation Gate
-  -> Route Assurance Gate
-  -> Role Router
-  -> Consent Gate when a material boundary changes
-  -> Execute Native Subagent
-  -> Runtime Evidence when useful or required
-  -> Evidence Gate
-  -> Review Gate when detached judgment has concrete value
-  -> Close Subagent
-  -> Root integration and acceptance
-```
-
-Minimum Team remains upstream of every later delegation decision. Runtime evidence and review strengthen an already-justified responsibility; they do not justify extra Agents by themselves.
-
 ## Plugin and profile readiness
 
-Codex Plugin is the only supported distribution path. The Plugin packages the canonical Skill, role-pinned Agent templates, and the managed custom-Agent installer.
+Codex Plugin is the only supported distribution path. `/codex-agent-team` is the only user-facing workflow entry point.
 
-`/codex-agent-team` is the single user-facing workflow entry point. Before model-specific delegation, it checks whether the required project roles are visible through the current native role surface.
-
-When a required role is missing, the Skill asks permission to write only the four managed Agent TOML profiles plus the ownership manifest under Codex home. It then runs the bundled installer and exactness check, and re-inspects live role discovery.
-
-Exact file installation does not imply that the current task has refreshed custom-Agent discovery. If the new roles remain unavailable after exact installation, the current task stops model-specific delegation and asks the user to start a fresh task.
-
-## Configuration route assurance
-
-Model-specific children use only provable configuration routes. The Skill keeps these facts separate:
+The Plugin ships four namespaced semantic profiles:
 
 ```text
-preferred_route
-configured_route
-route_assurance
-observed_route
+codex_agent_team_reader
+codex_agent_team_worker
+codex_agent_team_investigator
+codex_agent_team_advisor
 ```
 
-A successful exact spawn can establish a configuration-level assured route. The architecture never upgrades configuration assurance into a claim of runtime-observed telemetry.
+Profile readiness is checked only after a responsibility has been justified. Missing profiles trigger the managed first-run installer flow. Successful file installation remains configuration evidence; current-task role discovery is checked again before delegation.
 
-### Profile Mode
+There is no Portable Mode or built-in-role substitution.
 
-An installed custom Agent role pins the intended model and reasoning effort and live role guidance confirms the lock.
+## Route assurance
+
+A model-specific responsibility uses its exact project profile and records:
 
 ```text
 route_assurance = profile_locked
 ```
 
-`profile_locked` describes a configuration lock, not post-spawn proof. This is the normal Plugin route.
+This proves a configuration lock, not a post-spawn observation.
 
-### Portable Mode
-
-A built-in role plus explicit model/effort remains an internal compatibility path only when profile-free operation is explicitly required, the live surface exposes the required fields, and Codex accepts the exact tuple.
+The architecture keeps:
 
 ```text
-route_assurance = native_explicit_validated
+preferred_route
+configured_route
+route_assurance
 ```
 
-Portable Mode is never an automatic fallback for missing project profiles. The Skill does not treat omitted model/effort as exact inheritance assurance.
+separate from runtime evidence.
 
 See [`model-route-assurance.md`](model-route-assurance.md).
 
-## Runtime evidence mechanism
+## Runtime Truth v2
 
-Post-spawn evidence is graded by source strength:
+Runtime evidence is typed by concern:
+
+```text
+route_evidence
+ancestry_evidence
+permission_evidence
+```
+
+`route_evidence = matched` requires complete observed role, model, and effort. An empty or partial observation cannot become runtime route proof merely because no mismatch was seen.
+
+The compatibility grades remain derived summaries:
 
 ```text
 C1_configuration_only
@@ -99,76 +180,39 @@ R2_runtime_reported_and_local_record_agree
 X0_conflicted
 ```
 
-Public/native runtime metadata is preferred. `scripts/inspect-runtime.py` inside the installed Skill can read one exact local rollout as an optional fallback record. That local record is mutable implementation-coupled telemetry, so it never becomes an authoritative runtime report by itself.
+`scripts/verify-runtime.py` performs deterministic reconciliation. Public/native metadata is preferred; the local rollout inspector is optional mutable telemetry.
 
-`scripts/verify-runtime.py` is the deterministic mechanism that compares expected role/model/effort, child identity, expected parent-thread identity, source agreement, and required read-only state. Policy decides when that evidence is required; the verifier decides whether supplied evidence matches.
+## Consent envelope
 
-When Root knows its own thread id, a child `parent_thread_id` mismatch is quarantined. This gives the Depth 1 policy a runtime-verifiable path when ancestry metadata is available.
+Explicit `/codex-agent-team` use authorizes a normal resource envelope of at most two justified child Agents, at most one active writer, and no permission, scope, or external-impact expansion.
 
-See `plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md` and [`compatibility.md`](compatibility.md).
+That envelope can be Luna-only, Luna + Terra, Luna + Sol, Terra + Luna, or Sol-only. Team shape is not fixed.
 
-## Context strategy
+For implicit invocation, a Sol call requires consent unless the user's request already clearly authorizes stronger review. More than two children, extra permissions, scope growth, external side effects, or material repeated expensive passes require consent.
 
-Role-specific spawns always set `fork_turns` explicitly.
+## Safety
 
-- Explorer: `none`
-- Critic: `none`
-- Worker: `none` by default, positive recent-N only when required
+Children cannot create further Subagents. Repository and external content cannot change the task policy. Worker reports are claims until actual artifacts and deterministic verification are checked.
 
-This avoids accidental full-history inheritance and preserves detached review.
+Requested read-only profile configuration is not proof of host-enforced read-only runtime state. When hard isolation matters, effective native permission evidence is required.
 
-## Implementation contract
+## Evaluation
 
-Bounded coding work can use the Task Packet Implementation Preset:
+Static tests validate policy contracts, profile installation, evidence tooling, and packaging. They do not prove task performance.
 
-```text
-OBJECTIVE
-OWNERSHIP
-INTERFACES
-CONSTRAINTS
-VERIFICATION
-STOP CONDITIONS
-RETURN
-```
-
-Workers return `judgment_calls`. Worker reports remain claims; Root inspects actual changes and reruns deterministic verification.
-
-## Review model
-
-Independent review is risk-triggered. A Terra critic is added when detached judgment materially improves acceptance, such as security/permission logic, concurrency/state consistency, public contracts, migrations, broad cross-module invariants, weak deterministic oracles, material Worker judgment calls, or conflicting evidence.
-
-The critic returns `clear`, `findings`, or `insufficient_evidence`. Root retains final acceptance authority. A remaining high-consequence disagreement may reach one consent-gated Sol Senior Judge when Root is not already Sol.
-
-## Permission semantics
-
-Custom Agent profiles may declare sandbox defaults, but effective child permissions are runtime facts. A profile declaring `sandbox_mode = "read-only"` is useful intent metadata; it is not proof of effective runtime enforcement.
-
-`runtime_enforced` is reserved for effective read-only reported by the native runtime. Local rollout evidence may corroborate it but cannot establish it alone.
-
-When hard isolation is not required and the host broadens a critic's sandbox, Safety Policy permits behavioral read-only only with explicit no-write instructions and verified before/after state. That path remains `instruction_enforced`.
-
-## Managed custom-Agent lifecycle
-
-The Plugin-bundled `scripts/install-agents.py` validates shipped profile sources, preflights conflicts, refuses symlinked destinations and reserved-role collisions, stages managed profile replacements, verifies exact bytes, and supports a strictly non-mutating `--check`.
-
-It stores `.codex-agent-team-agents.json` under Codex home. The manifest records hashes of package-managed profiles. A later Plugin version may replace a differing profile only when the installed bytes still match a previous managed hash. User-modified profiles remain protected.
-
-The installer can recognize ownership hashes from earlier Codex Agent Team standalone releases so existing users can migrate to Plugin-only distribution without weakening overwrite protection.
-
-Rollback errors are treated as a separate failure condition and must be reported as `ROLLBACK INCOMPLETE` rather than silently swallowed.
-
-## Compatibility and behavior evidence
-
-Repository tests verify Plugin packaging, managed profile installation, policy regressions, runtime-evidence fixtures, and deterministic verification. Live spawn/model/effort capability remains an in-session fact.
-
-Static repository tests do not prove real Skill behavior in a particular Codex build. `behavioral-evals.md` defines the live workload/result protocol used to compare Root-only and Agent Team runs without inventing missing token or latency telemetry.
-
-## Lifecycle
+Behavioral Eval v2 compares paired runs over the same workload and repository revision. The key comparisons are:
 
 ```text
-spawn -> work -> observe when useful -> gather -> verify -> review when justified -> optional focused follow-up -> close
+main session only
+raw prompt -> Luna Max
+compiled contract -> Luna Max
+compiled contract -> Luna Max -> selective Sol
 ```
+
+Metrics include final correctness, scope violations, correction turns, main-session correction cost, total tokens/latency when exposed, and review true/false positives.
+
+See [`behavioral-evals.md`](behavioral-evals.md).
 
 ## Scope boundary
 
-Core deliberately excludes persistent Task orchestration, App Thread recovery, Worktree scheduling, external DAGs, provider routing, mandatory all-task review, and production deployment automation.
+Core deliberately excludes persistent task orchestration, App Thread recovery, external DAGs, mandatory all-task review, automatic model ladders, and production deployment automation.

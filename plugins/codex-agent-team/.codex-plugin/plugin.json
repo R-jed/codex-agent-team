@@ -1,7 +1,7 @@
 {
   "name": "codex-agent-team",
-  "version": "0.2.0",
-  "description": "A minimum-team Codex workflow that keeps the current Root in control and adds role-pinned native Subagents only when they provide concrete value.",
+  "version": "0.3.0",
+  "description": "A minimum-team Codex workflow that compiles bounded delegation contracts, reuses evidence, and schedules Luna, Terra, or Sol only when each call adds a distinct dependency.",
   "author": {
     "name": "R-jed",
     "url": "https://github.com/R-jed"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Agent Team",
-    "shortDescription": "Use the smallest useful native Subagent team for each coding task.",
-    "longDescription": "Codex Agent Team keeps the current session in control, leaves small isolated work in Root, delegates bounded execution to Luna, adds Terra only when detached review has concrete value, and reserves Sol for consent-gated high-consequence adjudication. The single /codex-agent-team entry point also performs first-run managed custom-Agent readiness when required.",
+    "shortDescription": "Delegate only bounded work that adds distinct value.",
+    "longDescription": "Codex Agent Team keeps the current session in control, compiles bounded work into verifiable delegation contracts, uses Luna Max for execution, Terra only for unresolved complex technical deltas, and Sol High for selective judgment or review. Evidence is reused across Agent calls, so escalation resolves only the remaining dependency instead of restarting the task.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": [
@@ -29,9 +29,9 @@
     ],
     "websiteURL": "https://github.com/R-jed/codex-agent-team",
     "defaultPrompt": [
-      "Use /codex-agent-team to decide whether this coding task needs any Subagents, then execute it with the smallest useful team.",
-      "Use /codex-agent-team to investigate this issue without creating unnecessary agents.",
-      "Use /codex-agent-team to implement this change and add independent review only if the risk justifies it."
+      "Use /codex-agent-team to solve this coding task with the smallest useful compute graph and reuse established evidence across any Subagents.",
+      "Use /codex-agent-team to implement this change with a bounded Luna contract, escalating only unresolved technical or judgment dependencies.",
+      "Use /codex-agent-team to review this task without repeating work that existing evidence already proves."
     ]
   }
 }

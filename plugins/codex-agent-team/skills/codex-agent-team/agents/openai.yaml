@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Agent Team"
-  short_description: "Minimal, model-aware Codex Subagent teamwork"
-  default_prompt: "Use /codex-agent-team to decide whether this task benefits from a small native Subagent team while keeping the current session in control."
+  short_description: "Bounded delegation with evidence reuse"
+  default_prompt: "Use /codex-agent-team to build the smallest useful compute graph for this task, compile bounded delegation contracts, and reuse established evidence instead of repeating work."
 
 policy:
   allow_implicit_invocation: true
