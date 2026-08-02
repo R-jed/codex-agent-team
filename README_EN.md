@@ -34,11 +34,8 @@ These are not pipeline stages. Valid paths include:
 
 ```text
 main session
-
 main session -> Luna -> main session
-
 main session -> Luna -> Sol -> main session
-
 main session -> Luna -> Terra (unresolved delta only) -> Luna / main session
 ```
 
@@ -77,17 +74,10 @@ Model judgments are kept separate from established facts. A hypothesis stays cha
 The main session classifies the failure first:
 
 ```text
-mechanical defect
--> focused Luna correction
-
-contract gap
--> main session repairs the contract
-
-capability gap
--> Terra receives only the unresolved technical delta
-
-judgment gap
--> main session decides, or uses Sol when that adds real value
+mechanical defect -> focused Luna correction
+contract gap -> main session repairs the contract
+capability gap -> Terra receives only the unresolved technical delta
+judgment gap -> main session decides, or uses Sol when that adds real value
 ```
 
 Terra is a read-only complex-investigation tier by default. It receives established evidence, the current artifact, the unresolved question, and explicit `DO NOT REDO` items. It does not rescan the repository or reimplement the entire Luna responsibility by default.
@@ -171,13 +161,11 @@ If a required profile is missing, the Skill discloses the complete managed file 
 
 ## Project status
 
-The current architecture has completed its static closure pass. CI and deterministic tests cover Plugin packaging, the managed profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired-eval tooling.
+The current architecture has completed its static closure pass. CI and deterministic tests cover Plugin packaging, the managed profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired-eval tooling. Static results cannot prove that a live Codex build exposes roles, models, sandboxes, or parent-thread metadata as expected, nor that contracts, Terra delta escalation, or Sol review improve real task economics or quality.
 
-Static results cannot prove that a live Codex build exposes roles, models, sandboxes, or parent-thread metadata as expected. They also cannot prove that contracts, Terra delta escalation, or Sol review improve real task economics or quality.
+The next phase is local runtime validation. Follow [`HEADOFF.md`](HEADOFF.md) for ChatGPT Desktop/Codex user-flow simulation, Runtime Truth adversarial testing, Agent lifecycle stress, installer fault injection, and paired behavioral evals. Result controls lock workload definition, main-session route, permissions, tool surface, and acceptance rubric; missing telemetry remains missing.
 
-The next phase is deliberately local runtime validation rather than more architecture expansion. Follow [`HEADOFF.md`](HEADOFF.md) for ChatGPT Desktop/Codex user-flow simulation, Runtime Truth adversarial testing, Agent lifecycle stress, installer fault injection, and paired behavioral evals.
-
-Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses that require representative live workload evidence.
+Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses requiring representative live workload evidence. Do not publish cost, latency, or quality-improvement claims before that evidence exists.
 
 ## Documentation
 
@@ -190,10 +178,6 @@ Luna Max is the current execution baseline. Terra XHigh and Sol High remain rout
 - [Runtime Evidence](plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md)
 - [Behavioral Evals](docs/behavioral-evals.md)
 - [OpenAI References](docs/openai-references.md)
-
-## Current validation scope
-
-Real task outcomes are evaluated only with controlled paired live behavioral runs. Result schema controls include workload definition, main-session route, permissions, tool surface, and acceptance rubric. Missing telemetry remains missing rather than estimated. No cost, latency, or quality-improvement claim should be published before representative live workload data exists.
 
 ## License
 
