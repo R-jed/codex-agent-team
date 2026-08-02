@@ -16,15 +16,17 @@
     <text x="28" y="168" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">确认支付回调路径</text>
     <text x="28" y="212" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">确认幂等与安全边界</text>
     <text x="28" y="256" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#ffffff">写清验收条件</text>
-    <text x="28" y="306" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">任务已足够小 → 直接做完</text>
+    <text x="28" y="294" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">任务已足够小？</text>
+    <text x="28" y="324" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="500" fill="#dfe6ff">主会话直接做完</text>
 
     <rect x="350" y="0" width="410" height="330" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
     <text x="378" y="52" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="600" fill="#0a0a0a">02 · 需要时委派</text>
     <text x="378" y="112" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-size="42" font-weight="500" fill="#002FA7">LUNA</text>
     <text x="378" y="160" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#0a0a0a">追踪回调 → 支付 → 订单</text>
     <text x="378" y="204" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="400" fill="#0a0a0a">修改代码 · 跑相关测试</text>
-    <rect x="378" y="238" width="354" height="64" fill="#efefec" stroke="#002FA7" stroke-width="2"/>
-    <text x="555" y="280" text-anchor="middle" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="600" fill="#002FA7">触及安全边界 → TERRA 独立复核</text>
+    <rect x="378" y="230" width="354" height="88" fill="#efefec" stroke="#002FA7" stroke-width="2"/>
+    <text x="555" y="264" text-anchor="middle" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="600" fill="#002FA7">触及安全边界</text>
+    <text x="555" y="298" text-anchor="middle" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="28" font-weight="600" fill="#002FA7">→ TERRA 独立复核</text>
 
     <rect x="790" y="0" width="350" height="330" fill="#0a0a0a"/>
     <text x="818" y="52" font-family="Noto Sans SC, PingFang SC, Microsoft YaHei UI, sans-serif" font-size="30" font-weight="600" fill="#bdbdb7">03 · 回来验收</text>
