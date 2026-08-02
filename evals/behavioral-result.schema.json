@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex Agent Team live behavioral result",
+  "type": "object",
+  "required": ["schema_version", "suite", "runtime", "runs"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "suite": {"const": "codex-agent-team-live-behavior"},
+    "runtime": {
+      "type": "object",
+      "required": ["codex_version", "date"],
+      "properties": {
+        "codex_version": {"type": "string", "minLength": 1},
+        "date": {"type": "string", "minLength": 1},
+        "platform": {"type": ["string", "null"]},
+        "root_model": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["workload_id", "mode", "success", "agent_count", "roles", "decision"],
+        "properties": {
+          "workload_id": {"type": "string", "minLength": 1},
+          "mode": {"enum": ["root_only", "agent_team", "external_baseline"]},
+          "success": {"type": "boolean"},
+          "decision": {"type": "string"},
+          "agent_count": {"type": "integer", "minimum": 0},
+          "roles": {"type": "array", "items": {"type": "string"}},
+          "route_evidence_grade": {"type": ["string", "null"]},
+          "policy_violations": {"type": "array", "items": {"type": "string"}},
+          "review_findings": {"type": "integer", "minimum": 0},
+          "review_caught_material_issue": {"type": ["boolean", "null"]},
+          "consent_prompts": {"type": "integer", "minimum": 0},
+          "input_tokens": {"type": ["integer", "null"], "minimum": 0},
+          "output_tokens": {"type": ["integer", "null"], "minimum": 0},
+          "reasoning_tokens": {"type": ["integer", "null"], "minimum": 0},
+          "latency_ms": {"type": ["integer", "null"], "minimum": 0},
+          "notes": {"type": ["string", "null"]}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}
