@@ -28,6 +28,7 @@
           "repo_revision",
           "workload_definition_hash",
           "main_session_route",
+          "worker_route",
           "permissions_fingerprint",
           "tool_surface_fingerprint",
           "acceptance_rubric_id",
@@ -85,6 +86,27 @@
           "duplicate_dependency_calls": {"type": "integer", "minimum": 0},
           "notes": {"type": ["string", "null"]}
         },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "raw_prompt_luna",
+                    "contract_luna",
+                    "contract_luna_selective_sol"
+                  ]
+                }
+              },
+              "required": ["mode"]
+            },
+            "then": {
+              "properties": {
+                "worker_route": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        ],
         "additionalProperties": true
       }
     }
