@@ -45,6 +45,8 @@ EXPECTED_PROFILES = {
 MANIFEST_NAME = ".codex-agent-team-agents.json"
 FULL_MANIFEST_NAME = ".codex-agent-team-install.json"
 MANIFEST_SCHEMA = 2
+LEGACY_FULL_MANIFEST_SCHEMA = 1
+LEGACY_FULL_MANIFEST_MODE = "profile"
 
 
 def parse_args() -> argparse.Namespace:
@@ -156,6 +158,23 @@ def manifest_profile_hashes(manifest: dict | None) -> dict[str, str]:
     }
 
 
+def legacy_full_manifest_profile_hashes(manifest: dict | None) -> dict[str, str]:
+    """Return legacy standalone ownership only for the one historical manifest shape.
+
+    The old standalone installer wrote schema 1 manifests in ``profile`` mode. A
+    different schema/mode under the same filename is not accepted as deletion
+    authority for legacy Agent profiles. It may belong to a future or unrelated
+    installer, so migration fails closed by simply declining that ownership seed.
+    """
+    if manifest is None:
+        return {}
+    if manifest.get("schema_version") != LEGACY_FULL_MANIFEST_SCHEMA:
+        return {}
+    if manifest.get("mode") != LEGACY_FULL_MANIFEST_MODE:
+        return {}
+    return manifest_profile_hashes(manifest)
+
+
 def managed_ownership_hashes(
     companion_manifest: dict | None, full_manifest: dict | None
 ) -> dict[str, str]:
@@ -163,12 +182,13 @@ def managed_ownership_hashes(
 
     Once the companion manifest exists it is authoritative. The older standalone
     manifest is used only as a one-time migration seed before the companion manifest
-    has ever been written. This prevents stale legacy hashes from granting permanent
+    has ever been written, and only when it matches the historical schema-1 profile
+    install shape. This prevents stale or unrelated legacy hashes from granting
     deletion authority over files a user may intentionally recreate later.
     """
     if companion_manifest is not None:
         return manifest_profile_hashes(companion_manifest)
-    return manifest_profile_hashes(full_manifest)
+    return legacy_full_manifest_profile_hashes(full_manifest)
 
 
 def preflight_profiles(
