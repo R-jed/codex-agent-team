@@ -31,7 +31,9 @@ A comparison is valid only when paired runs keep these fixed:
 - permissions and available tools;
 - acceptance rubric.
 
-Record a `repeat_index` for repeated trials. Do not compare aggregate mode averages built from different workload mixes.
+Record a `repeat_index` for repeated trials. Workloads that declare `primary_comparison` must contain exactly those two modes in each comparison pair. The scorer rejects a pair that mixes workload/revision/repeat metadata, duplicates a mode, or reports different main-session routes inside the same pair.
+
+Do not compare aggregate mode averages built from different workload mixes.
 
 ## What to measure
 
@@ -115,7 +117,11 @@ Measure true material catches and false positives. Sol is not assumed to improve
 python scripts/score-behavioral-evals.py path/to/result.json
 ```
 
-The scorer validates paired-run metadata and summarizes metrics by workload and mode. It must not invent missing token, latency, or correction data.
+The scorer treats paired deltas as the primary comparison output. For each declared primary comparison it reports candidate-minus-baseline deltas on acceptance, correction work, token/latency telemetry, and evidence-reuse waste metrics when those values were actually recorded.
+
+It also reports descriptive summaries by workload and mode. Repository-wide mode aggregates are retained only as descriptive inventory and are explicitly marked as unsuitable for cross-workload comparison.
+
+The scorer must not invent missing token, latency, correction, or acceptance data.
 
 ## Release evidence rule
 
