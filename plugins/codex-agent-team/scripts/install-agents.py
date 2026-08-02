@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Install Codex Agent Team companion custom-agent profiles safely.
+"""Provision Codex Agent Team managed custom-agent profiles safely.
 
-This installer is intended for Plugin users. Plugin installation provides the Skills,
-while these role-pinned Agent TOML files live under Codex home and require a separate,
-explicit setup step. The installer is transactional, refuses user-modified profiles,
-and keeps its ownership manifest separate from the standalone Skill installer.
+The main /codex-agent-team Skill invokes this Plugin-bundled helper when its required
+role-pinned Agent TOML files are missing. The installer is transactional, refuses
+user-modified profiles, and records profile ownership hashes for safe future upgrades.
+Legacy standalone-manifest hashes may be read only to preserve migration safety.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ MANIFEST_SCHEMA = 1
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Install Codex Agent Team companion custom-agent profiles."
+        description="Provision Codex Agent Team managed custom-agent profiles."
     )
     parser.add_argument(
         "--codex-home",
@@ -51,7 +51,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Verify all companion Agent profiles exactly; make no changes.",
+        help="Verify all managed Agent profiles exactly; make no changes.",
     )
     return parser.parse_args()
 
@@ -82,7 +82,7 @@ def load_json_manifest(path: Path, *, required_schema: bool) -> dict | None:
     if not isinstance(payload, dict):
         fail(f"Invalid install manifest object: {path}")
     if required_schema and payload.get("schema_version") != MANIFEST_SCHEMA:
-        fail(f"Unsupported companion install manifest: {path}")
+        fail(f"Unsupported managed-profile install manifest: {path}")
     profile_hashes = payload.get("profile_hashes", {})
     if not isinstance(profile_hashes, dict):
         fail(f"Invalid profile hashes in install manifest: {path}")
@@ -281,7 +281,7 @@ def restore_manifest(path: Path, previous: bytes | None) -> list[str]:
             finally:
                 staged.unlink(missing_ok=True)
     except OSError as exc:
-        return [f"could not restore companion manifest {path}: {exc}"]
+        return [f"could not restore managed-profile manifest {path}: {exc}"]
     return []
 
 
@@ -302,7 +302,7 @@ def install(codex_home: Path, check_only: bool) -> None:
 
     if check_only:
         verify_profiles(agents_dir)
-        print("CHECK PASSED: companion Agent profiles match shipped templates exactly.")
+        print("CHECK PASSED: managed Agent profiles match shipped templates exactly.")
         return
 
     profiles_exact = agents_dir.is_dir() and all(
@@ -312,7 +312,7 @@ def install(codex_home: Path, check_only: bool) -> None:
         for filename in PROFILE_FILES
     )
     if profiles_exact and companion_manifest == desired_manifest():
-        print("Companion Agent profiles already installed exactly; no changes made.")
+        print("Managed Agent profiles already installed exactly; no changes made.")
         return
 
     codex_home.mkdir(parents=True, exist_ok=True)
@@ -339,10 +339,13 @@ def install(codex_home: Path, check_only: bool) -> None:
         for backup in backups.values():
             backup.unlink(missing_ok=True)
 
-    print(f"Companion Agent profiles installed under: {agents_dir}")
-    print(f"Managed companion manifest: {manifest_path}")
+    print(f"Managed Agent profiles installed under: {agents_dir}")
+    print(f"Managed profile manifest: {manifest_path}")
     print("Verified roles: luna_explorer, luna_worker, terra_reviewer, sol_judge")
-    print("Start a new Codex task so the native spawn surface discovers the Agent profiles.")
+    print(
+        "Profile files are ready. Re-check the native spawn_agent role surface; "
+        "start a fresh Codex task only if the current task still cannot discover these roles."
+    )
 
 
 def main() -> None:

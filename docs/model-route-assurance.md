@@ -15,9 +15,9 @@ observed_route    what post-spawn evidence actually reports or records
 
 A configuration-level assured route never becomes observed telemetry merely because spawn succeeded.
 
-## Assurance path 1: Profile Locked
+## Primary assurance path: Profile Locked
 
-A custom Agent profile pins model and reasoning effort:
+The supported Plugin workflow provisions role-pinned custom Agent profiles on first use. A profile pins model and reasoning effort:
 
 ```toml
 name = "luna_worker"
@@ -35,11 +35,22 @@ route_assurance = profile_locked
 
 Profile Mode omits competing explicit `model` and `reasoning_effort` fields.
 
-## Assurance path 2: Native Explicit Validated
+The normal Plugin path requires these project roles:
 
-Portable Mode works without installing profiles.
+```text
+luna_explorer
+luna_worker
+terra_reviewer
+sol_judge
+```
 
-When the live `spawn_agent` surface exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`, the Skill can explicitly request:
+If they are missing, `/codex-agent-team` performs the managed first-run readiness flow. Missing profiles never trigger an automatic route substitution.
+
+## Internal compatibility path: Native Explicit Validated
+
+`native_explicit_validated` remains an internal compatibility concept for environments that explicitly require profile-free operation. It is not a public installation mode and it is never an automatic fallback for missing project profiles.
+
+When the live `spawn_agent` surface exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`, an explicit compatibility route can request:
 
 ```text
 agent_type = worker
@@ -67,13 +78,13 @@ custom Agent file value
   -> parent value
 ```
 
-Model and reasoning effort are resolved independently. Profile Mode and Portable Mode are alternative assurance paths.
+Model and reasoning effort are resolved independently.
 
 ## Why inheritance is not an assurance path
 
 Omitting model/effort can look like a convenient way to inherit Root. Current Codex also supports configured default Subagent values (`agents.default_subagent_model` and `agents.default_subagent_reasoning_effort`), so omission does not prove exact inheritance.
 
-For model-specific policy routes, Codex Agent Team therefore requires Profile Locked or Native Explicit Validated. If neither is available, the child task stays in Root.
+For model-specific policy routes, Codex Agent Team therefore requires `profile_locked` in the normal Plugin workflow. An explicitly requested compatibility route may use `native_explicit_validated`. If neither is available, the child task stays in Root.
 
 ## Post-spawn evidence
 
@@ -94,6 +105,8 @@ Use the installed Skill reference `references/runtime-assurance.md` and determin
 ## Failure rule
 
 ```text
+project profile missing -> first-run managed readiness flow
+profile exact but current task cannot discover role -> fresh task
 exact configuration route provable -> spawn may proceed
 exact configuration route rejected -> Root
 exact configuration route unprovable -> Root

@@ -53,6 +53,8 @@ A successful exact spawn can establish `configured_route`; `observed_route` may 
 
 ### `profile_locked`
 
+The supported Plugin workflow uses Profile Mode as its normal route. `/codex-agent-team` performs the managed first-run readiness flow when a required project role is missing.
+
 Use Profile Mode when an installed custom role pins the exact model and reasoning effort and live role guidance reports those settings as locked.
 
 `profile_locked` is a configuration-assurance state. It does not claim that the effective child route was observed after spawn.
@@ -73,9 +75,11 @@ fork_turns = none
 
 Do not also send explicit model/effort when the profile owns them.
 
+A missing project profile never triggers automatic substitution with a built-in role. Complete the managed readiness flow or keep the affected responsibility in Root.
+
 ### `native_explicit_validated`
 
-Use Portable Mode when:
+Portable Mode is an internal compatibility path, not a public installation mode and not an automatic fallback for missing project profiles. Use it only when profile-free operation is explicitly required and all of the following hold:
 
 1. live `spawn_agent` exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`;
 2. the target model is available for the active MultiAgent backend;
@@ -108,7 +112,7 @@ custom Agent file value
   -> parent value
 ```
 
-Model and reasoning effort resolve independently. Profile Mode and Portable Mode are alternative assurance paths.
+Model and reasoning effort resolve independently. Profile Mode is the normal Plugin path. Portable Mode remains an explicit compatibility path.
 
 ### No inheritance-based exact route
 

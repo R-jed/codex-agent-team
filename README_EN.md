@@ -15,29 +15,25 @@ Code normally. Codex Agent Team adds a specialist Subagent only when it has conc
 
 Small, already-isolated work stays in the current Root. Context-heavy or clearly bounded execution can go to Luna. Terra is added only when a risky change benefits from detached judgment. If a high-consequence disagreement still remains, a non-Sol Root may request one Sol judgment after explicit user consent.
 
-## Recommended install: Codex Plugin
+## Install
 
-The Plugin is the recommended community distribution path. It installs the workflow Skills while keeping the current session as Root.
+Codex Plugin is the only supported distribution path.
 
-First register this repository as a marketplace source with Codex CLI:
+First register the repository marketplace:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Then reopen the ChatGPT desktop app, choose the `Codex Agent Team` marketplace in the Plugins Directory, and install `Codex Agent Team`. This follows the currently documented OpenAI Plugin flow and avoids making a build-specific convenience command the only installation path.
+Then reopen the ChatGPT desktop app, choose the `Codex Agent Team` marketplace in the Plugins Directory, and install `Codex Agent Team`.
 
-### Install companion custom agents
-
-After the Plugin is installed, complete one explicit Agent setup step. The current Plugin manifest natively declares Skills, MCP, hooks, and interface assets, while Codex custom Agent TOML files are still discovered from `~/.codex/agents/` or project `.codex/agents/`. Codex Agent Team therefore installs them as explicit companion profiles.
-
-Invoke in Codex:
+After installation there is only one user entry point to remember:
 
 ```text
-$codex-agent-team-setup
+/codex-agent-team
 ```
 
-The setup Skill runs the bundled fail-closed installer and byte-exactly verifies:
+On first use, the main Skill checks the four project custom Agent profiles:
 
 ```text
 luna_explorer
@@ -46,34 +42,18 @@ terra_reviewer
 sol_judge
 ```
 
-Then start a new Codex task so the native `spawn_agent` surface can discover the roles.
+If profiles are missing, the Skill explains the exact write scope and asks for permission. After approval it runs the Plugin-bundled fail-closed installer, installs and byte-exactly verifies the four profiles, then rechecks the current native `spawn_agent` role surface.
 
-## Standalone install
+If the current task can already discover the new roles, execution may continue immediately. If the runtime has not refreshed role discovery yet, the Skill asks the user to start a fresh Codex task and run `/codex-agent-team` again.
 
-Without the Plugin, the repository installer installs the main Skill and all companion custom agents in one transaction:
-
-```bash
-git clone https://github.com/R-jed/codex-agent-team.git
-cd codex-agent-team
-python scripts/install.py
-python scripts/install.py --check
-python scripts/doctor.py
-```
-
-Skill-only Portable Mode remains available:
-
-```bash
-python scripts/install.py --skill-only
-```
-
-The standalone installer places profiles under `~/.codex/agents/`, records package-managed hashes, and refuses to overwrite user-modified managed files.
+The setup path does not edit `config.toml`, unrelated Agent profiles, MCP configuration, credentials, or unrelated files.
 
 ## Daily use
 
 Explicit invocation:
 
 ```text
-$codex-agent-team
+/codex-agent-team
 ```
 
 You can also describe the development task normally. The Skill allows implicit invocation and first asks whether delegation has a concrete benefit.
@@ -158,7 +138,7 @@ Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create
 
 ## Validation status
 
-The repository includes policy regressions, routing cases, installer lifecycle tests, runtime-evidence fixtures, a deterministic verifier, and a live behavioral benchmark harness. Static tests are never presented as real Codex runtime evidence.
+The repository includes policy regressions, routing cases, Plugin packaging, custom-Agent installer lifecycle tests, runtime-evidence fixtures, a deterministic verifier, and a live behavioral benchmark harness. Static tests are never presented as real Codex runtime evidence.
 
 ## License
 

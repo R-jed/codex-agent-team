@@ -1,6 +1,6 @@
 # Runtime compatibility
 
-Codex Agent Team sits above a fast-moving Codex Native Subagent runtime. Compatibility therefore has two layers: package integrity, which this repository can test deterministically, and live Subagent capability, which must be checked in the active Codex session.
+Codex Agent Team sits above a fast-moving Codex Native Subagent runtime. Compatibility therefore has two layers: Plugin/package integrity, which this repository can test deterministically, and live Subagent capability, which must be checked in the active Codex session.
 
 Last reviewed: 2026-08-02.
 
@@ -20,8 +20,9 @@ No current local record grade is described as authoritative or cryptographic att
 
 | Capability | Repository can verify offline | Requires active Codex runtime |
 | --- | --- | --- |
-| Skill/profile file integrity | yes | no |
+| Plugin manifest and Skill package integrity | yes | no |
 | model/effort pins in shipped profiles | yes | no |
+| managed custom-Agent installer lifecycle | yes | no |
 | `spawn_agent` exposes the required role surface | no | yes |
 | a requested model is available on the current MultiAgent backend | no | yes |
 | effective child model/effort | only from optional local record | yes for `R1` |
@@ -31,14 +32,9 @@ No current local record grade is described as authoritative or cryptographic att
 
 ## Recommended checks
 
-Run after installation or upgrade:
+The normal user path is `/codex-agent-team`. Before model-specific delegation, the Skill checks the required custom-Agent roles. If profiles are missing, the Skill asks permission, runs the bundled managed profile installer and exactness check, then re-inspects the live role surface.
 
-```bash
-python scripts/install.py --check
-python scripts/doctor.py
-```
-
-`doctor.py` is intentionally non-mutating. It can report package/profile integrity, local sessions-store availability, installed Codex CLI version when discoverable, and whether the bundled evidence tools are present. It cannot prove live model routing without an active Subagent session.
+If the current task does not refresh custom-Agent discovery after exact installation, start a fresh Codex task and run `/codex-agent-team` again.
 
 For a consequential child whose route must be verified:
 
@@ -63,8 +59,11 @@ A parser continuing to run after a Codex upgrade does not by itself prove semant
 ## Failure rule
 
 ```text
-package integrity failure
--> repair before Profile Mode
+managed profile integrity failure
+-> report the installer error and keep affected work in Root
+
+profiles exact but current task cannot discover roles
+-> start a fresh task
 
 configuration route unprovable
 -> keep responsibility in Root

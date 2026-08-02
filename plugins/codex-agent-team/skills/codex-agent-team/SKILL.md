@@ -20,12 +20,52 @@ Use this Skill as a policy layer over Codex Native Subagents. Code normally: it 
 9. Role-to-route bindings are fixed; team composition is dynamic. The Skill does not silently change the current Root model or reasoning effort.
 10. Configuration assurance and runtime observation are separate facts. Never relabel configured values or mutable local records as authoritative runtime telemetry.
 11. Worker reports are claims. Root accepts work from actual artifacts, deterministic verification, and reproducible evidence.
+12. Plugin installation has one user-facing workflow entry point: `/codex-agent-team`. Custom-Agent provisioning is handled as first-run readiness inside this Skill.
 
 ## 1. Interpret the Root task
 
 Identify the user objective, acceptance criteria, existing authorization, consequence of error, and whether Root can complete the task efficiently without delegation. Do not assume Root is Sol.
 
-## 2. Delegation Gate
+## 2. Agent Profile Readiness Gate
+
+Before the first model-specific delegation in a task, inspect the live native `spawn_agent` role surface and role guidance for these exact project roles:
+
+```text
+luna_explorer   -> gpt-5.6-luna / max
+luna_worker     -> gpt-5.6-luna / max
+terra_reviewer  -> gpt-5.6-terra / xhigh
+sol_judge       -> gpt-5.6-sol / high
+```
+
+If all required roles for the intended responsibility are visible with the expected locked configuration, continue to Route Assurance Gate.
+
+If a required project role is missing, do not silently substitute a built-in role. Resolve the bundled managed profile installer from this Skill directory:
+
+```text
+skill_dir = directory containing this SKILL.md
+installer = skill_dir/../../scripts/install-agents.py
+```
+
+Before running it, tell the user that Codex Agent Team needs to write its four managed custom-Agent TOML profiles plus its ownership manifest under Codex home, and ask for permission. This setup authorization covers only those managed files. It does not authorize edits to `config.toml`, unrelated Agent profiles, MCP configuration, credentials, repositories, applications, or unrelated files.
+
+After approval:
+
+```bash
+python "$installer"
+python "$installer" --check
+```
+
+Both commands must succeed. Never manually overwrite a conflicting profile and never silently rename a project role.
+
+Then inspect the live native role surface again:
+
+- If the required roles are now visible, continue in the current task.
+- If installation is exact but the current task still does not expose them, tell the user to start a fresh Codex task and invoke `/codex-agent-team` again. Stop model-specific delegation in the current task.
+- If installation or exactness verification fails, report the actionable failure and keep the affected responsibility in Root.
+
+Successful file installation is configuration evidence. It is not proof that the current task has refreshed role discovery.
+
+## 3. Delegation Gate
 
 Delegate only when at least one concrete benefit exists:
 
@@ -35,7 +75,7 @@ Delegate only when at least one concrete benefit exists:
 
 Task length, file count, apparent difficulty, spare concurrency, or Luna's lower price do not justify delegation by themselves. If no concrete benefit exists, continue in Root.
 
-## 3. Route Assurance Gate
+## 4. Route Assurance Gate
 
 Before a model-specific child is spawned, inspect the live native `spawn_agent` contract and role guidance.
 
@@ -70,11 +110,9 @@ fork_turns = none
 
 Do not combine a route-pinning profile with competing explicit model/effort overrides.
 
-When installed as a Plugin, custom Agent profiles are a separate companion setup. If the project-specific role names are missing, tell the user to invoke `$codex-agent-team-setup`, complete its exactness check, then start a fresh Codex task. Do not imply that Plugin installation alone registers the custom Agent TOML files.
-
 ### Portable Mode
 
-When no exact profile is installed, use a built-in native role plus explicit `model` and `reasoning_effort` only when the live tool exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`, the selected role is not locked to an incompatible route, and Codex accepts the exact tuple.
+Portable Mode is an internal compatibility path, never an automatic fallback for a missing project profile. Use it only when the user or environment explicitly requires profile-free operation and the live tool exposes `agent_type`, `fork_turns`, `model`, and `reasoning_effort`, the selected role is not locked to an incompatible route, and Codex accepts the exact tuple.
 
 ```text
 agent_type = worker
@@ -102,7 +140,7 @@ Do not use omitted `model` or `reasoning_effort` as proof of a model-specific ro
 
 Read `references/routing-policy.md` for full route and fallback rules.
 
-## 4. Route by responsibility
+## 5. Route by responsibility
 
 | Responsibility | Portable role | Default route | Purpose |
 | --- | --- | --- | --- |
@@ -113,7 +151,7 @@ Read `references/routing-policy.md` for full route and fallback rules.
 
 Do not create a Sol Worker for routine execution. Use Terra because independent judgment has concrete value, not because a task merely looks difficult.
 
-## 5. Consent Gate
+## 6. Consent Gate
 
 The normal enabled-Skill envelope is one Luna responsibility plus, when Review Gate justifies it, one Terra critic. Do not ask repeatedly inside that envelope.
 
@@ -121,7 +159,7 @@ Ask in plain language before an expansion in permission, scope, external impact,
 
 Use `references/consent-policy.md` for details.
 
-## 6. Task packet and context fork
+## 7. Task packet and context fork
 
 Use `references/task-packet.md`. For bounded coding work, prefer its Implementation Preset.
 
@@ -135,7 +173,7 @@ Role-specific spawns always set `fork_turns` explicitly:
 
 Every packet includes the prompt-injection boundary and no-further-delegation rule.
 
-## 7. Permission and safety checks
+## 8. Permission and safety checks
 
 Use `references/safety-policy.md` when a child may write, handle sensitive material, or consume untrusted content.
 
@@ -143,7 +181,7 @@ Distinguish `runtime_enforced`, `instruction_enforced`, and `unknown`. A profile
 
 If safety depends on host-enforced read-only access and current runtime cannot report it, keep the responsibility in Root.
 
-## 8. Execute, observe, and verify
+## 9. Execute, observe, and verify
 
 After a child returns:
 
@@ -158,7 +196,7 @@ After a child returns:
 9. When Root thread id is known, verify the child's `parent_thread_id`; quarantine a mismatch.
 10. Allow at most one focused follow-up when evidence is incomplete.
 
-## 9. Review Gate
+## 10. Review Gate
 
 Detached review is risk-triggered, not mandatory for every implementation.
 
@@ -176,11 +214,11 @@ insufficient_evidence
 
 Root still owns acceptance. If high-consequence disagreement remains and Root is not Sol, Consent Gate may authorize one Sol Senior Judge.
 
-## 10. Close children
+## 11. Close children
 
 Close completed, rejected, or no-longer-needed Subagents promptly.
 
-## 11. Orchestration receipt
+## 12. Orchestration receipt
 
 Use `references/orchestration-receipt.md`. Emit a compact receipt when the Skill was explicitly invoked, any child was created, or an orchestration gate materially changed execution. Keep implicit Root-only trivial work quiet by default.
 
