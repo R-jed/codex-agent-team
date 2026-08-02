@@ -11,7 +11,8 @@
       },
       "expected": {
         "decision": "continue",
-        "claim": "configuration_assured_only"
+        "claim": "configuration_assured_only",
+        "evidence_grade": "C1_configuration_only"
       }
     },
     {
@@ -24,7 +25,8 @@
       },
       "expected": {
         "decision": "return_to_root",
-        "claim": "stronger_assurance_unavailable"
+        "claim": "stronger_assurance_unavailable",
+        "evidence_grade": "C1_configuration_only"
       }
     },
     {
@@ -35,7 +37,21 @@
       },
       "expected": {
         "decision": "continue",
-        "observation_status": "matched"
+        "observation_status": "matched",
+        "evidence_grade": "R1_runtime_reported"
+      }
+    },
+    {
+      "id": "local-record-route-match",
+      "input": {
+        "configured_route": "gpt-5.6-luna/max",
+        "native_observed_route": null,
+        "local_observed_route": "gpt-5.6-luna/max"
+      },
+      "expected": {
+        "decision": "continue",
+        "evidence_grade": "L1_local_record_observed",
+        "runtime_reported": false
       }
     },
     {
@@ -46,17 +62,43 @@
       },
       "expected": {
         "decision": "quarantine",
-        "observation_status": "mismatch"
+        "observation_status": "mismatch",
+        "evidence_grade": "X0_conflicted"
+      }
+    },
+    {
+      "id": "wrong-parent-thread",
+      "input": {
+        "expected_parent_thread_id": "root-thread",
+        "observed_parent_thread_id": "other-thread"
+      },
+      "expected": {
+        "decision": "quarantine",
+        "ancestry_match": false,
+        "policy_violation": "parent_thread_id_mismatch"
       }
     },
     {
       "id": "required-read-only-unobservable",
       "input": {
         "requires_enforced_read_only": true,
-        "observed_sandbox": null
+        "native_observed_sandbox": null
       },
       "expected": {
         "decision": "return_to_root",
+        "permission_guarantee": "unknown"
+      }
+    },
+    {
+      "id": "local-read-only-cannot-establish-runtime-enforced",
+      "input": {
+        "requires_enforced_read_only": true,
+        "native_observed_sandbox": null,
+        "local_observed_sandbox": "read-only"
+      },
+      "expected": {
+        "decision": "return_to_root",
+        "evidence_grade": "L1_local_record_observed",
         "permission_guarantee": "unknown"
       }
     },

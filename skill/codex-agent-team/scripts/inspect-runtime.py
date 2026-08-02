@@ -2,9 +2,10 @@
 """Read allowlisted routing metadata for one native Codex Subagent rollout.
 
 This helper is intentionally read-only. It locates one rollout whose filename ends in
-an exact child thread UUID, streams only the metadata records needed for attestation,
-and emits a compact JSON object. It never emits prompts, messages, instructions,
-environment variables, tokens, tool arguments, or arbitrary rollout payloads.
+an exact child thread UUID, streams only metadata needed for runtime evidence, and
+emits a compact JSON object. Prompts, messages, instructions, environment variables,
+tokens, tool arguments, arbitrary rollout payloads, and local paths are excluded by
+default.
 """
 
 from __future__ import annotations
@@ -15,14 +16,14 @@ import os
 from pathlib import Path
 import re
 import sys
-from typing import Any
+from typing import Any, NoReturn
 
 THREAD_ID_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 )
 
 
-def fail(message: str) -> "NoReturn":
+def fail(message: str) -> NoReturn:
     raise SystemExit(f"ERROR: {message}")
 
 
@@ -38,6 +39,11 @@ def parse_args() -> argparse.Namespace:
             "Codex sessions root. Defaults to $CODEX_HOME/sessions when CODEX_HOME "
             "is set, otherwise ~/.codex/sessions."
         ),
+    )
+    parser.add_argument(
+        "--include-location",
+        action="store_true",
+        help="Also emit agent_path and cwd. Off by default to minimize local path disclosure.",
     )
     return parser.parse_args()
 
@@ -99,7 +105,9 @@ def stable_value(values: list[str | None], field: str, *, required: bool) -> str
     return next(iter(non_null), None)
 
 
-def parse_rollout(rollout: Path, expected_thread_id: str) -> dict[str, str | None]:
+def parse_rollout(
+    rollout: Path, expected_thread_id: str, *, include_location: bool
+) -> dict[str, str | None]:
     session_records: list[dict[str, Any]] = []
     turn_records: list[dict[str, Any]] = []
 
@@ -155,11 +163,10 @@ def parse_rollout(rollout: Path, expected_thread_id: str) -> dict[str, str | Non
     ]
     cwds = [string_or_none(turn.get("cwd")) for turn in turn_records]
 
-    return {
+    result: dict[str, str | None] = {
         "thread_id": session_thread_id,
         "parent_thread_id": string_or_none(session.get("parent_thread_id")),
         "agent_role": agent_role,
-        "agent_path": string_or_none(session.get("agent_path")),
         "model_provider": string_or_none(session.get("model_provider")),
         "model": stable_value(models, "model", required=True),
         "effort": stable_value(efforts, "effort", required=True),
@@ -169,8 +176,15 @@ def parse_rollout(rollout: Path, expected_thread_id: str) -> dict[str, str | Non
         "permission_profile_type": stable_value(
             permissions, "permission profile type", required=False
         ),
-        "cwd": stable_value(cwds, "working directory", required=False),
+        "runtime_version": string_or_none(
+            session.get("cli_version") or session.get("runtime_version") or session.get("version")
+        ),
+        "record_format_version": string_or_none(session.get("record_format_version")),
     }
+    if include_location:
+        result["agent_path"] = string_or_none(session.get("agent_path"))
+        result["cwd"] = stable_value(cwds, "working directory", required=False)
+    return result
 
 
 def main() -> None:
@@ -180,7 +194,7 @@ def main() -> None:
 
     sessions_root = resolve_sessions_root(args.sessions_dir or default_sessions_dir())
     rollout = locate_rollout(sessions_root, args.thread_id)
-    result = parse_rollout(rollout, args.thread_id)
+    result = parse_rollout(rollout, args.thread_id, include_location=args.include_location)
     json.dump(result, sys.stdout, sort_keys=True, separators=(",", ":"))
     sys.stdout.write("\n")
 

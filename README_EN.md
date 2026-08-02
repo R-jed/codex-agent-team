@@ -13,7 +13,7 @@
 
 A small-team policy Skill for Codex Native Subagents.
 
-The current session always stays in control as Root. GPT-5.6 Luna Max handles heavy execution and exploration. GPT-5.6 Terra XHigh provides detached review. A non-Sol Root may request one GPT-5.6 Sol High judgment for an unresolved high-consequence decision, only after user consent.
+The current session always stays in control as Root. GPT-5.6 Luna Max handles clearly bounded execution and exploration. GPT-5.6 Terra XHigh provides detached review. A non-Sol Root may request one GPT-5.6 Sol High judgment for an unresolved high-consequence decision, only after user consent.
 
 ## When it helps
 
@@ -28,7 +28,7 @@ Small, already-isolated fixes usually stay in Root. The Skill does not create Su
 
 Requirements: Python >= 3.11, Git, and a Codex environment with Native Subagents.
 
-The default installer places the Skill under `~/.codex/skills/` and four model-locked Agent profiles under `~/.codex/agents/`.
+The installer places the Skill under `~/.codex/skills/`, four model-pinned Agent profiles under `~/.codex/agents/`, and records package-managed hashes. Future upgrades may replace a managed file only when it is still unchanged from the previous managed install; user-modified artifacts fail closed.
 
 ```bash
 git clone https://github.com/R-jed/codex-agent-team.git
@@ -36,10 +36,11 @@ cd codex-agent-team
 python scripts/install.py
 ```
 
-The installer preflights the complete destination before mutation and never overwrites a differing locked Agent profile. Verify the installed artifacts later with a non-mutating exactness check:
+Run non-mutating integrity and environment checks after installation:
 
 ```bash
 python scripts/install.py --check
+python scripts/doctor.py
 ```
 
 Restart or reopen Codex after installation. Default profiles: `luna_explorer`, `luna_worker`, `terra_reviewer`, `sol_judge`.
@@ -68,9 +69,9 @@ Fix this authentication issue, run the relevant tests, then independently check 
   <img src="assets/readme/workflow.svg" alt="Codex Agent Team workflow" width="100%">
 </p>
 
-Root first decides whether delegation has a concrete benefit. Luna handles exploration or execution. Terra is added when detached review materially improves confidence. Results return to Root for verification and integration.
+Root first decides whether delegation has a concrete benefit. Luna handles bounded exploration or execution. Terra is added when detached review materially improves confidence. Results return to Root for verification and integration.
 
-If the required route, permission, scope, or external-impact boundary cannot be established safely, the work stays in Root. High-impact actions stay with Root as well. Consequential tasks may also inspect effective child routing and permissions when the runtime exposes them. Missing runtime telemetry stays explicitly `not_exposed`; configured values are never relabeled as observed facts.
+If the required route, permission, scope, or external-impact boundary cannot be established safely, the work stays in Root. Consequential tasks may compare effective route, parent-thread, and permission evidence. The project distinguishes configuration assurance, native runtime reports, and mutable local rollout records; local records are never presented as authoritative runtime proof.
 
 ## Roles
 
@@ -90,26 +91,25 @@ If the required route, permission, scope, or external-impact boundary cannot be 
 - Minimum Team: zero Subagents is normal; default 1; normal maximum 2.
 - Root stays in control: the Skill never silently switches the active Root model or reasoning effort.
 - One Writer: one active writing Worker per shared workspace.
-- Depth 1: Workers do not create another Subagent team.
+- Depth 1: Workers do not create another Subagent team; when observable, Root verifies the child's `parent_thread_id`.
 - Fail closed: unprovable exact routes or required permissions return work to Root.
 - Evidence first: Worker reports are claims; Root accepts work from actual files, diffs, commands, tests, and reproducible evidence.
 
 Codex Agent Team uses Codex's native `spawn_agent` primitive. It does not create a second Agent runtime, persistent task DAG, or background scheduler.
-
-The default install uses model-locked profiles. `--skill-only` depends on the live `spawn_agent` surface exposing exact model / effort settings. See [Model Route Assurance](docs/model-route-assurance.md) for details.
 
 ## Documentation
 
 - [Architecture](docs/architecture.md)
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)
 - [Model Route Assurance](docs/model-route-assurance.md)
-- [Runtime Assurance](skill/codex-agent-team/references/runtime-assurance.md)
+- [Runtime Evidence](skill/codex-agent-team/references/runtime-assurance.md)
+- [Compatibility](docs/compatibility.md)
 - [OpenAI References](docs/openai-references.md)
 - Policy: [Routing](skill/codex-agent-team/references/routing-policy.md) · [Safety](skill/codex-agent-team/references/safety-policy.md) · [Consent](skill/codex-agent-team/references/consent-policy.md)
 
 ## Validation status
 
-The repository includes policy regression tests, routing eval cases, installer regressions, and runtime-attestation fixtures. Native runtime behavior remains dependent on the capabilities exposed by the active Codex build.
+The repository includes policy regressions, routing cases, installer lifecycle tests, runtime-evidence fixtures, and a deterministic verifier. Real Codex behavioral benchmarks are tracked separately; static tests are not presented as live-runtime evidence.
 
 ## License
 

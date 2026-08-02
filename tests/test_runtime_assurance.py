@@ -13,13 +13,16 @@ INSPECTOR = ROOT / "skill" / "codex-agent-team" / "scripts" / "inspect-runtime.p
 THREAD_ID = "11111111-1111-7111-8111-111111111111"
 
 
-def run_inspector(sessions_dir: Path, thread_id: str = THREAD_ID) -> subprocess.CompletedProcess[str]:
+def run_inspector(
+    sessions_dir: Path, thread_id: str = THREAD_ID, *extra: str
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [
             sys.executable,
             str(INSPECTOR),
             "--sessions-dir",
             str(sessions_dir),
+            *extra,
             thread_id,
         ],
         text=True,
@@ -40,10 +43,7 @@ def valid_records(thread_id: str = THREAD_ID) -> list[dict]:
     return [
         {
             "type": "response_item",
-            "payload": {
-                "prompt": "DO_NOT_LEAK_PROMPT",
-                "token": "DO_NOT_LEAK_TOKEN",
-            },
+            "payload": {"prompt": "DO_NOT_LEAK_PROMPT", "token": "DO_NOT_LEAK_TOKEN"},
         },
         {
             "type": "event_msg",
@@ -60,6 +60,8 @@ def valid_records(thread_id: str = THREAD_ID) -> list[dict]:
                 "agent_role": "luna_worker",
                 "agent_path": "/root/fixture",
                 "model_provider": "openai",
+                "cli_version": "0.145.0",
+                "record_format_version": "1",
                 "base_instructions": "DO_NOT_LEAK_INSTRUCTIONS",
             },
         },
@@ -68,14 +70,8 @@ def valid_records(thread_id: str = THREAD_ID) -> list[dict]:
             "payload": {
                 "model": "gpt-5.6-luna",
                 "effort": "max",
-                "sandbox_policy": {
-                    "type": "workspace-write",
-                    "hidden": "DO_NOT_LEAK_SANDBOX",
-                },
-                "permission_profile": {
-                    "type": "default",
-                    "hidden": "DO_NOT_LEAK_PERMISSION",
-                },
+                "sandbox_policy": {"type": "workspace-write", "hidden": "DO_NOT_LEAK_SANDBOX"},
+                "permission_profile": {"type": "default", "hidden": "DO_NOT_LEAK_PERMISSION"},
                 "cwd": "/fixture/cwd",
                 "summary": "DO_NOT_LEAK_SUMMARY",
             },
@@ -83,7 +79,7 @@ def valid_records(thread_id: str = THREAD_ID) -> list[dict]:
     ]
 
 
-def test_runtime_inspector_emits_only_allowlisted_metadata(tmp_path: Path):
+def test_runtime_inspector_emits_only_minimal_allowlisted_metadata(tmp_path: Path):
     sessions = tmp_path / "sessions"
     write_rollout(sessions, THREAD_ID, valid_records())
 
@@ -92,26 +88,38 @@ def test_runtime_inspector_emits_only_allowlisted_metadata(tmp_path: Path):
     assert result.returncode == 0, result.stderr
     payload = json.loads(result.stdout)
     assert payload == {
-        "agent_path": "/root/fixture",
         "agent_role": "luna_worker",
-        "cwd": "/fixture/cwd",
         "effort": "max",
         "model": "gpt-5.6-luna",
         "model_provider": "openai",
         "parent_thread_id": "00000000-0000-7000-8000-000000000000",
         "permission_profile_type": "default",
+        "record_format_version": "1",
+        "runtime_version": "0.145.0",
         "sandbox_policy_type": "workspace-write",
         "thread_id": THREAD_ID,
     }
+    assert "agent_path" not in payload
+    assert "cwd" not in payload
     assert "DO_NOT_LEAK" not in result.stdout
+
+
+def test_runtime_inspector_location_is_explicit_opt_in(tmp_path: Path):
+    sessions = tmp_path / "sessions"
+    write_rollout(sessions, THREAD_ID, valid_records())
+
+    result = run_inspector(sessions, THREAD_ID, "--include-location")
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["agent_path"] == "/root/fixture"
+    assert payload["cwd"] == "/fixture/cwd"
 
 
 def test_runtime_inspector_rejects_invalid_thread_id_without_scanning(tmp_path: Path):
     sessions = tmp_path / "sessions"
     sessions.mkdir()
-
     result = run_inspector(sessions, "not-a-thread-id")
-
     assert result.returncode != 0
     assert "canonical lowercase UUID" in result.stderr
 
@@ -178,7 +186,7 @@ def test_runtime_inspector_allows_unexposed_optional_permission_fields(tmp_path:
     payload = json.loads(result.stdout)
     assert payload["sandbox_policy_type"] is None
     assert payload["permission_profile_type"] is None
-    assert payload["cwd"] is None
+    assert "cwd" not in payload
 
 
 def test_runtime_inspector_rejects_symlinked_rollout(tmp_path: Path):
@@ -194,6 +202,5 @@ def test_runtime_inspector_rejects_symlinked_rollout(tmp_path: Path):
         pytest.skip("symlinks are unavailable in this environment")
 
     result = run_inspector(sessions)
-
     assert result.returncode != 0
     assert "non-symlink" in result.stderr or "outside the sessions root" in result.stderr

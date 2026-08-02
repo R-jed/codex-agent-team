@@ -173,7 +173,7 @@ permission_guarantee
 
 Do not fill task packets with placeholder observed runtime fields before execution.
 
-## Route and observation record
+## Route and evidence record
 
 Root may keep a small attempt record:
 
@@ -184,18 +184,25 @@ preferred_route
 route_mode
 configured_route
 route_assurance
+expected_thread_id
+expected_parent_thread_id
 observation_source
 observed_agent_type
 observed_route
 observed_sandbox
 observed_permission_profile
 observation_status
+evidence_grade
 permission_guarantee
 result_status
 evidence_status
 ```
 
-Use `observation_source = none`, `observed_route = not_exposed`, and `observation_status = not_exposed` when the runtime does not report the effective child route and no safe fallback is available. Do not copy `preferred_route` or `configured_route` into observed fields merely because spawn succeeded.
+Use `observation_source = none`, `observed_route = not_exposed`, `observation_status = not_exposed`, and `evidence_grade = C1_configuration_only` when the runtime does not report the effective child route and no safe fallback is available.
+
+A local rollout record alone is `L1_local_record_observed`; it does not establish a native runtime report. When Root knows its thread id, record it as `expected_parent_thread_id` and use `scripts/verify-runtime.py` when ancestry matters.
+
+Do not copy `preferred_route` or `configured_route` into observed fields merely because spawn succeeded.
 
 This is an audit note, not a persistent orchestration ledger.
 

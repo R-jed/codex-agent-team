@@ -1,8 +1,8 @@
-# Runtime Assurance
+# Runtime Evidence
 
-Runtime assurance strengthens route and permission evidence after a native Subagent is spawned. It does not replace configuration-level Route Assurance and it does not make local Codex implementation details a universal dependency.
+Runtime evidence strengthens route, ancestry, and permission claims after a native Subagent is spawned. It does not replace configuration-level Route Assurance, and it does not treat mutable local Codex records as authoritative attestation.
 
-## 1. Keep configuration and observation separate
+## 1. Separate configuration from observation
 
 Track these facts independently:
 
@@ -16,134 +16,163 @@ observed_route
 observed_sandbox
 observed_permission_profile
 observation_status
+evidence_grade
 ```
 
-`route_assurance` explains why the requested configuration is trusted before or at spawn time. Runtime observation describes only fields actually exposed after spawn.
-
-Allowed observation sources:
-
-```text
-native_metadata
-local_rollout
-none
-```
-
-Allowed observation status values:
-
-```text
-matched
-not_exposed
-mismatch
-invalid
-```
+`route_assurance` explains why the requested configuration is trusted before or at spawn time. Observation fields describe only facts actually reported or recorded after spawn.
 
 Never copy preferred or configured values into observed fields.
 
-## 2. Observation order
+## 2. Evidence grades
+
+Use explicit grades so the strength of a claim is not hidden behind the word “attestation”.
+
+```text
+C1_configuration_only
+L1_local_record_observed
+R1_runtime_reported
+R2_runtime_reported_and_local_record_agree
+X0_conflicted
+```
+
+Meanings:
+
+- `C1_configuration_only`: the route is configuration-assured, but no post-spawn observation is available.
+- `L1_local_record_observed`: a mutable local Codex rollout record contains matching route facts. This is useful telemetry, not an authoritative runtime receipt.
+- `R1_runtime_reported`: the live/public native runtime reports the effective route facts.
+- `R2_runtime_reported_and_local_record_agree`: native runtime metadata and the local record independently expose the same facts and agree.
+- `X0_conflicted`: an expected fact mismatches observation or two observation sources disagree. Quarantine the affected result.
+
+Reserve stronger terminology such as `runtime_attested` for a future authoritative runtime receipt with semantics that justify that claim.
+
+## 3. Observation sources
 
 Use the least coupled source that exposes the required fact:
 
-1. Prefer public native spawn/details metadata when the current runtime exposes role, model, effort, sandbox, or permission information.
-2. When required fields are omitted and the local Codex sessions store is accessible, the bundled `scripts/inspect-runtime.py` may be used as a read-only fallback for the exact child thread id.
+1. Prefer public native spawn/details metadata.
+2. When required fields are omitted and the local Codex sessions store is accessible, the bundled `scripts/inspect-runtime.py` may read one exact child rollout as a fallback record.
 3. If neither source exposes the required fact, record `observation_source = none` and `observation_status = not_exposed`.
 
-When public metadata and local rollout evidence both expose the same field, they must agree. A disagreement is `observation_status = mismatch`; quarantine the affected result and return control to Root.
+When public metadata and local rollout evidence both expose the same field, they must agree.
 
-## 3. Local rollout adapter contract
+## 4. Local rollout adapter contract
 
-The bundled inspector is an optional adapter over the current local Codex rollout store. It is not part of the native Subagent runtime and may stop working when Codex changes its local session format.
+The bundled inspector is an optional adapter over the current local Codex rollout store. It may stop working when Codex changes its local session format.
 
 The adapter must:
 
 - accept one canonical lowercase child thread UUID;
 - locate exactly one rollout filename ending in that UUID;
 - reject symlinked rollout files and paths resolving outside the selected sessions root;
-- stream JSONL instead of printing or copying arbitrary rollout contents;
+- stream JSONL instead of printing arbitrary rollout contents;
 - require an exact session id, agent role, model, and reasoning effort;
 - reject missing or conflicting required route fields;
 - emit only an allowlisted routing and permission object;
 - never emit prompts, messages, instructions, environment variables, tokens, configuration payloads, tool arguments, or arbitrary event bodies.
 
-Local rollout evidence is implementation-coupled. If its schema is missing, stale, inaccessible, or inconsistent, mark observation unavailable or invalid according to the task's evidence requirement. Do not infer a route from filenames, preferred policy, or profile contents.
+A local rollout record is mutable telemetry. Do not describe it as cryptographic, authoritative, or host-enforced proof.
 
-## 4. When observation is optional
+## 5. Deterministic verifier
 
-For ordinary bounded work, a valid `profile_locked` or `native_explicit_validated` route remains sufficient to delegate. Runtime observation is useful evidence when available but its absence does not automatically create another Agent or block the task.
-
-Examples:
-
-- a bounded mechanical implementation;
-- repository mapping or search;
-- a routine test addition where Root will inspect the diff and rerun deterministic verification.
-
-In these cases:
+Use `scripts/verify-runtime.py` to reconcile normalized expected and observed facts. The verifier accepts:
 
 ```text
-route_assurance = profile_locked | native_explicit_validated
-observation_status = matched | not_exposed
+expected
+native  (optional normalized public runtime metadata)
+local   (optional normalized local rollout metadata)
 ```
 
-Both can be acceptable.
+It deterministically checks:
 
-## 5. When observation becomes an acceptance requirement
+- expected role/model/effort;
+- expected child thread id when known;
+- expected parent thread id when known;
+- agreement between native and local sources;
+- required read-only enforcement;
+- whether a required runtime report is actually present.
 
-Require the relevant runtime fact when the safety or claimed independence of the task materially depends on it.
-
-Examples:
-
-- the task requires host-enforced read-only isolation;
-- a high-consequence conclusion specifically relies on verified cross-model review;
-- current native metadata conflicts with the configured role;
-- the user explicitly asks for proof of the effective child route or permission profile.
-
-If the required runtime fact cannot be observed, return the affected responsibility to Root or report that the stronger assurance claim cannot be established. Do not silently weaken the requirement.
-
-## 6. Route matching
-
-For a route observation to match, the observed role, model, and effort must agree with the selected route when those fields are available.
-
-Example:
+Output includes:
 
 ```text
-configured_route = gpt-5.6-luna/max
-observed_agent_type = luna_worker
-observed_route = gpt-5.6-luna/max
-observation_status = matched
+status
+decision
+evidence_grade
+configuration_match
+runtime_reported
+local_record_observed
+source_agreement
+permission_match
+ancestry_match
+violations
 ```
 
-A different model, effort, or role is a mismatch. Do not accept the child result as correctly routed work even when its output appears useful.
+Policy decides when verification is required. The verifier decides whether supplied evidence matches.
 
-## 7. Permission observation
+## 6. Depth-one ancestry
+
+When Root knows its own thread id, include it as `expected.parent_thread_id`.
+
+If an observed child reports another parent:
+
+```text
+parent_thread_id mismatch
+-> ancestry_match = false
+-> quarantine
+```
+
+This turns delegation depth from a prompt-only rule into a runtime-verifiable invariant when ancestry metadata is exposed.
+
+## 7. Optional vs required observation
+
+For ordinary bounded work, a valid `profile_locked` or `native_explicit_validated` configuration route remains sufficient to delegate. Missing runtime telemetry may remain `C1_configuration_only`.
+
+Require a native runtime report when:
+
+- safety depends on effective host-enforced read-only isolation;
+- a high-consequence conclusion specifically relies on verified cross-model independence;
+- the user explicitly asks for proof of the effective child route or permission state;
+- available runtime evidence conflicts with the configured route.
+
+A local rollout record alone cannot satisfy a requirement for a native runtime report.
+
+## 8. Permission evidence
 
 A configured `sandbox_mode = "read-only"` remains intent until runtime evidence establishes the effective sandbox.
 
-When runtime reports read-only isolation:
+When native runtime metadata reports read-only isolation:
 
 ```text
 permission_guarantee = runtime_enforced
 ```
 
-When runtime is broader and hard isolation is not required, a critic may proceed only under the behavioral read-only fallback defined in `safety-policy.md`. Keep the guarantee at `instruction_enforced` and report the broader observed sandbox as residual risk.
+When only behavioral read-only can be established, keep:
 
-When hard isolation is required and effective read-only cannot be observed, stop the delegated responsibility with `permission_requirement_unmet`.
+```text
+permission_guarantee = instruction_enforced
+```
 
-## 8. Failure behavior
+When hard isolation is required and effective read-only is unavailable or broader than requested, return the responsibility to Root.
+
+## 9. Failure behavior
 
 ```text
 configuration assurance fails
 -> do not spawn the model-specific child
 
-runtime observation matches
--> record evidence and continue
+runtime report matches
+-> record R1 or R2 and continue
 
-runtime observation unavailable but optional
--> record not_exposed and continue
+only local record matches
+-> record L1; never promote it to runtime-reported proof
 
-runtime observation unavailable but required
+observation unavailable but optional
+-> record C1 and continue
+
+native runtime report required but unavailable
 -> return affected responsibility to Root
 
-runtime observation conflicts
--> quarantine result and return to Root
+any source conflict or expected-route mismatch
+-> record X0, quarantine result, return to Root
 ```
 
-Runtime assurance must never create an automatic hidden model ladder or force a larger team.
+Runtime evidence must never create an automatic hidden model ladder or force a larger team.

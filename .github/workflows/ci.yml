@@ -9,17 +9,29 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: ubuntu-latest
+            python: "3.12"
+          - os: macos-latest
+            python: "3.11"
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
       - run: python -m pip install -r requirements-dev.txt
       - run: pytest -q
-      - name: Verify installer transaction
+      - name: Verify installer lifecycle
         shell: bash
         run: |
           target="$RUNNER_TEMP/codex-agent-team"
           python scripts/install.py --codex-home "$target"
           python scripts/install.py --codex-home "$target" --check
+          python scripts/install.py --codex-home "$target"
+          python scripts/doctor.py --codex-home "$target" --json
