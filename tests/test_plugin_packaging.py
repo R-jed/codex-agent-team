@@ -13,12 +13,14 @@ MAIN_SKILL = PLUGIN_ROOT / "skills" / "codex-agent-team"
 def test_plugin_manifest_packages_single_canonical_skill_tree():
     payload = json.loads(PLUGIN.read_text())
     assert payload["name"] == "codex-agent-team"
-    assert payload["version"] == "0.3.0"
+    assert payload["version"] == "0.4.0"
     assert payload["skills"] == "./skills/"
     assert payload["license"] == "MIT"
-    assert payload["interface"]["displayName"] == "Codex Agent Team"
+    assert payload["interface"]["displayName"] == "Codex Delegate"
     assert {"Read", "Write"} <= set(payload["interface"]["capabilities"])
+    assert "Codex Delegate" in payload["description"]
     assert "distinct dependency" in payload["description"]
+    assert all("/codex-delegate" in prompt for prompt in payload["interface"]["defaultPrompt"])
     assert MAIN_SKILL.is_dir()
     assert sorted(path.name for path in (PLUGIN_ROOT / "skills").iterdir() if path.is_dir()) == ["codex-agent-team"]
     assert (PLUGIN_ROOT / "scripts" / "install-agents.py").is_file()
@@ -37,6 +39,7 @@ def test_plugin_packages_only_current_semantic_profiles():
 def test_repository_marketplace_points_at_nested_plugin_root():
     payload = json.loads(MARKETPLACE.read_text())
     assert payload["name"] == "codex-agent-team"
+    assert payload["interface"]["displayName"] == "Codex Delegate"
     assert len(payload["plugins"]) == 1
     plugin = payload["plugins"][0]
     assert plugin["name"] == "codex-agent-team"
@@ -49,11 +52,11 @@ def test_main_skill_owns_first_run_profile_setup_and_receipts():
     assert "Agent Profile Readiness" in text
     assert "../../scripts/install-agents.py" in text
     assert 'python "$installer" --check' in text
-    assert "/codex-agent-team" in text
+    assert "/codex-delegate" in text
     assert "codex-agent-team-setup" not in text
     assert "references/orchestration-receipt.md" in text
     receipt = (MAIN_SKILL / "references" / "orchestration-receipt.md").read_text()
-    assert "Agent Team: Main session only" in receipt
+    assert "Codex Delegate: Main session only" in receipt
     assert "Luna + Sol example" in receipt
 
 
@@ -69,7 +72,8 @@ def test_readmes_expose_plugin_only_single_command_path():
         text = (ROOT / name).read_text()
         assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
         assert "Plugins Directory" in text
-        assert "/codex-agent-team" in text
+        assert "/codex-delegate" in text
+        assert "Codex Delegate" in text
         assert "codex-agent-team-setup" not in text
         assert "python scripts/install.py" not in text
         assert "codex_agent_team_worker" in text
