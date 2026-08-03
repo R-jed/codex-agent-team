@@ -146,7 +146,7 @@ def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
         "/gpt56-sol-pro-consult",
         "## Project consultation target",
         "TARGET_CHATGPT_CONVERSATION_TITLE",
-        "分支 · 项目对比分析",
+        "分支 · 分支 · 项目对比分析",
         "continue_existing_conversation",
         "exact_title_unique_match",
         "CONSULTATION_TARGET_UNRESOLVED",
@@ -157,6 +157,7 @@ def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
     ]:
         assert phrase in text
 
+    assert "分支 · 项目对比分析" not in text
     assert "fuzzy match" in text
     assert "model_judgment" in text
 
