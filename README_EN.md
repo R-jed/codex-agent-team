@@ -2,9 +2,9 @@
 
 [中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-Codex Delegate is a native Subagent delegation framework for Codex. You describe the engineering task, the current session stays in control, deciding what's worth delegating, who should handle it, and how to verify the result.
+Codex Delegate is a native Subagent delegation framework for Codex. You describe the engineering task, the current session decides what's worth delegating, who should handle it, and how to verify the result.
 
-The goal is simple: get the job done with the smallest useful set of Agents, reducing redundant repository discovery and uncontrolled write scope.
+Get the job done with the smallest useful set of Agents, reducing redundant repository discovery and uncontrolled write scope.
 
 Current version: `0.4.0` (pre-v1.0.0 preview).
 
@@ -32,17 +32,17 @@ No need to manually choose Agent ordering. No need to force multiple models into
 
 ## How it works
 
-The main session identifies the outcome, scope, and acceptance criteria first, then picks the smallest useful execution path.
+The main session understands the task, then picks the smallest useful execution path.
 
 <img src="docs/architecture-diagram.svg" alt="Codex Delegate architecture diagram" width="640">
 
 | Role | Model | Purpose |
 | --- | --- | --- |
-| Main session | current Codex session | understand the task, key decisions, schedule work, accept results |
-| Luna Reader | GPT-5.6 Luna `max` | search, tracing, test mapping, evidence collection |
-| Luna Worker | GPT-5.6 Luna `max` | bounded implementation, debugging, tests, local refactors |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | resolve one remaining complex technical dependency |
-| Sol Advisor | GPT-5.6 Sol `high` | high-value judgment and selective review |
+| Main session | current Codex session | understand task, decisions, scheduling, acceptance |
+| Luna Reader | GPT-5.6 Luna `max` | search, test mapping, evidence collection |
+| Luna Worker | GPT-5.6 Luna `max` | implementation, debugging, tests, local refactors |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | resolve complex technical dependencies |
+| Sol Advisor | GPT-5.6 Sol `high` | judgment and selective review |
 
 ## Delegation flow
 
@@ -68,9 +68,7 @@ A Writing Worker does not start guessing through repository changes when accepta
 
 <img src="docs/evidence-lifecycle.svg" alt="Evidence lifecycle" width="640">
 
-Within a task, the main session keeps a compact set of still-valid test results, call paths, interface facts, and other reusable evidence. Later Agents reuse those facts while their dependencies remain valid. Only evidence affected by changed files, artifacts, or assumptions needs to be revalidated.
-
-This reduces full repository rescans, repeated deterministic commands, and repeated reasoning over the same dependency after a model change.
+The main session keeps valid test results, interface facts, and other evidence. Later Agents reuse those facts directly. Only evidence affected by changed files needs revalidation.
 
 ## Failure handling
 
@@ -119,9 +117,9 @@ If provisioning succeeds but the current task still does not expose the new role
 
 ## Current release status
 
-Version `0.4.0` adopts the `Codex Delegate` product name and `/codex-delegate` entry point while retaining the existing repository, Plugin package, Agent-profile, and ownership-manifest identifiers as compatibility identifiers during the pre-v1 migration window.
+Version `0.4.0` adopts the `Codex Delegate` product name and `/codex-delegate` entry point. The repository, Plugin package, and Agent profiles retain compatibility identifiers during the pre-v1 window.
 
-Before v1.0.0, the project is still validating independent sessions writing against the same checkout and concurrent profile provisioning in one Codex home. This README makes no unmeasured claims about throughput, cost reduction, or latency improvements.
+Before v1.0.0, the project is still validating concurrent multi-session writes and profile provisioning.
 
 ## More information
 

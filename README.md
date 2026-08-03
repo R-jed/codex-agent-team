@@ -2,9 +2,9 @@
 
 [English](README_EN.md) · [安装指南](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-Codex Delegate 是一个 Codex 原生 Subagent 委派框架。你描述开发任务，当前会话作为主控，决定哪些工作值得委派、交给谁、怎么验收。
+Codex Delegate 是一个 Codex 原生 Subagent 委派框架。你描述开发任务，当前会话决定哪些工作值得委派、交给谁、怎么验收。
 
-目标很简单：用最小的 Agent 组合完成任务，减少重复搜索和失控写入。
+用最小的 Agent 组合完成任务，减少重复搜索和失控写入。
 
 当前版本：`0.4.0`（v1.0.0 发布前预览版）。
 
@@ -32,17 +32,17 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ## 工作原理
 
-主会话先理解目标、范围和验收标准，然后选择最小执行路径。
+主会话理解任务后，选择最小执行路径。
 
 <img src="docs/architecture-diagram.svg" alt="Codex Delegate 架构图" width="640">
 
 | 角色 | 模型 | 职责 |
 | --- | --- | --- |
-| 主会话 | 当前 Codex 会话 | 理解需求、关键决策、安排工作、验收 |
-| Luna Reader | GPT-5.6 Luna `max` | 搜索、追踪、测试映射、证据收集 |
-| Luna Worker | GPT-5.6 Luna `max` | 边界明确的实现、调试、测试、局部重构 |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | 处理未解决的复杂技术依赖 |
-| Sol Advisor | GPT-5.6 Sol `high` | 高价值判断和选择性复核 |
+| 主会话 | 当前 Codex 会话 | 理解需求、决策、编排、验收 |
+| Luna Reader | GPT-5.6 Luna `max` | 搜索、测试映射、证据收集 |
+| Luna Worker | GPT-5.6 Luna `max` | 实现、调试、测试、局部重构 |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | 解决复杂技术依赖 |
+| Sol Advisor | GPT-5.6 Sol `high` | 判断和选择性复核 |
 
 ## 委派流程
 
@@ -68,9 +68,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 <img src="docs/evidence-lifecycle.svg" alt="证据生命周期" width="640">
 
-同一个任务中，主会话会保存仍然有效的测试结果、调用路径、接口事实和其他可复用证据。后续 Agent 默认使用这些已确认信息。只有相关文件、产物或前提发生变化时，受影响的证据才需要重新验证。
-
-这样可以减少模型切换后从头搜索仓库、重复跑相同命令和重复推理同一个问题。
+主会话保存有效的测试结果、接口事实等证据，后续 Agent 直接复用。相关文件变更时，只重新验证受影响的部分。
 
 ## 失败处理
 
@@ -117,9 +115,9 @@ codex_agent_team_advisor
 
 ## 当前版本说明
 
-`0.4.0` 已采用 `Codex Delegate` 产品名和 `/codex-delegate` 入口，同时暂时保留原仓库、Plugin package、Agent profile 和 ownership manifest 的兼容标识，避免品牌迁移破坏现有安装状态。
+`0.4.0` 已采用 `Codex Delegate` 产品名和 `/codex-delegate` 入口。原仓库、Plugin package 和 Agent profile 暂时保留兼容标识。
 
-v1.0.0 发布前仍在验证多个独立会话同时面对同一 checkout、以及同一 Codex home 下的并发 profile 安装行为。当前 README 不承诺未经实测的吞吐量、成本降低或延迟改善。
+v1.0.0 发布前仍在验证多会话并发写入和 profile 安装行为。
 
 ## 更多信息
 
