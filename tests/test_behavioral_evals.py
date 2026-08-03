@@ -29,12 +29,19 @@ def base_run(mode: str, *, success: bool = True) -> dict:
         "success": success,
         "decision": "complete",
         "agent_count": 1 if mode != "main_session_only" else 0,
+        "peak_active_children": 1 if mode != "main_session_only" else 0,
+        "ready_dependencies": 1,
+        "runtime_slot_waits": 0,
         "roles": ["worker"] if mode != "main_session_only" else [],
         "policy_violations": [],
         "scope_violations": 0,
         "wrong_edits": 0,
         "regressions": 0,
         "correction_turns": 0,
+        "execution_stall_events": 0,
+        "clean_same_lane_restarts": 0,
+        "unjustified_retry_calls": 0,
+        "same_failure_without_new_evidence": 0,
         "review_findings": 0,
         "review_false_positives": 0,
         "consent_prompts": 0,
@@ -51,9 +58,13 @@ def run_score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[s
     result_file.write_text(
         json.dumps(
             {
-                "schema_version": "2.1",
-                "suite": "codex-agent-team-live-behavior",
-                "runtime": {"codex_version": "fixture", "date": "2026-08-02"},
+                "schema_version": "3.0",
+                "suite": "codex-delegate-live-behavior",
+                "runtime": {
+                    "codex_version": "fixture",
+                    "date": "2026-08-03",
+                    "observed_child_capacity": 3,
+                },
                 "runs": runs,
             }
         )
@@ -67,9 +78,10 @@ def run_score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[s
     )
 
 
-def test_behavioral_workloads_cover_contract_and_resource_coordination():
+def test_behavioral_workloads_cover_contract_adaptive_scheduling_and_recovery():
     payload = json.loads(WORKLOADS.read_text())
-    assert payload["schema_version"] == "2.0"
+    assert payload["schema_version"] == "3.0"
+    assert payload["suite"] == "codex-delegate-live-behavior"
     ids = {item["id"] for item in payload["workloads"]}
     assert {
         "simple-main-session-fix",
@@ -79,6 +91,11 @@ def test_behavioral_workloads_cover_contract_and_resource_coordination():
         "luna-capability-gap",
         "selective-sol-review",
         "two-independent-readers",
+        "five-independent-readers-authorized",
+        "larger-fanout-without-consent",
+        "execution-stall-clean-restart",
+        "capability-before-retry",
+        "duplicate-dependency-call",
         "runtime-route-partial",
     } <= ids
     assert "no claimed benchmark results" in payload["note"]
@@ -87,9 +104,9 @@ def test_behavioral_workloads_cover_contract_and_resource_coordination():
 def test_behavioral_result_schema_requires_paired_run_controls():
     schema = json.loads(SCHEMA.read_text())
     payload = {
-        "schema_version": "2.1",
-        "suite": "codex-agent-team-live-behavior",
-        "runtime": {"codex_version": "fixture", "date": "2026-08-02"},
+        "schema_version": "3.0",
+        "suite": "codex-delegate-live-behavior",
+        "runtime": {"codex_version": "fixture", "date": "2026-08-03"},
         "runs": [base_run("raw_prompt_luna"), base_run("contract_luna")],
     }
     jsonschema.Draft202012Validator(schema).validate(payload)
@@ -108,9 +125,9 @@ def test_behavioral_result_schema_requires_explicit_worker_route_for_luna_modes(
     missing = base_run("contract_luna")
     missing.pop("worker_route")
     payload = {
-        "schema_version": "2.1",
-        "suite": "codex-agent-team-live-behavior",
-        "runtime": {"codex_version": "fixture", "date": "2026-08-02"},
+        "schema_version": "3.0",
+        "suite": "codex-delegate-live-behavior",
+        "runtime": {"codex_version": "fixture", "date": "2026-08-03"},
         "runs": [base_run("raw_prompt_luna"), missing],
     }
     assert list(validator.iter_errors(payload))
@@ -121,11 +138,36 @@ def test_behavioral_result_schema_requires_explicit_worker_route_for_luna_modes(
     assert list(validator.iter_errors(payload))
 
 
+def test_behavioral_result_schema_accepts_adaptive_metrics():
+    schema = json.loads(SCHEMA.read_text())
+    run = base_run("adaptive_orchestration")
+    run["worker_route"] = None
+    run.update(
+        {
+            "agent_count": 5,
+            "peak_active_children": 3,
+            "ready_dependencies": 5,
+            "dependency_ids": ["D01", "D02", "D03", "D04", "D05"],
+            "runtime_slot_waits": 2,
+            "execution_stall_events": 1,
+            "clean_same_lane_restarts": 1,
+        }
+    )
+    payload = {
+        "schema_version": "3.0",
+        "suite": "codex-delegate-live-behavior",
+        "runtime": {"codex_version": "fixture", "date": "2026-08-03", "observed_child_capacity": 3},
+        "runs": [run],
+    }
+    errors = list(jsonschema.Draft202012Validator(schema).iter_errors(payload))
+    assert not errors
+
+
 def test_scorer_reports_paired_delta_and_keeps_global_modes_descriptive_only(tmp_path: Path):
     raw = base_run("raw_prompt_luna")
-    raw.update({"acceptance_score": 7, "correction_turns": 2, "input_tokens": 1000})
+    raw.update({"acceptance_score": 7, "correction_turns": 2, "input_tokens": 1000, "unjustified_retry_calls": 1})
     contract = base_run("contract_luna")
-    contract.update({"acceptance_score": 9, "correction_turns": 0, "input_tokens": 800})
+    contract.update({"acceptance_score": 9, "correction_turns": 0, "input_tokens": 800, "unjustified_retry_calls": 0})
 
     result = run_score(tmp_path, [raw, contract])
 
@@ -139,12 +181,14 @@ def test_scorer_reports_paired_delta_and_keeps_global_modes_descriptive_only(tmp
     assert pair["comparison"]["metric_deltas"]["acceptance_score"] == 2
     assert pair["comparison"]["metric_deltas"]["correction_turns"] == -2
     assert pair["comparison"]["metric_deltas"]["input_tokens"] == -200
+    assert pair["comparison"]["metric_deltas"]["unjustified_retry_calls"] == -1
     assert pair["controls"]["permissions_fingerprint"] == "workspace-write+default-approval"
     comparison = summary["comparisons"]["bounded-implementation:raw_prompt_luna->contract_luna"]
     assert comparison["pair_count"] == 1
     assert comparison["mean_metric_deltas"]["acceptance_score"] == 2
     assert summary["mode_aggregates_are_descriptive_only"] is True
     assert "bounded-implementation" in summary["workloads"]
+    assert summary["runtime"]["observed_child_capacity"] == 3
 
 
 def test_scorer_does_not_invent_missing_telemetry(tmp_path: Path):
