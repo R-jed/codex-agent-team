@@ -61,7 +61,8 @@
   <text x="816" y="904" fill="#999" font-size="20" font-style="italic">变更输入仅使依赖它的证据失效</text>
 
   <!-- Flow paths label -->
-  <text x="720" y="1008" text-anchor="middle" fill="#999" font-size="20">常见路径: main → Luna → main · main → Luna → Sol → main · main → Luna → Terra(δ) → Luna → main</text>
+  <text x="720" y="1000" text-anchor="middle" fill="#999" font-size="16">常见路径: main → Luna → main · main → Luna → Sol → main</text>
+  <text x="720" y="1024" text-anchor="middle" fill="#999" font-size="16">main → Luna → Terra(δ) → Luna → main</text>
 
   <!-- Arrow markers -->
   <defs>

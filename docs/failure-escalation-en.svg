@@ -47,8 +47,10 @@
   <text x="832" y="272" fill="#666" font-size="20">Terra receives only the unresolved delta,</text>
   <text x="832" y="304" fill="#666" font-size="20">not the full Luna responsibility.</text>
 
-  <text x="832" y="352" fill="#666" font-size="20">Sol is not a mandatory gate for every task.</text>
-  <text x="832" y="384" fill="#666" font-size="20">Skipped when tests and acceptance are strong enough.</text>
+  <text x="832" y="352" fill="#666" font-size="18">Sol is not a mandatory gate for every task.</text>
+  <text x="832" y="380" fill="#666" font-size="18">Skipped when tests and acceptance are</text>
+  <text x="832" y="408" fill="#666" font-size="18">strong enough.</text>
 
-  <text x="832" y="424" fill="#999" font-size="18" font-style="italic">Preserve valid evidence; recompute only invalidated parts.</text>
+  <text x="832" y="444" fill="#999" font-size="16" font-style="italic">Preserve valid evidence;</text>
+  <text x="832" y="468" fill="#999" font-size="16" font-style="italic">recompute only invalidated parts.</text>
 </svg>

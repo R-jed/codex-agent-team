@@ -64,7 +64,8 @@
   <text x="816" y="904" fill="#999" font-size="20" font-style="italic">changed input invalidates only dependent evidence</text>
 
   <!-- Flow paths label -->
-  <text x="720" y="1008" text-anchor="middle" fill="#999" font-size="20">common paths: main → Luna → main · main → Luna → Sol → main · main → Luna → Terra(δ) → Luna → main</text>
+  <text x="720" y="1000" text-anchor="middle" fill="#999" font-size="16">common paths: main → Luna → main · main → Luna → Sol → main</text>
+  <text x="720" y="1024" text-anchor="middle" fill="#999" font-size="16">main → Luna → Terra(δ) → Luna → main</text>
 
   <!-- Arrow markers -->
   <defs>

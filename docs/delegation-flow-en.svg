@@ -36,7 +36,8 @@
   <!-- No -> clarify -->
   <line x1="1188" y1="136" x2="1188" y2="200" stroke="#999" stroke-width="2" marker-end="url(#f-arrow-gray)"/>
   <rect x="1088" y="200" width="200" height="64" rx="0" fill="#f5f5f5" stroke="#e5e5e5" stroke-width="2"/>
-  <text x="1188" y="242" text-anchor="middle" fill="#999" font-size="20">main session clarifies</text>
+  <text x="1188" y="236" text-anchor="middle" fill="#999" font-size="16">main session</text>
+  <text x="1188" y="258" text-anchor="middle" fill="#999" font-size="16">clarifies</text>
   <text x="1160" y="192" fill="#999" font-size="18">no</text>
 
   <!-- Yes -> route -->
@@ -68,7 +69,8 @@
   <!-- Sol -->
   <rect x="1040" y="456" width="320" height="112" rx="0" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
   <text x="1200" y="500" text-anchor="middle" fill="#059669" font-size="22" font-weight="600">Sol High</text>
-  <text x="1200" y="536" text-anchor="middle" fill="#666" font-size="20">judgment · selective review</text>
+  <text x="1200" y="532" text-anchor="middle" fill="#666" font-size="18">judgment · selective</text>
+  <text x="1200" y="556" text-anchor="middle" fill="#666" font-size="18">review</text>
 
   <!-- Return to main -->
   <path d="M240,568 L240,620 L720,620 L720,660" stroke="#2563eb" stroke-width="2" stroke-dasharray="8,6" fill="none"/>
