@@ -1,14 +1,12 @@
 # Codex Delegate Local Validation Report
 
-This is the evidence ledger for Codex Delegate. `HEADOFF.md` defines what must be tested next. This file records what was actually observed, on which revision/runtime, which evidence remains reusable, and what remains unverified.
+This is the evidence ledger for Codex Delegate. `HEADOFF.md` defines what must be tested next. This report records what was actually observed, on which revision/runtime, which evidence remains reusable, and what remains unverified.
 
-Repository policy, static CI, an official manifest validator, and model consultation are not substitutes for live Codex runtime evidence.
+Repository policy, static CI, an official Plugin validator, upstream source inspection, and model consultation are not substitutes for live Codex runtime evidence.
 
 ## Current reconciliation
 
 Reconciled: 2026-08-03.
-
-Current candidate state:
 
 ```text
 Product: Codex Delegate
@@ -16,14 +14,17 @@ Candidate Plugin version: 0.5.1
 Canonical user entry point: /codex-delegate
 Compatibility repository/package namespace: R-jed/codex-agent-team / codex-agent-team
 Candidate PR: #24
-Candidate static-tested head: 5a556839624e58708279c6ab88c29e9f531678c8
+Exact static-tested branch head: 0254f112e7345ca4abc800d68340a9f576472d18
+GitHub Actions run: 30823045269
 Release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
 Known open reproducible PROJECT P0/P1: none
 ```
 
-The candidate is not an accepted release baseline until PR #24 is merged and the final `origin/main` SHA is recorded. The static-tested head above is evidence for the exact branch content tested by GitHub Actions run `30822277936`.
+The candidate becomes the accepted repository baseline only after PR #24 is merged and the resulting `origin/main` SHA is recorded. This report update follows the exact tested branch head and is documentation-only.
 
-Static CI result:
+## Static CI evidence
+
+GitHub Actions run `30823045269` produced:
 
 ```text
 Ubuntu / Python 3.11: PASS
@@ -37,7 +38,7 @@ managed profile --check: PASS
 idempotent managed profile reinstall: PASS
 ```
 
-Official validator source used by that CI run:
+Official Plugin validator used in CI:
 
 ```text
 repository: openai/codex
@@ -47,39 +48,23 @@ target: plugins/codex-agent-team
 result: PASS
 ```
 
-This proves compatibility with that pinned official Plugin ingestion validator. It does **not** prove that the current user's Codex build successfully registers the Git marketplace, installs the Plugin, refreshes a new thread, discovers `/codex-delegate`, provisions custom Agents, or spawns the expected effective routes.
-
-The last accepted real Codex production-behavior baseline remains:
-
-```text
-c6020db903b35f0d57677b131bf35b0580144ab9
-```
-
-Last accepted live environment:
-
-```text
-platform: Apple Silicon macOS 27.0 (26A5388g)
-Python: 3.14.6
-Git: 2.50.1
-Codex CLI/runtime: 0.146.0
-```
+This is deterministic compatibility evidence for that official validator revision. It is not evidence that a particular local Codex build completed marketplace registration, Plugin installation, fresh-thread discovery, custom-Agent discovery, or exact route spawning.
 
 ## Evidence classes
 
-Use these distinctions throughout validation:
-
 - **Repository fact**: source, manifest, policy, test, or commit state inspected directly.
-- **Deterministic evidence**: reproducible tests, verifier output, validator output, installer behavior, hashes, or filesystem results.
+- **Upstream source fact**: behavior established from a specific OpenAI Codex source revision; version-sensitive until matched to a tested runtime build.
+- **Deterministic evidence**: reproducible test, validator, installer, verifier, hash, or filesystem result.
 - **Live runtime evidence**: behavior observed from a real Codex task/session/runtime.
 - **Model judgment**: advisory conclusion that remains challengeable and cannot replace deterministic/runtime evidence.
-- **Carried forward**: older evidence whose declared dependencies have not materially changed.
+- **Carried forward**: older evidence whose dependencies have not materially changed.
 - **Pending revalidation**: code/policy exists but the corresponding current live claim has not yet been demonstrated.
 
-## v0.5.1 static architecture evidence
+## v0.5.1 architecture evidence
 
-### Dependency-driven scheduling remains unchanged
+v0.5.1 is a bounded refinement of v0.5.0. It does not reopen fixed Agent counts, route tuning, or the six-checkpoint release scope.
 
-v0.5.1 preserves the accepted v0.5.0 scheduling model:
+### Scheduling remains dependency-driven
 
 ```text
 Dependency Ledger
@@ -90,25 +75,21 @@ Dependency Ledger
 -> smallest useful scheduling wave
 ```
 
-Repository/deterministic facts remain:
+Static facts remain:
 
 - zero children is valid;
-- there is no product-level hard child ceiling;
-- the former `default 1 / normal max 2 / hard max 4` scheduler model remains absent;
+- no product-level hard child ceiling exists;
+- the old `default 1 / normal max 2 / hard max 4` scheduler model remains removed;
 - up to two concurrently active justified children is only the normal no-extra-consent envelope for explicit `/codex-delegate` use;
 - larger simultaneous fan-out normally requires consent unless already authorized;
-- runtime slot capacity is observed rather than hardcoded;
-- one running dependency has one owner and must not receive duplicate inference;
+- native slot capacity is observed instead of hardcoded;
+- one running dependency has one owner;
 - one canonical physical checkout has at most one active Writing Worker;
 - delegation depth remains one.
 
-No new Agent-count or retry-count constant was introduced by v0.5.1.
+### Recovery now has an explicit Intervention Gate
 
-## v0.5.1 recovery refinement
-
-The main change from v0.5.0 is the separation of execution state from intervention authority.
-
-Static product contract now defines:
+The static control model is:
 
 ```text
 execution evidence
@@ -119,32 +100,17 @@ execution evidence
 -> bounded Recovery Ledger
 ```
 
-### Intervention Gate
+Acceptance failure and need for intervention are separate facts. A still-failing responsibility may continue when deterministic/repository evidence materially narrows the cause or unresolved delta.
 
-Acceptance failure and need for intervention are separate facts.
-
-The current responsibility may continue when it remains inside a valid/safe boundary and evidence shows material forward progress, for example:
-
-- acceptance improves;
-- deterministic evidence narrows the failure space;
-- a repository fact removes uncertainty;
-- the unresolved delta materially shrinks.
-
-Static tests now protect the counterexample where a test still fails while new evidence narrows the root cause: that state must not automatically trigger restart or escalation.
-
-### False-progress prevention
-
-Static policy explicitly rejects these as progress by themselves:
+These do not establish progress by themselves:
 
 - model confidence or narration;
 - a file write;
-- a successful command that neither improves acceptance nor establishes useful evidence nor narrows the delta;
+- a successful command that does not improve acceptance, establish useful evidence, or narrow the delta;
 - repeated discovery already covered by valid Shared Evidence State;
-- a different patch that reproduces the same failure without new evidence.
+- a different patch that reproduces the same failure without useful new evidence.
 
-### Structured execution signals
-
-Current policy may record observations such as:
+Structured signals may include:
 
 ```text
 verification_failures
@@ -156,11 +122,11 @@ unresolved_delta_trend
 scope_churn
 ```
 
-These signals are evidence inputs, not automatic routing rules. No fixed threshold such as `three repeats -> Terra` or `four cycles -> restart` exists.
+They are evidence inputs, not numeric auto-routing rules. No fixed rule such as `three repeats -> Terra` exists.
 
 ### Recovery Ledger
 
-A bounded semantic Recovery Ledger may retain material entries:
+Material semantic history may retain:
 
 ```text
 attempt_id
@@ -174,11 +140,11 @@ recovery_action
 decision_source
 ```
 
-It is not a transcript and contains no private chain-of-thought. Its purpose is to prevent fresh-context recovery from revisiting an established semantic dead end such as `hypothesis A -> B -> A`.
+The ledger is bounded, is not a transcript, and contains no private chain-of-thought. Its main purpose is to prevent a fresh context from unknowingly returning to a previously established dead end such as `A -> B -> A`.
 
-### Proposed versus effective action
+### Proposed action is not orchestration authority
 
-The current contract distinguishes:
+Current contract distinguishes:
 
 ```text
 proposed_action
@@ -187,19 +153,17 @@ decision_source
 policy_transform
 ```
 
-A child, Terra, or Sol suggestion remains `model_judgment`. The main session owns the effective orchestration action after consent, workspace, route, permission, runtime, and user-decision gates.
+A child, Terra, or Sol recommendation remains `model_judgment`. The main session owns the effective action after user consent, workspace ownership, exact-route, permission, runtime, and other policy gates.
 
 ### Event-driven recovery
 
-Recovery classification is reevaluated after material events such as child return, acceptance/failure/evidence changes, dependency blocking/readiness, user changes, or material workspace/runtime changes. There is no fixed turn cadence.
-
-These are static contracts. Real Intervention Gate behavior, Recovery Ledger behavior, clean restart value, semantic-cycle handling, and recovery economics remain live-validation items.
+Recovery is reevaluated on material events such as child return, acceptance/failure/evidence changes, dependency blocking/readiness, user changes, or material workspace/runtime changes. There is no fixed turn cadence.
 
 ## Child-progress observability
 
-A key v0.5.1 boundary is now explicit: Codex Delegate does not assume it can see a child's structured execution trajectory before the child returns.
+Codex Delegate no longer assumes that a parent can inspect a child's structured trajectory before child return.
 
-The tested runtime must be characterized as one of:
+The tested runtime must be characterized as exactly one of:
 
 ```text
 none
@@ -208,15 +172,15 @@ periodic_summary
 structured_live
 ```
 
-No level has yet been established for the current validation cycle.
+No level has yet been established for the current v0.5.1 validation cycle.
 
-If only terminal evidence is exposed, Codex Delegate recovery remains dependency-level/return-level. This is a valid architecture boundary. A SageRoute-style mid-run anti-thrashing claim is forbidden without structured live evidence.
+If the runtime exposes only terminal evidence, recovery remains dependency-level/return-level. No SageRoute-style mid-run anti-thrashing claim is allowed without structured live runtime evidence.
 
-## Official Codex Plugin compliance evidence
+## Official Plugin contract evidence
 
-### Repository bundle shape
+### Bundle and marketplace shape
 
-Repository facts:
+Current repository facts:
 
 ```text
 .agents/plugins/marketplace.json
@@ -227,11 +191,9 @@ plugins/codex-agent-team/
   agent-profiles/
 ```
 
-The Plugin outer folder and `plugin.json` name are both `codex-agent-team`.
+The Plugin folder and manifest `name` both equal `codex-agent-team`.
 
-Current manifest version is `0.5.1` and uses strict semver.
-
-The manifest declares the supported `skills` component and interface metadata. It does not declare an invented custom-Agent component.
+The manifest version is `0.5.1`, uses strict semver, declares the supported Skill component and interface metadata, and does not invent an `agents` Plugin-manifest component.
 
 The repository marketplace points to:
 
@@ -239,7 +201,7 @@ The repository marketplace points to:
 ./plugins/codex-agent-team
 ```
 
-and declares:
+with:
 
 ```text
 policy.installation = AVAILABLE
@@ -247,11 +209,19 @@ policy.authentication = ON_INSTALL
 category = Productivity
 ```
 
-The pinned official OpenAI validator passed the candidate Plugin root.
+The pinned official OpenAI Plugin validator passed this candidate.
 
-### Supported Git marketplace/install command contract
+### Git marketplace CLI contract
 
-Current repository docs use:
+Current upstream Codex CLI source inspected during this iteration supports:
+
+- `codex plugin marketplace add` with Git `owner/repo` sources;
+- `--ref` for the Git ref;
+- repeatable `--sparse` arguments;
+- `codex plugin marketplace upgrade [MARKETPLACE_NAME]`;
+- `codex plugin add PLUGIN@MARKETPLACE`.
+
+Current documented fresh-install command:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main \
@@ -261,40 +231,51 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main \
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-The current OpenAI Codex CLI source reviewed for this iteration exposes:
+Current documented update/reinstall command:
 
-- `codex plugin marketplace add` for local or Git marketplaces;
-- `owner/repo` marketplace sources;
-- `--ref` for the Git ref;
-- repeatable `--sparse` paths;
-- `codex plugin add PLUGIN@MARKETPLACE`.
+```bash
+codex plugin marketplace upgrade codex-agent-team
+codex plugin add codex-agent-team@codex-agent-team
+```
 
-These are current upstream/source facts. The exact command sequence still requires live execution on the user's current Codex build before it is accepted as a working product install path.
+A new Codex thread is required before testing the installed/reinstalled Skill surface.
+
+These are upstream/source and repository-contract facts. Real execution on the user's current Codex build remains pending.
+
+### Full Plugin bundle availability
+
+Current OpenAI Codex `PluginStore` source was inspected directly. Its install path stages the Plugin by recursively copying the entire source directory into the versioned Plugin cache, not only the declared Skill. The recursive copy accepts normal files/directories and rejects symlinks.
+
+This upstream source fact supports the project's relative-path design:
+
+```text
+installed Skill
+-> ../../scripts/install-agents.py
+-> ../agent-profiles templates through the bundled installer
+```
+
+It means bundled `scripts/` and `agent-profiles/` are expected to survive Plugin installation under that implementation. Live Checkpoint 6 must still verify this on the tested Codex build before treating it as a runtime guarantee.
 
 ### Plugin versus custom-Agent boundary
 
-Codex custom Agent configuration is treated separately from Plugin packaging.
-
-Current project behavior:
+Current upstream Plugin manifest does not provide a first-class custom-Agent bundle component. The project therefore keeps these responsibilities separate:
 
 ```text
-Plugin
+Plugin install
 -> distributes Skill + bundled project files
 
 explicit user-approved first-run provisioning
--> writes four exact semantic profiles to the active personal Codex Agent directory
+-> writes four exact semantic profiles into the active personal Codex Agent directory
 -> writes one ownership manifest under Codex home
 ```
 
-The default personal location corresponds to `~/.codex/agents`; the project installer uses the active Codex-home `agents` directory so an explicitly overridden Codex home can be tested consistently.
+The public default personal Agent directory is `~/.codex/agents`. When Codex home is explicitly overridden, the project installer targets that active Codex home's `agents` directory and requires live role discovery to confirm behavior.
 
 The installer does not edit `config.toml`, credentials, MCP configuration, repositories, or unrelated profiles.
 
-Live validation must confirm that the tested Codex build actually discovers those profiles from the active Codex home after provisioning. Static path policy does not prove discovery.
-
 ## Exact semantic route state
 
-Current shipped route configuration remains unchanged from v0.5.0:
+Configured routes remain unchanged from v0.5.0:
 
 | Role | Configured route | Sandbox intent | Live evidence carried forward |
 | --- | --- | --- | --- |
@@ -303,49 +284,38 @@ Current shipped route configuration remains unchanged from v0.5.0:
 | Investigator | GPT-5.6 Terra / xhigh | read-only | discovery only, exact live route pending |
 | Advisor | GPT-5.6 Sol / high | read-only | discovery only, exact live route pending |
 
-v0.5.1 does not change managed Agent profile bytes from v0.5.0. Recovery policy changes are carried by the Skill/contracts rather than by another profile-generation rewrite.
+v0.5.1 does not change the managed Agent profile template bytes from v0.5.0. Recovery behavior is refined in the Skill/contracts rather than by another profile-generation rewrite.
 
-Configuration assurance remains separate from runtime observation.
+## Historical live evidence carried forward
 
-## Historical live Plugin/profile evidence carried forward
+Last accepted production-behavior baseline:
 
-Historical evidence still useful where dependencies remain valid:
+```text
+revision: c6020db903b35f0d57677b131bf35b0580144ab9
+platform: Apple Silicon macOS 27.0 (26A5388g)
+Python: 3.14.6
+Git: 2.50.1
+Codex CLI/runtime: 0.146.0
+```
 
-- marketplace registration succeeded under the earlier documented path;
+Carried-forward live facts where dependencies remain valid:
+
+- prior marketplace registration succeeded;
 - Plugin `codex-agent-team@codex-agent-team` v0.3.0 installed successfully;
-- missing project roles failed closed before profile provisioning;
-- profile provisioning wrote four project profiles plus one ownership manifest;
+- missing project roles failed closed before provisioning;
+- provisioning wrote four profiles plus one ownership manifest;
 - installer `--check` passed;
-- a task created before provisioning did not refresh role discovery on Codex 0.146.0;
+- a task created before provisioning did not refresh roles on Codex 0.146.0;
 - a fresh task after provisioning discovered all four semantic roles;
-- a real Reader used `fork_turns=none` and returned its bounded result;
-- local rollout inspection reported Reader role, Luna model, max effort, read-only sandbox, managed permission profile, runtime 0.146.0, and expected parent id;
-- no independent native complete-route attestation was exposed, so that historical Reader evidence remains L1 rather than R1/R2.
+- a real Reader used `fork_turns=none`;
+- local rollout inspection reported Reader role, Luna model, max effort, read-only sandbox, managed permission profile, expected parent, and runtime 0.146.0;
+- no independent complete native route attestation was exposed, so the historical Reader remains L1 rather than R1/R2.
 
-These historical facts do not prove the v0.5.1 CLI marketplace/install path or fresh-thread behavior on the current Codex build.
-
-## Runtime Truth evidence carried forward
-
-Static verifier coverage remains valid for:
-
-- incomplete expected exact route fails closed;
-- route, ancestry, and permission evidence are typed independently;
-- missing/partial observations do not become affirmative proof;
-- configuration/local/native conflicts can be quarantined;
-- exact role/model/effort proof is two-sided.
-
-Still pending where runtime exposes enough facts:
-
-- Worker/Investigator/Advisor exact route observation;
-- native complete route observation;
-- native/local agreement;
-- partial native route behavior;
-- role/model/effort/parent/sandbox conflict characterization;
-- duplicate rollout/schema drift on current Codex build.
+These historical facts do not prove the v0.5.1 marketplace-upgrade/install path, fresh-thread pickup, bundled-script accessibility, or current custom-Agent discovery.
 
 ## Behavioral evaluation state
 
-Behavioral schema remains version `3.0` and now includes v0.5.1 recovery measurements:
+Schema remains version `3.0` and now records:
 
 ```text
 intervention_gate_evaluations
@@ -369,72 +339,41 @@ proposed-action-policy-transform
 child-progress-observability
 ```
 
-No live behavioral result yet establishes that compiled contracts, adaptive fan-out, clean restart, Recovery Ledger, Terra delta, selective Sol, or any particular child-observability level improves product outcomes. Those remain measurements.
+No live result yet establishes that compiled contracts, adaptive fan-out, clean restart, Recovery Ledger, Terra delta, selective Sol, or any particular observability level improves product outcomes. Those remain measurements.
 
-## Workspace and concurrency status
+## Outstanding live gates
 
-The live matrix remains:
+The mandatory finite sequence remains Checkpoints 1-6 in `HEADOFF.md`:
 
-```text
-M1 different sessions + different projects/checkouts
-M2 different sessions + isolated worktrees
-M3 different sessions + same canonical physical checkout
-M4 writer session + read-only session on same checkout
-```
+1. Worker / Investigator / Advisor exact routes and Runtime Truth adversarial cases.
+2. Contractability, concurrent edits, prompt injection, recursion, and write-scope safety.
+3. Dependency Ledger, Shared Evidence, Intervention Gate, Recovery Ledger, clean restart, capability-before-retry, and child-progress observability.
+4. Raw-prompt versus compiled-contract pairs plus controlled Terra/Sol pairs.
+5. Adaptive fan-out, consent, native slots/recovery, lifecycle, and M1-M4 workspace behavior.
+6. Current official Plugin validator at RC time, real Git marketplace add/upgrade, `codex plugin add`, fresh-thread `/codex-delegate` discovery, bundled provisioning-script/template availability, custom-Agent provisioning/discovery, migrations, and I1-I3 installer concurrency.
 
-No cross-session workspace lock has been added. A project-side coordination mechanism remains conditional on reproducible M3 failure.
+No cross-session workspace lock or inter-process installer lock has been added before reproducible evidence establishes the need.
 
-Native fan-out capacity, slot recovery, queued dependency resumption, cancellation, orphan ownership, and lifecycle stress remain pending.
+## Adversarial consultation
 
-## Installer status
-
-Historical CAT-LOCAL-001 direct Codex-home endpoint-symlink defect remains closed at:
+Required mechanism:
 
 ```text
-c6020db903b35f0d57677b131bf35b0580144ab9
+/gpt56-sol-pro-consult
 ```
 
-v0.5.1 deterministic CI proves fresh managed profile install, exact `--check`, and idempotent reinstall for the unchanged current profile templates.
-
-Still pending:
-
-```text
-real v0.3.x -> current Plugin migration
-real v0.4.x -> current Plugin migration
-real v0.5.0 -> v0.5.1 reinstall/update and fresh-thread Skill pickup
-user-modified/unproven profile -> untouched + route fail closed
-I1 two same-generation installers on one clean CODEX_HOME
-I2 forced-failure transaction concurrent with peer success
-I3 competing managed profile generations in one CODEX_HOME
-```
-
-No inter-process lock has been added before evidence establishes the need.
-
-## Adversarial review contract
-
-`gpt56-sol-pro-consult` remains required at Review Checkpoints A-E and for any P0/P1 candidate.
-
-The exact target conversation is:
+Exact target conversation:
 
 ```text
 分支 · 分支 · 项目对比分析
 ```
 
-Exact-title unique-match semantics fail closed. Consultation output is model judgment and cannot count as Codex Delegate runtime-route, Plugin-install, or custom-Agent-discovery evidence.
+Exact-title unique-match semantics fail closed. Consultation output remains `model_judgment` and cannot count as Codex Delegate runtime-route, Plugin-install, or Agent-discovery evidence.
 
 ## Current takeover status
 
 **HOLD FOR RELEASE / VALIDATION INCOMPLETE**
 
-This is caused by unfinished mandatory live gates, not by a currently known reproducible PROJECT P0/P1.
+This status is caused by unfinished mandatory live gates, not by a currently known reproducible PROJECT P0/P1.
 
-Highest-priority remaining evidence follows `HEADOFF.md`:
-
-1. exact Worker, Investigator, and Advisor live routes plus Runtime Truth cases;
-2. contractability, concurrent-edit, prompt-injection, and scope simulations;
-3. Dependency Ledger, evidence reuse, Intervention Gate, Recovery Ledger, clean restart, capability-before-retry, and child-progress observability;
-4. raw-prompt versus compiled-contract pairs plus controlled Terra/Sol pairs;
-5. adaptive fan-out, consent, native slots/recovery, lifecycle, and M1-M4;
-6. current official Plugin validator at RC time, real CLI marketplace/install + fresh-thread discovery, real profile provisioning/discovery, migration, and I1-I3 installer concurrency.
-
-Continue the finite Checkpoint 1-6 sequence. Do not reopen architecture without reproducible evidence.
+Do not reopen architecture without reproducible evidence. Continue the finite Checkpoint 1-6 sequence in `HEADOFF.md`.
