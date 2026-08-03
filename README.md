@@ -34,22 +34,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 主会话先理解目标、范围和验收标准，然后选择最小执行路径。
 
-> 完整架构图：[architecture-diagram.svg](docs/architecture-diagram.svg)
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                      主会话 (控制面)                       │
-│  理解需求 → 判断风险 → 编排工作 → 验收结果                  │
-└────────┬──────────────┬──────────────┬──────────────────┘
-         │              │              │
-         ▼              ▼              ▼
-   ┌──────────┐  ┌──────────────┐  ┌──────────┐
-   │   Luna   │  │    Terra     │  │   Sol    │
-   │  执行层   │  │  深度调查层   │  │  判断层   │
-   │ Reader   │  │ Investigator │  │ Advisor  │
-   │ Worker   │  │              │  │          │
-   └──────────┘  └──────────────┘  └──────────┘
-```
+<img src="docs/architecture-diagram.svg" alt="Codex Delegate 架构图" width="640">
 
 | 角色 | 模型 | 职责 |
 | --- | --- | --- |

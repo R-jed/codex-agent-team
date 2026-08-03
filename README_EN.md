@@ -34,22 +34,7 @@ No need to manually choose Agent ordering. No need to force multiple models into
 
 The main session identifies the outcome, scope, and acceptance criteria first, then picks the smallest useful execution path.
 
-> Full architecture diagram: [architecture-diagram.svg](docs/architecture-diagram.svg)
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                   Main Session (control plane)            │
-│  Understand → Assess risk → Schedule work → Accept result│
-└────────┬──────────────┬──────────────┬──────────────────┘
-         │              │              │
-         ▼              ▼              ▼
-   ┌──────────┐  ┌──────────────┐  ┌──────────┐
-   │   Luna   │  │    Terra     │  │   Sol    │
-   │ Execution│  │ Deep Invest. │  │ Judgment │
-   │ Reader   │  │ Investigator │  │ Advisor  │
-   │ Worker   │  │              │  │          │
-   └──────────┘  └──────────────┘  └──────────┘
-```
+<img src="docs/architecture-diagram.svg" alt="Codex Delegate architecture diagram" width="640">
 
 | Role | Model | Purpose |
 | --- | --- | --- |
