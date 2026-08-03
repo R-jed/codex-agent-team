@@ -41,12 +41,6 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 主会话理解任务后，选择最小执行路径。
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-diagram.svg">
-  <source media="(prefers-color-scheme: light)" srcset="docs/architecture-diagram.svg">
-  <img alt="Codex Delegate 架构图" src="docs/architecture-diagram.svg" width="100%">
-</picture>
-
 | 角色 | 模型 | 职责 |
 | --- | --- | --- |
 | 主会话 | 当前 Codex 会话 | 理解需求、决策、编排、验收 |
@@ -56,8 +50,6 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 | Sol Advisor | GPT-5.6 Sol `high` | 判断和选择性复核 |
 
 ## 委派流程
-
-<img src="docs/delegation-flow.svg" alt="委派决策流程" width="100%">
 
 没有固定的三级流水线。每次调用 Subagent 都必须解决一个当前仍未满足的独立依赖。
 
@@ -77,13 +69,9 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ## 已经确认的结果会尽量复用
 
-<img src="docs/evidence-lifecycle.svg" alt="证据生命周期" width="100%">
-
 主会话保存有效的测试结果、接口事实等证据，后续 Agent 直接复用。相关文件变更时，只重新验证受影响的部分。
 
 ## 失败处理
-
-<img src="docs/failure-escalation.svg" alt="失败分类与升级路径" width="100%">
 
 Luna 遇到问题时，先分类再升级。Terra 不会因为 Luna 的结果"看起来一般"就自动重做整个任务。Sol 也不是每次必须经过的关卡。
 

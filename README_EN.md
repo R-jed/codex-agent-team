@@ -41,12 +41,6 @@ No manual model selection. Codex Delegate figures out what's needed.
 
 The main session understands the task, then picks the smallest useful execution path.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-diagram-en.svg">
-  <source media="(prefers-color-scheme: light)" srcset="docs/architecture-diagram-en.svg">
-  <img alt="Codex Delegate architecture" src="docs/architecture-diagram-en.svg" width="100%">
-</picture>
-
 | Role | Model | Purpose |
 | --- | --- | --- |
 | Main session | current Codex session | understand task, decisions, scheduling, acceptance |
@@ -56,8 +50,6 @@ The main session understands the task, then picks the smallest useful execution 
 | Sol Advisor | GPT-5.6 Sol `high` | judgment and selective review |
 
 ## Delegation flow
-
-<img src="docs/delegation-flow-en.svg" alt="Delegation decision flow" width="100%">
 
 There is no fixed three-model pipeline. Every Subagent call must satisfy a distinct dependency that existing evidence does not already cover.
 
@@ -77,13 +69,9 @@ A Writing Worker does not start guessing through repository changes when accepta
 
 ## Established evidence is reused
 
-<img src="docs/evidence-lifecycle-en.svg" alt="Evidence lifecycle" width="100%">
-
 The main session keeps valid test results, interface facts, and other evidence. Later Agents reuse those facts directly. Only evidence affected by changed files needs revalidation.
 
 ## Failure handling
-
-<img src="docs/failure-escalation-en.svg" alt="Failure classification and escalation" width="100%">
 
 When Luna needs help, the workflow classifies the failure before escalating. A mediocre Luna result does not automatically trigger a full Terra restart. Sol is also selective — when tests and acceptance criteria are strong enough, the main session can accept without adding a mandatory review stage.
 
