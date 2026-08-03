@@ -1,12 +1,12 @@
-# Codex Agent Team
+# Codex Delegate
 
 [English](README_EN.md) · [安装指南](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-Codex Agent Team 是一个面向 Codex 的原生 Subagent 工作流。你只需要描述开发任务，当前 Codex 会话会继续作为**主会话**，根据任务需要决定是否委派、委派给谁、哪些证据可以复用，以及最后如何验收。
+Codex Delegate 是一个面向 Codex 的原生 Subagent 委派工作流。你只需要描述开发任务，当前 Codex 会话会继续作为**主会话**，判断哪些责任值得委派、应该交给谁、哪些证据可以复用，以及最后如何验收。
 
-它的目标很简单：用尽可能小的 Agent Team 完成任务，同时减少重复搜索、无意义的多模型并跑和失控的写入范围。
+它的目标很简单：把任务交给最小且真正有价值的 Agent 组合，同时减少重复搜索、无意义的多模型并跑和失控的写入范围。
 
-当前版本：`0.3.0`，v1.0.0 发布前预览版。
+当前版本：`0.4.0`，v1.0.0 发布前预览版。
 
 ## 安装
 
@@ -16,28 +16,30 @@ Codex Agent Team 是一个面向 Codex 的原生 Subagent 工作流。你只需�
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-重新打开 ChatGPT Desktop，在 Plugins Directory 中安装 `Codex Agent Team`。
+重新打开 ChatGPT Desktop，在 Plugins Directory 中安装 `Codex Delegate`。
 
 需要使用时，在 Codex 会话中调用：
 
 ```text
-/codex-agent-team
+/codex-delegate
 ```
+
+GitHub 仓库和 Plugin package 目前仍保留 `codex-agent-team` 兼容标识，因此安装源地址暂时没有变化。
 
 ## 怎么用
 
 直接给它正常的开发任务即可，例如：
 
 ```text
-/codex-agent-team 修复这个登录重试 bug，并运行相关测试。
+/codex-delegate 修复这个登录重试 bug，并运行相关测试。
 ```
 
 ```text
-/codex-agent-team 重构这个模块，保持现有 public API 不变。
+/codex-delegate 重构这个模块，保持现有 public API 不变。
 ```
 
 ```text
-/codex-agent-team review 这次改动，重点检查数据一致性和回归风险。
+/codex-delegate review 这次改动，重点检查数据一致性和回归风险。
 ```
 
 你不需要手工决定 Luna、Terra、Sol 的调用顺序，也不需要为了“组成一个团队”强制启用多个 Agent。
@@ -130,15 +132,15 @@ Sol 也不会成为每次任务都必须经过的最终关卡。测试和验收�
 v1 硬上限 4 个
 ```
 
-两个独立项目可以各自运行自己的 Agent Team。项目没有设置整台机器或整个账号共享的 Agent 总数上限。
+两个独立项目可以各自运行自己的 Codex Delegate。项目没有设置整台机器或整个账号共享的 Agent 总数上限。
 
 对于写入任务，当前策略以工作区为边界：同一个 canonical physical checkout 同时只允许一个 Writing Worker。真实隔离的独立 worktree 或独立项目可以分别拥有自己的 Writer。
 
-当前 `0.3.0` 仍处于 v1 发布前验证阶段。如果你同时打开多个独立 Codex 会话，建议在 v1.0.0 发布前避免让两个会话同时对同一个 physical checkout 执行写入任务。
+当前 `0.4.0` 仍处于 v1 发布前验证阶段。如果你同时打开多个独立 Codex 会话，建议在 v1.0.0 发布前避免让两个会话同时对同一个 physical checkout 执行写入任务。
 
 ## 第一次运行
 
-Codex Agent Team 使用四个项目管理的 custom Agent profiles：
+Codex Delegate 当前使用四个项目管理的 custom Agent profiles：
 
 ```text
 codex_agent_team_reader
@@ -147,9 +149,11 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
+这些 profile 名称暂时保留兼容标识，不影响 `/codex-delegate` 的使用。
+
 如果 profile 尚未安装，Skill 会先说明将要写入的 managed 文件范围并请求你的授权。Installer 只管理这四个 profiles 和自己的 ownership manifest，不会借此修改你的凭据、MCP 配置、仓库文件或其他 Agent profiles。
 
-安装完成后，如果当前任务仍没有发现新角色，启动一个新的 Codex task 再调用 `/codex-agent-team`。
+安装完成后，如果当前任务仍没有发现新角色，启动一个新的 Codex task 再调用 `/codex-delegate`。
 
 ## 安全边界
 
@@ -158,17 +162,17 @@ codex_agent_team_advisor
 - 子 Agent 不继续创建新的 Subagent，委派深度保持一层。
 - Skill 不会暗中切换主会话模型或 reasoning effort。
 - 缺少精确项目 profile 时，对应责任会停回主会话，不会偷偷换成相似角色。
-- Worker 会保留用户或其他会话产生的无关修改；工作区状态发生变化并影响当前合同后，它应停止并把变化交回主会话处理。
+- Worker 会保留用户或其他会话产生的无关修改；工作区状态发生变化并影响当前合同时，它应停止并把变化交回主会话处理。
 - Subagent 的完成报告只是声明，最终结果仍由主会话根据实际文件、diff、测试和可复现证据验收。
 - 发布、部署、支付、账号权限修改等高影响外部动作仍由主会话控制，并遵循当前用户授权范围。
 
 ## 当前版本说明
 
-`0.3.0` 已提供完整的 Plugin 安装路径、四个语义 Agent 角色、Delegation Contract、证据复用、选择性 Terra/Sol 路由和受控并行策略。
+`0.4.0` 已采用 `Codex Delegate` 产品名和 `/codex-delegate` 入口，同时暂时保留原仓库、Plugin package、Agent profile 和 ownership manifest 的兼容标识，避免品牌迁移破坏现有安装状态。
 
 v1.0.0 发布前仍在验证少数真实运行边界，包括多个独立会话同时面对同一 checkout，以及同一 Codex home 下的并发 profile 安装行为。因此当前 README 不承诺未经实测证明的吞吐量、成本降低、延迟改善或跨会话互斥保证。
 
-不同 Plugin 版本同时期望不同 managed profile generation 的场景不属于 v1 支持范围。遇到精确 route 不匹配时，受影响的 delegation 应停止并提示处理，而不是跨角色替换。
+不同 Plugin 版本同时期望不同 managed profile generation 的场景不属于 v1 支持范围。遇到精确 route 不匹配时，受影响的 delegation 应停止并提示处理，不会跨角色替换。
 
 ## 更多信息
 
