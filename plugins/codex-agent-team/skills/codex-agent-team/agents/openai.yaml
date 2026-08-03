@@ -1,7 +1,7 @@
 interface:
-  display_name: "Codex Agent Team"
+  display_name: "Codex Delegate"
   short_description: "Bounded delegation with evidence reuse"
-  default_prompt: "Use /codex-agent-team to build the smallest useful compute graph for this task, compile bounded delegation contracts, and reuse established evidence instead of repeating work."
+  default_prompt: "Use /codex-delegate to build the smallest useful compute graph for this task, compile bounded delegation contracts, and reuse established evidence instead of repeating work."
 
 policy:
   allow_implicit_invocation: true
