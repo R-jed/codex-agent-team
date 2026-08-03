@@ -5,34 +5,34 @@
   <text x="24" y="28" fill="#1a1a1a" font-size="13" font-weight="600">证据生命周期</text>
 
   <!-- Create -->
-  <rect x="24" y="48" width="140" height="72" rx="2" fill="#fff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <rect x="24" y="48" width="140" height="72" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="1.2"/>
   <text x="94" y="72" text-anchor="middle" fill="#1a1a1a" font-size="11" font-weight="600">产生</text>
   <text x="94" y="90" text-anchor="middle" fill="#666" font-size="10">Agent 执行任务</text>
   <text x="94" y="106" text-anchor="middle" fill="#666" font-size="10">产出结果与证据</text>
 
   <!-- Classify -->
   <line x1="164" y1="84" x2="204" y2="84" stroke="#1a1a1a" stroke-width="1.2" marker-end="url(#e-arrow)"/>
-  <rect x="204" y="48" width="140" height="72" rx="2" fill="#fff" stroke="#2563eb" stroke-width="1.2"/>
+  <rect x="204" y="48" width="140" height="72" rx="0" fill="#fff" stroke="#2563eb" stroke-width="1.2"/>
   <text x="274" y="72" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">分类</text>
   <text x="274" y="90" text-anchor="middle" fill="#666" font-size="10">deterministic</text>
   <text x="274" y="106" text-anchor="middle" fill="#666" font-size="10">repository_fact / model_judgment</text>
 
   <!-- Reuse -->
   <line x1="344" y1="84" x2="384" y2="84" stroke="#1a1a1a" stroke-width="1.2" marker-end="url(#e-arrow)"/>
-  <rect x="384" y="48" width="140" height="72" rx="2" fill="#ecfdf5" stroke="#059669" stroke-width="1.2"/>
+  <rect x="384" y="48" width="140" height="72" rx="0" fill="#ecfdf5" stroke="#059669" stroke-width="1.2"/>
   <text x="454" y="72" text-anchor="middle" fill="#059669" font-size="11" font-weight="600">复用</text>
   <text x="454" y="90" text-anchor="middle" fill="#666" font-size="10">后续 Agent 默认使用</text>
   <text x="454" y="106" text-anchor="middle" fill="#666" font-size="10">依赖有效时持续复用</text>
 
   <!-- Invalidate -->
   <line x1="524" y1="84" x2="564" y2="84" stroke="#1a1a1a" stroke-width="1.2" marker-end="url(#e-arrow)"/>
-  <rect x="564" y="48" width="132" height="72" rx="2" fill="#fef2f2" stroke="#dc2626" stroke-width="1.2"/>
+  <rect x="564" y="48" width="132" height="72" rx="0" fill="#fef2f2" stroke="#dc2626" stroke-width="1.2"/>
   <text x="630" y="72" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="600">失效</text>
   <text x="630" y="90" text-anchor="middle" fill="#666" font-size="10">依赖文件/前提变更时</text>
   <text x="630" y="106" text-anchor="middle" fill="#666" font-size="10">仅使依赖它的证据失效</text>
 
   <!-- Types detail -->
-  <rect x="24" y="152" width="220" height="112" rx="2" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
+  <rect x="24" y="152" width="220" height="112" rx="0" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
   <text x="40" y="176" fill="#1a1a1a" font-size="11" font-weight="600">证据类型</text>
   <line x1="40" y1="184" x2="228" y2="184" stroke="#e5e5e5" stroke-width="0.5"/>
 
@@ -49,7 +49,7 @@
   <text x="60" y="252" fill="#999" font-size="9" transform="translate(0,0)">假设性质，可被后续挑战</text>
 
   <!-- Key principle -->
-  <rect x="280" y="152" width="416" height="112" rx="2" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
+  <rect x="280" y="152" width="416" height="112" rx="0" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
   <text x="296" y="176" fill="#1a1a1a" font-size="11" font-weight="600">核心原则</text>
   <line x1="296" y1="184" x2="680" y2="184" stroke="#e5e5e5" stroke-width="0.5"/>
   <text x="296" y="204" fill="#666" font-size="10">变更输入仅使依赖它的证据失效，不会强制所有后续 Agent</text>
