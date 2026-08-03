@@ -577,7 +577,7 @@ SKILL
 /gpt56-sol-pro-consult
 
 TARGET_CHATGPT_CONVERSATION_TITLE
-分支 · 项目对比分析
+分支 · 分支 · 项目对比分析
 
 TARGET_MODE
 continue_existing_conversation
@@ -586,12 +586,12 @@ MATCH_POLICY
 exact_title_unique_match
 ```
 
-This is an operational routing requirement for the local Codex executor.
+This is an operational routing requirement for the local Codex executor. The user-confirmed current project discussion thread is the ChatGPT conversation titled `分支 · 分支 · 项目对比分析`.
 
 Rules:
 
-1. Match the title `分支 · 项目对比分析` exactly.
-2. Continue that existing conversation so checkpoint reviews, defect discussions, architecture judgments, and release decisions remain in one project discussion thread.
+1. Match the title `分支 · 分支 · 项目对比分析` exactly.
+2. Continue that existing conversation so checkpoint reviews, defect discussions, architecture judgments, release decisions, and bounded project questions remain in one user + GPT-5.6 Sol project discussion thread.
 3. Do not create a replacement ChatGPT conversation when the exact target is missing or ambiguous.
 4. Do not choose a similarly named conversation by fuzzy match, recency, or guesswork.
 5. Do not silently fall back to an isolated consultation conversation for this project.
@@ -610,7 +610,7 @@ CONTEXT_PACKET_V1
 
 CONSULTATION_TARGET
 skill: /gpt56-sol-pro-consult
-conversation_title: 分支 · 项目对比分析
+conversation_title: 分支 · 分支 · 项目对比分析
 mode: continue_existing_conversation
 match_policy: exact_title_unique_match
 
