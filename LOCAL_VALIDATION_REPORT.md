@@ -14,14 +14,32 @@ Plugin version: 0.5.1
 Canonical user entry point: /codex-delegate
 Compatibility repository/package namespace: R-jed/codex-agent-team / codex-agent-team
 Accepted v0.5.1 feature merge: 9adf8edd303be22506744d569e6552b8fdbc7574
-PR #24 final tested head: 7dadef8065f46bdb90accd38a3ffccfb75b23a51
-Final PR workflow run: 30823406796
-Post-merge HEADOFF reconciliation: 0fd04f9535baa57c64e824b8d556021087fd05fb
+Post-merge main-equivalent verification: PR #25 / workflow 30824385799
+Final static docs-contract closure: PR #26
+PR #26 verified head before this evidence-ledger-only update: 22f72ba39961372516e73e4b63ff080a0df34f70
+PR #26 workflow: 30835298356
 Release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
 Known open reproducible PROJECT P0/P1: none
+Static development posture: COMPLETE / ARCHITECTURE FROZEN
 ```
 
-v0.5.1 is now the accepted **static repository baseline**. It is no longer a candidate branch state. The remaining work is the finite live-validation sequence in `HEADOFF.md`.
+The v0.5.1 architecture, user-facing install lifecycle, routing wording, and runtime handoff contract are statically closed. The remaining work is the finite live-validation sequence in `HEADOFF.md`.
+
+The PR #26 workflow verified the complete closure content except this final evidence-ledger-only reconciliation commit. That workflow produced:
+
+```text
+Ubuntu / Python 3.11: PASS
+Ubuntu / Python 3.12: PASS
+macOS / Python 3.11: PASS
+pytest: 131 passed
+JSON Plugin/marketplace syntax: PASS
+pinned official OpenAI Plugin validator: PASS
+managed profile install: PASS
+managed profile --check: PASS
+idempotent managed profile reinstall: PASS
+```
+
+The user-added README logo and badges are intentional product presentation assets and were preserved during the final closure.
 
 The last accepted real Codex production-behavior baseline remains:
 
@@ -45,23 +63,33 @@ Do not relabel v0.5.1 static evidence as current live runtime proof.
 - **Carried forward**: older evidence whose dependencies have not materially changed.
 - **Pending revalidation**: code/policy exists but the corresponding current live claim has not yet been demonstrated.
 
-## Accepted v0.5.1 static CI evidence
+## Accepted v0.5.1 static evidence
 
-PR #24 final head `7dadef8065f46bdb90accd38a3ffccfb75b23a51` completed GitHub Actions run `30823406796` successfully.
+### Feature baseline
+
+PR #24 final head `7dadef8065f46bdb90accd38a3ffccfb75b23a51` completed GitHub Actions run `30823406796` successfully and was squash-merged as:
 
 ```text
-Ubuntu / Python 3.11: PASS
-Ubuntu / Python 3.12: PASS
-macOS / Python 3.11: PASS
-pytest: 131 passed
-JSON Plugin/marketplace syntax: PASS
-pinned official OpenAI Plugin validator: PASS
-managed profile install: PASS
-managed profile --check: PASS
-idempotent managed profile reinstall: PASS
+9adf8edd303be22506744d569e6552b8fdbc7574
 ```
 
-Pinned official validator:
+### Post-merge verification
+
+PR #25 verified the then-current `main` content plus one inert CI marker. It was closed without merge. Workflow `30824385799` passed all three platforms, 131 tests, the pinned official Plugin validator, and the managed profile lifecycle.
+
+### Final docs-contract closure
+
+PR #26 closes only documentation and contract drift:
+
+- both user READMEs now document fresh install and existing Git marketplace upgrade/reinstall;
+- user-added visual assets remain intact;
+- routing policy is explicitly responsibility-first and capability-aware, with cost only as a tie-breaker among equally suitable safe lanes;
+- HEADOFF is the final finite Checkpoint 1-6 runtime-validation contract;
+- README regression tests protect both fresh-install and upgrade paths.
+
+No Agent model route, concurrency rule, recovery mechanism, installer implementation, managed profile template, Plugin manifest, or Runtime Truth implementation changed in this closure.
+
+Pinned official validator used in CI:
 
 ```text
 repository: openai/codex
@@ -71,13 +99,13 @@ target: plugins/codex-agent-team
 result: PASS
 ```
 
-This proves compatibility with that official validator revision. The RC gate still reruns the then-current official validator on the exact release candidate.
+The then-current OpenAI validator source inspected during closure remained compatible with the pinned validator behavior. The RC gate still reruns the current official validator on the exact release candidate.
 
 ## v0.5.1 architecture state
 
 ### Dependency-driven orchestration
 
-The accepted static control graph remains:
+The accepted static control graph is:
 
 ```text
 Dependency Ledger
@@ -100,9 +128,21 @@ Repository facts:
 - one canonical physical checkout has at most one active Writing Worker;
 - delegation depth remains one.
 
+### Responsibility-first routing
+
+Current routing semantics are explicit:
+
+```text
+responsibility / decision boundary / demonstrated capability
+-> choose suitable safe lane
+-> cost only breaks ties between equally suitable safe lanes
+```
+
+There is no cheap-first ladder and no requirement that Luna fail before a dependency that clearly requires Terra investigation or Sol judgment can use that lane.
+
 ### Evidence-gated recovery
 
-v0.5.1 adds the accepted static recovery model:
+The accepted static recovery model is:
 
 ```text
 execution evidence
@@ -303,7 +343,7 @@ These historical facts do not prove the v0.5.1 Git marketplace upgrade/install p
 
 ## Behavioral evaluation state
 
-Behavioral schema remains version `3.0` and now records:
+Behavioral schema remains version `3.0` and records:
 
 ```text
 intervention_gate_evaluations
@@ -317,7 +357,7 @@ policy_transform
 child_progress_observability
 ```
 
-Controlled workloads now include:
+Controlled workloads include:
 
 ```text
 healthy-failure-no-intervention
@@ -360,8 +400,13 @@ Exact-title unique-match semantics fail closed. Consultation output remains `mod
 
 ## Current takeover status
 
-**HOLD FOR RELEASE / VALIDATION INCOMPLETE**
+```text
+STATIC DEVELOPMENT COMPLETE
+ARCHITECTURE FROZEN
+NEXT PHASE: HEADOFF CHECKPOINT 1-6 LIVE VALIDATION
+TARGET: v1.0.0
+```
 
-This status is caused by unfinished mandatory live gates, not by a currently known reproducible PROJECT P0/P1.
+Release posture remains **HOLD FOR RELEASE / VALIDATION INCOMPLETE** because mandatory live gates are unfinished, not because a currently known reproducible PROJECT P0/P1 is open.
 
 Do not reopen architecture without reproducible evidence. Continue the finite Checkpoint 1-6 sequence in `HEADOFF.md`.
