@@ -23,7 +23,7 @@ def test_recovery_is_two_stage_and_not_failure_triggered():
         assert "acceptance" in text.lower()
         assert "forward progress" in text.lower()
 
-    assert "Acceptance failure and need for intervention are separate facts" in progress
+    assert "Failure to satisfy acceptance and need for intervention are different facts" in progress
     assert "Stage A: Intervention Gate" in routing
     assert "Stage B: Recovery classification" in routing
     assert "successful command" in progress.lower()
