@@ -270,5 +270,6 @@ def test_official_runtime_and_plugin_references_are_documented():
     assert "scripts/validate_plugin.py" in refs
     assert "spawn_agent" in runtime
     assert "delegation depth" in runtime
-    assert "$CODEX_HOME/agents" in installation
+    assert "~/.codex/agents" in installation
+    assert "active Codex-home `agents` directory" in installation
     assert "codex plugin add codex-agent-team@codex-agent-team" in installation
