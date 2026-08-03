@@ -16,17 +16,20 @@
   <rect x="96" y="336" width="448" height="64" rx="0" fill="#2563eb"/>
   <text x="320" y="378" text-anchor="middle" fill="#fff" font-size="26" font-weight="600">Luna · Execution</text>
   <text x="128" y="444" fill="#1a1a1a" font-size="24" font-weight="500">Reader</text>
-  <text x="128" y="476" fill="#666" font-size="22">search · tracing · test mapping · evidence</text>
+  <text x="128" y="472" fill="#666" font-size="18">search · tracing · test mapping</text>
+  <text x="128" y="496" fill="#666" font-size="18">evidence collection</text>
   <line x1="128" y1="496" x2="512" y2="496" stroke="#e5e5e5" stroke-width="1"/>
-  <text x="128" y="528" fill="#1a1a1a" font-size="24" font-weight="500">Worker</text>
-  <text x="128" y="560" fill="#666" font-size="22">implement · debug · test · refactor</text>
+  <text x="128" y="520" fill="#1a1a1a" font-size="24" font-weight="500">Worker</text>
+  <text x="128" y="548" fill="#666" font-size="18">implement · debug · test</text>
+  <text x="128" y="572" fill="#666" font-size="18">local refactor</text>
 
   <!-- Terra -->
   <rect x="496" y="336" width="448" height="240" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="3"/>
   <rect x="496" y="336" width="448" height="64" rx="0" fill="#d97706"/>
   <text x="720" y="378" text-anchor="middle" fill="#fff" font-size="26" font-weight="600">Terra · Deep Investigation</text>
   <text x="528" y="444" fill="#1a1a1a" font-size="24" font-weight="500">Investigator</text>
-  <text x="528" y="476" fill="#666" font-size="22">unresolved complex technical delta</text>
+  <text x="528" y="472" fill="#666" font-size="18">unresolved complex</text>
+  <text x="528" y="496" fill="#666" font-size="18">technical delta</text>
   <text x="528" y="528" fill="#999" font-size="20" font-style="italic">read-only by default, no full redo</text>
 
   <!-- Sol -->

@@ -14,8 +14,9 @@
   <line x1="328" y1="168" x2="408" y2="168" stroke="#1a1a1a" stroke-width="2" marker-end="url(#e-arrow)"/>
   <rect x="408" y="96" width="280" height="144" rx="0" fill="#fff" stroke="#2563eb" stroke-width="2"/>
   <text x="548" y="144" text-anchor="middle" fill="#2563eb" font-size="22" font-weight="600">分类</text>
-  <text x="548" y="180" text-anchor="middle" fill="#666" font-size="20">deterministic</text>
-  <text x="548" y="212" text-anchor="middle" fill="#666" font-size="20">repository_fact / model_judgment</text>
+  <text x="548" y="176" text-anchor="middle" fill="#666" font-size="18">deterministic</text>
+  <text x="548" y="200" text-anchor="middle" fill="#666" font-size="18">repository_fact</text>
+  <text x="548" y="224" text-anchor="middle" fill="#666" font-size="18">model_judgment</text>
 
   <!-- Reuse -->
   <line x1="688" y1="168" x2="768" y2="168" stroke="#1a1a1a" stroke-width="2" marker-end="url(#e-arrow)"/>
@@ -44,9 +45,9 @@
   <text x="120" y="476" fill="#1a1a1a" font-size="20" font-weight="500">repository_fact</text>
   <text x="120" y="504" fill="#999" font-size="18">仓库事实，可安全复用</text>
 
-  <circle cx="96" cy="496" r="8" fill="#d97706" transform="translate(0,-14)"/>
-  <text x="120" y="504" fill="#1a1a1a" font-size="20" font-weight="500" transform="translate(0,-14)">model_judgment</text>
-  <text x="120" y="504" fill="#999" font-size="18" transform="translate(0,0)">假设性质，可被后续挑战</text>
+  <circle cx="96" cy="500" r="8" fill="#d97706"/>
+  <text x="120" y="508" fill="#1a1a1a" font-size="20" font-weight="500">model_judgment</text>
+  <text x="120" y="536" fill="#999" font-size="18">假设性质，可被后续挑战</text>
 
   <!-- Key principle -->
   <rect x="560" y="304" width="832" height="224" rx="0" fill="#fff" stroke="#e5e5e5" stroke-width="2"/>

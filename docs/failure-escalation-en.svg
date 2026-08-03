@@ -28,7 +28,8 @@
   <!-- Capability gap -->
   <rect x="400" y="264" width="320" height="80" rx="0" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
   <text x="560" y="296" text-anchor="middle" fill="#d97706" font-size="20" font-weight="600">Capability gap</text>
-  <text x="560" y="328" text-anchor="middle" fill="#666" font-size="18">→ Terra investigates delta only</text>
+  <text x="560" y="324" text-anchor="middle" fill="#666" font-size="16">→ Terra investigates</text>
+  <text x="560" y="348" text-anchor="middle" fill="#666" font-size="16">delta only</text>
 
   <!-- Judgment gap -->
   <rect x="400" y="352" width="320" height="80" rx="0" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>

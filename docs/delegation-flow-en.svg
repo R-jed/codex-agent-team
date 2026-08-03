@@ -11,7 +11,8 @@
   <!-- Main session understand -->
   <rect x="368" y="40" width="280" height="96" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
   <text x="508" y="80" text-anchor="middle" fill="#1a1a1a" font-size="22" font-weight="600">Main Session</text>
-  <text x="508" y="112" text-anchor="middle" fill="#666" font-size="20">outcome · scope · risk · acceptance</text>
+  <text x="508" y="108" text-anchor="middle" fill="#666" font-size="18">outcome · scope · risk</text>
+  <text x="508" y="132" text-anchor="middle" fill="#666" font-size="18">acceptance</text>
 
   <!-- Benefit gate -->
   <line x1="648" y1="88" x2="728" y2="88" stroke="#1a1a1a" stroke-width="2" marker-end="url(#f-arrow)"/>
@@ -56,7 +57,8 @@
   <!-- Luna -->
   <rect x="80" y="456" width="320" height="112" rx="0" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
   <text x="240" y="500" text-anchor="middle" fill="#2563eb" font-size="22" font-weight="600">Luna Max</text>
-  <text x="240" y="536" text-anchor="middle" fill="#666" font-size="20">implement · debug · test · search</text>
+  <text x="240" y="532" text-anchor="middle" fill="#666" font-size="18">implement · debug · test</text>
+  <text x="240" y="556" text-anchor="middle" fill="#666" font-size="18">search</text>
 
   <!-- Terra -->
   <rect x="560" y="456" width="320" height="112" rx="0" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>

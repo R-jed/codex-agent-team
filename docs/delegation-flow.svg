@@ -11,7 +11,8 @@
   <!-- Main session understand -->
   <rect x="368" y="40" width="280" height="96" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
   <text x="508" y="80" text-anchor="middle" fill="#1a1a1a" font-size="22" font-weight="600">主会话理解</text>
-  <text x="508" y="112" text-anchor="middle" fill="#666" font-size="20">目标 · 范围 · 风险 · 验收标准</text>
+  <text x="508" y="108" text-anchor="middle" fill="#666" font-size="18">目标 · 范围 · 风险</text>
+  <text x="508" y="132" text-anchor="middle" fill="#666" font-size="18">验收标准</text>
 
   <!-- Benefit gate -->
   <line x1="648" y1="88" x2="728" y2="88" stroke="#1a1a1a" stroke-width="2" marker-end="url(#f-arrow)"/>
