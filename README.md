@@ -1,5 +1,7 @@
 # Codex Delegate
 
+> Codex 原生 Subagent 委派框架。用最小的 Agent 组合完成开发任务。
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
@@ -7,9 +9,6 @@
     <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
   </picture>
 </p>
-
-<p align="center">
-  用最小的 Agent 组合完成开发任务。<br>
   <a href="README_EN.md">English</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
 </p>
 

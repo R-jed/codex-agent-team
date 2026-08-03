@@ -1,5 +1,7 @@
 # Codex Delegate
 
+> Native Subagent delegation framework for Codex. Get coding tasks done with the smallest useful set of Agents.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
@@ -7,9 +9,6 @@
     <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
   </picture>
 </p>
-
-<p align="center">
-  Get coding tasks done with the smallest useful set of Agents.<br>
   <a href="README.md">中文</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
 </p>
 
