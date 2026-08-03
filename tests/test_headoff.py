@@ -140,6 +140,27 @@ def test_handoff_defines_adversarial_feedback_packets():
         assert field in text
 
 
+def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "/gpt56-sol-pro-consult",
+        "## Project consultation target",
+        "TARGET_CHATGPT_CONVERSATION_TITLE",
+        "分支 · 项目对比分析",
+        "continue_existing_conversation",
+        "exact_title_unique_match",
+        "CONSULTATION_TARGET_UNRESOLVED",
+        "Do not create a replacement ChatGPT conversation",
+        "Do not silently fall back to an isolated consultation conversation",
+        "project discussion",
+        "The project target contract does not replace any transport-level `task_id`, sentinel, safety scan",
+    ]:
+        assert phrase in text
+
+    assert "fuzzy match" in text
+    assert "model_judgment" in text
+
+
 def test_handoff_has_a_finite_release_finish_line():
     text = HANDOFF.read_text()
     assert "The remaining job is finite" in text
