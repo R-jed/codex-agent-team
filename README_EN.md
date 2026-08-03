@@ -1,5 +1,3 @@
-# Codex Delegate
-
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
@@ -7,6 +5,8 @@
     <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
   </picture>
 </p>
+
+<h1 align="center">Codex Delegate</h1>
 
 <p align="center">
   A delegation policy layer over Codex Native Subagents. Turn engineering tasks into the smallest useful set of verifiable delegations.<br>
@@ -110,11 +110,6 @@ Version `0.4.0` uses the `Codex Delegate` product name and `/codex-delegate` as 
 To reduce pre-v1 upgrade risk, the GitHub repository slug, Plugin package id, and internal managed-profile namespace temporarily retain `codex-agent-team` compatibility identifiers. Users do not need to rename these resources manually.
 
 Before v1.0.0, three user-relevant areas remain under live validation: cross-session same-checkout writer exclusion, concurrent installer behavior in one Codex home, and the real Plugin upgrade path from `0.3.x` to `0.4.x`. This README does not claim runtime guarantees beyond evidence that has actually been established.
-
-## More information
-
-- [Installation and first run](docs/plugin-installation.md)
-- [Project homepage](https://github.com/R-jed/codex-agent-team)
 
 ## License
 

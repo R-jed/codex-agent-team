@@ -52,8 +52,11 @@ def test_readmes_explain_compatibility_ids_without_reverting_brand():
     en = (ROOT / "README_EN.md").read_text()
     assert "compatibility identifiers" in en
     assert "兼容标识" in zh
-    assert zh.startswith("# Codex Delegate")
-    assert en.startswith("# Codex Delegate")
+    # Allow logo before title
+    zh_lines = zh.split("\n")[0:15]
+    en_lines = en.split("\n")[0:15]
+    assert any("Codex Delegate" in line for line in zh_lines)
+    assert any("Codex Delegate" in line for line in en_lines)
 
 
 def test_readmes_remain_text_first_and_user_facing():

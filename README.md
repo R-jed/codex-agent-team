@@ -1,5 +1,3 @@
-# Codex Delegate
-
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
@@ -7,6 +5,8 @@
     <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
   </picture>
 </p>
+
+<h1 align="center">Codex Delegate</h1>
 
 <p align="center">
   Codex Native Subagents 之上的委派策略层。把开发任务变成最小的一组可验证委派。<br>
@@ -110,11 +110,6 @@ Codex Delegate 使用四个受项目管理的角色 profile：Reader、Worker、
 为了降低 pre-v1 升级风险，GitHub 仓库 slug、Plugin package id 和内部 managed-profile namespace 暂时保留 `codex-agent-team` 兼容标识。用户无需手工重命名这些内部资源。
 
 v1.0.0 发布前仍在完成三类与用户实际使用有关的 live validation：跨会话同 checkout 写入排他、同一 Codex home 的并发 installer 行为，以及从 `0.3.x` 到 `0.4.x` 的真实 Plugin 升级路径。当前 README 不对这些尚未完成的运行时保证做超出证据的承诺。
-
-## 更多信息
-
-- [安装与首次运行](docs/plugin-installation.md)
-- [项目主页](https://github.com/R-jed/codex-agent-team)
 
 ## License
 
