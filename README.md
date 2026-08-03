@@ -1,12 +1,25 @@
 # Codex Delegate
 
-[English](README_EN.md) · [安装指南](docs/plugin-installation.md) · [MIT License](LICENSE)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
+    <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
+  </picture>
+</p>
+
+<p align="center">
+  用最小的 Agent 组合完成开发任务。<br>
+  <a href="README_EN.md">English</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
+</p>
 
 Codex Delegate 是一个 Codex 原生 Subagent 委派框架。你描述开发任务，当前会话决定哪些工作值得委派、交给谁、怎么验收。
-
-用最小的 Agent 组合完成任务，减少重复搜索和失控写入。
-
-当前版本：`0.4.0`（v1.0.0 发布前预览版）。
 
 ## 快速开始
 
@@ -28,7 +41,11 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 主会话理解任务后，选择最小执行路径。
 
-<img src="docs/architecture-diagram.svg" alt="Codex Delegate 架构图" width="640">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-diagram.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/architecture-diagram.svg">
+  <img alt="Codex Delegate 架构图" src="docs/architecture-diagram.svg" width="100%">
+</picture>
 
 | 角色 | 模型 | 职责 |
 | --- | --- | --- |
@@ -40,7 +57,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ## 委派流程
 
-<img src="docs/delegation-flow.svg" alt="委派决策流程" width="640">
+<img src="docs/delegation-flow.svg" alt="委派决策流程" width="100%">
 
 没有固定的三级流水线。每次调用 Subagent 都必须解决一个当前仍未满足的独立依赖。
 
@@ -60,13 +77,13 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ## 已经确认的结果会尽量复用
 
-<img src="docs/evidence-lifecycle.svg" alt="证据生命周期" width="640">
+<img src="docs/evidence-lifecycle.svg" alt="证据生命周期" width="100%">
 
 主会话保存有效的测试结果、接口事实等证据，后续 Agent 直接复用。相关文件变更时，只重新验证受影响的部分。
 
 ## 失败处理
 
-<img src="docs/failure-escalation.svg" alt="失败分类与升级路径" width="640">
+<img src="docs/failure-escalation.svg" alt="失败分类与升级路径" width="100%">
 
 Luna 遇到问题时，先分类再升级。Terra 不会因为 Luna 的结果"看起来一般"就自动重做整个任务。Sol 也不是每次必须经过的关卡。
 

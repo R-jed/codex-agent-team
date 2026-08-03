@@ -1,12 +1,25 @@
 # Codex Delegate
 
-[中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
+    <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
+  </picture>
+</p>
+
+<p align="center">
+  Get coding tasks done with the smallest useful set of Agents.<br>
+  <a href="README.md">中文</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
+</p>
 
 Codex Delegate is a native Subagent delegation framework for Codex. You describe the engineering task, the current session decides what's worth delegating, who should handle it, and how to verify the result.
-
-Get the job done with the smallest useful set of Agents, reducing redundant repository discovery and uncontrolled write scope.
-
-Current version: `0.4.0` (pre-v1.0.0 preview).
 
 ## Quick start
 
@@ -28,7 +41,11 @@ No manual model selection. Codex Delegate figures out what's needed.
 
 The main session understands the task, then picks the smallest useful execution path.
 
-<img src="docs/architecture-diagram.svg" alt="Codex Delegate architecture diagram" width="640">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-diagram.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/architecture-diagram.svg">
+  <img alt="Codex Delegate architecture" src="docs/architecture-diagram.svg" width="100%">
+</picture>
 
 | Role | Model | Purpose |
 | --- | --- | --- |
@@ -40,7 +57,7 @@ The main session understands the task, then picks the smallest useful execution 
 
 ## Delegation flow
 
-<img src="docs/delegation-flow.svg" alt="Delegation decision flow" width="640">
+<img src="docs/delegation-flow.svg" alt="Delegation decision flow" width="100%">
 
 There is no fixed three-model pipeline. Every Subagent call must satisfy a distinct dependency that existing evidence does not already cover.
 
@@ -60,13 +77,13 @@ A Writing Worker does not start guessing through repository changes when accepta
 
 ## Established evidence is reused
 
-<img src="docs/evidence-lifecycle.svg" alt="Evidence lifecycle" width="640">
+<img src="docs/evidence-lifecycle.svg" alt="Evidence lifecycle" width="100%">
 
 The main session keeps valid test results, interface facts, and other evidence. Later Agents reuse those facts directly. Only evidence affected by changed files needs revalidation.
 
 ## Failure handling
 
-<img src="docs/failure-escalation.svg" alt="Failure classification and escalation" width="640">
+<img src="docs/failure-escalation.svg" alt="Failure classification and escalation" width="100%">
 
 When Luna needs help, the workflow classifies the failure before escalating. A mediocre Luna result does not automatically trigger a full Terra restart. Sol is also selective — when tests and acceptance criteria are strong enough, the main session can accept without adding a mandatory review stage.
 
