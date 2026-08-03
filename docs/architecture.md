@@ -1,8 +1,8 @@
 # Architecture
 
-Codex Delegate is a policy layer over Codex Native Subagents. The main session owns user intent, task dependencies, scheduling, evidence, integration, and acceptance. Delegation is created only for bounded responsibilities whose outputs satisfy distinct unresolved dependencies.
+Codex Delegate is a policy layer over Codex Native Subagents. The main session owns user intent, task dependencies, scheduling, evidence, recovery state, integration, and acceptance. Delegation is created only for bounded responsibilities whose outputs satisfy distinct unresolved dependencies.
 
-The project does not implement another Agent runtime. It adds scheduling, contracts, evidence discipline, consent, and safety policy around Codex native `spawn_agent`.
+The project does not implement another Agent runtime. It adds scheduling, contracts, evidence discipline, intervention/recovery policy, consent, and safety policy around Codex native `spawn_agent`.
 
 ## Product model
 
@@ -19,15 +19,19 @@ User task
   -> execute one dependency per responsibility
   -> inspect artifacts and verification
   -> merge / invalidate evidence
-  -> execution-progress classification
-  -> focused correction, clean restart, delta escalation, or selective judgment
+  -> structured execution signals
+  -> Intervention Gate: does execution still show forward progress?
+      -> yes: continue current responsibility
+      -> no/blocked: classify recovery
+  -> focused correction, clean restart, Terra delta, or selective judgment
+  -> record material Recovery Ledger / decision provenance
   -> recompute ready frontier
   -> main-session acceptance
 ```
 
 No model is a mandatory pipeline stage. No fixed Agent count defines a valid task.
 
-## Control plane and Dependency Ledger
+## Control plane, Dependency Ledger, and Recovery Ledger
 
 The main session is the control plane. It owns:
 
@@ -36,7 +40,9 @@ The main session is the control plane. It owns:
 - the Dependency Ledger and ready frontier;
 - consent state and scheduling;
 - Shared Evidence State;
+- the bounded Recovery Ledger for material attempts;
 - workspace coordination;
+- effective recovery actions;
 - integration, acceptance, and the final answer.
 
 The Dependency Ledger is compact in-session state:
@@ -53,6 +59,22 @@ acceptance
 ```
 
 It is not a persistent DAG service. A ready dependency may be delegated only once at a time. A satisfied dependency stays closed until changed inputs invalidate it.
+
+The Recovery Ledger is also compact state, not a transcript:
+
+```text
+attempt_id
+lane
+correction_hypothesis
+failure_signature
+progress_signal
+new_evidence_ids
+unresolved_delta
+recovery_action
+decision_source
+```
+
+It preserves only decision-relevant history needed to detect repeated or oscillating recovery paths across fresh contexts. It never stores private reasoning.
 
 ## Adaptive scheduling
 
@@ -107,6 +129,7 @@ ACCEPTANCE ORACLE
 VERIFICATION
 ESTABLISHED EVIDENCE
 CURRENT EXECUTION EVIDENCE
+MATERIAL RECOVERY HISTORY
 STOP / ESCALATE
 RETURN
 ```
@@ -131,9 +154,9 @@ Deterministic outputs and repository facts may be reused while their declared de
 
 A changed input invalidates only evidence that depends on it. Private reasoning is never promoted into shared task state.
 
-## Execution progress and recovery
+## Execution progress, Intervention Gate, and recovery
 
-Codex Delegate separates execution evidence, progress signals, and routing decisions.
+Codex Delegate separates execution evidence, structured progress signals, intervention, and effective recovery action.
 
 Progress can be established by:
 
@@ -143,9 +166,11 @@ Progress can be established by:
 - a materially narrower unresolved dependency;
 - an artifact change that improves verification without violating invariants.
 
-Confidence, narration, file writes, repeated commands, or another model agreeing do not establish progress by themselves.
+Confidence, narration, file writes, successful but task-irrelevant commands, repeated commands, or another model agreeing do not establish progress by themselves.
 
-When acceptance fails:
+Acceptance failure does not automatically trigger intervention. The main session first asks whether evidence still shows forward progress inside a valid contract and safe runtime boundary.
+
+If yes, the responsibility continues. If no or blocked, recovery is classified:
 
 ```text
 mechanical defect
@@ -155,7 +180,7 @@ contract gap
 -> main session repairs the contract
 
 execution stall / context pollution
--> fresh same-lane packet with current artifact + valid evidence + DO NOT REDO
+-> fresh same-lane packet with current artifact + valid evidence + Recovery Ledger + DO NOT REDO
 
 capability gap
 -> Terra gets the unresolved technical delta
@@ -164,11 +189,26 @@ judgment gap
 -> main session or Sol
 ```
 
-There is no universal retry count. An unchanged contract is not resent merely because the previous attempt failed.
+There is no universal retry count and no fixed stall threshold. An unchanged contract is not resent merely because the previous attempt failed.
 
-A clean restart preserves facts, artifacts, acceptance, failure signature, and unresolved delta while dropping private reasoning and dead-end narration. It normally uses fresh child context.
+A clean restart preserves facts, artifacts, acceptance, failure signature, unresolved delta, and material recovery history while dropping private reasoning and dead-end narration. It normally uses fresh child context.
+
+When another model proposes a recovery action, the main session keeps the proposal separate from the effective action. Consent, workspace ownership, exact routes, permissions, runtime constraints, and user decisions may transform or reject a proposal.
 
 See `plugins/codex-agent-team/skills/codex-agent-team/references/execution-progress.md`.
+
+## Event-driven evaluation and runtime observability
+
+Recovery evaluation runs on material events rather than a fixed turn count:
+
+- child return;
+- material acceptance/failure change;
+- evidence establishment, contradiction, or invalidation;
+- dependency blocking/readiness change;
+- user authorization/scope change;
+- material workspace, route, permission, or runtime change.
+
+SageRoute-style mid-run trajectory intervention is not assumed. Child progress before return is a runtime fact. The tested runtime may expose `none`, `terminal_only`, `periodic_summary`, or `structured_live` observability. Codex Delegate records only what the current Codex build actually exposes.
 
 ## Terra delta escalation
 
@@ -181,6 +221,7 @@ unresolved dependency
 relevant established evidence
 current artifact
 failure signature
+material recovery history
 DO NOT REDO
 ```
 
@@ -217,7 +258,7 @@ One canonical workspace still has at most one active writing Worker. Separate ru
 
 ```text
 main-session scope
--> Dependency Ledger, ready frontier, consent, active child set
+-> Dependency Ledger, ready frontier, consent, active child set, Recovery Ledger
 
 workspace scope
 -> one active writer per canonical physical checkout or isolated worktree
@@ -232,7 +273,7 @@ There is no machine-wide Codex Delegate Agent cap.
 
 The Skill calls Codex Native `spawn_agent`. Each Subagent is backed by a native child thread/session.
 
-Native slot capacity is runtime evidence. One Codex build may expose a different limit from another. The project records observed capacity during live validation but does not turn that observation into a permanent architecture constant.
+Native slot capacity and child-progress observability are runtime evidence. One Codex build may expose different behavior from another. The project records observed capability during live validation but does not turn one observation into a permanent architecture constant.
 
 See [`native-subagent-runtime.md`](native-subagent-runtime.md).
 
@@ -240,7 +281,11 @@ See [`native-subagent-runtime.md`](native-subagent-runtime.md).
 
 Codex Plugin is the only supported distribution path. `/codex-delegate` is the canonical user-facing workflow entry point.
 
-The Plugin ships four namespaced semantic profiles:
+The Plugin root follows the native Codex Plugin bundle shape with `.codex-plugin/plugin.json` and a repository marketplace entry under `.agents/plugins/marketplace.json`.
+
+Custom Agent profiles are a separate Codex configuration surface. The Plugin bundles four profile templates and a managed installer, but the Plugin manifest does not claim an unsupported native `agents` component. After explicit user approval, the installer provisions the four profiles into the active `$CODEX_HOME/agents` personal custom-Agent directory.
+
+Internal profiles remain:
 
 ```text
 codex_agent_team_reader
@@ -251,7 +296,7 @@ codex_agent_team_advisor
 
 The internal profile namespace remains a compatibility identifier during the pre-v1 migration window.
 
-Profile readiness is checked only after a model-specific responsibility has been justified. Missing profiles trigger the managed first-run installer flow. Successful file installation remains configuration evidence; current-task role discovery is checked again before delegation.
+Profile readiness is checked only after a model-specific responsibility has been justified. Successful file installation remains configuration evidence; current-task role discovery is checked again before delegation.
 
 There is no Portable Mode or built-in-role substitution.
 
@@ -287,7 +332,7 @@ Requested read-only profile configuration is not proof of host-enforced read-onl
 
 ## Evaluation
 
-Static tests validate policy contracts, profile installation, schemas, evidence tooling, and packaging. They do not prove task performance or native capacity.
+Static tests validate policy contracts, profile installation, schemas, evidence tooling, and packaging. They do not prove task performance, native capacity, or child-progress observability.
 
 Live evaluation measures:
 
@@ -296,8 +341,11 @@ Live evaluation measures:
 - dependency scheduling quality;
 - peak active children and observed native capacity;
 - runtime slot waits;
-- execution stalls and clean restarts;
+- intervention-gate decisions;
+- execution stalls, Recovery Ledger cycles, and clean restarts;
+- proposed versus effective recovery action provenance;
 - unjustified retries;
+- child-progress observability;
 - correction cost;
 - selective Terra/Sol value.
 
@@ -305,4 +353,4 @@ See [`behavioral-evals.md`](behavioral-evals.md).
 
 ## Scope boundary
 
-Core deliberately excludes persistent task orchestration services, external DAG schedulers, mandatory all-task review, automatic fixed model ladders, machine-wide Agent governors, and production deployment automation.
+Core deliberately excludes persistent task orchestration services, external DAG schedulers, mandatory all-task review, automatic fixed model ladders, machine-wide Agent governors, external routing judges, and production deployment automation.
