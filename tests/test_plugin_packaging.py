@@ -105,14 +105,16 @@ def test_repository_has_no_standalone_or_setup_install_surface():
     assert not (ROOT / "skill" / "codex-agent-team").exists()
 
 
-def test_install_docs_use_cli_marketplace_and_plugin_install_without_manual_config_edits():
+def test_install_docs_use_cli_marketplace_and_plugin_lifecycle_without_manual_config_edits():
     text = INSTALL_DOC.read_text()
     assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
     assert "--sparse .agents/plugins" in text
     assert "--sparse plugins/codex-agent-team" in text
+    assert "codex plugin marketplace upgrade codex-agent-team" in text
     assert "codex plugin add codex-agent-team@codex-agent-team" in text
     assert "new Codex thread" in text
-    assert "$CODEX_HOME/agents" in text
+    assert "~/.codex/agents" in text
+    assert "active Codex-home `agents` directory" in text
     assert "does not claim a native `agents` component" in text
     assert "Do not hand-edit `config.toml`" in text
     assert "scripts/validate_plugin.py" in text
