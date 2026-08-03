@@ -58,7 +58,7 @@ def test_handoff_requires_codex_delegate_upgrade_and_entrypoint_validation():
         "Starting from a real installed v0.3.x `Codex Agent Team`",
         "confirm `/codex-delegate` is discoverable",
         "Characterize the old `/codex-agent-team` invocation after upgrade",
-        "Plugin package id remains `codex-agent-team`",
+        "package id remains `codex-agent-team`",
         "Do not block v1 solely for cosmetic slug alignment",
         "U20 OPEN",
     ]:
