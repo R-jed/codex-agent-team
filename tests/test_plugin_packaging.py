@@ -116,7 +116,7 @@ def test_install_docs_use_cli_marketplace_and_plugin_lifecycle_without_manual_co
     assert "~/.codex/agents" in text
     assert "active Codex-home `agents` directory" in text
     assert "does not claim a native `agents` component" in text
-    assert "Do not hand-edit `config.toml`" in text
+    assert "manually editing `config.toml`" in text
     assert "scripts/validate_plugin.py" in text
 
 
