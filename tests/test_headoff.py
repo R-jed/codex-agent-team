@@ -24,7 +24,9 @@ def test_handoff_protects_release_critical_live_validation_scope():
         "### 8. Primary raw-prompt versus compiled-contract experiment",
         "### 9. Luna + selective Sol experiment",
         "## Checkpoint 5: resource governance and lifecycle stress",
+        "### 12. Workspace-scoped one-writer and multi-session matrix",
         "## Checkpoint 6: installer migration and fault injection",
+        "### 15. Concurrent Codex-home installer matrix",
         "# Version-scoped unknowns and technical debt",
         "# Defect triage",
         "# Release acceptance gate",
@@ -85,3 +87,28 @@ def test_handoff_has_a_finite_release_finish_line():
     assert "Luna Max / Terra XHigh / Sol High are frozen as the v1.0.0 routing baseline" in text
     for stage in ["## Stage R1", "## Stage R2", "## Stage R3", "## Stage R4"]:
         assert stage in text
+
+
+def test_handoff_requires_cross_session_workspace_validation_without_global_locking():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "M1 different sessions, different projects/checkouts",
+        "M2 different sessions, same repository, different runtime-backed isolated worktrees",
+        "M3 different sessions, same canonical physical checkout",
+        "M4 one writing session plus one read-only session on the same checkout",
+        "Do not implement a workspace lock before M3 establishes a reproducible failure",
+        "Do not infer a machine-wide or account-wide limit",
+    ]:
+        assert phrase in text
+
+
+def test_handoff_requires_concurrent_installer_validation_before_locking():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "I1 same clean `CODEX_HOME`",
+        "I2 one installer is forced to fail after mutation begins",
+        "peer-success state",
+        "mixed profile generations",
+        "Do not add an inter-process installer lock merely because races are theoretically possible",
+    ]:
+        assert phrase in text
