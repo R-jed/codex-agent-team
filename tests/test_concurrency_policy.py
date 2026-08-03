@@ -4,23 +4,70 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "plugins/codex-agent-team/skills/codex-agent-team/SKILL.md"
 ROUTING = ROOT / "plugins/codex-agent-team/skills/codex-agent-team/references/routing-policy.md"
+CONSENT = ROOT / "plugins/codex-agent-team/skills/codex-agent-team/references/consent-policy.md"
 SAFETY = ROOT / "plugins/codex-agent-team/skills/codex-agent-team/references/safety-policy.md"
 CONTRACT = ROOT / "plugins/codex-agent-team/skills/codex-agent-team/references/delegation-contract.md"
+PROGRESS = ROOT / "plugins/codex-agent-team/skills/codex-agent-team/references/execution-progress.md"
 
 
-def test_concurrency_scopes_are_distinct_and_v1_limits_stay_frozen():
+def test_scheduler_has_no_product_hard_child_count():
     skill = SKILL.read_text()
     routing = ROUTING.read_text()
+    combined = skill + routing
 
     for phrase in [
-        "normal maximum is 2, hard maximum is 4",
-        "Child-count limits are per main session",
-        "workspace scope",
-        "Codex-home scope",
-        "not a machine-wide or account-wide concurrency limit",
-        "one active writing Worker per canonical workspace",
+        "no product-level hard child count",
+        "Dependency Ledger",
+        "ready frontier",
+        "smallest useful scheduling wave",
+        "native runtime capacity",
     ]:
-        assert phrase in skill or phrase in routing
+        assert phrase.lower() in combined.lower()
+
+    for forbidden in [
+        "hard maximum is 4",
+        "hard maximum: 4",
+        "hard max 4",
+        "default child count is 1",
+    ]:
+        assert forbidden.lower() not in combined.lower()
+
+
+def test_two_children_is_consent_boundary_not_scheduler_ceiling():
+    consent = CONSENT.read_text()
+    routing = ROUTING.read_text()
+    combined = consent + routing
+
+    for phrase in [
+        "up to 2 concurrently active justified child Agents",
+        "consent boundary",
+        "not a total child lifetime limit",
+        "does not add another numerical hard ceiling",
+        "material compute expansion",
+    ]:
+        assert phrase.lower() in combined.lower()
+
+
+def test_authorized_static_eval_can_exceed_four_readers():
+    import json
+
+    payload = json.loads((ROOT / "evals/routing-cases.json").read_text())
+    case = next(item for item in payload["evals"] if item["id"] == "five-independent-readers-authorized")
+    assert case["expected"]["action"] == "delegate"
+    assert len(case["expected"]["nodes"]) == 5
+    assert len({node["dependency_id"] for node in case["expected"]["nodes"]}) == 5
+    assert all(node["write_intent"] is False for node in case["expected"]["nodes"])
+
+
+def test_runtime_slot_pressure_queues_without_cross_routing():
+    import json
+
+    payload = json.loads((ROOT / "evals/routing-cases.json").read_text())
+    case = next(item for item in payload["evals"] if item["id"] == "runtime-slot-pressure-queues-ready-work")
+    assert case["expected"]["action"] == "queue"
+    assert len(case["expected"]["nodes"]) == 3
+    assert case["expected"]["queued_dependencies"] == ["D04", "D05"]
+    assert all(node["model"] == "gpt-5.6-luna" for node in case["expected"]["nodes"])
 
 
 def test_worker_contract_is_concurrent_change_aware():
@@ -45,8 +92,23 @@ def test_same_checkout_writer_rule_does_not_create_a_global_writer_mutex():
     for phrase in [
         "same physical checkout",
         "independent workspaces may have independent writers",
-        "Do not create a global Agent cap that blocks independent projects",
+        "machine-wide",
         "File-level promises inside one shared checkout are insufficient",
+    ]:
+        assert phrase.lower() in combined.lower()
+
+
+def test_progress_recovery_has_no_universal_retry_count():
+    progress = PROGRESS.read_text()
+    contract = CONTRACT.read_text()
+    combined = progress + contract
+
+    for phrase in [
+        "same failure signature",
+        "clean restart",
+        "Capability takes precedence over retry",
+        "There is no universal retry count",
+        "Do not repeat an unchanged contract after failure",
     ]:
         assert phrase.lower() in combined.lower()
 
