@@ -65,13 +65,13 @@
 
   <!-- Arrow markers -->
   <defs>
-    <marker id="arrow-blue" viewBox="0 0 8 8" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+    <marker id="arrow-blue" viewBox="0 0 16 16" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
       <path d="M0,0 L16,8 L0,16 Z" fill="#2563eb"/>
     </marker>
-    <marker id="arrow-amber" viewBox="0 0 8 8" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+    <marker id="arrow-amber" viewBox="0 0 16 16" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
       <path d="M0,0 L16,8 L0,16 Z" fill="#d97706"/>
     </marker>
-    <marker id="arrow-green" viewBox="0 0 8 8" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+    <marker id="arrow-green" viewBox="0 0 16 16" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
       <path d="M0,0 L16,8 L0,16 Z" fill="#059669"/>
     </marker>
   </defs>
