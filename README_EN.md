@@ -27,6 +27,8 @@ Current version: `0.5.1`, pre-v1.
 
 ## Quick start
 
+Fresh install:
+
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main \
   --sparse .agents/plugins \
@@ -35,7 +37,14 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main \
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-Start a new Codex thread after installation, then give it a task directly:
+If this Git marketplace is already configured, refresh its snapshot before reinstalling the Plugin:
+
+```bash
+codex plugin marketplace upgrade codex-agent-team
+codex plugin add codex-agent-team@codex-agent-team
+```
+
+Start a new Codex thread after installation, upgrade, or reinstall, then give it a task directly:
 
 ```text
 /codex-delegate Fix this login retry bug and run the relevant tests.
@@ -43,7 +52,7 @@ Start a new Codex thread after installation, then give it a task directly:
 /codex-delegate Review this change with emphasis on data consistency and regression risk.
 ```
 
-You do not need to choose a model, Agent count, or model sequence first.
+You do not need to choose a model, Agent count, or model sequence first. See the [installation guide](docs/plugin-installation.md) for migration and failure-handling details.
 
 ## How it works
 
@@ -133,14 +142,6 @@ Use a new Codex thread after Plugin installation or reinstall. If profile provis
 - A Worker must preserve unrelated user or concurrent-session edits; if workspace drift invalidates the contract, it stops and returns control to the main session
 - A Subagent completion report or recovery recommendation is an execution claim; final acceptance and effective recovery actions rely on actual artifacts, reproducible evidence, and main-session policy
 - Publishing, deployment, payments, account-permission changes, and other consequential external actions remain under main-session control
-
-## Current release and compatibility
-
-Version `0.5.1` keeps the `Codex Delegate` product name and `/codex-delegate` canonical entry point while refining evidence-driven intervention and making the native Plugin versus custom-Agent provisioning boundary explicit.
-
-To reduce pre-v1 upgrade risk, the GitHub repository slug, Plugin package id, and internal managed-profile namespace temporarily retain `codex-agent-team` compatibility identifiers. Users do not need to rename these resources manually.
-
-Before v1.0.0, live validation still covers real Plugin install/upgrades, official Plugin validation, child-progress observability, cross-session same-checkout writer exclusion, concurrent installer behavior in one Codex home, and native fan-out capacity/slot recovery. This README describes the current product contract without presenting uncompleted runtime tests as established guarantees.
 
 ## License
 
