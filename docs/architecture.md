@@ -1,40 +1,83 @@
 # Architecture
 
-Codex Agent Team is a policy layer over Codex Native Subagents. The main session owns the task-level compute graph and delegates only bounded responsibilities whose outputs satisfy distinct unresolved dependencies.
+Codex Delegate is a policy layer over Codex Native Subagents. The main session owns user intent, task dependencies, scheduling, evidence, integration, and acceptance. Delegation is created only for bounded responsibilities whose outputs satisfy distinct unresolved dependencies.
+
+The project does not implement another Agent runtime. It adds scheduling, contracts, evidence discipline, consent, and safety policy around Codex native `spawn_agent`.
 
 ## Product model
 
-The architecture optimizes for useful work, not maximum Agent count or maximum concurrency.
+The architecture optimizes for the smallest useful compute graph that can move the task toward acceptance.
 
 ```text
 User task
-  -> main session understands outcome and risk
-  -> delegation benefit gate
-  -> contractability gate
-  -> semantic responsibility
-  -> exact project profile
-  -> execute one dependency
-  -> merge/invalidate evidence
-  -> selective delta escalation or review
+  -> main session identifies outcomes and dependencies
+  -> Dependency Ledger
+  -> ready frontier
+  -> delegation benefit + contractability
+  -> consent / workspace / route / runtime-capacity gates
+  -> smallest useful scheduling wave
+  -> execute one dependency per responsibility
+  -> inspect artifacts and verification
+  -> merge / invalidate evidence
+  -> execution-progress classification
+  -> focused correction, clean restart, delta escalation, or selective judgment
+  -> recompute ready frontier
   -> main-session acceptance
 ```
 
-No model is a mandatory pipeline stage.
+No model is a mandatory pipeline stage. No fixed Agent count defines a valid task.
 
-Common paths include:
+## Control plane and Dependency Ledger
+
+The main session is the control plane. It owns:
+
+- user intent and scope;
+- architecture and consequential decision rights;
+- the Dependency Ledger and ready frontier;
+- consent state and scheduling;
+- Shared Evidence State;
+- workspace coordination;
+- integration, acceptance, and the final answer.
+
+The Dependency Ledger is compact in-session state:
 
 ```text
-main
-main -> Luna -> main
-main -> Luna -> Sol -> main
-main -> Terra -> Luna -> main
-main -> Luna -> Terra(delta only) -> Luna -> main
-main -> Sol -> main
+id
+outcome
+status: pending | ready | running | satisfied | blocked | invalidated
+requires
+produces
+write_intent
+workspace
+acceptance
 ```
 
-## Control plane and compute tiers
+It is not a persistent DAG service. A ready dependency may be delegated only once at a time. A satisfied dependency stays closed until changed inputs invalidate it.
 
-The main session is the control plane. It owns intent, scope, architecture, decision rights, scheduling, evidence state, integration, acceptance, and the final answer.
+## Adaptive scheduling
+
+The scheduler does not begin with `1`, `2`, `4`, or any other desired Agent count.
+
+It begins with the ready frontier and asks:
+
+1. Which ready dependencies still need work?
+2. Would delegation add concrete value?
+3. Can each responsibility be made enforceable?
+4. Can the responsibilities run safely at the same time?
+5. Has the user already authorized the required resource shape?
+6. Does the current runtime expose enough native child capacity?
+
+The scheduler chooses the smallest useful wave.
+
+Explicit `/codex-delegate` use includes a baseline consent envelope of up to two concurrently active justified children. More than two simultaneous children normally requires consent unless broad parallel work was already authorized.
+
+That number is a consent boundary. It is not a total task Agent limit and not a scheduler target.
+
+After consent, actual parallelism is constrained by ready dependencies, one-writer workspace safety, exact route availability, and native runtime slots. Codex Delegate has no second numerical hard ceiling.
+
+If the runtime has fewer slots than ready work, excess dependencies remain queued. The project does not cross-route work or create duplicate inference merely to fill or work around slots.
+
+## Semantic compute lanes
 
 | Semantic role | Current route | Responsibility |
 | --- | --- | --- |
@@ -45,17 +88,25 @@ The main session is the control plane. It owns intent, scope, architecture, deci
 
 Role identity is intentionally separate from model identity. A future route change must not require renaming the responsibility.
 
+Task size is not used as a proxy for reasoning difficulty. A large repository can still be Luna-only when the dependency is clear. A small change can justify Sol when it crosses a consequential commitment boundary.
+
 ## Contract-centric delegation
 
-A Subagent does not receive the user's raw ambiguous task by default. The main session compiles a bounded Delegation Contract with:
+A Subagent receives one bounded dependency rather than the raw ambiguous task.
+
+A writing contract contains:
 
 ```text
+DEPENDENCY
 OUTCOME
 SCOPE
+INTERFACES / DEPENDENCIES
 INVARIANTS
 DECISION RIGHTS
 ACCEPTANCE ORACLE
 VERIFICATION
+ESTABLISHED EVIDENCE
+CURRENT EXECUTION EVIDENCE
 STOP / ESCALATE
 RETURN
 ```
@@ -66,7 +117,7 @@ See `plugins/codex-agent-team/skills/codex-agent-team/references/delegation-cont
 
 ## Incremental evidence
 
-The main session maintains a compact Shared Evidence State rather than replaying complete task history to every Agent.
+The main session maintains Shared Evidence State rather than replaying complete task history to every Agent.
 
 Reusable evidence is classified as:
 
@@ -76,52 +127,118 @@ repository_fact
 model_judgment
 ```
 
-Deterministic outputs and repository facts may be reused while their declared dependencies remain valid. Model judgments remain hypotheses that later judgment can challenge.
+Deterministic outputs and repository facts may be reused while their declared dependencies remain valid. Model judgments remain hypotheses.
 
-A changed input invalidates only evidence that depends on it. This prevents a small edit from forcing every later Agent to rescan the repository or rerun unrelated tests.
+A changed input invalidates only evidence that depends on it. Private reasoning is never promoted into shared task state.
 
-## Delta escalation
+## Execution progress and recovery
 
-Low quality is not an automatic Terra trigger.
+Codex Delegate separates execution evidence, progress signals, and routing decisions.
 
-A failed Luna result is classified first:
+Progress can be established by:
+
+- acceptance checks moving toward success;
+- new deterministic evidence;
+- new repository facts;
+- a materially narrower unresolved dependency;
+- an artifact change that improves verification without violating invariants.
+
+Confidence, narration, file writes, repeated commands, or another model agreeing do not establish progress by themselves.
+
+When acceptance fails:
 
 ```text
-mechanical defect -> focused Luna correction
-contract gap -> main session repairs contract
-capability gap -> Terra gets unresolved technical delta
-judgment gap -> main session or Sol
+mechanical defect
+-> focused Luna correction with a distinct correction hypothesis
+
+contract gap
+-> main session repairs the contract
+
+execution stall / context pollution
+-> fresh same-lane packet with current artifact + valid evidence + DO NOT REDO
+
+capability gap
+-> Terra gets the unresolved technical delta
+
+judgment gap
+-> main session or Sol
 ```
 
-Terra does not receive the whole original task. It receives the unresolved delta, relevant established evidence, current artifact, and explicit `DO NOT REDO` items.
+There is no universal retry count. An unchanged contract is not resent merely because the previous attempt failed.
 
-After Terra resolves the technical dependency, bounded implementation normally returns to Luna or the main session.
+A clean restart preserves facts, artifacts, acceptance, failure signature, and unresolved delta while dropping private reasoning and dead-end narration. It normally uses fresh child context.
 
-Sol follows the same incremental rule. A Sol judgment/review packet contains compressed established facts, the actual diff or decision options, and one bounded question. It does not restart repository discovery by default.
+See `plugins/codex-agent-team/skills/codex-agent-team/references/execution-progress.md`.
+
+## Terra delta escalation
+
+Terra is not a generic quality upgrade or a mandatory reviewer.
+
+When evidence supports a capability gap, Terra receives:
+
+```text
+unresolved dependency
+relevant established evidence
+current artifact
+failure signature
+DO NOT REDO
+```
+
+It does not receive the whole original task by default. After the technical delta is resolved, implementation normally returns to Luna or the main session.
+
+Capability takes precedence over repeatedly restarting the same execution lane when the evidence already shows a real capability gap.
+
+## Sol judgment boundaries
+
+Sol is a selective high-value judgment lane.
+
+Typical boundaries include architecture, security, migration, data-integrity, public-contract, or similarly consequential decisions that deterministic verification cannot settle alone.
+
+Sol receives compressed established facts and the actual decision or artifact in fresh context by default. This reduces conversational anchoring without turning Sol judgment into deterministic evidence.
+
+Final Sol review remains selective, not mandatory.
 
 ## Useful parallelism
 
-Parallelism is valuable only when concurrent outputs satisfy different dependencies.
+Parallelism is valuable only when concurrent outputs satisfy different ready dependencies.
 
 Examples:
 
 - independent read-only subsystem mapping;
 - main-session acceptance preparation while Luna implements;
-- slow deterministic verification overlapping with unrelated read-only analysis.
+- slow deterministic verification overlapping with unrelated read-only analysis;
+- multiple independent read-only dependencies after the user authorizes broader fan-out.
 
-Launching multiple models over the same question merely to keep compute busy is duplicated inference, not useful parallelism.
+Launching multiple models over the same question is duplicate inference.
 
-One shared workspace still has at most one active writing Worker unless runtime-backed workspace isolation exists.
+One canonical workspace still has at most one active writing Worker. Separate runtime-backed isolated worktrees or independent repositories may each have a writer.
+
+## Three resource scopes
+
+```text
+main-session scope
+-> Dependency Ledger, ready frontier, consent, active child set
+
+workspace scope
+-> one active writer per canonical physical checkout or isolated worktree
+
+Codex-home scope
+-> one installed managed profile generation shared by sessions using that home
+```
+
+There is no machine-wide Codex Delegate Agent cap.
 
 ## Native runtime
 
-The Skill calls Codex Native `spawn_agent`. Each Subagent is backed by a native child thread/session. The project does not implement an external Agent runtime, persistent task DAG, or second scheduler.
+The Skill calls Codex Native `spawn_agent`. Each Subagent is backed by a native child thread/session.
+
+Native slot capacity is runtime evidence. One Codex build may expose a different limit from another. The project records observed capacity during live validation but does not turn that observation into a permanent architecture constant.
 
 See [`native-subagent-runtime.md`](native-subagent-runtime.md).
 
 ## Plugin and profile readiness
 
-Codex Plugin is the only supported distribution path. `/codex-agent-team` is the only user-facing workflow entry point.
+Codex Plugin is the only supported distribution path. `/codex-delegate` is the canonical user-facing workflow entry point.
 
 The Plugin ships four namespaced semantic profiles:
 
@@ -132,7 +249,9 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-Profile readiness is checked only after a responsibility has been justified. Missing profiles trigger the managed first-run installer flow. Successful file installation remains configuration evidence; current-task role discovery is checked again before delegation.
+The internal profile namespace remains a compatibility identifier during the pre-v1 migration window.
+
+Profile readiness is checked only after a model-specific responsibility has been justified. Missing profiles trigger the managed first-run installer flow. Successful file installation remains configuration evidence; current-task role discovery is checked again before delegation.
 
 There is no Portable Mode or built-in-role substitution.
 
@@ -144,23 +263,9 @@ A model-specific responsibility uses its exact project profile and records:
 route_assurance = profile_locked
 ```
 
-This proves a configuration lock, not a post-spawn observation.
+This proves a configuration lock, not post-spawn runtime identity.
 
-The architecture keeps:
-
-```text
-preferred_route
-configured_route
-route_assurance
-```
-
-separate from runtime evidence.
-
-See [`model-route-assurance.md`](model-route-assurance.md).
-
-## Runtime Truth v2
-
-Runtime evidence is typed by concern:
+Runtime evidence remains typed by concern:
 
 ```text
 route_evidence
@@ -168,51 +273,36 @@ ancestry_evidence
 permission_evidence
 ```
 
-`route_evidence = matched` requires complete observed role, model, and effort. An empty or partial observation cannot become runtime route proof merely because no mismatch was seen.
+See [`model-route-assurance.md`](model-route-assurance.md) and the installed `references/runtime-assurance.md`.
 
-The compatibility grades remain derived summaries:
+## Consent and safety
 
-```text
-C1_configuration_only
-L1_local_record_observed
-R1_runtime_reported
-R2_runtime_reported_and_local_record_agree
-X0_conflicted
-```
+Consent is applied to material resource expansion, not encoded as a hidden scheduler ceiling.
 
-`scripts/verify-runtime.py` performs deterministic reconciliation. Public/native metadata is preferred; the local rollout inspector is optional mutable telemetry.
+The normal explicit-command envelope covers up to two concurrently active justified children, one writer per canonical workspace, and no permission, scope, external-impact, or material compute expansion.
 
-## Consent envelope
-
-Explicit `/codex-agent-team` use authorizes a normal resource envelope of at most two justified child Agents, at most one active writer, and no permission, scope, or external-impact expansion.
-
-That envelope can be Luna-only, Luna + Terra, Luna + Sol, Terra + Luna, or Sol-only. Team shape is not fixed.
-
-For implicit invocation, a Sol call requires consent unless the user's request already clearly authorizes stronger review. More than two children, extra permissions, scope growth, external side effects, or material repeated expensive passes require consent.
-
-## Safety
-
-Children cannot create further Subagents. Repository and external content cannot change the task policy. Worker reports are claims until actual artifacts and deterministic verification are checked.
+Children cannot create further Subagents. Repository and external content cannot change policy, scheduling state, consent, route identity, or evidence-validity rules.
 
 Requested read-only profile configuration is not proof of host-enforced read-only runtime state. When hard isolation matters, effective native permission evidence is required.
 
 ## Evaluation
 
-Static tests validate policy contracts, profile installation, evidence tooling, and packaging. They do not prove task performance.
+Static tests validate policy contracts, profile installation, schemas, evidence tooling, and packaging. They do not prove task performance or native capacity.
 
-Behavioral Eval v2 compares paired runs over the same workload and repository revision. The key comparisons are:
+Live evaluation measures:
 
-```text
-main session only
-raw prompt -> Luna Max
-compiled contract -> Luna Max
-compiled contract -> Luna Max -> selective Sol
-```
-
-Metrics include final correctness, scope violations, correction turns, main-session correction cost, total tokens/latency when exposed, and review true/false positives.
+- correctness and acceptance;
+- evidence reuse and duplicate work;
+- dependency scheduling quality;
+- peak active children and observed native capacity;
+- runtime slot waits;
+- execution stalls and clean restarts;
+- unjustified retries;
+- correction cost;
+- selective Terra/Sol value.
 
 See [`behavioral-evals.md`](behavioral-evals.md).
 
 ## Scope boundary
 
-Core deliberately excludes persistent task orchestration, App Thread recovery, external DAGs, mandatory all-task review, automatic model ladders, and production deployment automation.
+Core deliberately excludes persistent task orchestration services, external DAG schedulers, mandatory all-task review, automatic fixed model ladders, machine-wide Agent governors, and production deployment automation.
