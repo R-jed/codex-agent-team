@@ -44,23 +44,9 @@ The main session identifies the outcome, scope, and acceptance criteria first, t
 | Terra Investigator | GPT-5.6 Terra `xhigh` | resolve one remaining complex technical dependency |
 | Sol Advisor | GPT-5.6 Sol `high` | high-value judgment and selective review |
 
-A task may stay entirely in the main session, or follow a common path:
+## Delegation flow
 
-```text
-main session -> Luna -> main session
-```
-
-For harder technical dependencies:
-
-```text
-main session -> Luna -> Terra (unresolved technical delta only) -> Luna / main session
-```
-
-When high-quality review is needed:
-
-```text
-main session -> Luna -> Sol -> main session
-```
+<img src="docs/delegation-flow.svg" alt="Delegation decision flow" width="640">
 
 There is no fixed three-model pipeline. Every Subagent call must satisfy a distinct dependency that existing evidence does not already cover.
 
@@ -80,22 +66,17 @@ A Writing Worker does not start guessing through repository changes when accepta
 
 ## Established evidence is reused
 
+<img src="docs/evidence-lifecycle.svg" alt="Evidence lifecycle" width="640">
+
 Within a task, the main session keeps a compact set of still-valid test results, call paths, interface facts, and other reusable evidence. Later Agents reuse those facts while their dependencies remain valid. Only evidence affected by changed files, artifacts, or assumptions needs to be revalidated.
 
 This reduces full repository rescans, repeated deterministic commands, and repeated reasoning over the same dependency after a model change.
 
 ## Failure handling
 
-When Luna needs help, the workflow classifies the failure before escalating:
+<img src="docs/failure-escalation.svg" alt="Failure classification and escalation" width="640">
 
-```text
-mechanical defect     -> focused Luna correction
-incomplete contract   -> main session repairs the contract
-complex technical gap -> Terra investigates only the unresolved part
-judgment gap          -> main session decides, or uses Sol when justified
-```
-
-A mediocre Luna result does not automatically trigger a full Terra restart. Sol is also selective — when tests and acceptance criteria are strong enough, the main session can accept without adding a mandatory review stage.
+When Luna needs help, the workflow classifies the failure before escalating. A mediocre Luna result does not automatically trigger a full Terra restart. Sol is also selective — when tests and acceptance criteria are strong enough, the main session can accept without adding a mandatory review stage.
 
 ## Parallelism
 

@@ -44,23 +44,9 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 | Terra Investigator | GPT-5.6 Terra `xhigh` | 处理未解决的复杂技术依赖 |
 | Sol Advisor | GPT-5.6 Sol `high` | 高价值判断和选择性复核 |
 
-常见路径可能只有主会话独立完成，或者：
+## 委派流程
 
-```text
-主会话 → Luna → 主会话
-```
-
-复杂任务：
-
-```text
-主会话 → Luna → Terra（只处理未决技术问题）→ Luna / 主会话
-```
-
-需要高质量复核时：
-
-```text
-主会话 → Luna → Sol → 主会话
-```
+<img src="docs/delegation-flow.svg" alt="委派决策流程" width="640">
 
 没有固定的三级流水线。每次调用 Subagent 都必须解决一个当前仍未满足的独立依赖。
 
@@ -80,22 +66,17 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ## 已经确认的结果会尽量复用
 
+<img src="docs/evidence-lifecycle.svg" alt="证据生命周期" width="640">
+
 同一个任务中，主会话会保存仍然有效的测试结果、调用路径、接口事实和其他可复用证据。后续 Agent 默认使用这些已确认信息。只有相关文件、产物或前提发生变化时，受影响的证据才需要重新验证。
 
 这样可以减少模型切换后从头搜索仓库、重复跑相同命令和重复推理同一个问题。
 
 ## 失败处理
 
-Luna 遇到问题时，先分类再升级：
+<img src="docs/failure-escalation.svg" alt="失败分类与升级路径" width="640">
 
-```text
-机械错误        → Luna 定点修正
-任务边界不完整  → 主会话补齐合同
-复杂技术缺口    → Terra 只调查未解决部分
-关键判断问题    → 主会话决定，必要时调用 Sol
-```
-
-Terra 不会因为 Luna 的结果"看起来一般"就自动重做整个任务。Sol 也不是每次必须经过的关卡。
+Luna 遇到问题时，先分类再升级。Terra 不会因为 Luna 的结果"看起来一般"就自动重做整个任务。Sol 也不是每次必须经过的关卡。
 
 ## 并行策略
 
