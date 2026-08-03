@@ -13,26 +13,46 @@ def test_readmes_present_the_product_to_users():
             "codex plugin marketplace add R-jed/codex-agent-team --ref main",
             "/codex-delegate",
             "0.4.0",
-            "codex_agent_team_reader",
-            "codex_agent_team_worker",
-            "codex_agent_team_investigator",
-            "codex_agent_team_advisor",
-            "one" if path.name == "README_EN.md" else "一个",
+            "Luna Reader",
+            "Luna Worker",
+            "Terra Investigator",
+            "Sol Advisor",
         ]:
             assert phrase in text
+
+
+def test_readmes_explain_current_delegation_and_concurrency_contract():
+    zh = (ROOT / "README.md").read_text()
+    en = (ROOT / "README_EN.md").read_text()
+
+    for text in [zh, en]:
+        assert "default: 1" in text or "默认：1 个" in text
+        assert "normal maximum: 2" in text or "一般最多：2 个" in text
+        assert "hard maximum: 4" in text or "硬上限：4 个" in text
+        assert "physical checkout" in text
+        assert "0.3.x" in text and "0.4.x" in text
+
+    assert "跨独立主会话" in zh
+    assert "independent main sessions" in en
+    assert "机器或账号的全局 Agent 上限" in zh
+    assert "machine-wide or account-wide Agent cap" in en
 
 
 def test_readmes_explain_compatibility_ids_without_reverting_brand():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
-    assert "compatibility identifier" in en
+    assert "compatibility identifiers" in en
     assert "兼容标识" in zh
     assert zh.startswith("# Codex Delegate")
     assert en.startswith("# Codex Delegate")
 
 
-def test_readmes_do_not_expose_internal_release_handoff_as_user_guidance():
+def test_readmes_remain_text_first_and_user_facing():
     forbidden = [
+        "<img",
+        "<picture",
+        "shields.io",
+        "```mermaid",
         "HEADOFF.md",
         "LOCAL_VALIDATION_REPORT.md",
         "Checkpoint 1",
