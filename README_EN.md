@@ -14,21 +14,15 @@ Current version: `0.4.0` (pre-v1.0.0 preview).
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Reopen ChatGPT Desktop, install `Codex Delegate` from the Plugins Directory, then invoke it in a Codex session:
+Install `Codex Delegate` from the Plugins Directory in ChatGPT Desktop, then give it a task:
 
 ```text
 /codex-delegate Fix this login retry bug and run the relevant tests.
-```
-
-```text
 /codex-delegate Refactor this module while preserving the public API.
-```
-
-```text
 /codex-delegate Review this change with emphasis on data consistency and regression risk.
 ```
 
-No need to manually choose Agent ordering. No need to force multiple models into every task.
+No manual model selection. Codex Delegate figures out what's needed.
 
 ## How it works
 
