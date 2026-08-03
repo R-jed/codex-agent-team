@@ -97,7 +97,7 @@ Unexpected writes are policy violations and may invalidate previously establishe
 
 The one-writer invariant applies to the product contract across independent sessions. Current session-local orchestration must not be assumed to provide cross-session exclusion until live validation proves native coordination or a project-side mechanism is added after a reproducible failure.
 
-## 6. Shared Codex-home state
+## 5A. Shared Codex-home state
 
 The four semantic Agent profiles and `.codex-agent-team-agents.json` are Codex-home scoped shared configuration, not project-local task state.
 
@@ -107,7 +107,7 @@ Do not assume the managed installer is multi-process transactional merely becaus
 
 A future inter-process lock, compare-and-swap guard, or other coordination mechanism requires a reproducible live failure first. Do not add global locking preemptively if the native/filesystem behavior already satisfies the release invariant.
 
-## 7. Decision-right boundaries
+## 6. Decision-right boundaries
 
 A stronger model does not automatically receive broader decision rights.
 
@@ -117,7 +117,7 @@ If progress requires a product, architecture, permission, security, migration, p
 
 Do not use model escalation to silently expand authority.
 
-## 8. High-impact actions
+## 7. High-impact actions
 
 Child Agents do not perform:
 
@@ -130,7 +130,7 @@ Child Agents do not perform:
 
 The main session retains these actions and applies Consent Gate when current authorization is insufficient.
 
-## 9. Evidence integrity
+## 8. Evidence integrity
 
 Child reports are claims. The main session accepts consequential results from independently inspectable artifacts and evidence.
 
