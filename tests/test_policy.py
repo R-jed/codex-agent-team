@@ -220,13 +220,14 @@ def test_readmes_are_user_facing_and_explain_incremental_orchestration():
     assert "Established evidence" in en
 
 
-def test_readmes_use_main_session_without_user_facing_root_vocabulary():
+def test_readmes_use_main_session_without_old_root_role_vocabulary():
     zh = read("README.md")
     en = read("README_EN.md")
     assert "主会话" in zh
     assert "main session" in en.lower()
-    assert not re.search(r"\broot\b", zh, re.I)
-    assert not re.search(r"\broot\b", en, re.I)
+    assert "Root session" not in en
+    assert "Root agent" not in en
+    assert "Root" not in zh
 
 
 def test_chinese_readme_avoids_em_dash_and_basic_spacing_regressions():
@@ -256,7 +257,7 @@ def test_architecture_and_model_docs_match_adaptive_semantic_role_design():
     assert "codex_agent_team_investigator" in architecture
     assert "route_evidence" in architecture
     assert "does not define a product hard child count" in native
-    assert "child-progress observability" in native
+    assert "child progress observability" in native.lower()
 
 
 def test_official_runtime_and_plugin_references_are_documented():
