@@ -26,6 +26,8 @@ Codex Delegate 是 Codex Native Subagents 之上的委派策略层。它把开�
 
 ## 快速开始
 
+首次安装：
+
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main \
   --sparse .agents/plugins \
@@ -34,7 +36,14 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main \
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-安装后启动一个新的 Codex thread，再直接给它任务：
+如果已经配置过这个 Git marketplace，更新现有安装时先刷新 marketplace snapshot，再重新安装 Plugin：
+
+```bash
+codex plugin marketplace upgrade codex-agent-team
+codex plugin add codex-agent-team@codex-agent-team
+```
+
+安装、更新或重新安装后启动一个新的 Codex thread，再直接给它任务：
 
 ```text
 /codex-delegate 修复这个登录重试 bug，并运行相关测试。
@@ -42,7 +51,7 @@ codex plugin add codex-agent-team@codex-agent-team
 /codex-delegate review 这次改动，重点检查数据一致性和回归风险。
 ```
 
-你不需要预先选择模型、Agent 数量或调用顺序。
+你不需要预先选择模型、Agent 数量或调用顺序。更完整的安装、迁移与失败处理见[安装指南](docs/plugin-installation.md)。
 
 ## 它如何工作
 
