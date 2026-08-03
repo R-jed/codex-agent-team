@@ -75,17 +75,39 @@ If unexpected descendants are observed:
 
 ## 5. Workspace mutation
 
-One shared workspace has at most one active writing Worker.
+One canonical shared workspace has at most one active writing Worker.
+
+For this policy, the workspace identity is the canonical physical checkout or runtime-backed isolated worktree. Two independent main sessions targeting the same physical checkout share one writer domain even when they intend to edit different files. Independent repositories or genuinely isolated worktrees are separate writer domains.
 
 Multiple read-only children may inspect the same workspace only when they satisfy different dependencies or otherwise have concrete parallel value.
 
-Multiple writing Workers require runtime-backed filesystem isolation, worktrees, or independent workspaces. File-level promises inside one shared checkout are insufficient.
+Multiple writing Workers require runtime-backed filesystem isolation, worktrees, or independent workspaces. File-level promises inside one shared checkout are insufficient because generated files, lockfiles, formatters, git metadata, shared tests, or dependency chains can couple nominally disjoint edits.
+
+A writing Worker must assume the user or another independent session may have changed the workspace since the contract was compiled. It must:
+
+- preserve unrelated existing edits;
+- never revert unknown changes to recover an expected starting state;
+- re-read affected files and relevant state immediately before mutation when concurrent change is plausible;
+- invalidate only established evidence that depends on changed state;
+- stop and return to the main session if workspace drift makes the write scope, an invariant, decision rights, or the acceptance oracle stale.
 
 Writing Workers stay inside the contract's write scope. The main session compares the actual changed-file set with that scope before acceptance.
 
 Unexpected writes are policy violations and may invalidate previously established evidence whose dependencies changed.
 
-## 6. Decision-right boundaries
+The one-writer invariant applies to the product contract across independent sessions. Current session-local orchestration must not be assumed to provide cross-session exclusion until live validation proves native coordination or a project-side mechanism is added after a reproducible failure.
+
+## 6. Shared Codex-home state
+
+The four semantic Agent profiles and `.codex-agent-team-agents.json` are Codex-home scoped shared configuration, not project-local task state.
+
+Multiple projects and main sessions may use the same installed profile generation. Mixed concurrent profile generations are unsupported for v1.0.0. If a session expects a route that no longer matches the installed exact profile, the affected delegation fails closed rather than substituting another role or model.
+
+Do not assume the managed installer is multi-process transactional merely because one process has staging and rollback. Concurrent same-Codex-home install behavior is a release-validation gate. Until that evidence exists, no documentation or acceptance claim may state that concurrent installers serialize, converge, or protect a peer process's successful transaction.
+
+A future inter-process lock, compare-and-swap guard, or other coordination mechanism requires a reproducible live failure first. Do not add global locking preemptively if the native/filesystem behavior already satisfies the release invariant.
+
+## 7. Decision-right boundaries
 
 A stronger model does not automatically receive broader decision rights.
 
@@ -95,7 +117,7 @@ If progress requires a product, architecture, permission, security, migration, p
 
 Do not use model escalation to silently expand authority.
 
-## 7. High-impact actions
+## 8. High-impact actions
 
 Child Agents do not perform:
 
@@ -108,7 +130,7 @@ Child Agents do not perform:
 
 The main session retains these actions and applies Consent Gate when current authorization is insufficient.
 
-## 8. Evidence integrity
+## 9. Evidence integrity
 
 Child reports are claims. The main session accepts consequential results from independently inspectable artifacts and evidence.
 
@@ -117,10 +139,10 @@ Required behavior:
 - cite files, symbols, commands, tests, or other reproducible evidence when available;
 - report exact verification commands and actual outcomes;
 - distinguish new evidence from model judgment;
-- report evidence invalidated by changed dependencies;
+- report evidence invalidated by changed dependencies, including concurrent workspace changes;
 - report unresolved delta and uncertainty;
 - compare reported changed files with actual mutation when write access was granted;
-- never fabricate observed model, effort, sandbox, permission, or ancestry properties;
+- never fabricate observed model, effort, sandbox, permission, ancestry, or cross-session exclusion properties;
 - preserve `not_observed` or `partial` when runtime facts are missing;
 - describe local rollout data as mutable local telemetry, never authoritative runtime proof;
 - quarantine material configuration/runtime conflicts.
