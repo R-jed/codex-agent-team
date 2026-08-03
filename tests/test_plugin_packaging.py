@@ -13,13 +13,14 @@ MAIN_SKILL = PLUGIN_ROOT / "skills" / "codex-agent-team"
 def test_plugin_manifest_packages_single_canonical_skill_tree():
     payload = json.loads(PLUGIN.read_text())
     assert payload["name"] == "codex-agent-team"
-    assert payload["version"] == "0.4.0"
+    assert payload["version"] == "0.5.0"
     assert payload["skills"] == "./skills/"
     assert payload["license"] == "MIT"
     assert payload["interface"]["displayName"] == "Codex Delegate"
     assert {"Read", "Write"} <= set(payload["interface"]["capabilities"])
     assert "Codex Delegate" in payload["description"]
-    assert "distinct dependency" in payload["description"]
+    assert "dependency-driven" in payload["description"]
+    assert "fixed Agent counts" in payload["description"]
     assert all("/codex-delegate" in prompt for prompt in payload["interface"]["defaultPrompt"])
     assert MAIN_SKILL.is_dir()
     assert sorted(path.name for path in (PLUGIN_ROOT / "skills").iterdir() if path.is_dir()) == ["codex-agent-team"]
@@ -55,9 +56,11 @@ def test_main_skill_owns_first_run_profile_setup_and_receipts():
     assert "/codex-delegate" in text
     assert "codex-agent-team-setup" not in text
     assert "references/orchestration-receipt.md" in text
+    assert "references/execution-progress.md" in text
     receipt = (MAIN_SKILL / "references" / "orchestration-receipt.md").read_text()
     assert "Codex Delegate: Main session only" in receipt
-    assert "Luna + Sol example" in receipt
+    assert "Adaptive parallel example" in receipt
+    assert "Clean-restart example" in receipt
 
 
 def test_repository_has_no_standalone_or_setup_install_surface():
