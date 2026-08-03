@@ -8,10 +8,10 @@ Do not reopen architecture or optimization work after the Definition of Done is 
 
 ## Current checkpoint
 
-Current merged static baseline:
+Accepted v0.5.0 static architecture baseline:
 
 ```text
-origin/main: 00e7a2a340e6bc57ea15460f45721b571f8078fd
+v0.5.0 architecture merge: 00e7a2a340e6bc57ea15460f45721b571f8078fd
 product: Codex Delegate 0.5.0
 architecture: Adaptive Dependency Orchestration
 PR #22 static validation: PASS
@@ -32,7 +32,7 @@ Codex runtime tested so far: 0.146.0
 platform tested so far: Apple Silicon macOS 27.0
 ```
 
-The static v0.5.0 baseline is current repository evidence. The `c6020db...` revision remains the last accepted live-runtime evidence baseline. Never relabel static CI as live Codex runtime proof.
+The v0.5.0 architecture SHA is a stable evidence baseline, not a claim about the current repository head. The `c6020db...` revision remains the last accepted live-runtime evidence baseline. Never relabel static CI as live Codex runtime proof.
 
 Before every live checkpoint:
 
