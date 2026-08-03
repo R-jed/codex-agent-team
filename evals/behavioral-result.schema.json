@@ -13,7 +13,11 @@
         "codex_version": {"type": "string", "minLength": 1},
         "date": {"type": "string", "minLength": 1},
         "platform": {"type": ["string", "null"]},
-        "observed_child_capacity": {"type": ["integer", "null"], "minimum": 0}
+        "observed_child_capacity": {"type": ["integer", "null"], "minimum": 0},
+        "child_progress_observability": {
+          "type": ["string", "null"],
+          "enum": [null, "none", "terminal_only", "periodic_summary", "structured_live"]
+        }
       },
       "additionalProperties": true
     },
@@ -79,6 +83,21 @@
           "clean_same_lane_restarts": {"type": "integer", "minimum": 0},
           "unjustified_retry_calls": {"type": "integer", "minimum": 0},
           "same_failure_without_new_evidence": {"type": "integer", "minimum": 0},
+          "intervention_gate_evaluations": {"type": "integer", "minimum": 0},
+          "interventions_taken": {"type": "integer", "minimum": 0},
+          "recovery_ledger_entries": {"type": "integer", "minimum": 0},
+          "attempt_cycle_detected": {"type": ["boolean", "null"]},
+          "proposed_recovery_action": {"type": ["string", "null"]},
+          "effective_recovery_action": {"type": ["string", "null"]},
+          "recovery_decision_source": {
+            "type": ["string", "null"],
+            "enum": [null, "deterministic_evidence", "main_session_judgment", "user_decision", "runtime_constraint", "model_judgment"]
+          },
+          "policy_transform": {"type": ["string", "null"]},
+          "child_progress_observability": {
+            "type": ["string", "null"],
+            "enum": [null, "none", "terminal_only", "periodic_summary", "structured_live"]
+          },
           "main_session_correction_tokens": {"type": ["integer", "null"], "minimum": 0},
           "main_session_correction_ms": {"type": ["integer", "null"], "minimum": 0},
           "review_findings": {"type": "integer", "minimum": 0},
