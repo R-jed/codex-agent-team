@@ -7,6 +7,9 @@ on:
 permissions:
   contents: read
 
+env:
+  OPENAI_CODEX_PLUGIN_VALIDATOR_REF: 7750465934d97dd3cbcb3b1655d2f622744010d3
+
 jobs:
   test:
     strategy:
@@ -31,6 +34,15 @@ jobs:
         run: |
           python -m json.tool plugins/codex-agent-team/.codex-plugin/plugin.json >/dev/null
           python -m json.tool .agents/plugins/marketplace.json >/dev/null
+      - name: Validate Plugin with pinned official OpenAI validator
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.11' }}
+        shell: bash
+        run: |
+          validator="$RUNNER_TEMP/openai-validate-plugin.py"
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/openai/codex/${OPENAI_CODEX_PLUGIN_VALIDATOR_REF}/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py" \
+            --output "$validator"
+          python "$validator" plugins/codex-agent-team
       - run: pytest -q
       - name: Verify managed Agent profile lifecycle
         shell: bash

@@ -88,6 +88,9 @@ Prior progress signal: advanced | unchanged | regressed | blocked | none
 Do not redo:
 - <still-valid discovery, tests, or facts that must not be repeated without invalidation>
 
+MATERIAL RECOVERY HISTORY
+- <only compact decision-relevant Recovery Ledger entries for this dependency, or none>
+
 STOP / ESCALATE
 Return `CONTRACT_GAP` when the contract is internally incomplete.
 Return `JUDGMENT_REQUIRED` when progress requires a decision outside delegated rights.
@@ -109,6 +112,7 @@ new_evidence: <new established facts with dependencies>
 invalidated_evidence: <prior evidence no longer safe to reuse, including concurrent workspace changes, or none>
 unresolved_delta: <smallest remaining unresolved dependency, or none>
 judgment_calls: <material choices made inside granted decision rights, or none>
+suggested_next_action: <optional recommendation; never orchestration authority>
 uncertainty: <remaining uncertainty, or none>
 policy_violations: <violations observed, or none>
 ```
@@ -162,6 +166,44 @@ Rules:
 - A later Agent may verify or challenge existing evidence, but it must not restart discovery merely to recreate already-valid facts.
 - Private reasoning is not shared. Pass conclusions, evidence, unresolved questions, and artifacts.
 
+## Recovery Ledger
+
+The main session owns a bounded semantic history for material attempts on one dependency. It exists so a fresh context can detect repeated or oscillating recovery paths without carrying a transcript.
+
+Each retained entry records:
+
+```text
+attempt_id
+lane
+correction_hypothesis
+failure_signature
+progress_signal
+new_evidence_ids
+unresolved_delta
+recovery_action
+decision_source
+```
+
+Rules:
+
+- keep only entries that remain useful for detecting repetition, oscillation, invalidated hypotheses, or intervention provenance;
+- compact older entries rather than accumulating an unbounded log;
+- never store private chain-of-thought;
+- a clean restart preserves material Recovery Ledger entries because it remains the same dependency;
+- a child may recommend a next action, but the main session decides the effective action after policy and runtime gates.
+
+## Intervention Gate
+
+Acceptance failure and need for intervention are separate facts.
+
+Before restarting context, changing lane, or escalating judgment, the main session asks whether the current responsibility still shows evidence-supported forward progress inside a valid contract and safe runtime boundary.
+
+If progress is still `advanced`, continue the responsibility even when acceptance is incomplete. A failing test plus a materially narrowed unresolved delta is not automatically a stall.
+
+If progress is `unchanged`, `regressed`, or `blocked`, or a contract, capability, judgment, permission, workspace, consent, or runtime boundary prevents safe continuation, classify the intervention.
+
+Do not use a fixed attempt count as the gate.
+
 ## Delta Escalation
 
 Escalation is incremental. The next lane receives the unresolved delta plus valid evidence, not the entire original task.
@@ -184,6 +226,9 @@ CURRENT ARTIFACT
 FAILURE SIGNATURE
 <deterministic failure or conflict that supports the capability-gap classification>
 
+MATERIAL RECOVERY HISTORY
+<only compact entries needed to avoid repeating established dead ends>
+
 DO NOT REDO
 <discovery, tests, or facts already established and still valid>
 
@@ -192,6 +237,7 @@ resolved_delta
 new_evidence
 invalidated_evidence
 remaining_uncertainty
+suggested_next_action
 ```
 
 A Sol decision or review packet contains:
@@ -230,6 +276,7 @@ CURRENT ARTIFACT
 VALID ESTABLISHED EVIDENCE
 CURRENT FAILURE SIGNATURE
 UNRESOLVED DELTA
+MATERIAL RECOVERY HISTORY
 DO NOT REDO
 ACCEPTANCE ORACLE
 VERIFICATION
@@ -241,7 +288,7 @@ It intentionally omits dead-end narration and private reasoning.
 
 Low quality alone is not a Terra trigger.
 
-After a Luna result fails acceptance, classify the cause from execution evidence:
+After the Intervention Gate establishes that a change is justified, classify the cause from execution evidence:
 
 ```text
 mechanical defect
@@ -251,7 +298,7 @@ contract gap
 -> main session repairs the contract, then resumes only the affected work
 
 execution stall / context pollution
--> fresh same-lane packet with current artifact, valid evidence, and DO NOT REDO
+-> fresh same-lane packet with current artifact, valid evidence, material recovery history, and DO NOT REDO
 
 capability gap
 -> Terra receives the unresolved technical delta
@@ -268,6 +315,19 @@ Concurrent workspace drift is not a reason to escalate model capability. Reconci
 
 Do not ask Terra or Sol to redo valid Luna search, tests, or repository mapping by default.
 
+## Proposed versus effective action
+
+When an Agent or model judgment recommends a next action, preserve the distinction:
+
+```text
+proposed_action
+effective_action
+decision_source
+policy_transform
+```
+
+The main session owns `effective_action`. Consent, workspace ownership, exact-route availability, permissions, runtime constraints, and user decisions may transform or reject a proposal. A model recommendation is `model_judgment`, not deterministic evidence.
+
 ## Safety rules
 
 Every contract preserves these project invariants:
@@ -278,4 +338,5 @@ Every contract preserves these project invariants:
 - no unauthorized scope, permission, credential, or external-impact expansion;
 - unrelated existing edits are preserved and concurrent changes invalidate only dependent evidence;
 - a running dependency has one owner and does not receive duplicate Agent calls;
-- Worker reports are claims until the main session checks actual artifacts and deterministic evidence.
+- Worker reports and suggested next actions are claims until the main session checks actual artifacts and deterministic evidence;
+- runtime telemetry that is not actually exposed must never be fabricated or inferred from narration.

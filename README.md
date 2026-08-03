@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.5.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
 </p>
 
@@ -22,15 +22,19 @@ Codex Delegate 是 Codex Native Subagents 之上的委派策略层。它把开�
 
 主会话始终负责用户意图、任务范围、关键决策、调度、验收和最终回复。Luna、Terra 和 Sol 是可选择的执行与判断资源，没有固定流水线，也没有固定 Agent 数量。
 
-当前版本：`0.5.0`，pre-v1。
+当前版本：`0.5.1`，pre-v1。
 
 ## 快速开始
 
 ```bash
-codex plugin marketplace add R-jed/codex-agent-team --ref main
+codex plugin marketplace add R-jed/codex-agent-team --ref main \
+  --sparse .agents/plugins \
+  --sparse plugins/codex-agent-team
+
+codex plugin add codex-agent-team@codex-agent-team
 ```
 
-重新打开 ChatGPT 桌面 App，在插件市场中安装 `Codex Delegate`，然后直接给它任务：
+安装后启动一个新的 Codex thread，再直接给它任务：
 
 ```text
 /codex-delegate 修复这个登录重试 bug，并运行相关测试。
@@ -82,17 +86,21 @@ Codex runtime 当前可用 child slots
 
 ## 卡住时如何处理
 
-Agent 自己说“有进展”不会自动触发继续执行。主会话会检查实际文件、测试、错误签名和新的证据。
+未通过验收和需要改变执行方式是两个不同判断。
 
-当执行没有通过验收时，Codex Delegate 会根据证据选择恢复路径：
+如果测试仍然失败，但新的确定性证据正在缩小问题范围，主会话可以继续当前责任，不会因为“还没成功”就提前重启上下文或升级模型。
+
+当证据表明确实需要介入时，Codex Delegate 才会分类恢复路径：
 
 - 明确的局部机械问题继续交给 Luna 做针对性修正
 - 合同或需求边界不清楚时返回主会话修正合同
-- 上下文已经产生重复尝试时，可以用当前文件和有效证据启动一次干净的同级恢复
+- 上下文已经产生重复尝试时，可以用当前文件、有效证据和精简恢复历史启动一次干净的同级恢复
 - 证据表明确实存在复杂技术能力缺口时，只把未解决的技术依赖交给 Terra
 - 遇到高价值判断时由主会话处理，必要时使用 Sol
 
-不会因为一次失败就机械升级模型，也不会用固定重试次数驱动执行。
+主会话会保留有限的 Recovery Ledger，用来避免新上下文重新走回已经证实无效的路径。Agent 建议的下一步只是建议，最终动作仍要经过主会话的授权、安全、路由和 runtime 边界。
+
+不会因为一次失败就机械升级模型，也不会用固定重试次数或固定 stall 次数驱动执行。
 
 ## 并发与多会话
 
@@ -100,17 +108,19 @@ Agent 自己说“有进展”不会自动触发继续执行。主会话会检�
 
 写入任务按 canonical workspace 管理。同一个 physical checkout 的规则是同时最多一个 Writing Worker。不同且真正隔离的 workspace 或 worktree 可以各自拥有 writer。
 
-当前 `0.5.0` 仍在完成跨独立主会话的同 checkout writer exclusion 实测。在 v1.0.0 前，如果你同时开多个独立 Codex 会话，避免让两个会话同时写同一个 physical checkout。
+当前 `0.5.1` 仍在完成跨独立主会话的同 checkout writer exclusion 实测。在 v1.0.0 前，如果你同时开多个独立 Codex 会话，避免让两个会话同时写同一个 physical checkout。
 
 ## 首次运行
 
-Codex Delegate 使用四个受项目管理的角色 profile：Reader、Worker、Investigator 和 Advisor。具体内部 profile 标识与迁移规则记录在[安装指南](docs/plugin-installation.md)。
+Codex Delegate 通过标准 Plugin 分发 Skill。四个项目管理的自定义 Agent profile 使用 Codex 支持的个人 Agent 配置位置 `$CODEX_HOME/agents`，通常是 `~/.codex/agents`。
 
 当所需 profile 缺失或受项目管理的旧版本需要升级时，Skill 会先说明将要管理的 Codex-home 文件范围并请求授权。Installer 只会在 ownership 规则允许时创建、更新或迁移项目自己的 profile 和 ownership manifest。
 
+Plugin manifest 不声明不存在的 `agents` 组件。自定义 Agent provisioning 属于安装后的显式授权步骤，具体内部 profile 标识与迁移规则见[安装指南](docs/plugin-installation.md)。
+
 它不会修改凭据、MCP 配置、仓库文件、`config.toml` 或无关 Agent profile。
 
-安装完成后，如果当前任务仍没有发现新角色，启动一个新的 Codex task，再调用 `/codex-delegate`。
+安装或重新安装 Plugin 后使用新的 Codex thread。如果 profile provisioning 完成后当前 task 仍没有发现新角色，也启动新的 Codex task，再调用 `/codex-delegate`。
 
 ## 安全边界
 
@@ -120,7 +130,7 @@ Codex Delegate 使用四个受项目管理的角色 profile：Reader、Worker、
 - Skill 不会背后切换主会话模型或思考强度
 - 缺少精确项目 profile 时，对应责任会停回主会话，不会自动换成相似角色
 - Worker 必须保留用户或其他会话产生的无关修改，工作区变化使合同失效时会停止并交回主会话
-- Subagent 的完成报告属于执行声明，最终验收依据实际文件、diff、测试和可复现证据
+- Subagent 的完成报告和恢复建议属于执行声明，最终验收与有效动作依据实际文件、diff、测试、可复现证据和主会话 policy
 - 发布、部署、支付、账号权限等高影响外部动作仍由主会话控制
 
 ## License
