@@ -30,7 +30,7 @@ Codex Delegate 是 Codex Native Subagents 之上的委派策略层。它把开�
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-重新打开 ChatGPT 桌面 App，在 Plugins Directory 中安装 `Codex Delegate`，然后直接给它任务：
+重新打开 ChatGPT 桌面 App，在插件市场中安装 `Codex Delegate`，然后直接给它任务：
 
 ```text
 /codex-delegate 修复这个登录重试 bug，并运行相关测试。
@@ -117,19 +117,11 @@ Codex Delegate 使用四个受项目管理的角色 profile：Reader、Worker、
 - 主会话始终保留用户意图、任务范围、关键决策和最终验收权
 - 同一个 canonical checkout 同时最多一个 Writing Worker
 - 子 Agent 不继续创建新的 Subagent，委派深度保持一层
-- Skill 不会暗中切换主会话模型或 reasoning effort
+- Skill 不会背后切换主会话模型或思考强度
 - 缺少精确项目 profile 时，对应责任会停回主会话，不会自动换成相似角色
 - Worker 必须保留用户或其他会话产生的无关修改，工作区变化使合同失效时会停止并交回主会话
 - Subagent 的完成报告属于执行声明，最终验收依据实际文件、diff、测试和可复现证据
 - 发布、部署、支付、账号权限等高影响外部动作仍由主会话控制
-
-## 当前版本与兼容性
-
-`0.5.0` 保持 `Codex Delegate` 产品名和 `/codex-delegate` 正式用户入口，并将调度升级为依赖与执行证据驱动。
-
-为了降低 pre-v1 升级风险，GitHub 仓库 slug、Plugin package id 和内部 managed-profile namespace 暂时保留 `codex-agent-team` 兼容标识。用户无需手工重命名这些内部资源。
-
-v1.0.0 发布前仍在完成真实 Plugin 升级、跨会话同 checkout 写入排他、同一 Codex home 并发 installer、native fan-out 容量与 slot 恢复等 live validation。README 只描述当前已经定义的产品边界，不把尚未完成的 runtime 测试写成既有保证。
 
 ## License
 
