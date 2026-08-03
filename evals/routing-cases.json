@@ -1,6 +1,6 @@
 {
-  "schema_version": "2.0",
-  "skill_name": "codex-agent-team",
+  "schema_version": "3.0",
+  "skill_name": "codex-delegate",
   "evals": [
     {
       "id": "single-file-clear-fix",
@@ -26,7 +26,9 @@
       "input": {"task": "Implement a bounded fix with explicit scope, invariants, acceptance, and tests."},
       "expected": {
         "action": "delegate",
-        "nodes": [{"responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_worker", "route_assurance": "profile_locked"}]
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_worker", "route_assurance": "profile_locked"}
+        ]
       }
     },
     {
@@ -35,7 +37,9 @@
       "input": {"task": "Trace a large authentication path and return compact reusable evidence without edits."},
       "expected": {
         "action": "delegate",
-        "nodes": [{"responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"}]
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"}
+        ]
       }
     },
     {
@@ -45,43 +49,113 @@
       "expected": {
         "action": "delegate",
         "nodes": [
-          {"responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_worker", "route_assurance": "profile_locked"},
-          {"responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_advisor", "route_assurance": "profile_locked"}
+          {"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_worker", "route_assurance": "profile_locked"},
+          {"dependency_id": "D02", "responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_advisor", "route_assurance": "profile_locked"}
         ]
       }
     },
     {
       "id": "luna-mechanical-defect",
       "category": "escalation",
-      "input": {"task": "A Luna implementation fails one deterministic test because of a local off-by-one error."},
-      "expected": {"action": "delegate", "failure_class": "mechanical_defect", "nodes": [{"responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_worker", "route_assurance": "profile_locked"}]}
+      "input": {"task": "A Luna implementation fails one deterministic test because of a local off-by-one error and the evidence identifies the correction."},
+      "expected": {
+        "action": "delegate",
+        "failure_class": "mechanical_defect",
+        "progress_signal": "blocked",
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_worker", "route_assurance": "profile_locked"}
+        ]
+      }
+    },
+    {
+      "id": "execution-stall-clean-restart",
+      "category": "progress",
+      "input": {"task": "The same bounded Luna dependency has repeated the same failing verification without new evidence, but the lane still appears capable."},
+      "expected": {
+        "action": "delegate",
+        "failure_class": "execution_stall",
+        "progress_signal": "unchanged",
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_worker", "route_assurance": "profile_locked", "clean_restart": true}
+        ]
+      }
     },
     {
       "id": "luna-capability-gap-terra-delta",
       "category": "escalation",
-      "input": {"task": "Luna has reproduced the race and mapped callers, but one synchronization dependency remains unresolved."},
-      "expected": {"action": "delegate", "failure_class": "capability_gap", "nodes": [{"responsibility": "investigator", "model": "gpt-5.6-terra", "effort": "xhigh", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_investigator", "route_assurance": "profile_locked", "unresolved_delta_only": true}]}
+      "input": {"task": "Luna has reproduced the race and mapped callers, but evidence shows one synchronization dependency exceeds the execution lane."},
+      "expected": {
+        "action": "delegate",
+        "failure_class": "capability_gap",
+        "nodes": [
+          {"dependency_id": "D02", "responsibility": "investigator", "model": "gpt-5.6-terra", "effort": "xhigh", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_investigator", "route_assurance": "profile_locked", "unresolved_delta_only": true}
+        ]
+      }
     },
     {
       "id": "judgment-gap-sol",
       "category": "escalation",
       "input": {"task": "Implementation evidence is complete but a consequential API compatibility decision remains."},
-      "expected": {"action": "delegate", "failure_class": "judgment_gap", "nodes": [{"responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_advisor", "route_assurance": "profile_locked"}]}
+      "expected": {
+        "action": "delegate",
+        "failure_class": "judgment_gap",
+        "nodes": [
+          {"dependency_id": "D02", "responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_advisor", "route_assurance": "profile_locked"}
+        ]
+      }
     },
     {
       "id": "two-independent-readers",
       "category": "routing",
       "input": {"task": "Map two independent read-only subsystems in parallel."},
-      "expected": {"action": "delegate", "nodes": [
-        {"responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
-        {"responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"}
-      ]}
+      "expected": {
+        "action": "delegate",
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D02", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"}
+        ]
+      }
     },
     {
-      "id": "three-agent-fanout",
+      "id": "three-agent-fanout-needs-consent",
       "category": "consent",
-      "input": {"task": "The scheduler wants three children and the user did not request broad parallel work."},
-      "expected": {"action": "ask_consent", "nodes": [], "consent_reason": "large_fanout"}
+      "input": {"task": "Three independent read-only dependencies are ready and the user did not request broad parallel work."},
+      "expected": {"action": "ask_consent", "nodes": [], "consent_reason": "larger_simultaneous_fanout"}
+    },
+    {
+      "id": "five-independent-readers-authorized",
+      "category": "routing",
+      "input": {"task": "Five independent read-only dependencies are ready and the user explicitly authorizes broad parallel work."},
+      "expected": {
+        "action": "delegate",
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D02", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D03", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D04", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D05", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"}
+        ]
+      }
+    },
+    {
+      "id": "runtime-slot-pressure-queues-ready-work",
+      "category": "lifecycle",
+      "input": {"task": "Five authorized read-only dependencies are ready but the current runtime exposes only three available child slots."},
+      "expected": {
+        "action": "queue",
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D02", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D03", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_agent_team_reader", "route_assurance": "profile_locked"}
+        ],
+        "queued_dependencies": ["D04", "D05"]
+      }
+    },
+    {
+      "id": "duplicate-running-dependency-rejected",
+      "category": "progress",
+      "input": {"task": "Dependency D01 already has a running Reader and another child is proposed for the same unchanged dependency."},
+      "expected": {"action": "main_session", "nodes": [], "main_reason": "dependency_already_running"}
     },
     {
       "id": "two-shared-writing-workers",
