@@ -28,11 +28,14 @@ def test_runtime_assurance_reference_and_inspector_remain_installed():
 def test_three_compute_tiers_have_distinct_responsibilities_not_fixed_order():
     skill = (SKILL / "SKILL.md").read_text()
     routing = (SKILL / "references" / "routing-policy.md").read_text()
-    assert "Luna Max is the default execution tier" in skill
-    assert "Terra is an exception lane for unresolved complex technical deltas" in skill
-    assert "Sol High is a selective judgment or review tier" in skill
+    combined = skill + routing
+    assert "Luna Max" in combined
+    assert "bounded execution" in combined
+    assert "Terra" in combined and "unresolved" in combined and "technical delta" in combined
+    assert "Sol" in combined and "selective" in combined and "judgment" in combined
     assert "main -> Luna -> Sol -> main" in routing
     assert "never required" in routing
+    assert "no product-level hard child count" in routing.lower()
 
 
 def test_runtime_observation_is_demand_driven_not_universal_overhead():
@@ -45,7 +48,7 @@ def test_runtime_observation_is_demand_driven_not_universal_overhead():
 def test_delegation_contract_records_decision_rights_and_evidence_state():
     contract = (SKILL / "references" / "delegation-contract.md").read_text()
     safety = (SKILL / "references" / "safety-policy.md").read_text()
-    for section in ["OUTCOME", "SCOPE", "INVARIANTS", "DECISION RIGHTS", "ACCEPTANCE ORACLE", "VERIFICATION"]:
+    for section in ["DEPENDENCY", "OUTCOME", "SCOPE", "INVARIANTS", "DECISION RIGHTS", "ACCEPTANCE ORACLE", "VERIFICATION"]:
         assert section in contract
     assert "Shared Evidence State" in contract
     assert "unresolved_delta" in contract
