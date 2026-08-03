@@ -72,4 +72,6 @@ def test_plugin_profile_lifecycle_remains_present():
     assert (PLUGIN / "scripts" / "install-agents.py").exists()
     installation = (ROOT / "docs" / "plugin-installation.md").read_text()
     assert "codex_agent_team_worker" in installation
-    assert "Migration from older model-named profiles" in installation
+    assert "Migration from Codex Agent Team 0.3.x" in installation
+    assert "luna_explorer" in installation
+    assert ".codex-agent-team-agents.json" in installation
