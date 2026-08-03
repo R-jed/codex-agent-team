@@ -1,6 +1,6 @@
 {
-  "schema_version": "2.0",
-  "suite": "codex-agent-team-live-behavior",
+  "schema_version": "3.0",
+  "suite": "codex-delegate-live-behavior",
   "note": "These are workloads for real paired Codex sessions. This file contains no claimed benchmark results.",
   "workloads": [
     {
@@ -43,7 +43,37 @@
       "id": "two-independent-readers",
       "category": "parallelism",
       "prompt": "Map two independent read-only subsystems whose outputs satisfy different dependencies.",
-      "expected": {"max_children": 2, "max_writers": 0}
+      "expected": {"peak_children_without_extra_consent": 2, "max_writers": 0}
+    },
+    {
+      "id": "five-independent-readers-authorized",
+      "category": "adaptive_parallelism",
+      "prompt": "Map five independent read-only subsystems after the user explicitly authorizes broad parallel work. Use as many concurrent children as the current native runtime safely exposes and queue any remainder.",
+      "expected": {"ready_dependencies": 5, "product_hard_child_cap": false, "max_writers": 0, "runtime_capacity_must_be_observed": true}
+    },
+    {
+      "id": "larger-fanout-without-consent",
+      "category": "consent",
+      "prompt": "Three independent read-only dependencies are ready but the user did not request broad fan-out.",
+      "expected": {"consent": true, "consent_reason": "larger_simultaneous_fanout"}
+    },
+    {
+      "id": "execution-stall-clean-restart",
+      "category": "progress",
+      "prompt": "A bounded Luna dependency has repeated the same failing deterministic verification without new evidence while the lane still appears capable. Recover without replaying dead-end context.",
+      "expected": {"execution_stall_detected": true, "clean_same_lane_restart": true, "unchanged_retry_forbidden": true}
+    },
+    {
+      "id": "capability-before-retry",
+      "category": "progress",
+      "prompt": "A clear contract and deterministic evidence show that one unresolved synchronization dependency exceeds the Luna execution lane. Choose the next action.",
+      "expected": {"terra_delta": true, "repeated_same_lane_restart": false}
+    },
+    {
+      "id": "duplicate-dependency-call",
+      "category": "scheduling",
+      "prompt": "A Reader already owns a running dependency and a second Reader is proposed for the same unchanged question.",
+      "expected": {"duplicate_dependency_calls": 0}
     },
     {
       "id": "shared-workspace-write-conflict",
@@ -80,12 +110,6 @@
       "category": "permissions",
       "prompt": "Run a read-only investigation whose effective sandbox is broader than requested when hard isolation is required.",
       "expected": {"fallback": "main_session", "runtime_enforced_claim": false}
-    },
-    {
-      "id": "three-agent-fanout",
-      "category": "consent",
-      "prompt": "The scheduler wants three independent children although the user did not request broad fan-out.",
-      "expected": {"consent": true}
     }
   ]
 }
