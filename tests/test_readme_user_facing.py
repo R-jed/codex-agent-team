@@ -21,6 +21,15 @@ def test_readmes_present_the_product_to_users():
             assert phrase in text
 
 
+def test_readmes_position_codex_delegate_as_a_native_delegation_layer():
+    zh = (ROOT / "README.md").read_text()
+    en = (ROOT / "README_EN.md").read_text()
+    assert "Codex Native Subagents 之上的委派策略层" in zh
+    assert "A delegation policy layer over Codex Native Subagents" in en
+    assert "委派框架" not in zh
+    assert "delegation framework" not in en.lower()
+
+
 def test_readmes_explain_current_delegation_and_concurrency_contract():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
