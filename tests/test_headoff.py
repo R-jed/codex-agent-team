@@ -3,19 +3,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 HANDOFF = ROOT / "HEADOFF.md"
 
-HISTORICAL_BRANCHES = {
-    "docs/readme-community-v2",
-    "docs/readme-native-zh-v3",
-    "docs/readme-visual-system-v4",
-    "feat/community-plugin-v1",
-    "feat/runtime-assurance-v1",
-    "feat/runtime-truth-v1",
-    "feat/single-command-plugin-v1",
-    "fix/legacy-install-adoption",
-    "fix/readme-layout-v5",
-    "incremental-orchestration-v1",
-}
-
 
 def test_local_runtime_handoff_is_linked_from_both_readmes():
     assert HANDOFF.is_file()
@@ -26,22 +13,24 @@ def test_local_runtime_handoff_is_linked_from_both_readmes():
 def test_handoff_protects_release_critical_live_validation_scope():
     text = HANDOFF.read_text()
     for phrase in [
-        "## Audit snapshot",
-        "## 2. Stop line",
-        "## 5. Remote branch cleanup",
-        "## 8. Runtime Truth adversarial matrix",
-        "incomplete `expected` exact route",
-        "## 11. Shared Evidence State and invalidation",
-        "## 13. Terra delta-escalation experiment",
-        "## 14. Luna + selective Sol experiment",
-        "## 15. Primary product experiment",
-        "## 16. Parallelism and stress tests",
-        "## 17. Installer migration and fault injection",
-        "## 19. Current unknown technical debt register",
-        "## Defect triage during local validation",
-        "## 20. Release acceptance gate",
-        "## 21. Required local deliverables",
-        "## Local takeover completion condition",
+        "## Current checkpoint",
+        "## Stop line",
+        "# Completed work",
+        "# Pending live validation",
+        "## Checkpoint 1: complete exact-role and Runtime Truth coverage",
+        "incomplete expected route -> fail closed",
+        "### 5. Shared Evidence State and invalidation",
+        "### 7. Terra delta-escalation experiment",
+        "### 8. Primary raw-prompt versus compiled-contract experiment",
+        "### 9. Luna + selective Sol experiment",
+        "## Checkpoint 5: resource governance and lifecycle stress",
+        "## Checkpoint 6: installer migration and fault injection",
+        "# Version-scoped unknowns and technical debt",
+        "# Defect triage",
+        "# Release acceptance gate",
+        "# Required validation artifact",
+        "# Feedback protocol for continued adversarial review",
+        "# Completion condition",
         "LOCAL_VALIDATION_REPORT.md",
         "behavioral-result.schema.json",
         "RELEASE CANDIDATE",
@@ -49,8 +38,11 @@ def test_handoff_protects_release_critical_live_validation_scope():
     ]:
         assert phrase in text
 
-    for branch in HISTORICAL_BRANCHES:
-        assert branch in text
+    assert "[x]" in text
+    assert "[ ]" in text
+    assert "origin/main only" in text
+    assert "CAT-LOCAL-001" in text
+    assert "PROJECT TAKEOVER: CODEX AGENT TEAM LOCAL RUNTIME VALIDATION" not in text
 
 
 def test_handoff_requires_paired_control_fingerprints():
@@ -62,5 +54,20 @@ def test_handoff_requires_paired_control_fingerprints():
         "permissions_fingerprint",
         "tool_surface_fingerprint",
         "acceptance_rubric_id",
+    ]:
+        assert field in text
+
+
+def test_handoff_defines_incremental_feedback_packets():
+    text = HANDOFF.read_text()
+    for field in [
+        "COMPLETED_HEADOFF_ITEMS",
+        "NEW_EVIDENCE",
+        "DEFECTS",
+        "TESTS",
+        "CHANGES",
+        "UNRESOLVED",
+        "LOCAL_JUDGMENT",
+        "ASK",
     ]:
         assert field in text
