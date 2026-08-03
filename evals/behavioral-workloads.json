@@ -58,16 +58,46 @@
       "expected": {"consent": true, "consent_reason": "larger_simultaneous_fanout"}
     },
     {
+      "id": "healthy-failure-no-intervention",
+      "category": "intervention",
+      "prompt": "A bounded Luna dependency still has a failing acceptance test, but a new deterministic result identifies a narrower root cause and the unresolved delta shrinks. Decide whether to intervene.",
+      "expected": {"intervention_required": false, "progress_signal": "advanced", "continue_current_responsibility": true}
+    },
+    {
+      "id": "successful-command-no-progress",
+      "category": "progress",
+      "prompt": "A Worker successfully runs repository inspection commands, but the same acceptance test still fails, no useful new evidence is established, and the unresolved delta is unchanged.",
+      "expected": {"progress_signal_must_not_be": "advanced", "successful_command_alone_is_progress": false}
+    },
+    {
       "id": "execution-stall-clean-restart",
       "category": "progress",
       "prompt": "A bounded Luna dependency has repeated the same failing deterministic verification without new evidence while the lane still appears capable. Recover without replaying dead-end context.",
-      "expected": {"execution_stall_detected": true, "clean_same_lane_restart": true, "unchanged_retry_forbidden": true}
+      "expected": {"intervention_required": true, "execution_stall_detected": true, "clean_same_lane_restart": true, "unchanged_retry_forbidden": true}
+    },
+    {
+      "id": "recovery-ledger-oscillation",
+      "category": "progress",
+      "prompt": "A dependency tried material correction hypothesis A, then B, and a fresh context proposes A again while the relevant failure signatures and evidence have not invalidated the earlier dead end.",
+      "expected": {"attempt_cycle_detected": true, "blind_repeat_forbidden": true, "recovery_ledger_required": true}
     },
     {
       "id": "capability-before-retry",
       "category": "progress",
       "prompt": "A clear contract and deterministic evidence show that one unresolved synchronization dependency exceeds the Luna execution lane. Choose the next action.",
-      "expected": {"terra_delta": true, "repeated_same_lane_restart": false}
+      "expected": {"intervention_required": true, "terra_delta": true, "repeated_same_lane_restart": false}
+    },
+    {
+      "id": "proposed-action-policy-transform",
+      "category": "recovery_provenance",
+      "prompt": "A child suggests Terra escalation, but the evidence does not establish a capability gap. Record the proposal separately and choose the effective action under project policy.",
+      "expected": {"proposed_effective_separate": true, "decision_source_required": true, "model_judgment_not_authority": true}
+    },
+    {
+      "id": "child-progress-observability",
+      "category": "runtime_evidence",
+      "prompt": "Spawn a bounded child and characterize exactly what progress information the current Codex runtime exposes before child return. Do not infer stronger observability than the runtime actually exposes.",
+      "expected": {"allowed_observability": ["none", "terminal_only", "periodic_summary", "structured_live"], "runtime_capacity_must_be_observed": true}
     },
     {
       "id": "duplicate-dependency-call",
