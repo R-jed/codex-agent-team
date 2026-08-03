@@ -1,12 +1,12 @@
-# Codex Agent Team
+# Codex Delegate
 
 [中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-Codex Agent Team is a native Subagent workflow for Codex. You describe the engineering task, the current Codex session remains the **main session**, and the workflow decides whether delegation is useful, which role should handle each bounded responsibility, which evidence can be reused, and how the final result should be accepted.
+Codex Delegate is a native Subagent delegation workflow for Codex. You describe the engineering task, the current Codex session remains the **main session**, and the workflow decides which responsibilities are worth delegating, which role should handle them, which evidence can be reused, and how the final result should be accepted.
 
-The goal is simple: use the smallest useful Agent Team while reducing repeated repository discovery, redundant multi-model inference, and uncontrolled write scope.
+The goal is simple: delegate to the smallest useful set of Agents while reducing repeated repository discovery, redundant multi-model inference, and uncontrolled write scope.
 
-Current version: `0.3.0`, pre-v1.0.0 preview.
+Current version: `0.4.0`, pre-v1.0.0 preview.
 
 ## Install
 
@@ -16,33 +16,35 @@ Add the repository to the Codex Plugin marketplace:
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Reopen ChatGPT Desktop and install `Codex Agent Team` from the Plugins Directory.
+Reopen ChatGPT Desktop and install `Codex Delegate` from the Plugins Directory.
 
 Invoke it in a Codex session with:
 
 ```text
-/codex-agent-team
+/codex-delegate
 ```
+
+The GitHub repository and Plugin package currently retain the `codex-agent-team` compatibility identifier, so the marketplace source URL has not changed yet.
 
 ## How to use it
 
 Give it a normal engineering task, for example:
 
 ```text
-/codex-agent-team Fix this login retry bug and run the relevant tests.
+/codex-delegate Fix this login retry bug and run the relevant tests.
 ```
 
 ```text
-/codex-agent-team Refactor this module while preserving the public API.
+/codex-delegate Refactor this module while preserving the public API.
 ```
 
 ```text
-/codex-agent-team Review this change with emphasis on data consistency and regression risk.
+/codex-delegate Review this change with emphasis on data consistency and regression risk.
 ```
 
 You do not need to choose the Luna, Terra, and Sol order manually, and you do not need to force multiple Agents into every task.
 
-## How the team works
+## How delegation works
 
 The main session first identifies the outcome, scope, risk, and acceptance criteria, then chooses the smallest useful execution path.
 
@@ -130,15 +132,15 @@ normal maximum: 2
 v1 hard maximum: 4
 ```
 
-Independent projects may each run their own Agent Team. The project does not impose a machine-wide or account-wide Agent total.
+Independent projects may each run their own Codex Delegate workflow. The project does not impose a machine-wide or account-wide Agent total.
 
 For writing work, ownership is workspace-scoped: one canonical physical checkout should have at most one active Writing Worker. Truly isolated worktrees or independent projects may have independent Writers.
 
-Version `0.3.0` is still in pre-v1 runtime validation. Until v1.0.0 ships, avoid starting simultaneous writing tasks from two independent Codex sessions against the same physical checkout.
+Version `0.4.0` is still in pre-v1 runtime validation. Until v1.0.0 ships, avoid starting simultaneous writing tasks from two independent Codex sessions against the same physical checkout.
 
 ## First run
 
-Codex Agent Team uses four project-managed custom Agent profiles:
+Codex Delegate currently uses four project-managed custom Agent profiles:
 
 ```text
 codex_agent_team_reader
@@ -147,9 +149,11 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
+These profile identifiers are retained for compatibility and do not change the `/codex-delegate` entry point.
+
 If they are missing, the Skill explains the exact managed file scope and asks for permission before provisioning them. The installer manages only these four profiles and its ownership manifest. That authorization does not extend to credentials, MCP configuration, repository files, or unrelated Agent profiles.
 
-If provisioning succeeds but the current task still does not discover the new roles, start a fresh Codex task and invoke `/codex-agent-team` again.
+If provisioning succeeds but the current task still does not discover the new roles, start a fresh Codex task and invoke `/codex-delegate` again.
 
 ## Safety boundaries
 
@@ -164,7 +168,7 @@ If provisioning succeeds but the current task still does not discover the new ro
 
 ## Current release status
 
-Version `0.3.0` provides the complete Plugin installation path, four semantic Agent roles, Delegation Contracts, evidence reuse, selective Terra/Sol routing, and bounded parallelism.
+Version `0.4.0` adopts the `Codex Delegate` product name and `/codex-delegate` entry point while retaining the existing repository, Plugin package, Agent-profile, and ownership-manifest identifiers for migration compatibility.
 
 Before v1.0.0, the project is still validating a small number of real-runtime boundaries, including independent sessions writing against the same checkout and concurrent profile provisioning in one Codex home. This README therefore makes no unmeasured claims about throughput, cost reduction, latency improvements, or cross-session exclusion guarantees.
 
