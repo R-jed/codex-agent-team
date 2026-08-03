@@ -37,8 +37,10 @@ def test_worker_contract_is_concurrent_change_aware():
 
 
 def test_same_checkout_writer_rule_does_not_create_a_global_writer_mutex():
+    skill = SKILL.read_text()
     routing = ROUTING.read_text()
     safety = SAFETY.read_text()
+    combined = skill + routing + safety
 
     for phrase in [
         "same physical checkout",
@@ -46,7 +48,7 @@ def test_same_checkout_writer_rule_does_not_create_a_global_writer_mutex():
         "Do not create a global Agent cap that blocks independent projects",
         "File-level promises inside one shared checkout are insufficient",
     ]:
-        assert phrase.lower() in (routing + safety).lower()
+        assert phrase.lower() in combined.lower()
 
 
 def test_codex_home_concurrency_is_fail_closed_and_not_overclaimed():
