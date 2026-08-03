@@ -15,12 +15,13 @@ Use this Skill as a policy layer over Codex Native Subagents. The main session o
 4. Luna Max is the default execution tier. Terra is an exception lane for unresolved complex technical deltas. Sol High is a selective judgment or review tier.
 5. Low quality alone never triggers Terra. Classify the failure first and escalate only the unresolved delta.
 6. Established deterministic and repository evidence is reused while its dependencies remain valid. Do not rediscover valid facts by default.
-7. One shared workspace has at most one active writing Worker. Children do not create further Subagents.
+7. One canonical shared workspace has at most one active writing Worker. Children do not create further Subagents.
 8. Role-specific spawns always set `fork_turns` explicitly.
 9. Model-specific children require a provable project-profile route. Missing or conflicting routes return the responsibility to the main session.
 10. Configuration assurance and runtime observation are separate facts. Empty or partial observations never count as complete runtime route evidence.
 11. Worker reports are claims. Accept work from actual artifacts, deterministic verification, and reproducible evidence.
 12. `/codex-agent-team` is the only user-facing workflow entry point. First-run custom-Agent readiness is handled inside this Skill.
+13. Child-count limits are per main session. Workspace write ownership is per canonical physical checkout or isolated worktree. Managed Agent profiles are shared at Codex-home scope.
 
 ## 1. Understand the task
 
@@ -124,6 +125,8 @@ python "$installer" --check
 
 Then inspect the live role surface again. Continue immediately when the role is visible. If exact installation succeeded but current-task role discovery did not refresh, ask the user to start a fresh Codex task and invoke `/codex-agent-team` again.
 
+The four profiles and ownership manifest are Codex-home scoped shared configuration. Multiple projects may use one installed generation. Mixed concurrent profile generations are unsupported for v1.0.0: if a session's expected exact route does not match the currently installed profile, stop that delegation instead of substituting, silently downgrading, or cross-routing.
+
 There is no Portable Mode and no built-in-role substitution.
 
 Read `references/routing-policy.md` for route details.
@@ -141,6 +144,10 @@ Reuse established evidence. Add only new facts needed by the current dependency.
 Use `codex_agent_team_worker` for contractable implementation, debugging, tests, local refactors, and mechanical changes.
 
 Luna owns `HOW TO EXECUTE` inside the granted contract. It does not invent product requirements, redesign architecture, widen scope, or make decisions reserved for the main session.
+
+Treat the workspace as potentially changed by the user or another independent session. Preserve unrelated existing edits. Never revert unknown changes to restore an assumed starting state. Re-read affected files and relevant state immediately before mutation when concurrent change is plausible. If drift invalidates the write scope, an invariant, decision rights, the acceptance oracle, or established evidence, stop and return the changed state and smallest unresolved delta to the main session.
+
+File-level ownership promises do not authorize a second writing Worker in the same physical checkout.
 
 ### Terra Investigator
 
@@ -176,6 +183,8 @@ judgment gap
 -> main session decides or uses Sol when justified
 ```
 
+Concurrent workspace drift is changed input, not a capability upgrade signal. Reconcile the current artifact and invalidate only dependent evidence.
+
 Preserve valid evidence across retries. Recompute only dependencies invalidated by changed files, artifacts, runtime facts, or contradictory evidence.
 
 Use `references/delegation-contract.md` for Shared Evidence State and Delta Escalation packets.
@@ -188,11 +197,22 @@ Good examples:
 
 - one Luna Reader traces a runtime path while another read-only branch maps independent test coverage;
 - the main session prepares acceptance and risk checks while Luna executes a bounded implementation;
-- a slow deterministic test suite runs while independent read-only analysis proceeds.
+- a slow deterministic test suite runs while independent read-only analysis proceeds;
+- independent projects or runtime-backed isolated worktrees may each use one writer without creating a machine-wide writer bottleneck.
 
 Do not parallelize multiple models over the same question merely to keep compute busy.
 
-One shared workspace still has at most one active writing Worker.
+Concurrency has three scopes:
+
+```text
+main-session scope: child-count envelope, normal max 2, hard max 4
+workspace scope: one active writer per canonical physical checkout or isolated worktree
+Codex-home scope: one installed managed profile generation shared by sessions using that home
+```
+
+The hard maximum of four is a v1.0.0 per-main-session policy limit, not a claim about native machine/account capacity. Do not create a global Agent cap that blocks independent projects.
+
+One canonical shared workspace still has at most one active writing Worker. Two sessions targeting the same physical checkout share this invariant even if their intended file sets differ. Current session-local orchestration must not be assumed to enforce cross-session exclusion until live validation proves native coordination or a reproducible failure justifies a project-side mechanism.
 
 ## 9. Consent Gate
 
@@ -208,6 +228,8 @@ Use `references/safety-policy.md` when a child may write, handle untrusted conte
 
 Prompt text does not prove runtime permission enforcement. If safety requires host-enforced read-only and the runtime cannot report it, keep that responsibility in the main session.
 
+Do not claim cross-session writer exclusion or multi-process installer safety unless current runtime/filesystem evidence proves it. Those are v1 release gates, not assumptions derived from the Skill text.
+
 ## 11. Execute, merge evidence, and verify
 
 After each child returns:
@@ -215,7 +237,7 @@ After each child returns:
 1. Treat the report as a claim.
 2. Inspect actual files, diff, commands, tests, and scope.
 3. Merge new deterministic or repository evidence into Shared Evidence State.
-4. Invalidate only evidence whose declared dependencies changed or conflicted.
+4. Invalidate only evidence whose declared dependencies changed or conflicted, including changes made by the user or another independent session.
 5. Rerun deterministic verification when required by the acceptance oracle.
 6. Collect runtime evidence only when route identity, ancestry, permission, conflict, or an explicit user request makes it material.
 7. Use `scripts/verify-runtime.py` for deterministic evidence reconciliation.
@@ -244,8 +266,8 @@ Use `references/orchestration-receipt.md` when the Skill was explicitly invoked,
 ## References
 
 - `references/delegation-contract.md`: contractability, Shared Evidence State, failure classification, delta escalation
-- `references/routing-policy.md`: compute graph, semantic responsibilities, route policy, useful parallelism
+- `references/routing-policy.md`: compute graph, semantic responsibilities, route policy, useful parallelism, concurrency scopes
 - `references/runtime-assurance.md`: typed runtime evidence and deterministic verifier
 - `references/consent-policy.md`: baseline resource envelope and escalation consent
-- `references/safety-policy.md`: permissions, prompt injection, depth, mutation, side effects
+- `references/safety-policy.md`: permissions, prompt injection, depth, mutation, shared-workspace and Codex-home safety
 - `references/orchestration-receipt.md`: compact user-visible execution record
