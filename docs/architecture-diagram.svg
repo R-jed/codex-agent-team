@@ -7,22 +7,22 @@
   <text x="720" y="160" text-anchor="middle" fill="#999" font-size="22">理解需求 · 关键决策 · 编排工作 · 验收结果</text>
 
   <!-- Arrows from main -->
-  <line x1="560" y1="208" x2="320" y2="336" stroke="#1a1a1a" stroke-width="6"/>
-  <line x1="720" y1="208" x2="720" y2="336" stroke="#1a1a1a" stroke-width="6"/>
-  <line x1="880" y1="208" x2="1120" y2="336" stroke="#1a1a1a" stroke-width="6"/>
+  <line x1="560" y1="208" x2="320" y2="336" stroke="#1a1a1a" stroke-width="3"/>
+  <line x1="720" y1="208" x2="720" y2="336" stroke="#1a1a1a" stroke-width="3"/>
+  <line x1="880" y1="208" x2="1120" y2="336" stroke="#1a1a1a" stroke-width="3"/>
 
   <!-- Luna -->
-  <rect x="96" y="336" width="448" height="240" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="6"/>
+  <rect x="96" y="336" width="448" height="240" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="3"/>
   <rect x="96" y="336" width="448" height="64" rx="0" fill="#2563eb"/>
   <text x="320" y="378" text-anchor="middle" fill="#fff" font-size="26" font-weight="600">Luna · 执行层</text>
   <text x="128" y="444" fill="#1a1a1a" font-size="24" font-weight="500">Reader</text>
   <text x="128" y="476" fill="#666" font-size="22">搜索 · 追踪 · 测试映射 · 证据收集</text>
-  <line x1="128" y1="496" x2="512" y2="496" stroke="#e5e5e5" stroke-width="2"/>
+  <line x1="128" y1="496" x2="512" y2="496" stroke="#e5e5e5" stroke-width="1"/>
   <text x="128" y="528" fill="#1a1a1a" font-size="24" font-weight="500">Worker</text>
   <text x="128" y="560" fill="#666" font-size="22">实现 · 调试 · 测试 · 局部重构</text>
 
   <!-- Terra -->
-  <rect x="496" y="336" width="448" height="240" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="6"/>
+  <rect x="496" y="336" width="448" height="240" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="3"/>
   <rect x="496" y="336" width="448" height="64" rx="0" fill="#d97706"/>
   <text x="720" y="378" text-anchor="middle" fill="#fff" font-size="26" font-weight="600">Terra · 深度调查层</text>
   <text x="528" y="444" fill="#1a1a1a" font-size="24" font-weight="500">Investigator</text>
@@ -30,7 +30,7 @@
   <text x="528" y="528" fill="#999" font-size="20" font-style="italic">默认只读调查，不做全量重做</text>
 
   <!-- Sol -->
-  <rect x="896" y="336" width="448" height="240" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="6"/>
+  <rect x="896" y="336" width="448" height="240" rx="0" fill="#fff" stroke="#1a1a1a" stroke-width="3"/>
   <rect x="896" y="336" width="448" height="64" rx="0" fill="#059669"/>
   <text x="1120" y="378" text-anchor="middle" fill="#fff" font-size="26" font-weight="600">Sol · 判断层</text>
   <text x="928" y="444" fill="#1a1a1a" font-size="24" font-weight="500">Advisor</text>
@@ -38,23 +38,23 @@
   <text x="928" y="528" fill="#999" font-size="20" font-style="italic">非常规关卡，按需调用</text>
 
   <!-- Return arrows (dashed) -->
-  <path d="M1120.0,576.0 Q1120.0,640.0 400.0,680.0 Q2160.0,740.0 720.0,680.0" stroke="#2563eb" stroke-width="4" stroke-dasharray="8,6" fill="none" marker-end="url(#arrow-blue)"/>
-  <path d="M3120.0,576.0 Q3120.0,640.0 720.0,680.0" stroke="#d97706" stroke-width="4" stroke-dasharray="8,6" fill="none" marker-end="url(#arrow-amber)"/>
-  <path d="M5120.0,576.0 Q5120.0,640.0 1040.0,680.0 Q480.0,740.0 720.0,680.0" stroke="#059669" stroke-width="4" stroke-dasharray="8,6" fill="none" marker-end="url(#arrow-green)"/>
+  <path d="M320,576 Q320,640 400,680 Q560,740 720,680" stroke="#2563eb" stroke-width="2" stroke-dasharray="8,6" fill="none" marker-end="url(#arrow-blue)"/>
+  <path d="M720,576 Q720,640 720,680" stroke="#d97706" stroke-width="2" stroke-dasharray="8,6" fill="none" marker-end="url(#arrow-amber)"/>
+  <path d="M1120,576 Q1120,640 1040,680 Q880,740 720,680" stroke="#059669" stroke-width="2" stroke-dasharray="8,6" fill="none" marker-end="url(#arrow-green)"/>
 
   <!-- Delegation Contract -->
-  <rect x="96" y="680" width="560" height="280" rx="0" fill="#fff" stroke="#e5e5e5" stroke-width="4"/>
+  <rect x="96" y="680" width="560" height="280" rx="0" fill="#fff" stroke="#e5e5e5" stroke-width="2"/>
   <text x="128" y="728" fill="#1a1a1a" font-size="24" font-weight="600">Delegation Contract</text>
-  <line x1="128" y1="744" x2="624" y2="744" stroke="#e5e5e5" stroke-width="2"/>
+  <line x1="128" y1="744" x2="624" y2="744" stroke="#e5e5e5" stroke-width="1"/>
   <text x="128" y="780" fill="#666" font-size="22">OUTCOME · SCOPE · INVARIANTS</text>
   <text x="128" y="816" fill="#666" font-size="22">DECISION RIGHTS · ACCEPTANCE</text>
   <text x="128" y="852" fill="#666" font-size="22">VERIFICATION · STOP/ESCALATE</text>
   <text x="128" y="904" fill="#999" font-size="20" font-style="italic">写入任务开始前编译，验收标准不明确时不启动 Worker</text>
 
   <!-- Evidence State -->
-  <rect x="784" y="680" width="560" height="280" rx="0" fill="#fff" stroke="#e5e5e5" stroke-width="4"/>
+  <rect x="784" y="680" width="560" height="280" rx="0" fill="#fff" stroke="#e5e5e5" stroke-width="2"/>
   <text x="816" y="728" fill="#1a1a1a" font-size="24" font-weight="600">Shared Evidence State</text>
-  <line x1="816" y1="744" x2="1312" y2="744" stroke="#e5e5e5" stroke-width="2"/>
+  <line x1="816" y1="744" x2="1312" y2="744" stroke="#e5e5e5" stroke-width="1"/>
   <text x="816" y="780" fill="#666" font-size="22">deterministic — 可复用</text>
   <text x="816" y="816" fill="#666" font-size="22">repository_fact — 可复用</text>
   <text x="816" y="852" fill="#666" font-size="22">model_judgment — 假设，可挑战</text>
@@ -65,14 +65,14 @@
 
   <!-- Arrow markers -->
   <defs>
-    <marker id="arrow-blue" viewBox="0 0 16 16" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
-      <path d="M0,0.0 L8,8.0 L0,16.0 Z" fill="#2563eb"/>
+    <marker id="arrow-blue" viewBox="0 0 8 8" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+      <path d="M0,0 L16,8 L0,16 Z" fill="#2563eb"/>
     </marker>
-    <marker id="arrow-amber" viewBox="0 0 16 16" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
-      <path d="M0,0.0 L8,8.0 L0,16.0 Z" fill="#d97706"/>
+    <marker id="arrow-amber" viewBox="0 0 8 8" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+      <path d="M0,0 L16,8 L0,16 Z" fill="#d97706"/>
     </marker>
-    <marker id="arrow-green" viewBox="0 0 16 16" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
-      <path d="M0,0.0 L8,8.0 L0,16.0 Z" fill="#059669"/>
+    <marker id="arrow-green" viewBox="0 0 8 8" refX="16" refY="8" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
+      <path d="M0,0 L16,8 L0,16 Z" fill="#059669"/>
     </marker>
   </defs>
 </svg>
