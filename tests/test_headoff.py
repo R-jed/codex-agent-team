@@ -108,7 +108,7 @@ def test_handoff_requires_concurrent_installer_validation_before_locking():
         "I1 same clean `CODEX_HOME`",
         "I2 one installer is forced to fail after mutation begins",
         "peer-success state",
-        "mixed profile generations",
+        "different managed profile generations",
         "Do not add an inter-process installer lock merely because races are theoretically possible",
     ]:
         assert phrase in text
