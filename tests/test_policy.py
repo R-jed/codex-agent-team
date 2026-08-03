@@ -34,9 +34,9 @@ def test_skill_frontmatter_and_name():
     frontmatter = yaml.safe_load(match.group(1))
     assert set(frontmatter) == {"name", "description"}
     assert frontmatter["name"] == "codex-delegate"
-    assert "Luna Max" in frontmatter["description"]
     assert "distinct unresolved dependencies" in frontmatter["description"]
     assert "fixed Agent counts" in frontmatter["description"]
+    assert "observed progress" in frontmatter["description"]
 
 
 def test_openai_yaml_matches_skill():
@@ -141,7 +141,7 @@ def test_failure_classification_prevents_blind_retry_and_whole_task_terra_rework
         assert phrase in (contract + routing).lower()
     assert "Low quality alone is not a Terra trigger" in contract
     assert "Terra is not a mandatory reviewer and not a generic second implementation attempt" in routing
-    assert "There is no universal retry count" in progress
+    assert "does not define a universal retry count" in progress
     assert "Capability takes precedence over retry" in progress
     terra = tomllib.loads((PROFILE_DIR / "codex-agent-team-investigator.toml").read_text())
     assert "unresolved technical dependency" in terra["developer_instructions"]
@@ -157,7 +157,7 @@ def test_shared_evidence_and_dependency_state_are_explicit():
         assert "invalidated" in text.lower()
     assert "deterministic | repository_fact | model_judgment" in contract
     assert "A file or artifact change invalidates only evidence that depends on the changed input" in contract
-    assert "a `running` dependency already has an owner" in skill
+    assert "already `running` or `satisfied` must not receive a duplicate Agent call" in skill
 
 
 def test_useful_parallelism_requires_distinct_ready_dependencies():
@@ -181,7 +181,7 @@ def test_consent_is_concurrent_resource_boundary_not_total_child_limit():
     consent = (SKILL_DIR / "references" / "consent-policy.md").read_text()
     assert "up to 2 concurrently active justified child Agents" in consent
     assert "at most 1 active writer" in consent
-    assert "not a total child lifetime limit" in consent
+    assert "not to the lifetime number of child calls" in consent
     assert "does not add another numerical hard ceiling" in consent
     assert "/codex-delegate" in consent
     assert "For implicit Skill invocation, ask before adding Sol" in consent
