@@ -181,10 +181,10 @@ def test_readmes_are_text_first_and_explain_incremental_orchestration():
         assert "codex_agent_team_worker" in text
         assert "codex_agent_team_investigator" in text
         assert "codex_agent_team_advisor" in text
-    assert "Luna + Sol 是一条正常的短路径" in zh
-    assert "已经算过的东西尽量不再算一遍" in zh
-    assert "Luna + Sol is a normal short path" in en
-    assert "Reuse work that has already been established" in en
+    assert "没有固定的三级流水线" in zh
+    assert "已经确认的结果会尽量复用" in zh
+    assert "There is no fixed three-model pipeline" in en
+    assert "Established evidence is reused" in en
 
 
 def test_readmes_use_main_session_without_user_facing_root_vocabulary():
