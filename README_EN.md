@@ -2,33 +2,19 @@
 
 [中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-Codex Delegate is a native Subagent delegation workflow for Codex. You describe the engineering task, the current Codex session remains the **main session**, and the workflow decides which responsibilities are worth delegating, which role should handle them, which evidence can be reused, and how the final result should be accepted.
+Codex Delegate is a native Subagent delegation framework for Codex. You describe the engineering task, the current session stays in control, deciding what's worth delegating, who should handle it, and how to verify the result.
 
-The goal is simple: delegate to the smallest useful set of Agents while reducing repeated repository discovery, redundant multi-model inference, and uncontrolled write scope.
+The goal is simple: get the job done with the smallest useful set of Agents, reducing redundant repository discovery and uncontrolled write scope.
 
-Current version: `0.4.0`, pre-v1.0.0 preview.
+Current version: `0.4.0` (pre-v1.0.0 preview).
 
-## Install
-
-Add the repository to the Codex Plugin marketplace:
+## Quick start
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Reopen ChatGPT Desktop and install `Codex Delegate` from the Plugins Directory.
-
-Invoke it in a Codex session with:
-
-```text
-/codex-delegate
-```
-
-The GitHub repository and Plugin package currently retain the `codex-agent-team` compatibility identifier, so the marketplace source URL has not changed yet.
-
-## How to use it
-
-Give it a normal engineering task, for example:
+Reopen ChatGPT Desktop, install `Codex Delegate` from the Plugins Directory, then invoke it in a Codex session:
 
 ```text
 /codex-delegate Fix this login retry bug and run the relevant tests.
@@ -42,73 +28,78 @@ Give it a normal engineering task, for example:
 /codex-delegate Review this change with emphasis on data consistency and regression risk.
 ```
 
-You do not need to choose the Luna, Terra, and Sol order manually, and you do not need to force multiple Agents into every task.
+No need to manually choose Agent ordering. No need to force multiple models into every task.
 
-## How delegation works
+## How it works
 
-The main session first identifies the outcome, scope, risk, and acceptance criteria, then chooses the smallest useful execution path.
+The main session identifies the outcome, scope, and acceptance criteria first, then picks the smallest useful execution path.
 
-| Role | Current route | Purpose |
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Main Session (control plane)            │
+│  Understand → Assess risk → Schedule work → Accept result│
+└────────┬──────────────┬──────────────┬──────────────────┘
+         │              │              │
+         ▼              ▼              ▼
+   ┌──────────┐  ┌──────────────┐  ┌──────────┐
+   │   Luna   │  │    Terra     │  │   Sol    │
+   │ Execution│  │ Deep Invest. │  │ Judgment │
+   │ Reader   │  │ Investigator │  │ Advisor  │
+   │ Worker   │  │              │  │          │
+   └──────────┘  └──────────────┘  └──────────┘
+```
+
+| Role | Model | Purpose |
 | --- | --- | --- |
-| Main session | current Codex session | understand the task, make key decisions, schedule work, accept results |
+| Main session | current Codex session | understand the task, key decisions, schedule work, accept results |
 | Luna Reader | GPT-5.6 Luna `max` | search, tracing, test mapping, evidence collection |
-| Luna Worker | GPT-5.6 Luna `max` | bounded implementation, debugging, tests, and local refactors |
+| Luna Worker | GPT-5.6 Luna `max` | bounded implementation, debugging, tests, local refactors |
 | Terra Investigator | GPT-5.6 Terra `xhigh` | resolve one remaining complex technical dependency |
 | Sol Advisor | GPT-5.6 Sol `high` | high-value judgment and selective review |
 
-A task may stay entirely in the main session:
-
-```text
-main session
-```
-
-A common implementation path is:
+A task may stay entirely in the main session, or follow a common path:
 
 ```text
 main session -> Luna -> main session
 ```
 
-A harder technical dependency may use:
+For harder technical dependencies:
 
 ```text
 main session -> Luna -> Terra (unresolved technical delta only) -> Luna / main session
 ```
 
-A consequential finished artifact may use:
+When high-quality review is needed:
 
 ```text
 main session -> Luna -> Sol -> main session
 ```
 
-There is no fixed three-model pipeline. Every Subagent call must satisfy a distinct dependency that the current valid evidence does not already cover.
+There is no fixed three-model pipeline. Every Subagent call must satisfy a distinct dependency that existing evidence does not already cover.
 
-## Writing work gets bounded before execution
+## Delegation contracts
 
-When a task requires file changes, the main session first turns the responsibility into an enforceable Delegation Contract covering:
+Before a writing task starts, the main session compiles a verifiable Delegation Contract:
 
-```text
-what outcome must exist
-what may be read and written
-what behavior must remain unchanged
-what the Worker may decide independently
-what counts as acceptance
-which verification must run
-when the Worker must stop and return control
-```
+- What outcome must exist
+- What may be read and written
+- What behavior must remain unchanged
+- What the Worker may decide independently
+- What counts as acceptance
+- Which verification must run
+- When the Worker must stop and return control
 
-If critical decision rights or acceptance criteria are still unclear, a Writing Worker should not start guessing through repository changes.
+A Writing Worker does not start guessing through repository changes when acceptance criteria are unclear.
 
 ## Established evidence is reused
 
-Within a task, the main session keeps a compact set of still-valid test results, call paths, interface facts, and other reusable evidence.
-
-Later Agents reuse those facts while their dependencies remain valid. Only evidence affected by changed files, artifacts, or assumptions needs to be revalidated.
+Within a task, the main session keeps a compact set of still-valid test results, call paths, interface facts, and other reusable evidence. Later Agents reuse those facts while their dependencies remain valid. Only evidence affected by changed files, artifacts, or assumptions needs to be revalidated.
 
 This reduces full repository rescans, repeated deterministic commands, and repeated reasoning over the same dependency after a model change.
 
-## When Luna needs help
+## Failure handling
 
-The workflow classifies the failure before escalating:
+When Luna needs help, the workflow classifies the failure before escalating:
 
 ```text
 mechanical defect     -> focused Luna correction
@@ -117,30 +108,22 @@ complex technical gap -> Terra investigates only the unresolved part
 judgment gap          -> main session decides, or uses Sol when justified
 ```
 
-A mediocre Luna result does not automatically trigger a full Terra restart.
+A mediocre Luna result does not automatically trigger a full Terra restart. Sol is also selective — when tests and acceptance criteria are strong enough, the main session can accept without adding a mandatory review stage.
 
-Sol is also selective. When tests and the acceptance oracle are already strong enough, the main session can accept the result without adding a mandatory review stage.
+## Parallelism
 
-## Parallelism and multiple sessions
-
-The default resource envelope is:
-
-```text
-0 Subagents is a normal outcome
-default: 1
+```
+default: 0 Subagents (a normal outcome)
+typical: 1
 normal maximum: 2
 v1 hard maximum: 4
 ```
 
-Independent projects may each run their own Codex Delegate workflow. The project does not impose a machine-wide or account-wide Agent total.
-
-For writing work, ownership is workspace-scoped: one canonical physical checkout should have at most one active Writing Worker. Truly isolated worktrees or independent projects may have independent Writers.
-
-Version `0.4.0` is still in pre-v1 runtime validation. Until v1.0.0 ships, avoid starting simultaneous writing tasks from two independent Codex sessions against the same physical checkout.
+Independent projects may each run their own Codex Delegate workflow. For writing work, ownership is workspace-scoped: one shared checkout should have at most one active Writing Worker.
 
 ## First run
 
-Codex Delegate currently uses four project-managed custom Agent profiles:
+Codex Delegate uses four project-managed Agent profiles:
 
 ```text
 codex_agent_team_reader
@@ -151,28 +134,26 @@ codex_agent_team_advisor
 
 These profile identifiers are retained for compatibility and do not change the `/codex-delegate` entry point.
 
-If they are missing, the Skill explains the exact managed file scope and asks for permission before provisioning them. The installer manages only these four profiles and its ownership manifest. That authorization does not extend to credentials, MCP configuration, repository files, or unrelated Agent profiles.
+If they are missing, the Skill explains the exact managed file scope and asks for permission before provisioning. The installer manages only these four profiles and its ownership manifest. It does not edit credentials, MCP configuration, repositories, or unrelated Agent profiles.
 
-If provisioning succeeds but the current task still does not discover the new roles, start a fresh Codex task and invoke `/codex-delegate` again.
+If provisioning succeeds but the current task still does not expose the new role, start a fresh Codex task and invoke `/codex-delegate` again.
 
 ## Safety boundaries
 
-- The main session retains task scope, consequential decisions, and final acceptance.
-- One shared physical checkout should have at most one active Writing Worker.
-- Child Agents do not create further Subagents; delegation stays one layer deep.
-- The Skill does not silently switch the main-session model or reasoning effort.
-- If an exact project profile is unavailable or conflicting, the affected responsibility returns to the main session instead of silently using a similar role.
-- A Worker preserves unrelated user or concurrent-session edits. If workspace drift makes the contract stale, it should stop and return the changed state to the main session.
-- A Subagent completion report is a claim. Final acceptance is based on actual files, diffs, tests, commands, and reproducible evidence.
-- Publishing, deployment, payments, account-permission changes, and other consequential external actions remain under main-session control and the user's current authorization.
+- The main session retains task scope, consequential decisions, and final acceptance
+- One shared checkout should have at most one active Writing Worker
+- Child Agents do not create further Subagents; delegation stays one layer deep
+- The Skill does not silently switch the main-session model or reasoning effort
+- If an exact project profile is unavailable, the affected responsibility returns to the main session instead of silently using a similar role
+- A Worker preserves unrelated user or concurrent-session edits; if workspace drift invalidates the contract, it should stop and return the changed state to the main session
+- A Subagent completion report is a claim — final acceptance is based on actual files, diffs, tests, and reproducible evidence
+- Publishing, deployment, payments, account-permission changes, and other consequential external actions remain under main-session control
 
 ## Current release status
 
-Version `0.4.0` adopts the `Codex Delegate` product name and `/codex-delegate` entry point while retaining the existing repository, Plugin package, Agent-profile, and ownership-manifest identifiers for migration compatibility.
+Version `0.4.0` adopts the `Codex Delegate` product name and `/codex-delegate` entry point while retaining the existing repository, Plugin package, Agent-profile, and ownership-manifest identifiers as compatibility identifiers during the pre-v1 migration window.
 
-Before v1.0.0, the project is still validating a small number of real-runtime boundaries, including independent sessions writing against the same checkout and concurrent profile provisioning in one Codex home. This README therefore makes no unmeasured claims about throughput, cost reduction, latency improvements, or cross-session exclusion guarantees.
-
-Running different Plugin generations that expect different managed profile generations in one Codex home is outside the v1 support contract. An exact-route mismatch should stop the affected delegation rather than trigger cross-role substitution.
+Before v1.0.0, the project is still validating independent sessions writing against the same checkout and concurrent profile provisioning in one Codex home. This README makes no unmeasured claims about throughput, cost reduction, or latency improvements.
 
 ## More information
 
