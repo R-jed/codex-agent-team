@@ -31,15 +31,15 @@ def test_skill_frontmatter_and_name():
     assert match
     frontmatter = yaml.safe_load(match.group(1))
     assert set(frontmatter) == {"name", "description"}
-    assert frontmatter["name"] == "codex-agent-team"
+    assert frontmatter["name"] == "codex-delegate"
     assert "Luna Max" in frontmatter["description"]
     assert "distinct dependency" in frontmatter["description"]
 
 
 def test_openai_yaml_matches_skill():
     data = yaml.safe_load((SKILL_DIR / "agents" / "openai.yaml").read_text())
-    assert data["interface"]["display_name"] == "Codex Agent Team"
-    assert "/codex-agent-team" in data["interface"]["default_prompt"]
+    assert data["interface"]["display_name"] == "Codex Delegate"
+    assert "/codex-delegate" in data["interface"]["default_prompt"]
     assert "evidence" in data["interface"]["default_prompt"].lower()
     assert data["policy"]["allow_implicit_invocation"] is True
 
@@ -153,6 +153,7 @@ def test_consent_is_resource_based_and_explicit_sol_can_fit_baseline():
     assert "0-2 justified child Agents" in consent
     assert "at most 1 active writer" in consent
     assert "Luna + Sol selective review" in consent
+    assert "/codex-delegate" in consent
     assert "For implicit Skill invocation, ask before adding Sol" in consent
 
 
@@ -176,7 +177,7 @@ def test_readmes_are_text_first_and_explain_incremental_orchestration():
         assert "<img" not in text
         assert "```mermaid" not in text
         assert len(text.splitlines()) <= 190
-        assert "/codex-agent-team" in text
+        assert "/codex-delegate" in text
         assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
         assert "codex_agent_team_worker" in text
         assert "codex_agent_team_investigator" in text
