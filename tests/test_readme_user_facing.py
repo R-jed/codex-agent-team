@@ -11,6 +11,7 @@ def test_readmes_present_the_product_to_users():
         for phrase in [
             "Codex Delegate",
             "codex plugin marketplace add R-jed/codex-agent-team --ref main",
+            "codex plugin marketplace upgrade codex-agent-team",
             "codex plugin add codex-agent-team@codex-agent-team",
             "/codex-delegate",
             "0.5.1",
@@ -75,6 +76,7 @@ def test_readmes_explain_official_plugin_and_custom_agent_boundary():
     en = (ROOT / "README_EN.md").read_text()
     for text in [zh, en]:
         assert "$CODEX_HOME/agents" in text
+        assert "codex plugin marketplace upgrade codex-agent-team" in text
         assert "codex plugin add codex-agent-team@codex-agent-team" in text
     assert "Plugin manifest 不声明不存在的 `agents` 组件" in zh
     assert "Plugin manifest does not invent an `agents` component" in en
