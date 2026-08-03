@@ -1,9 +1,9 @@
 ---
-name: codex-agent-team
+name: codex-delegate
 description: Build the smallest useful native Codex Subagent compute graph. Keep the current main session in control, use GPT-5.6 Luna Max for bounded execution, Terra only for unresolved complex technical deltas, and Sol High for selective judgment or review. Reuse established evidence, avoid duplicated work, and require every Agent call to contribute a distinct dependency to task completion.
 ---
 
-# Codex Agent Team
+# Codex Delegate
 
 Use this Skill as a policy layer over Codex Native Subagents. The main session owns the task and the compute graph. Subagents receive bounded responsibilities only when delegation creates concrete value and the responsibility can be expressed as a verifiable contract.
 
@@ -20,7 +20,7 @@ Use this Skill as a policy layer over Codex Native Subagents. The main session o
 9. Model-specific children require a provable project-profile route. Missing or conflicting routes return the responsibility to the main session.
 10. Configuration assurance and runtime observation are separate facts. Empty or partial observations never count as complete runtime route evidence.
 11. Worker reports are claims. Accept work from actual artifacts, deterministic verification, and reproducible evidence.
-12. `/codex-agent-team` is the only user-facing workflow entry point. First-run custom-Agent readiness is handled inside this Skill.
+12. `/codex-delegate` is the canonical user-facing workflow entry point. First-run custom-Agent readiness is handled inside this Skill.
 13. Child-count limits are per main session. Workspace write ownership is per canonical physical checkout or isolated worktree. Managed Agent profiles are shared at Codex-home scope.
 
 ## 1. Understand the task
@@ -99,6 +99,8 @@ codex_agent_team_investigator  -> gpt-5.6-terra / xhigh
 codex_agent_team_advisor       -> gpt-5.6-sol / high
 ```
 
+These role identifiers are compatibility-scoped internal profile names. The user-facing product and Skill entry point are Codex Delegate and `/codex-delegate`.
+
 If the required role is visible with the expected locked configuration, record `route_assurance = profile_locked` and continue.
 
 If it is missing, resolve the bundled managed installer from this Skill directory:
@@ -110,9 +112,9 @@ installer = skill_dir/../../scripts/install-agents.py
 
 Before running it, explain the exact managed write/migration scope and ask permission. The installer may:
 
-- write or replace the four current Codex Agent Team profile files only when ownership/exactness rules permit;
+- write or replace the four current Codex Delegate profile files only when ownership/exactness rules permit;
 - write `.codex-agent-team-agents.json` under Codex home;
-- remove an older `luna_explorer`, `luna_worker`, `terra_reviewer`, or `sol_judge` profile only when its current bytes exactly match ownership recorded by a previous Codex Agent Team manifest.
+- remove an older `luna_explorer`, `luna_worker`, `terra_reviewer`, or `sol_judge` profile only when its current bytes exactly match ownership recorded by a previous project manifest.
 
 Unproven or user-modified legacy files are left untouched. Authorization covers only these project-managed paths and does not authorize edits to `config.toml`, credentials, MCP configuration, repositories, or unrelated Agent profiles.
 
@@ -123,7 +125,7 @@ python "$installer"
 python "$installer" --check
 ```
 
-Then inspect the live role surface again. Continue immediately when the role is visible. If exact installation succeeded but current-task role discovery did not refresh, ask the user to start a fresh Codex task and invoke `/codex-agent-team` again.
+Then inspect the live role surface again. Continue immediately when the role is visible. If exact installation succeeded but current-task role discovery did not refresh, ask the user to start a fresh Codex task and invoke `/codex-delegate` again.
 
 The four profiles and ownership manifest are Codex-home scoped shared configuration. Multiple projects may use one installed generation. Mixed concurrent profile generations are unsupported for v1.0.0: if a session's expected exact route does not match the currently installed profile, stop that delegation instead of substituting, silently downgrading, or cross-routing.
 
@@ -218,7 +220,7 @@ One canonical shared workspace still has at most one active writing Worker. Two 
 
 Use `references/consent-policy.md`.
 
-The baseline resource envelope is at most two child Agents, at most one writer, and no permission, scope, or external-impact expansion. When `/codex-agent-team` was explicitly invoked, one justified Sol read-only judgment or review may fit inside that envelope.
+The baseline resource envelope is at most two child Agents, at most one writer, and no permission, scope, or external-impact expansion. When `/codex-delegate` was explicitly invoked, one justified Sol read-only judgment or review may fit inside that envelope.
 
 Ask before larger fan-out, additional permissions, broader scope, external side effects, or a material capability/cost expansion outside the enabled envelope.
 
