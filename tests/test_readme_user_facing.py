@@ -11,8 +11,9 @@ def test_readmes_present_the_product_to_users():
         for phrase in [
             "Codex Delegate",
             "codex plugin marketplace add R-jed/codex-agent-team --ref main",
+            "codex plugin add codex-agent-team@codex-agent-team",
             "/codex-delegate",
-            "0.5.0",
+            "0.5.1",
             "Luna Reader",
             "Luna Worker",
             "Terra Investigator",
@@ -36,7 +37,7 @@ def test_readmes_explain_adaptive_concurrency_without_hard_agent_count():
 
     for text in [zh, en]:
         assert "physical checkout" in text
-        assert "0.5.0" in text
+        assert "0.5.1" in text
 
     assert "没有固定 Agent 数量" in zh
     assert "No fixed Agent count" in en
@@ -56,14 +57,27 @@ def test_readmes_explain_adaptive_concurrency_without_hard_agent_count():
         assert forbidden not in en
 
 
-def test_readmes_explain_evidence_guided_recovery():
+def test_readmes_explain_intervention_before_recovery():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
     assert "卡住时如何处理" in zh
     assert "What happens when execution stalls" in en
+    assert "未通过验收和需要改变执行方式是两个不同判断" in zh
+    assert "Failing acceptance and needing to change execution are separate decisions" in en
+    assert "Recovery Ledger" in zh and "Recovery Ledger" in en
     assert "固定重试次数" in zh
     assert "fixed retry count" in en
     assert "Terra" in zh and "Terra" in en
+
+
+def test_readmes_explain_official_plugin_and_custom_agent_boundary():
+    zh = (ROOT / "README.md").read_text()
+    en = (ROOT / "README_EN.md").read_text()
+    for text in [zh, en]:
+        assert "$CODEX_HOME/agents" in text
+        assert "codex plugin add codex-agent-team@codex-agent-team" in text
+    assert "Plugin manifest 不声明不存在的 `agents` 组件" in zh
+    assert "Plugin manifest does not invent an `agents` component" in en
 
 
 def test_compatibility_details_live_in_installation_guide():
@@ -73,7 +87,7 @@ def test_compatibility_details_live_in_installation_guide():
         "Plugin package id",
         "codex_agent_team_*",
         ".codex-agent-team-agents.json",
-        "0.5.0",
+        "0.5.1",
     ]:
         assert phrase in guide
 
