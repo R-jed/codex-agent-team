@@ -1,24 +1,14 @@
 # Codex Delegate
 
-> Native Subagent delegation framework for Codex. Get coding tasks done with the smallest useful set of Agents.
+> Native Subagent delegation framework for Codex. Turn engineering tasks into the smallest useful set of verifiable delegations.
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
-    <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
-  </picture>
-</p>
-  <a href="README.md">中文</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
-</p>
+[中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
-  <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
-</p>
+Codex Delegate turns an engineering task into the smallest useful set of verifiable delegations, and calls Codex Native Subagents only when delegation adds concrete value.
 
-Codex Delegate is a native Subagent delegation framework for Codex. You describe the engineering task, the current session decides what's worth delegating, who should handle it, and how to verify the result.
+The current main session always owns user intent, scope, consequential decisions, scheduling, acceptance, and the final response. Codex Delegate decides which bounded responsibilities are worth giving to Luna, Terra, or Sol, and when the main session should simply complete the work itself.
+
+Current version: `0.4.0`, pre-v1.
 
 ## Quick start
 
@@ -26,7 +16,7 @@ Codex Delegate is a native Subagent delegation framework for Codex. You describe
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Install `Codex Delegate` from the Plugins Directory in ChatGPT Desktop, then give it a task:
+Reopen the ChatGPT desktop app, install `Codex Delegate` from the Plugins Directory, then give it a task directly:
 
 ```text
 /codex-delegate Fix this login retry bug and run the relevant tests.
@@ -34,90 +24,77 @@ Install `Codex Delegate` from the Plugins Directory in ChatGPT Desktop, then giv
 /codex-delegate Review this change with emphasis on data consistency and regression risk.
 ```
 
-No manual model selection. Codex Delegate figures out what's needed.
+You do not need to choose a model or plan the model sequence first.
 
 ## How it works
 
-The main session understands the task, then picks the smallest useful execution path.
+Codex Delegate first asks whether delegation is useful at all. If the task is already clear and local, the main session can finish it directly. Using `0` Subagents is a normal outcome.
 
-| Role | Model | Purpose |
+When delegation is justified, an execution responsibility is first compiled into a verifiable Delegation Contract covering outcome, scope, invariants, decision rights, acceptance criteria, verification, and stop conditions. Agents are then created only for distinct dependencies that still need to be satisfied.
+
+There is no fixed three-model pipeline. Luna, Terra, and Sol are all optional execution or judgment lanes.
+
+| Role | Model | Primary responsibility |
 | --- | --- | --- |
-| Main session | current Codex session | understand task, decisions, scheduling, acceptance |
-| Luna Reader | GPT-5.6 Luna `max` | search, test mapping, evidence collection |
+| Main session | current Codex session | understand intent, decide, schedule, accept |
+| Luna Reader | GPT-5.6 Luna `max` | search, tracing, test mapping, evidence collection |
 | Luna Worker | GPT-5.6 Luna `max` | implementation, debugging, tests, local refactors |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | resolve complex technical dependencies |
-| Sol Advisor | GPT-5.6 Sol `high` | judgment and selective review |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | resolve a remaining complex technical dependency |
+| Sol Advisor | GPT-5.6 Sol `high` | high-value judgment and selective review |
 
-## Delegation flow
-
-There is no fixed three-model pipeline. Every Subagent call must satisfy a distinct dependency that existing evidence does not already cover.
-
-## Delegation contracts
-
-Before a writing task starts, the main session compiles a verifiable Delegation Contract:
-
-- What outcome must exist
-- What may be read and written
-- What behavior must remain unchanged
-- What the Worker may decide independently
-- What counts as acceptance
-- Which verification must run
-- When the Worker must stop and return control
-
-A Writing Worker does not start guessing through repository changes when acceptance criteria are unclear.
+If Luna misses acceptance, the workflow classifies the failure before escalating. Mechanical defects normally stay with Luna for a focused correction. Contract gaps return to the main session. Terra receives only genuine unresolved technical deltas. Sol is used when a bounded decision or artifact merits higher-value judgment.
 
 ## Established evidence is reused
 
-The main session keeps valid test results, interface facts, and other evidence. Later Agents reuse those facts directly. Only evidence affected by changed files needs revalidation.
+Within the current task, the main session carries forward still-valid test results, interface facts, and other evidence. Later Agents receive relevant established evidence directly, and only evidence affected by changed files, runtime state, or contradictory facts is revalidated.
 
-## Failure handling
+This reduces repeated discovery, repeated tests, and whole-task restarts. It does not imply a persistent global evidence store shared across independent sessions.
 
-When Luna needs help, the workflow classifies the failure before escalating. A mediocre Luna result does not automatically trigger a full Terra restart. Sol is also selective — when tests and acceptance criteria are strong enough, the main session can accept without adding a mandatory review stage.
+## Parallelism and multiple sessions
 
-## Parallelism
+The v1 resource envelope is scoped per main session:
 
-```
-default: 0 Subagents (a normal outcome)
-typical: 1
+```text
+0 Subagents: normal outcome
+default: 1
 normal maximum: 2
-v1 hard maximum: 4
+hard maximum: 4
 ```
 
-Independent projects may each run their own Codex Delegate workflow. For writing work, ownership is workspace-scoped: one shared checkout should have at most one active Writing Worker.
+These limits are per main session, not a machine-wide or account-wide Agent cap. Independent projects may run their own Codex Delegate workflows concurrently.
+
+Writing ownership is scoped to the canonical workspace. The product rule is at most one active Writing Worker for one physical checkout. Separate, genuinely isolated workspaces or worktrees may each have a writer.
+
+Version `0.4.0` is still completing live validation of same-checkout writer exclusion across independent main sessions. Before v1.0.0, if you run multiple independent Codex sessions, avoid having two sessions write the same physical checkout at the same time.
 
 ## First run
 
-Codex Delegate uses four project-managed Agent profiles:
+Codex Delegate uses four project-managed role profiles: Reader, Worker, Investigator, and Advisor. Exact internal profile identifiers and migration rules are documented in the [installation guide](docs/plugin-installation.md).
 
-```text
-codex_agent_team_reader
-codex_agent_team_worker
-codex_agent_team_investigator
-codex_agent_team_advisor
-```
+When a required profile is missing, the Skill explains the Codex-home paths it may manage and asks for permission first. Under its ownership rules, the installer may create or update the four current project profiles, maintain its ownership manifest, and remove a legacy project profile only when exact historical ownership is proven.
 
-These profile identifiers are retained for compatibility and do not change the `/codex-delegate` entry point.
+It does not edit credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
-If they are missing, the Skill explains the exact managed file scope and asks for permission before provisioning. The installer manages only these four profiles and its ownership manifest. It does not edit credentials, MCP configuration, repositories, or unrelated Agent profiles.
-
-If provisioning succeeds but the current task still does not expose the new role, start a fresh Codex task and invoke `/codex-delegate` again.
+If installation succeeds but the current task still does not expose the new role, start a fresh Codex task and invoke `/codex-delegate` again.
 
 ## Safety boundaries
 
-- The main session retains task scope, consequential decisions, and final acceptance
-- One shared checkout should have at most one active Writing Worker
-- Child Agents do not create further Subagents; delegation stays one layer deep
+- The main session retains user intent, task scope, consequential decisions, and final acceptance
+- One canonical checkout has a product rule of at most one active Writing Worker
+- Child Agents do not create further Subagents; delegation remains one layer deep
 - The Skill does not silently switch the main-session model or reasoning effort
 - If an exact project profile is unavailable, the affected responsibility returns to the main session instead of silently using a similar role
-- A Worker preserves unrelated user or concurrent-session edits; if workspace drift invalidates the contract, it should stop and return the changed state to the main session
-- A Subagent completion report is a claim — final acceptance is based on actual files, diffs, tests, and reproducible evidence
+- A Worker must preserve unrelated user or concurrent-session edits; if workspace drift invalidates the contract, it stops and returns control to the main session
+- A Subagent completion report is an execution claim; final acceptance is based on actual files, diffs, tests, and reproducible evidence
 - Publishing, deployment, payments, account-permission changes, and other consequential external actions remain under main-session control
 
-## Current release status
+## Current release and compatibility
 
-Version `0.4.0` adopts the `Codex Delegate` product name and `/codex-delegate` entry point. The repository, Plugin package, and Agent profiles retain compatibility identifiers during the pre-v1 window.
+Version `0.4.0` uses the `Codex Delegate` product name and `/codex-delegate` as the canonical user entry point.
 
-Before v1.0.0, the project is still validating concurrent multi-session writes and profile provisioning.
+To reduce pre-v1 upgrade risk, the GitHub repository slug, Plugin package id, and internal managed-profile namespace temporarily retain `codex-agent-team` compatibility identifiers. Users do not need to rename these resources manually.
+
+Before v1.0.0, three user-relevant areas remain under live validation: cross-session same-checkout writer exclusion, concurrent installer behavior in one Codex home, and the real Plugin upgrade path from `0.3.x` to `0.4.x`. This README does not claim runtime guarantees beyond evidence that has actually been established.
 
 ## More information
 
