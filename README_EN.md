@@ -34,6 +34,8 @@ No need to manually choose Agent ordering. No need to force multiple models into
 
 The main session identifies the outcome, scope, and acceptance criteria first, then picks the smallest useful execution path.
 
+> Full architecture diagram: [architecture-diagram.svg](docs/architecture-diagram.svg)
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                   Main Session (control plane)            │

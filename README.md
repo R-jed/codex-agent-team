@@ -34,6 +34,8 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 主会话先理解目标、范围和验收标准，然后选择最小执行路径。
 
+> 完整架构图：[architecture-diagram.svg](docs/architecture-diagram.svg)
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                      主会话 (控制面)                       │

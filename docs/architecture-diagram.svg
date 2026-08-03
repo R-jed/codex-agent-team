@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" fill="none" font-family="Inter, Helvetica, 'Noto Sans SC', sans-serif">
+  <rect width="720" height="520" fill="#fafafa"/>
+
+  <!-- Main Session -->
+  <rect x="200" y="32" width="320" height="72" rx="2" fill="#1a1a1a"/>
+  <text x="360" y="60" text-anchor="middle" fill="#fff" font-size="15" font-weight="600">主会话 / Main Session</text>
+  <text x="360" y="80" text-anchor="middle" fill="#999" font-size="11">理解需求 · 关键决策 · 编排工作 · 验收结果</text>
+
+  <!-- Arrows from main -->
+  <line x1="280" y1="104" x2="160" y2="168" stroke="#1a1a1a" stroke-width="1.5"/>
+  <line x1="360" y1="104" x2="360" y2="168" stroke="#1a1a1a" stroke-width="1.5"/>
+  <line x1="440" y1="104" x2="560" y2="168" stroke="#1a1a1a" stroke-width="1.5"/>
+
+  <!-- Luna -->
+  <rect x="48" y="168" width="224" height="120" rx="2" fill="#fff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <rect x="48" y="168" width="224" height="32" rx="2" fill="#2563eb"/>
+  <text x="160" y="189" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Luna · 执行层</text>
+  <text x="64" y="222" fill="#1a1a1a" font-size="12" font-weight="500">Reader</text>
+  <text x="64" y="238" fill="#666" font-size="11">搜索 · 追踪 · 测试映射 · 证据收集</text>
+  <line x1="64" y1="248" x2="256" y2="248" stroke="#e5e5e5" stroke-width="0.5"/>
+  <text x="64" y="264" fill="#1a1a1a" font-size="12" font-weight="500">Worker</text>
+  <text x="64" y="280" fill="#666" font-size="11">实现 · 调试 · 测试 · 局部重构</text>
+
+  <!-- Terra -->
+  <rect x="248" y="168" width="224" height="120" rx="2" fill="#fff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <rect x="248" y="168" width="224" height="32" rx="2" fill="#d97706"/>
+  <text x="360" y="189" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Terra · 深度调查层</text>
+  <text x="264" y="222" fill="#1a1a1a" font-size="12" font-weight="500">Investigator</text>
+  <text x="264" y="238" fill="#666" font-size="11">复杂技术依赖 · 未解决的 delta</text>
+  <text x="264" y="264" fill="#999" font-size="10" font-style="italic">默认只读调查，不做全量重做</text>
+
+  <!-- Sol -->
+  <rect x="448" y="168" width="224" height="120" rx="2" fill="#fff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <rect x="448" y="168" width="224" height="32" rx="2" fill="#059669"/>
+  <text x="560" y="189" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Sol · 判断层</text>
+  <text x="464" y="222" fill="#1a1a1a" font-size="12" font-weight="500">Advisor</text>
+  <text x="464" y="238" fill="#666" font-size="11">高价值判断 · 选择性复核</text>
+  <text x="464" y="264" fill="#999" font-size="10" font-style="italic">非常规关卡，按需调用</text>
+
+  <!-- Return arrows (dashed) -->
+  <path d="M160,288 Q160,320 200,340 Q280,370 360,340" stroke="#2563eb" stroke-width="1" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow-blue)"/>
+  <path d="M360,288 Q360,320 360,340" stroke="#d97706" stroke-width="1" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow-amber)"/>
+  <path d="M560,288 Q560,320 520,340 Q440,370 360,340" stroke="#059669" stroke-width="1" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow-green)"/>
+
+  <!-- Delegation Contract -->
+  <rect x="48" y="340" width="280" height="140" rx="2" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
+  <text x="64" y="364" fill="#1a1a1a" font-size="12" font-weight="600">Delegation Contract</text>
+  <line x1="64" y1="372" x2="312" y2="372" stroke="#e5e5e5" stroke-width="0.5"/>
+  <text x="64" y="390" fill="#666" font-size="11">OUTCOME · SCOPE · INVARIANTS</text>
+  <text x="64" y="408" fill="#666" font-size="11">DECISION RIGHTS · ACCEPTANCE</text>
+  <text x="64" y="426" fill="#666" font-size="11">VERIFICATION · STOP/ESCALATE</text>
+  <text x="64" y="452" fill="#999" font-size="10" font-style="italic">写入任务开始前编译，验收标准不明确时不启动 Worker</text>
+
+  <!-- Evidence State -->
+  <rect x="392" y="340" width="280" height="140" rx="2" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
+  <text x="408" y="364" fill="#1a1a1a" font-size="12" font-weight="600">Shared Evidence State</text>
+  <line x1="408" y1="372" x2="656" y2="372" stroke="#e5e5e5" stroke-width="0.5"/>
+  <text x="408" y="390" fill="#666" font-size="11">deterministic — 可复用</text>
+  <text x="408" y="408" fill="#666" font-size="11">repository_fact — 可复用</text>
+  <text x="408" y="426" fill="#666" font-size="11">model_judgment — 假设，可挑战</text>
+  <text x="408" y="452" fill="#999" font-size="10" font-style="italic">变更输入仅使依赖它的证据失效</text>
+
+  <!-- Flow paths label -->
+  <text x="360" y="504" text-anchor="middle" fill="#999" font-size="10">常见路径: main → Luna → main · main → Luna → Sol → main · main → Luna → Terra(δ) → Luna → main</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#d97706"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#059669"/>
+    </marker>
+  </defs>
+</svg>
