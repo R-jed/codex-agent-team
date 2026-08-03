@@ -1,10 +1,10 @@
 # Orchestration Receipt
 
-The receipt makes meaningful Agent Team decisions visible without turning normal coding into ceremony.
+The receipt makes meaningful Codex Delegate decisions visible without turning normal coding into ceremony.
 
 Emit a receipt when any of these are true:
 
-- the user explicitly invoked `/codex-agent-team`;
+- the user explicitly invoked `/codex-delegate`;
 - at least one child Agent was created;
 - a contractability, consent, route, runtime-evidence, or delta-escalation decision materially changed execution.
 
@@ -15,7 +15,7 @@ Use **main session** in user-visible copy. Internal architecture terminology sho
 ## Main-session-only example
 
 ```text
-Agent Team: Main session only
+Codex Delegate: Main session only
 Why: the change was already isolated and delegation added no useful dependency
 Verification: 12 tests passed
 ```
@@ -23,7 +23,7 @@ Verification: 12 tests passed
 ## Luna-only example
 
 ```text
-Agent Team
+Codex Delegate
 Luna Worker: implemented the bounded retry fix
 Reused evidence: E03 reproduction, E07 caller trace
 Verification: 38 tests passed
@@ -32,7 +32,7 @@ Verification: 38 tests passed
 ## Luna + Sol example
 
 ```text
-Agent Team
+Codex Delegate
 Luna Worker: implemented the bounded retry fix
 Sol Advisor: reviewed the actual diff because payment-state semantics were high consequence
 Reused evidence: E03 reproduction, E07 caller trace, E11 baseline tests
@@ -42,7 +42,7 @@ Verification: 38 tests passed
 ## Delta-escalation example
 
 ```text
-Agent Team
+Codex Delegate
 Luna Worker: stopped on one unresolved concurrency dependency
 Terra Investigator: resolved delta U02 without repeating established repository mapping
 Luna Worker: applied the revised bounded contract
