@@ -142,7 +142,7 @@ Changing a route in the future must not require renaming the semantic role.
 
 ## 8. Initial routing by responsibility
 
-Use the least expensive safe lane that can satisfy the bounded dependency. Do not require a lower-tier failure when the dependency itself clearly needs technical investigation or consequential judgment.
+Route first by responsibility, decision boundary, and demonstrated capability. Use cost only as a tie-breaker between equally suitable safe lanes. Do not require a lower-tier failure when the dependency itself clearly needs technical investigation or consequential judgment.
 
 ### Luna execution
 
