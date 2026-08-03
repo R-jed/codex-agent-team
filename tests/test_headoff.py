@@ -28,6 +28,8 @@ def test_handoff_protects_release_critical_live_validation_scope():
         "# Version-scoped unknowns and technical debt",
         "# Defect triage",
         "# Release acceptance gate",
+        "# Definition of Done for v1.0.0",
+        "# v1.0.0 release execution plan",
         "# Required validation artifact",
         "# Feedback protocol for continued adversarial review",
         "# Completion condition",
@@ -35,6 +37,7 @@ def test_handoff_protects_release_critical_live_validation_scope():
         "behavioral-result.schema.json",
         "RELEASE CANDIDATE",
         "HOLD",
+        "v1.0.0 RELEASED",
     ]:
         assert phrase in text
 
@@ -58,8 +61,9 @@ def test_handoff_requires_paired_control_fingerprints():
         assert field in text
 
 
-def test_handoff_defines_incremental_feedback_packets():
+def test_handoff_defines_incremental_feedback_packets_and_sol_consultation():
     text = HANDOFF.read_text()
+    assert "gpt56-sol-pro-consult" in text
     for field in [
         "COMPLETED_HEADOFF_ITEMS",
         "NEW_EVIDENCE",
@@ -71,3 +75,13 @@ def test_handoff_defines_incremental_feedback_packets():
         "ASK",
     ]:
         assert field in text
+
+
+def test_handoff_has_a_finite_release_finish_line():
+    text = HANDOFF.read_text()
+    assert "The remaining job is finite" in text
+    assert "When items 1-12 are satisfied, the required action is **release v1.0.0**" in text
+    assert "P2/P3 items go to the post-v1 backlog" in text
+    assert "Luna Max / Terra XHigh / Sol High are frozen as the v1.0.0 routing baseline" in text
+    for stage in ["## Stage R1", "## Stage R2", "## Stage R3", "## Stage R4"]:
+        assert stage in text
