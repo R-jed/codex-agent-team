@@ -2,30 +2,42 @@
 
 This is the authoritative local-validation and finite v1.0.0 release checklist for **Codex Delegate**.
 
-The architecture cycle remains closed. v0.5.1 is the accepted static baseline for the next live-validation phase. It is a bounded refinement of recovery observability and official Codex Plugin compliance; it does not reopen model routing, fan-out architecture, or the six-checkpoint release scope.
+The architecture cycle is closed. v0.5.1 is the accepted static baseline. The remaining job is finite: complete Checkpoints 1-6, fix only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
 
-The remaining job is finite: complete Checkpoints 1-6, fix only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
+Do not reopen model routing, fan-out architecture, recovery architecture, installer locking, or Plugin packaging without reproducible evidence from a mandatory live gate.
 
 ## Current checkpoint
 
-Accepted v0.5.1 static baseline:
+Accepted v0.5.1 static product baseline:
 
 ```text
-main merge: 9adf8edd303be22506744d569e6552b8fdbc7574
-PR #24 final tested head: 7dadef8065f46bdb90accd38a3ffccfb75b23a51
-GitHub Actions run: 30823406796
+feature merge: 9adf8edd303be22506744d569e6552b8fdbc7574
 product: Codex Delegate
 version: 0.5.1
 architecture: Adaptive Dependency Orchestration + evidence-gated recovery
-static CI: Ubuntu 3.11 PASS / Ubuntu 3.12 PASS / macOS 3.11 PASS
-pytest: 131 passed
-pinned official OpenAI Plugin validator: PASS
-managed profile install / --check / idempotent reinstall: PASS
 known open reproducible PROJECT P0/P1: none
 release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
 ```
 
-Pinned static validator evidence:
+Accepted static verification:
+
+```text
+PR #24 final feature head: 7dadef8065f46bdb90accd38a3ffccfb75b23a51
+PR #24 workflow: 30823406796
+post-merge main-equivalent verification: PR #25
+PR #25 base main content: 09d75f6fb3c829556d92e614e61d0a0c78bb5dc2
+PR #25 workflow: 30824385799
+Ubuntu Python 3.11: PASS
+Ubuntu Python 3.12: PASS
+macOS Python 3.11: PASS
+pytest: 131 passed
+pinned official OpenAI Plugin validator: PASS
+managed profile install / --check / idempotent reinstall: PASS
+```
+
+PR #25 contained the then-current `main` content plus one inert CI marker and was closed without merge. Its purpose was to verify the post-merge HEADOFF/validation reconciliation without changing product behavior.
+
+Pinned regression validator evidence:
 
 ```text
 OpenAI Codex source revision: 7750465934d97dd3cbcb3b1655d2f622744010d3
@@ -34,7 +46,7 @@ target: plugins/codex-agent-team
 result: PASS
 ```
 
-This establishes the accepted **static** v0.5.1 repository baseline. It does not prove real marketplace registration/upgrade, Plugin installation, fresh-thread discovery, custom-Agent discovery, exact runtime routes, child-progress observability, or cross-session behavior.
+The current OpenAI validator must still be rerun at Checkpoint 6 and on the exact release candidate. Static CI, Plugin validation, upstream source inspection, and model consultation are not live runtime proof.
 
 Last accepted live production-behavior baseline:
 
@@ -44,9 +56,7 @@ Codex runtime: 0.146.0
 platform: Apple Silicon macOS 27.0
 ```
 
-Before every live checkpoint, fetch `origin/main`, record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`, and revalidate only evidence whose declared dependencies changed.
-
-Static CI, Plugin validation, upstream source inspection, and model consultation are not live runtime proof.
+Before every live checkpoint, fetch `origin/main`, record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`, and invalidate only evidence whose declared dependencies changed.
 
 ## v0.5.1 control model
 
@@ -70,6 +80,8 @@ Recovery Ledger -> bounded semantic attempt history, never transcript/private re
 proposed model action != effective orchestration action
 child mid-run observability -> runtime fact, never assumed
 ```
+
+Routing is responsibility-first. Decision boundary and demonstrated capability determine the lane; cost may only break ties between equally suitable safe lanes. Do not require a lower-tier failure when the dependency itself clearly needs Terra investigation or Sol judgment.
 
 ## Stop line
 
@@ -108,10 +120,10 @@ Do not change these rules merely to make a live test pass:
 
 ## A. Architecture
 
-- [x] Main session remains the control plane and final acceptance owner.
+- [x] Main session is the control plane and final acceptance owner.
 - [x] Delegation Benefit Gate and Contractability Gate precede model-specific delegation.
 - [x] Dependency Ledger states are `pending | ready | running | satisfied | blocked | invalidated`.
-- [x] Shared Evidence State reuses valid deterministic/repository facts.
+- [x] Shared Evidence State reuses still-valid deterministic and repository facts.
 - [x] No product-level hard child ceiling remains.
 - [x] The two-child number is only the normal no-extra-consent simultaneous fan-out boundary.
 - [x] One-writer-per-canonical-workspace and depth-one delegation remain invariants.
@@ -140,8 +152,8 @@ Do not change these rules merely to make a live test pass:
 - [x] Plugin manifest does not claim an unsupported custom-Agent component.
 - [x] Managed personal profiles target `$CODEX_HOME/agents` only after explicit user approval.
 - [x] Compatibility repository/package/profile identifiers remain unchanged pre-v1.
-- [x] Pinned official OpenAI `plugin-creator/scripts/validate_plugin.py` validation passes on the accepted v0.5.1 static content.
-- [x] Current upstream PluginStore source shows Plugin installation recursively copies the complete Plugin source tree and rejects symlink entries; this is upstream source evidence, not local runtime proof.
+- [x] Pinned official OpenAI `plugin-creator/scripts/validate_plugin.py` validation passes on accepted v0.5.1 content.
+- [x] Current upstream PluginStore source indicates complete Plugin-tree recursive copy with symlink rejection; this is upstream source evidence, not local runtime proof.
 
 ## D. Historical live evidence
 
@@ -351,12 +363,12 @@ Do not implement a workspace lock before M3 establishes a reproducible failure.
 
 Use the **current** OpenAI Codex `plugin-creator` tooling at validation time and record its source revision/version. The pinned CI validator is regression evidence only.
 
-- [ ] Run `plugin-creator/scripts/validate_plugin.py` against `plugins/codex-agent-team` on the actual checkpoint/RC content.
+- [ ] Run `plugin-creator/scripts/validate_plugin.py` against `plugins/codex-agent-team` on actual checkpoint/RC content.
 - [ ] Confirm Plugin folder name equals `.codex-plugin/plugin.json` `name`.
 - [ ] Confirm strict semver, required interface metadata, and `https://` URL metadata where present.
 - [ ] Confirm unsupported manifest components such as invented `agents` or `hooks` are absent.
 - [ ] Confirm marketplace source is `./plugins/codex-agent-team` with install/auth/category policy.
-- [ ] Confirm the installed Plugin bundle exposes the bundled `scripts/install-agents.py` and `agent-profiles/` content expected by the Skill's relative paths.
+- [ ] Confirm installed Plugin bundle exposes bundled `scripts/install-agents.py` and `agent-profiles/` expected by Skill-relative paths.
 - [ ] Register a fresh Git marketplace through CLI:
 
 ```bash
@@ -435,7 +447,7 @@ TEST_FIXTURE
 UNKNOWN
 ```
 
-After mandatory gates are characterized, only reproducible PROJECT P0/P1 or a P2 directly blocking a mandatory gate can delay v1.0.0. Other P2/P3 work moves post-v1.
+After mandatory gates are characterized, only reproducible PROJECT P0/P1 or a P2 directly blocking a mandatory gate can delay v1.0.0. All remaining P2/P3 work moves post-v1.
 
 Any P0/P1 candidate goes immediately through `/gpt56-sol-pro-consult` before architecture or threat-model scope expands.
 
@@ -464,7 +476,7 @@ When items 1-12 are satisfied, the required action is **release v1.0.0**.
 
 Complete Checkpoints 1-6 in order. Use `/gpt56-sol-pro-consult` at Review Checkpoints A-E and every P0/P1 candidate.
 
-Patch only reproducible PROJECT P0/P1, P2 directly blocking a mandatory gate, and objectively stale test/docs relative to frozen architecture or current official Codex contract.
+Patch only reproducible PROJECT P0/P1, P2 directly blocking a mandatory gate, and objectively stale tests/docs relative to frozen architecture or the current official Codex contract.
 
 ## Stage R2: RELEASE CANDIDATE and feature freeze
 
