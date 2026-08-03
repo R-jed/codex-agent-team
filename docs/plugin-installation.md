@@ -1,6 +1,6 @@
 # Plugin Installation
 
-Codex Agent Team uses Codex Plugin as its only supported distribution path.
+Codex Delegate uses Codex Plugin as its only supported distribution path.
 
 ## Install the Plugin
 
@@ -10,13 +10,15 @@ Register the GitHub repository as a marketplace source:
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Then reopen the ChatGPT desktop app, open the Plugins Directory, choose the `Codex Agent Team` marketplace, and install `Codex Agent Team`.
+Then reopen the ChatGPT desktop app, open the Plugins Directory, choose the `Codex Delegate` marketplace entry, and install `Codex Delegate`.
 
-Use the single workflow entry point:
+Use the canonical workflow entry point:
 
 ```text
-/codex-agent-team
+/codex-delegate
 ```
+
+The repository slug and Plugin package identifier still use `codex-agent-team` during the pre-v1 migration window. They are compatibility identifiers, not the user-facing product name.
 
 ## First-run custom Agent provisioning
 
@@ -31,15 +33,15 @@ codex_agent_team_investigator  -> gpt-5.6-terra / xhigh
 codex_agent_team_advisor       -> gpt-5.6-sol / high
 ```
 
-Role names describe responsibilities, not permanent model identities.
+These role names are retained compatibility identifiers. They describe responsibilities and do not change the `/codex-delegate` user entry point.
 
 The main Skill checks profile readiness only after a responsibility has actually justified model-specific delegation.
 
-When a required role is missing, `/codex-agent-team`:
+When a required role is missing, `/codex-delegate`:
 
 1. explains the exact project-managed file scope and asks permission;
 2. discloses that the installer may write the four current profiles and `.codex-agent-team-agents.json`;
-3. discloses that an older model-named profile may be removed only when its current bytes exactly match ownership recorded by a previous Codex Agent Team manifest;
+3. discloses that an older model-named profile may be removed only when its current bytes exactly match ownership recorded by a previous project manifest;
 4. resolves `../../scripts/install-agents.py` relative to the installed Skill;
 5. runs the installer and its non-mutating `--check` verification;
 6. re-inspects live native role discovery;
@@ -47,9 +49,22 @@ When a required role is missing, `/codex-agent-team`:
 
 Successful file installation is configuration evidence. It does not prove that the current task refreshed role discovery.
 
-## Migration from older model-named profiles
+## Migration from Codex Agent Team 0.3.x
 
-Older managed releases used:
+Version 0.4.0 changes the user-facing product name to `Codex Delegate` and the canonical Skill entry point to `/codex-delegate`.
+
+For migration safety, the following identifiers remain unchanged during the pre-v1 window:
+
+```text
+GitHub repository:     R-jed/codex-agent-team
+Plugin package id:     codex-agent-team
+Agent profile ids:     codex_agent_team_*
+ownership manifest:    .codex-agent-team-agents.json
+```
+
+Do not rename these managed profile files or manifests manually. The v1 release process will validate installed-Plugin upgrade/reinstall behavior before any repository or package-id migration is considered.
+
+Older managed releases also used these model-named profiles:
 
 ```text
 luna_explorer
@@ -58,7 +73,7 @@ terra_reviewer
 sol_judge
 ```
 
-The v0.3 installer migrates away from those names. An old profile is removed only when its current bytes match a hash recorded by the active previous Codex Agent Team ownership manifest. A modified or unproven legacy file is left untouched.
+The installer migrates away from those names. An old profile is removed only when its current bytes match a hash recorded by the active previous project ownership manifest. A modified or unproven legacy file is left untouched.
 
 The ownership model has an explicit migration epoch:
 
@@ -89,4 +104,4 @@ It does not edit `config.toml`, app settings, MCP configuration, credentials, re
 
 If profile installation or exactness verification fails, the affected responsibility stays in the main session. Do not manually overwrite, rename, or cross-route a conflicting role.
 
-If file installation succeeds but the current task still does not expose the new role, start a fresh Codex task and invoke `/codex-agent-team` again.
+If file installation succeeds but the current task still does not expose the new role, start a fresh Codex task and invoke `/codex-delegate` again.
