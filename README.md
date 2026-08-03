@@ -1,6 +1,6 @@
 # Codex Delegate
 
-> Codex 原生 Subagent 委派框架。把开发任务变成最小的一组可验证委派。
+> Codex Native Subagents 之上的委派策略层。把开发任务变成最小的一组可验证委派。
 
 [English](README_EN.md) · [安装指南](docs/plugin-installation.md) · [MIT License](LICENSE)
 
