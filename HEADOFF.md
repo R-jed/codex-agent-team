@@ -2,46 +2,39 @@
 
 This is the authoritative local-validation and finite v1.0.0 release checklist for **Codex Delegate**.
 
-The architecture cycle remains closed. v0.5.1 is a bounded refinement of recovery observability and official Codex Plugin compliance. It does not reopen model routing, fan-out architecture, or the six-checkpoint release scope.
+The architecture cycle remains closed. v0.5.1 is the accepted static baseline for the next live-validation phase. It is a bounded refinement of recovery observability and official Codex Plugin compliance; it does not reopen model routing, fan-out architecture, or the six-checkpoint release scope.
 
 The remaining job is finite: complete Checkpoints 1-6, fix only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
 
 ## Current checkpoint
 
-Last accepted v0.5.0 architecture baseline:
+Accepted v0.5.1 static baseline:
 
 ```text
-merge: 00e7a2a340e6bc57ea15460f45721b571f8078fd
+main merge: 9adf8edd303be22506744d569e6552b8fdbc7574
+PR #24 final tested head: 7dadef8065f46bdb90accd38a3ffccfb75b23a51
+GitHub Actions run: 30823406796
 product: Codex Delegate
-version: 0.5.0
-architecture: Adaptive Dependency Orchestration
-static CI: three platforms PASS
-pytest: 119 passed
+version: 0.5.1
+architecture: Adaptive Dependency Orchestration + evidence-gated recovery
+static CI: Ubuntu 3.11 PASS / Ubuntu 3.12 PASS / macOS 3.11 PASS
+pytest: 131 passed
+pinned official OpenAI Plugin validator: PASS
+managed profile install / --check / idempotent reinstall: PASS
 known open reproducible PROJECT P0/P1: none
 release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
 ```
 
-v0.5.1 candidate scope:
+Pinned static validator evidence:
 
 ```text
-recovery
-- Intervention Gate before recovery classification
-- structured execution signals without numeric auto-routing thresholds
-- bounded Recovery Ledger
-- proposed action vs effective action + decision provenance
-- event-driven recovery evaluation
-- child-progress observability treated as runtime evidence
-
-Plugin compliance
-- native Codex Plugin remains the only distribution path
-- custom Agent profiles remain a separate Codex configuration surface
-- user-approved personal profiles target $CODEX_HOME/agents
-- marketplace and Plugin installation use Codex CLI commands
-- new thread after install/reinstall
-- current OpenAI plugin-creator validator becomes an RC gate
+OpenAI Codex source revision: 7750465934d97dd3cbcb3b1655d2f622744010d3
+validator: codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py
+target: plugins/codex-agent-team
+result: PASS
 ```
 
-Do not mark v0.5.1 accepted until its exact content passes deterministic CI and is merged. Record the final SHA and CI in `LOCAL_VALIDATION_REPORT.md` after merge.
+This establishes the accepted **static** v0.5.1 repository baseline. It does not prove real marketplace registration/upgrade, Plugin installation, fresh-thread discovery, custom-Agent discovery, exact runtime routes, child-progress observability, or cross-session behavior.
 
 Last accepted live production-behavior baseline:
 
@@ -51,7 +44,9 @@ Codex runtime: 0.146.0
 platform: Apple Silicon macOS 27.0
 ```
 
-Static CI, Plugin validation, and model consultation are not live runtime proof.
+Before every live checkpoint, fetch `origin/main`, record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`, and revalidate only evidence whose declared dependencies changed.
+
+Static CI, Plugin validation, upstream source inspection, and model consultation are not live runtime proof.
 
 ## v0.5.1 control model
 
@@ -145,6 +140,8 @@ Do not change these rules merely to make a live test pass:
 - [x] Plugin manifest does not claim an unsupported custom-Agent component.
 - [x] Managed personal profiles target `$CODEX_HOME/agents` only after explicit user approval.
 - [x] Compatibility repository/package/profile identifiers remain unchanged pre-v1.
+- [x] Pinned official OpenAI `plugin-creator/scripts/validate_plugin.py` validation passes on the accepted v0.5.1 static content.
+- [x] Current upstream PluginStore source shows Plugin installation recursively copies the complete Plugin source tree and rejects symlink entries; this is upstream source evidence, not local runtime proof.
 
 ## D. Historical live evidence
 
@@ -352,14 +349,15 @@ Do not implement a workspace lock before M3 establishes a reproducible failure.
 
 ### 15. Current official Plugin contract validation
 
-Use current OpenAI Codex `plugin-creator` tooling and record its source revision/version.
+Use the **current** OpenAI Codex `plugin-creator` tooling at validation time and record its source revision/version. The pinned CI validator is regression evidence only.
 
-- [ ] Run `plugin-creator/scripts/validate_plugin.py` against `plugins/codex-agent-team`.
+- [ ] Run `plugin-creator/scripts/validate_plugin.py` against `plugins/codex-agent-team` on the actual checkpoint/RC content.
 - [ ] Confirm Plugin folder name equals `.codex-plugin/plugin.json` `name`.
 - [ ] Confirm strict semver, required interface metadata, and `https://` URL metadata where present.
 - [ ] Confirm unsupported manifest components such as invented `agents` or `hooks` are absent.
 - [ ] Confirm marketplace source is `./plugins/codex-agent-team` with install/auth/category policy.
-- [ ] Register the Git marketplace through CLI:
+- [ ] Confirm the installed Plugin bundle exposes the bundled `scripts/install-agents.py` and `agent-profiles/` content expected by the Skill's relative paths.
+- [ ] Register a fresh Git marketplace through CLI:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main \
@@ -380,6 +378,15 @@ codex plugin add codex-agent-team@codex-agent-team
 - [ ] Do not hand-edit `config.toml` or marketplace files to rescue a failing release test.
 
 ### 16. Real installed-Plugin migration
+
+For an already configured Git marketplace, refresh the marketplace snapshot before reinstall:
+
+```bash
+codex plugin marketplace upgrade codex-agent-team
+codex plugin add codex-agent-team@codex-agent-team
+```
+
+Then start a new Codex thread before checking updated Skill discovery.
 
 - [ ] Starting from real v0.3.x Codex Agent Team, update through supported marketplace flow.
 - [ ] Starting from real v0.4.x Codex Delegate, update and characterize managed profile migration.
@@ -468,7 +475,8 @@ When mandatory gates are characterized and no PROJECT P0/P1 is open, declare `RE
 Run exactly one RC closure pass:
 
 - current official Plugin validator;
-- Git marketplace add + Plugin add + new-thread discovery;
+- Git marketplace add/upgrade + Plugin add + new-thread discovery;
+- installed bundle script/template accessibility;
 - authorized clean-Codex-home profile provisioning and four-role discovery;
 - full deterministic CI;
 - exact four-role routing smoke;
