@@ -71,12 +71,14 @@ def test_repository_has_no_standalone_or_setup_install_surface():
 
 
 def test_readmes_expose_plugin_only_single_command_path():
-    for name in ["README.md", "README_EN.md"]:
-        text = (ROOT / name).read_text()
+    zh = (ROOT / "README.md").read_text()
+    en = (ROOT / "README_EN.md").read_text()
+    for text in [zh, en]:
         assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
-        assert "Plugins Directory" in text
         assert "/codex-delegate" in text
         assert "Codex Delegate" in text
         assert "docs/plugin-installation.md" in text
         assert "codex-agent-team-setup" not in text
         assert "python scripts/install.py" not in text
+    assert "插件市场" in zh
+    assert "Plugins Directory" in en
