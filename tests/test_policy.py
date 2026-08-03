@@ -36,7 +36,7 @@ def test_skill_frontmatter_and_name():
     assert frontmatter["name"] == "codex-delegate"
     assert "distinct unresolved dependencies" in frontmatter["description"]
     assert "fixed Agent counts" in frontmatter["description"]
-    assert "observed progress" in frontmatter["description"]
+    assert "intervention gate" in frontmatter["description"].lower()
 
 
 def test_openai_yaml_matches_skill():
@@ -116,7 +116,7 @@ def test_no_fixed_three_model_pipeline_or_hard_agent_count():
 
 def test_contractability_is_upstream_of_model_selection():
     skill = (SKILL_DIR / "SKILL.md").read_text()
-    assert skill.index("## 4. Contractability Gate") < skill.index("## 6. Agent Profile Readiness")
+    assert skill.index("## 4. Contractability Gate") < skill.index("## 6. Official Plugin boundary")
     contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
     for field in [
         "DEPENDENCY",
@@ -143,17 +143,19 @@ def test_failure_classification_prevents_blind_retry_and_whole_task_terra_rework
     assert "Terra is not a mandatory reviewer and not a generic second implementation attempt" in routing
     assert "does not define a universal retry count" in progress
     assert "Capability takes precedence over retry" in progress
+    assert "Intervention Gate" in progress
     terra = tomllib.loads((PROFILE_DIR / "codex-agent-team-investigator.toml").read_text())
     assert "unresolved technical dependency" in terra["developer_instructions"]
     assert "do not restart repository discovery" in terra["developer_instructions"]
 
 
-def test_shared_evidence_and_dependency_state_are_explicit():
+def test_shared_evidence_dependency_and_recovery_state_are_explicit():
     contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
     skill = (SKILL_DIR / "SKILL.md").read_text()
     for text in [contract, skill]:
         assert "Dependency Ledger" in text
         assert "Shared Evidence State" in text
+        assert "Recovery Ledger" in text
         assert "invalidated" in text.lower()
     assert "deterministic | repository_fact | model_judgment" in contract
     assert "A file or artifact change invalidates only evidence that depends on the changed input" in contract
@@ -208,6 +210,7 @@ def test_readmes_are_user_facing_and_explain_incremental_orchestration():
         assert "```mermaid" not in text
         assert "/codex-delegate" in text
         assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
+        assert "codex plugin add codex-agent-team@codex-agent-team" in text
         assert "Luna Worker" in text
         assert "Terra Investigator" in text
         assert "Sol Advisor" in text
@@ -246,16 +249,25 @@ def test_architecture_and_model_docs_match_adaptive_semantic_role_design():
     native = read("docs/native-subagent-runtime.md")
     assert "Role identity is intentionally separate from model identity" in architecture
     assert "Dependency Ledger" in architecture
+    assert "Recovery Ledger" in architecture
+    assert "Intervention Gate" in architecture
     assert "no second numerical hard ceiling" in architecture
     assert "No Portable Mode" in assurance
     assert "codex_agent_team_investigator" in architecture
     assert "route_evidence" in architecture
     assert "does not define a product hard child count" in native
+    assert "child-progress observability" in native
 
 
-def test_official_runtime_reference_still_documented():
+def test_official_runtime_and_plugin_references_are_documented():
     refs = read("docs/openai-references.md")
     runtime = read("docs/native-subagent-runtime.md")
+    installation = read("docs/plugin-installation.md")
     assert "https://developers.openai.com/codex/subagents" in refs
+    assert "plugin-creator/SKILL.md" in refs
+    assert "installing-and-updating.md" in refs
+    assert "scripts/validate_plugin.py" in refs
     assert "spawn_agent" in runtime
     assert "delegation depth" in runtime
+    assert "$CODEX_HOME/agents" in installation
+    assert "codex plugin add codex-agent-team@codex-agent-team" in installation
