@@ -1,12 +1,16 @@
 # Codex Agent Team
 
-[中文](README.md) · [Install](docs/plugin-installation.md) · [Architecture](docs/architecture.md) · [Evals](docs/behavioral-evals.md) · [Local validation handoff](HEADOFF.md)
+[中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-Codex can already spawn Subagents. The harder engineering problem is scheduling them well: which work is worth delegating, how precisely it should be specified, which results can be reused, when a stronger model adds new value, and who accepts the final result.
+Codex Agent Team is a native Subagent workflow for Codex. You describe the engineering task, the current Codex session remains the **main session**, and the workflow decides whether delegation is useful, which role should handle each bounded responsibility, which evidence can be reused, and how the final result should be accepted.
 
-Codex Agent Team puts those decisions into one workflow. The current Codex session remains the **main session** and owns intent, boundaries, scheduling, reusable evidence, and final acceptance. Luna, Terra, and Sol are compute resources selected for unresolved dependencies, not stages in a fixed pipeline.
+The goal is simple: use the smallest useful Agent Team while reducing repeated repository discovery, redundant multi-model inference, and uncontrolled write scope.
 
-## Quick start
+Current version: `0.3.0`, pre-v1.0.0 preview.
+
+## Install
+
+Add the repository to the Codex Plugin marketplace:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
@@ -14,143 +18,127 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 Reopen ChatGPT Desktop and install `Codex Agent Team` from the Plugins Directory.
 
-Invoke it explicitly when needed:
+Invoke it in a Codex session with:
 
 ```text
 /codex-agent-team
 ```
 
-## Current status
+## How to use it
 
-The repository has completed the static closure pass for the current architecture cycle. Deterministic tests cover Plugin packaging, the managed Agent profile lifecycle, Delegation Contract rules, orchestration policy, Runtime Truth, and paired behavioral-eval tooling.
+Give it a normal engineering task, for example:
 
-Remote branch cleanup is complete. The audit confirmed that all 10 non-main branches were historical heads of already merged PRs and required no further merge; only `origin/main` remains.
+```text
+/codex-agent-team Fix this login retry bug and run the relevant tests.
+```
 
-The next phase is fixed: **local real-runtime validation**. Static CI cannot establish live Codex role discovery, model routing, sandbox behavior, parent-thread metadata, Agent lifecycle behavior, evidence-reuse compliance, cost, or task quality. A local takeover should execute `HEADOFF.md` before redesigning the orchestration model.
+```text
+/codex-agent-team Refactor this module while preserving the public API.
+```
 
-## How work is divided
+```text
+/codex-agent-team Review this change with emphasis on data consistency and regression risk.
+```
 
-| Tier | Current route | Primary use |
+You do not need to choose the Luna, Terra, and Sol order manually, and you do not need to force multiple Agents into every task.
+
+## How the team works
+
+The main session first identifies the outcome, scope, risk, and acceptance criteria, then chooses the smallest useful execution path.
+
+| Role | Current route | Purpose |
 | --- | --- | --- |
-| Main session | current Codex session | understand the task, set boundaries, make key decisions, schedule work, accept results |
+| Main session | current Codex session | understand the task, make key decisions, schedule work, accept results |
 | Luna Reader | GPT-5.6 Luna `max` | search, tracing, test mapping, evidence collection |
-| Luna Worker | GPT-5.6 Luna `max` | bounded implementation, debugging, tests, local refactors |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | one unresolved complex technical dependency |
+| Luna Worker | GPT-5.6 Luna `max` | bounded implementation, debugging, tests, and local refactors |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | resolve one remaining complex technical dependency |
 | Sol Advisor | GPT-5.6 Sol `high` | high-value judgment and selective review |
 
-These are not pipeline stages. Valid paths include:
+A task may stay entirely in the main session:
 
 ```text
 main session
+```
+
+A common implementation path is:
+
+```text
 main session -> Luna -> main session
+```
+
+A harder technical dependency may use:
+
+```text
+main session -> Luna -> Terra (unresolved technical delta only) -> Luna / main session
+```
+
+A consequential finished artifact may use:
+
+```text
 main session -> Luna -> Sol -> main session
-main session -> Luna -> Terra (unresolved delta only) -> Luna / main session
 ```
 
-`Luna -> Terra -> Sol` is never a sequence every task must complete.
+There is no fixed three-model pipeline. Every Subagent call must satisfy a distinct dependency that the current valid evidence does not already cover.
 
-## Compile a delegation contract before execution
+## Writing work gets bounded before execution
 
-A writing Worker should not receive a raw ambiguous user request when the main session can define a bounded execution contract first.
-
-The contract states:
+When a task requires file changes, the main session first turns the responsibility into an enforceable Delegation Contract covering:
 
 ```text
-OUTCOME          what must exist when the work is done
-SCOPE            what may be read and written
-INVARIANTS       behavior and interfaces that must remain true
-DECISION RIGHTS  choices the Worker may make on its own
-ACCEPTANCE       observable completion criteria
-VERIFICATION     commands and evidence that prove the result
-STOP / ESCALATE  conditions that return control to the main session
+what outcome must exist
+what may be read and written
+what behavior must remain unchanged
+what the Worker may decide independently
+what counts as acceptance
+which verification must run
+when the Worker must stop and return control
 ```
 
-If acceptance or decision rights remain materially unclear, the workflow does not create a writing Worker.
+If critical decision rights or acceptance criteria are still unclear, a Writing Worker should not start guessing through repository changes.
 
-The division of labor is deliberate: the main session owns `WHAT / WHY / SCOPE / RISK / ACCEPTANCE`; Luna solves `HOW TO EXECUTE` inside that contract.
+## Established evidence is reused
 
-## Reuse work that has already been established
+Within a task, the main session keeps a compact set of still-valid test results, call paths, interface facts, and other reusable evidence.
 
-The main session maintains a compact Shared Evidence State. It records reusable test results, file relationships, call paths, interface facts, and other evidence together with the files or artifacts they depend on.
+Later Agents reuse those facts while their dependencies remain valid. Only evidence affected by changed files, artifacts, or assumptions needs to be revalidated.
 
-Later Agents reuse evidence while those dependencies remain valid. A changed input invalidates only evidence that depends on it. Repository scans and deterministic commands are not repeated merely because another model joined the task.
+This reduces full repository rescans, repeated deterministic commands, and repeated reasoning over the same dependency after a model change.
 
-Model judgments are kept separate from established facts. A hypothesis stays challengeable even if multiple Agents repeat it.
+## When Luna needs help
 
-## Classify a weak Luna result before escalation
+The workflow classifies the failure before escalating:
 
 ```text
-mechanical defect -> focused Luna correction
-contract gap -> main session repairs the contract
-capability gap -> Terra receives only the unresolved technical delta
-judgment gap -> main session decides, or uses Sol when that adds real value
+mechanical defect     -> focused Luna correction
+incomplete contract   -> main session repairs the contract
+complex technical gap -> Terra investigates only the unresolved part
+judgment gap          -> main session decides, or uses Sol when justified
 ```
 
-Terra is a read-only complex-investigation tier by default. It receives established evidence, the current artifact, the unresolved question, and explicit `DO NOT REDO` items. A mediocre Luna result does not automatically trigger a whole-repository scan or full reimplementation by Terra.
+A mediocre Luna result does not automatically trigger a full Terra restart.
 
-Once Terra resolves the technical dependency, bounded implementation normally returns to Luna or the main session.
+Sol is also selective. When tests and the acceptance oracle are already strong enough, the main session can accept the result without adding a mandatory review stage.
 
-## Luna + Sol is a normal short path
+## Parallelism and multiple sessions
 
-Some tasks have clear implementation standards but still benefit from higher-value judgment over the finished artifact:
+The default resource envelope is:
 
 ```text
-main session
--> Luna Max implementation
--> Sol review of the actual diff and evidence
--> main-session acceptance
+0 Subagents is a normal outcome
+default: 1
+normal maximum: 2
+v1 hard maximum: 4
 ```
 
-Terra does not appear merely to complete a three-tier structure.
+Independent projects may each run their own Agent Team. The project does not impose a machine-wide or account-wide Agent total.
 
-When deterministic tests and acceptance oracles are already strong enough, the path may stop at:
+For writing work, ownership is workspace-scoped: one canonical physical checkout should have at most one active Writing Worker. Truly isolated worktrees or independent projects may have independent Writers.
 
-```text
-main session -> Luna -> main session
-```
+Version `0.3.0` is still in pre-v1 runtime validation. Until v1.0.0 ships, avoid starting simultaneous writing tasks from two independent Codex sessions against the same physical checkout.
 
-Or use zero Subagents.
+## First run
 
-## Parallelism is for independent dependencies
-
-Useful parallelism means concurrent work produces different inputs required by the task. Examples include two independent read-only investigations, or the main session preparing acceptance and risk checks while Luna performs bounded implementation.
-
-Running Luna, Terra, and Sol over the same question simply to keep compute busy is duplicated inference. Every Agent call must add value that existing valid work cannot already provide.
-
-## What you see
-
-When delegation materially changes execution, the Skill emits a compact receipt:
-
-```text
-Agent Team
-Luna Worker: implemented the bounded retry fix
-Sol Advisor: reviewed the final diff because payment-state semantics were high consequence
-Reused evidence: E03 reproduction, E07 caller trace, E11 baseline tests
-Verification: 38 tests passed
-```
-
-When the main session handles the task directly:
-
-```text
-Agent Team: Main session only
-Why: the change was already isolated and delegation added no useful dependency
-Verification: 12 tests passed
-```
-
-## Boundaries
-
-- Zero Subagents is normal. The default is 1, the normal maximum is 2, and the hard maximum is 4.
-- There is at most one active Writing Worker per shared workspace.
-- Child Agents do not create further Subagents; delegation stays one layer deep.
-- The Skill never silently switches the main-session model or reasoning effort.
-- A missing exact project profile returns the responsibility to the main session; there is no cross-role substitution.
-- Runtime route proof requires both the expected route and observed route to contain role, model, and effort completely; missing exact-route fields fail closed.
-- A Subagent completion report is a claim. Final acceptance uses actual files, diffs, commands, tests, and reproducible evidence.
-
-The project uses Codex native `spawn_agent`. It does not implement a second Agent runtime, persistent task DAG, or background scheduler.
-
-<details>
-<summary>Which Agent profiles are checked on first use?</summary>
+Codex Agent Team uses four project-managed custom Agent profiles:
 
 ```text
 codex_agent_team_reader
@@ -159,32 +147,34 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-If a required profile is missing, the Skill discloses the complete managed file scope before asking permission. The installer manages only these four current profiles and its ownership manifest. Older model-named profiles are removed only when their current bytes are proven by the active previous project ownership manifest. User-modified, unproven, or intentionally recreated legacy files do not inherit deletion authority from stale ownership data.
+If they are missing, the Skill explains the exact managed file scope and asks for permission before provisioning them. The installer manages only these four profiles and its ownership manifest. That authorization does not extend to credentials, MCP configuration, repository files, or unrelated Agent profiles.
 
-</details>
+If provisioning succeeds but the current task still does not discover the new roles, start a fresh Codex task and invoke `/codex-agent-team` again.
 
-## What to validate next
+## Safety boundaries
 
-[`HEADOFF.md`](HEADOFF.md) is the authoritative local Codex takeover contract, organized around four test domains:
+- The main session retains task scope, consequential decisions, and final acceptance.
+- One shared physical checkout should have at most one active Writing Worker.
+- Child Agents do not create further Subagents; delegation stays one layer deep.
+- The Skill does not silently switch the main-session model or reasoning effort.
+- If an exact project profile is unavailable or conflicting, the affected responsibility returns to the main session instead of silently using a similar role.
+- A Worker preserves unrelated user or concurrent-session edits. If workspace drift makes the contract stale, it should stop and return the changed state to the main session.
+- A Subagent completion report is a claim. Final acceptance is based on actual files, diffs, tests, commands, and reproducible evidence.
+- Publishing, deployment, payments, account-permission changes, and other consequential external actions remain under main-session control and the user's current authorization.
 
-- Plugin installation, profile consent, live route / sandbox / ancestry, and Runtime Truth;
-- Contractability, Shared Evidence, Luna failure classification, Terra delta, and selective Sol;
-- paired raw-prompt versus compiled-contract evaluation, useful parallelism, and Agent lifecycle stress;
-- installer fault injection, historical branch cleanup, and the final release gate.
+## Current release status
 
-Luna Max is the current execution baseline. Terra XHigh and Sol High remain route hypotheses requiring representative live workload evidence. Do not publish cost, latency, or quality-improvement claims before that evidence exists.
+Version `0.3.0` provides the complete Plugin installation path, four semantic Agent roles, Delegation Contracts, evidence reuse, selective Terra/Sol routing, and bounded parallelism.
 
-## Documentation
+Before v1.0.0, the project is still validating a small number of real-runtime boundaries, including independent sessions writing against the same checkout and concurrent profile provisioning in one Codex home. This README therefore makes no unmeasured claims about throughput, cost reduction, latency improvements, or cross-session exclusion guarantees.
 
-- [Local runtime validation handoff](HEADOFF.md)
-- [Plugin installation and first run](docs/plugin-installation.md)
-- [Architecture](docs/architecture.md)
-- [Native Subagent Runtime](docs/native-subagent-runtime.md)
-- [Model routing and evidence](docs/model-route-assurance.md)
-- [Delegation Contract](plugins/codex-agent-team/skills/codex-agent-team/references/delegation-contract.md)
-- [Runtime Evidence](plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md)
-- [Behavioral Evals](docs/behavioral-evals.md)
-- [OpenAI References](docs/openai-references.md)
+Running different Plugin generations that expect different managed profile generations in one Codex home is outside the v1 support contract. An exact-route mismatch should stop the affected delegation rather than trigger cross-role substitution.
+
+## More information
+
+- [Installation and first run](docs/plugin-installation.md)
+- [Project homepage](https://github.com/R-jed/codex-agent-team)
 
 ## License
+
 [MIT](LICENSE)
