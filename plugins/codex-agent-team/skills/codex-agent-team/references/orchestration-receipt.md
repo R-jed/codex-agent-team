@@ -6,7 +6,7 @@ Emit a receipt when any of these are true:
 
 - the user explicitly invoked `/codex-delegate`;
 - at least one child Agent was created;
-- a contractability, consent, route, runtime-capacity, execution-recovery, or delta-escalation decision materially changed execution.
+- a contractability, consent, route, runtime-capacity, intervention, execution-recovery, or delta-escalation decision materially changed execution.
 
 For an implicit trivial task that stays in the main session, omit the receipt unless the user asks for orchestration details.
 
@@ -41,14 +41,40 @@ Duplicate dependency calls: 0
 
 Do not present an observed slot count as a universal Codex limit.
 
+## Continue-without-intervention example
+
+```text
+Codex Delegate
+Luna Worker: D03 still has one failing acceptance check
+Intervention: none
+Why: new deterministic evidence narrowed the root cause and the unresolved delta is smaller
+```
+
+A failing check does not automatically justify a restart or stronger lane.
+
 ## Clean-restart example
 
 ```text
 Codex Delegate
 Luna Worker: D03 stalled on the same failing verification without new evidence
-Recovery: restarted D03 in fresh Luna context with the current artifact, valid evidence, and DO NOT REDO facts
+Recovery: restarted D03 in fresh Luna context with the current artifact, valid evidence, material recovery history, and DO NOT REDO facts
+Decision source: deterministic evidence
 Verification: the failure signature changed and the dependency advanced
 ```
+
+## Policy-transform example
+
+Use this only when the proposed and effective actions materially differ:
+
+```text
+Codex Delegate
+Proposed action: Terra escalation
+Effective action: continue Luna with a focused correction
+Decision source: main-session judgment
+Policy transform: capability gap was not established by the available evidence
+```
+
+Do not surface proposed/effective action fields when they add no useful explanation.
 
 ## Luna + Sol example
 
@@ -65,7 +91,7 @@ Verification: 38 tests passed
 ```text
 Codex Delegate
 Luna Worker: stopped on unresolved concurrency dependency D04
-Terra Investigator: resolved only D04 using the existing reproduction and caller evidence
+Terra Investigator: resolved only D04 using the existing reproduction, caller evidence, and material recovery history
 Luna Worker: applied the revised bounded contract
 Verification: 41 tests passed
 ```
@@ -76,8 +102,11 @@ Rules:
 - Do not imply a fixed Luna -> Terra -> Sol pipeline or fixed Agent count.
 - Mention broader fan-out only when it actually affected scheduling or consent.
 - Mention evidence reuse only for evidence actually carried forward as valid.
-- A file write or Agent self-report is not evidence of progress by itself.
-- Do not claim runtime capacity, route, permission, or ancestry evidence that was not observed.
+- A file write, successful command, or Agent self-report is not evidence of progress by itself.
+- Acceptance failure is not automatically an intervention trigger; mention intervention only when the Intervention Gate materially changed execution.
+- When a proposed action differs from the effective action, the effective action belongs to the main session after policy/runtime gates.
+- `model_judgment` is never displayed as deterministic evidence.
+- Do not claim child mid-run observability, runtime capacity, route, permission, or ancestry evidence that was not observed.
 - Use `C1`, `L1`, `R1`, `R2`, or `X0` only when the deterministic verifier established the corresponding compact grade.
-- Keep detailed route diagnostics out of the receipt unless they materially affected execution.
+- Keep detailed route diagnostics and Recovery Ledger internals out of the receipt unless they materially affected execution.
 - The receipt summarizes orchestration; it never replaces the normal completion report.
