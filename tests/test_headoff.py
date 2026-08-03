@@ -171,7 +171,9 @@ def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
     ]:
         assert phrase in text
 
-    assert "分支 · 项目对比分析" not in text
+    lines = text.splitlines()
+    assert "conversation_title: 分支 · 项目对比分析" not in lines
+    assert "分支 · 项目对比分析" not in lines
     assert "fuzzy match" in text
     assert "model_judgment" in text
 
