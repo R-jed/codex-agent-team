@@ -2,11 +2,27 @@
 
 This file is the authoritative execution checklist for local validation and the finite v1.0.0 release phase of **Codex Delegate**.
 
-The v0.5.0 architecture cycle is now defined. The remaining job is finite: merge and statically validate the adaptive-orchestration candidate, complete the mandatory live gates below, resolve only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
+The v0.5.0 architecture cycle is closed. The remaining job is finite: complete the mandatory live gates, resolve only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
 
 Do not reopen architecture or optimization work after the Definition of Done is satisfied.
 
 ## Current checkpoint
+
+Current merged static baseline:
+
+```text
+origin/main: 00e7a2a340e6bc57ea15460f45721b571f8078fd
+product: Codex Delegate 0.5.0
+architecture: Adaptive Dependency Orchestration
+PR #22 static validation: PASS
+pytest on Ubuntu / Python 3.11: 119 passed
+Ubuntu / Python 3.12: PASS
+macOS / Python 3.11: PASS
+Plugin manifests: PASS
+managed profile install / --check / idempotent reinstall: PASS
+known open reproducible PROJECT P0/P1 defects: none
+release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
+```
 
 Last accepted live production-behavior baseline:
 
@@ -14,18 +30,16 @@ Last accepted live production-behavior baseline:
 production behavior tested: c6020db903b35f0d57677b131bf35b0580144ab9
 Codex runtime tested so far: 0.146.0
 platform tested so far: Apple Silicon macOS 27.0
-known open reproducible PROJECT P0/P1 defects: none
-release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
 ```
 
-The `c6020db...` revision is an evidence baseline, not the current repository head.
+The static v0.5.0 baseline is current repository evidence. The `c6020db...` revision remains the last accepted live-runtime evidence baseline. Never relabel static CI as live Codex runtime proof.
 
-The current static candidate is **Codex Delegate v0.5.0 Adaptive Dependency Orchestration**. Before every live checkpoint:
+Before every live checkpoint:
 
 1. fetch `origin/main`;
-2. record the actual main SHA in `LOCAL_VALIDATION_REPORT.md`;
+2. record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`;
 3. inspect intervening production changes;
-4. reuse older evidence only when its declared dependencies are still valid.
+4. reuse older evidence only when its declared dependencies remain valid.
 
 Status notation:
 
@@ -73,7 +87,7 @@ Do not change these rules merely to make a live test pass:
 - no mandatory Luna -> Terra -> Sol pipeline;
 - no fixed team size, default child target, or product hard child ceiling;
 - no machine-wide or account-wide Agent cap inferred from one Codex build;
-- no larger simultaneous fan-out without consent unless the user already authorized broad parallel work;
+- no larger simultaneous fan-out without consent unless broad parallel work is already authorized;
 - no silent large serial fan-out used to evade material compute-expansion consent;
 - no duplicate Agent call for an already-running unchanged dependency;
 - no generic Terra whole-task rerun because Luna quality looks weak;
@@ -90,10 +104,10 @@ Do not change these rules merely to make a live test pass:
 - no incomplete expected route accepted as exact runtime proof;
 - no missing runtime evidence converted to affirmative success;
 - no systematic rediscovery of still-valid deterministic or repository evidence;
-- no project-wide global writer mutex that blocks independent workspaces merely to simplify same-checkout safety;
+- no project-wide global writer mutex that blocks independent workspaces;
 - no workspace-lock daemon or installer lock before reproducible live evidence establishes the need;
-- no manual rename of managed Agent profiles or ownership manifests merely to match the Codex Delegate brand;
-- no repository/package-id migration before the real installed-Plugin upgrade and fresh-install paths are characterized;
+- no manual rename of managed Agent profiles or ownership manifests merely to match the product brand;
+- no repository/package-id migration before real installed-Plugin upgrade and fresh-install behavior is characterized;
 - no performance, quality, cost, concurrency-capacity, or recovery claim without measured named workloads and runtime versions.
 
 If a native Codex limitation makes a project invariant impossible, record the exact runtime behavior and ownership classification before changing policy.
@@ -104,22 +118,22 @@ If a native Codex limitation makes a project invariant impossible, record the ex
 
 - [x] Main session remains the single control plane and final acceptance owner.
 - [x] Delegation Benefit Gate and Contractability Gate remain upstream of model-specific delegation.
-- [x] Delegation Contract now binds each child to a dependency id, interfaces/dependencies, acceptance, verification, and current execution evidence.
-- [x] Shared Evidence State preserves deterministic/repository facts while their dependencies remain valid.
-- [x] v0.5.0 introduces an in-session Dependency Ledger with `pending | ready | running | satisfied | blocked | invalidated` state.
-- [x] v0.5.0 removes the old default-child and hard-four scheduling invariants.
+- [x] Delegation Contract binds each child to a dependency id, interfaces/dependencies, acceptance, verification, and execution evidence.
+- [x] Shared Evidence State preserves deterministic/repository facts while dependencies remain valid.
+- [x] v0.5.0 defines an in-session Dependency Ledger with `pending | ready | running | satisfied | blocked | invalidated` state.
+- [x] The previous default-child and hard-four scheduling invariants are removed.
 - [x] Routing schema no longer limits static node arrays to four children.
 - [x] Static routing cases include an authorized five-reader fan-out.
 - [x] Static routing cases include native-slot pressure where excess ready dependencies queue without role substitution.
-- [x] The two-child number now exists only as the normal no-extra-consent simultaneous fan-out boundary.
-- [x] Material serial compute expansion is also consent-gated so scheduling cannot evade user resource boundaries.
+- [x] The two-child number exists only as the normal no-extra-consent simultaneous fan-out boundary.
+- [x] Material serial compute expansion is also consent-gated.
 - [x] One-writer-per-canonical-workspace and depth-one delegation remain hard safety invariants.
 - [x] Codex-home profile generation remains shared configuration and fails closed on exact-route mismatch.
 
 ## B. Execution-progress and recovery policy
 
 - [x] `execution-progress.md` separates execution evidence, progress/stall signals, and routing decisions.
-- [x] File writes, confidence, repeated narration, repeated commands, and repeated discovery do not establish progress by themselves.
+- [x] File writes, confidence, narration, repeated commands, and repeated discovery do not establish progress by themselves.
 - [x] Failure signatures and progress signals are part of execution returns.
 - [x] `EXECUTION_STALL` is distinct from capability, contract, mechanical, and judgment gaps.
 - [x] Clean same-lane restart preserves current artifact, valid evidence, failure signature, unresolved delta, acceptance, and `DO NOT REDO` facts while dropping dead-end narration/private reasoning.
@@ -136,8 +150,7 @@ If a native Codex limitation makes a project invariant impossible, record the ex
 - [x] Advisor -> GPT-5.6 Sol / high / read-only.
 - [x] Product name is `Codex Delegate` and canonical entry point is `/codex-delegate`.
 - [x] v0.5.0 keeps repository/package/profile compatibility identifiers during the pre-v1 migration window.
-- [x] v0.5.0 profile instructions are dependency/progress-aware while keeping the same model/effort/sandbox routes.
-- [x] Installer ownership rules still fail closed for user-modified or unproven profiles.
+- [x] Installer ownership rules fail closed for user-modified or unproven profiles.
 
 ## D. Historical live evidence carried forward
 
@@ -151,11 +164,11 @@ If a native Codex limitation makes a project invariant impossible, record the ex
 - [x] Reader evidence remains L1 local corroboration because independent native attestation was not separately exposed.
 - [x] CAT-LOCAL-001 direct Codex-home endpoint symlink defect is closed in production history.
 
-Historical evidence must be revalidated only where v0.5.0 changed the dependency of the claim.
+Historical evidence is revalidated only where v0.5.0 changed a dependency of the claim.
 
 # Pending live validation
 
-Execute the remaining gates in order. Update `LOCAL_VALIDATION_REPORT.md` after each checkpoint. Do not expand this checklist merely because another optimization is imaginable.
+Execute the remaining gates in order. Update `LOCAL_VALIDATION_REPORT.md` after each checkpoint. Do not expand the checklist merely because another optimization is imaginable.
 
 ## Checkpoint 1: exact roles and Runtime Truth
 
@@ -177,7 +190,7 @@ Record only facts actually exposed: thread id, parent id, role, model, effort, e
 - [ ] Characterize complete native route metadata if exposed.
 - [ ] Characterize partial native route behavior.
 - [ ] Characterize native/local agreement when both exist.
-- [ ] Exercise model, role, parent-thread, sandbox/permission, and thread-id conflict cases where the runtime exposes the needed facts.
+- [ ] Exercise material route, parent, sandbox/permission, and thread-id conflict cases where the runtime exposes the needed facts.
 - [ ] Characterize duplicate rollout/schema drift on the current Codex build.
 
 Required semantics:
@@ -193,7 +206,7 @@ material conflict -> X0 + quarantine
 
 ### Review checkpoint A
 
-Invoke `gpt56-sol-pro-consult` with the exact-route/runtime packet before changing Runtime Truth policy.
+Invoke `/gpt56-sol-pro-consult` with the exact-route/runtime packet before changing Runtime Truth policy. Follow the project consultation target contract below.
 
 ## Checkpoint 2: contractability, scope, and safety
 
@@ -215,7 +228,7 @@ Invoke `gpt56-sol-pro-consult` with the exact-route/runtime packet before changi
 
 ### Review checkpoint B
 
-Invoke `gpt56-sol-pro-consult` after this checkpoint, or immediately on any ambiguous writing, nested delegation, scope widening, unrelated edit loss, or permission-boundary failure.
+Invoke `/gpt56-sol-pro-consult` after this checkpoint, or immediately on ambiguous writing, nested delegation, scope widening, unrelated edit loss, or permission-boundary failure. Follow the project consultation target contract below.
 
 ## Checkpoint 3: dependency scheduling, evidence reuse, and execution recovery
 
@@ -274,7 +287,7 @@ same_failure_without_new_evidence
 
 ### Review checkpoint C
 
-Invoke `gpt56-sol-pro-consult` with Dependency Ledger, evidence-reuse, stall, clean-restart, and first Terra-delta evidence before modifying scheduling/recovery policy.
+Invoke `/gpt56-sol-pro-consult` with Dependency Ledger, evidence-reuse, stall, clean-restart, and first Terra-delta evidence before modifying scheduling/recovery policy. Follow the project consultation target contract below.
 
 ## Checkpoint 4: product-value experiments
 
@@ -287,7 +300,7 @@ A: raw user prompt -> Luna Max
 B: same prompt -> main session compiles Delegation Contract -> Luna Max
 ```
 
-Freeze each workload with the local eval fixture template. Every paired run records:
+Freeze every workload before a pair. Record:
 
 ```text
 workload_definition_hash
@@ -329,7 +342,7 @@ Measure material catches, false positives, total correction work, and latency/co
 
 ### Review checkpoint D
 
-Invoke `gpt56-sol-pro-consult` with the first valid product-value pairs. Do not tune Luna/Terra/Sol routes pre-v1 unless a reproducible correctness/safety regression makes the frozen route unusable.
+Invoke `/gpt56-sol-pro-consult` with the first valid product-value pairs. Do not tune Luna/Terra/Sol routes pre-v1 unless a reproducible correctness/safety regression makes the frozen route unusable. Follow the project consultation target contract below.
 
 ## Checkpoint 5: adaptive resources, multi-session safety, and lifecycle
 
@@ -409,8 +422,6 @@ Do not implement a workspace lock before M3 establishes a reproducible failure. 
 
 ### 15. Filesystem and concurrent installer matrix
 
-Retain existing deterministic fault coverage and add real concurrent processes:
-
 ```text
 I1 same clean CODEX_HOME, two same-generation installers concurrently
 -> exact converged state or one safe refusal
@@ -429,13 +440,11 @@ Do not add an inter-process installer lock merely because races are theoreticall
 
 ### Review checkpoint E
 
-Invoke `gpt56-sol-pro-consult` after Checkpoints 5 and 6 are characterized. Include adaptive fan-out, observed native capacity, slot recovery, M1-M4, I1-I3, and migration evidence.
+Invoke `/gpt56-sol-pro-consult` after Checkpoints 5 and 6 are characterized. Include adaptive fan-out, observed native capacity, slot recovery, M1-M4, I1-I3, and migration evidence. Follow the project consultation target contract below.
 
 # Defect triage
 
 Classify every live failure by severity and ownership.
-
-Severity:
 
 ```text
 P0
@@ -463,7 +472,7 @@ UNKNOWN
 
 After mandatory live gates are characterized, only reproducible PROJECT P0/P1 or a P2 that directly blocks a mandatory gate can delay v1.0.0. Other P2/P3 items move to the post-v1 backlog.
 
-Any P0/P1 candidate must be sent immediately through `gpt56-sol-pro-consult` before broadening architecture or threat-model scope.
+Any P0/P1 candidate must be sent immediately through `/gpt56-sol-pro-consult` using the exact project consultation target before broadening architecture or threat-model scope.
 
 # Definition of Done for v1.0.0
 
@@ -488,7 +497,7 @@ When items 1-12 are satisfied, the required action is **release v1.0.0**.
 
 ## Stage R1: finish live gates
 
-Complete Checkpoints 1-6 in order. Use `gpt56-sol-pro-consult` at Review Checkpoints A-E and for every P0/P1 candidate.
+Complete Checkpoints 1-6 in order. Use `/gpt56-sol-pro-consult` at Review Checkpoints A-E and for every P0/P1 candidate. All consultations use the project target contract below.
 
 Patch only:
 
@@ -555,20 +564,64 @@ Never relabel static CI as live Codex runtime evidence.
 
 `gpt56-sol-pro-consult` is the required adversarial consultation mechanism for Review Checkpoints A-E and immediately after any P0/P1 candidate.
 
-Codex remains the local executor. The consultation challenges severity, ownership, counterexamples, evidence quality, and whether the next checkpoint is justified. Its result is model judgment and must not be counted as evidence that Codex Delegate itself routed correctly.
+Codex remains the local executor. The consultation challenges severity, ownership, counterexamples, evidence quality, product/architecture judgment, and whether the next checkpoint is justified. Its result is model judgment and must not be counted as evidence that Codex Delegate itself routed correctly.
 
 Do not replace this consultation with an ad hoc generic Sol call.
 
-Use this compact packet:
+## Project consultation target
+
+For this project, every adversarial review and project discussion sent through `/gpt56-sol-pro-consult` must continue the existing ChatGPT conversation below:
+
+```text
+SKILL
+/gpt56-sol-pro-consult
+
+TARGET_CHATGPT_CONVERSATION_TITLE
+分支 · 项目对比分析
+
+TARGET_MODE
+continue_existing_conversation
+
+MATCH_POLICY
+exact_title_unique_match
+```
+
+This is an operational routing requirement for the local Codex executor.
+
+Rules:
+
+1. Match the title `分支 · 项目对比分析` exactly.
+2. Continue that existing conversation so checkpoint reviews, defect discussions, architecture judgments, and release decisions remain in one project discussion thread.
+3. Do not create a replacement ChatGPT conversation when the exact target is missing or ambiguous.
+4. Do not choose a similarly named conversation by fuzzy match, recency, or guesswork.
+5. Do not silently fall back to an isolated consultation conversation for this project.
+6. If the exact title cannot be uniquely resolved, stop the consultation and return `CONSULTATION_TARGET_UNRESOLVED` to the user. Do not continue a policy-changing checkpoint on the assumption that the review was delivered.
+7. If the user later renames the project conversation, this target must be updated from a user-confirmed title before the next required consultation.
+8. A long-lived target conversation does not replace evidence packing. Every consultation still sends the compact current checkpoint packet below.
+9. The consultation response returns to Codex as `model_judgment`; Codex must reconcile it against repository and runtime evidence before changing the project.
+10. Follow-up project discussion requested by the consultation must continue the same target conversation unless the user explicitly changes the target.
+
+The project target contract does not replace any transport-level `task_id`, sentinel, safety scan, or other wrapper that `/gpt56-sol-pro-consult` itself requires. Use the skill's native transport protocol and place the project packet below inside it.
+
+## Required project packet
 
 ```text
 CONTEXT_PACKET_V1
 
+CONSULTATION_TARGET
+skill: /gpt56-sol-pro-consult
+conversation_title: 分支 · 项目对比分析
+mode: continue_existing_conversation
+match_policy: exact_title_unique_match
+
 CHECKPOINT
-A | B | C | D | E | defect | release-candidate
+A | B | C | D | E | defect | release-candidate | project-discussion
 
 REPOSITORY_SHA
 <actual tested origin/main SHA>
+
+RUNTIME / PLATFORM
+<actual Codex runtime/build and platform when material>
 
 COMPLETED_HEADOFF_ITEMS
 <only newly completed checklist items>
@@ -601,10 +654,10 @@ LOCAL_JUDGMENT
 <Codex executor's current conclusion>
 
 ASK
-Challenge severity, ownership, evidence sufficiency, counterexamples, and whether execution should continue without architecture change.
+Challenge severity, ownership, evidence sufficiency, counterexamples, and whether execution should continue without architecture change. For project-discussion packets, answer the bounded product or architecture question and identify the strongest contrary case.
 ```
 
-The local executor reconciles the consultation against actual artifacts and runtime evidence before acting.
+The local executor must wait for the consultation result when the checkpoint requires it, reconcile the response against actual artifacts/runtime evidence, record any decision-relevant result in `LOCAL_VALIDATION_REPORT.md`, and only then continue.
 
 # Completion condition
 
