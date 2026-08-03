@@ -9,9 +9,10 @@ def test_readmes_present_the_product_to_users():
     for path in READMES:
         text = path.read_text()
         for phrase in [
+            "Codex Delegate",
             "codex plugin marketplace add R-jed/codex-agent-team --ref main",
-            "/codex-agent-team",
-            "0.3.0",
+            "/codex-delegate",
+            "0.4.0",
             "codex_agent_team_reader",
             "codex_agent_team_worker",
             "codex_agent_team_investigator",
@@ -19,6 +20,15 @@ def test_readmes_present_the_product_to_users():
             "one" if path.name == "README_EN.md" else "一个",
         ]:
             assert phrase in text
+
+
+def test_readmes_explain_compatibility_ids_without_reverting_brand():
+    zh = (ROOT / "README.md").read_text()
+    en = (ROOT / "README_EN.md").read_text()
+    assert "compatibility identifier" in en
+    assert "兼容标识" in zh
+    assert zh.startswith("# Codex Delegate")
+    assert en.startswith("# Codex Delegate")
 
 
 def test_readmes_do_not_expose_internal_release_handoff_as_user_guidance():
