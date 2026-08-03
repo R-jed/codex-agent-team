@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Native Subagent delegation framework for Codex. Turn engineering tasks into the smallest useful set of verifiable delegations.<br>
+  A delegation policy layer over Codex Native Subagents. Turn engineering tasks into the smallest useful set of verifiable delegations.<br>
   <a href="README.md">中文</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
 </p>
 

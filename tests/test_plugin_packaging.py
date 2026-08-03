@@ -74,6 +74,6 @@ def test_readmes_expose_plugin_only_single_command_path():
         assert "Plugins Directory" in text
         assert "/codex-delegate" in text
         assert "Codex Delegate" in text
+        assert "docs/plugin-installation.md" in text
         assert "codex-agent-team-setup" not in text
         assert "python scripts/install.py" not in text
-        assert "codex_agent_team_worker" in text

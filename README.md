@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Codex 原生 Subagent 委派框架。把开发任务变成最小的一组可验证委派。<br>
+  Codex Native Subagents 之上的委派策略层。把开发任务变成最小的一组可验证委派。<br>
   <a href="README_EN.md">English</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
 </p>
 
