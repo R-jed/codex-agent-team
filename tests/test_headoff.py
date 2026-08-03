@@ -4,10 +4,10 @@ ROOT = Path(__file__).resolve().parents[1]
 HANDOFF = ROOT / "HEADOFF.md"
 
 
-def test_local_runtime_handoff_is_linked_from_both_readmes():
+def test_local_runtime_handoff_is_an_internal_release_contract():
     assert HANDOFF.is_file()
     for name in ["README.md", "README_EN.md"]:
-        assert "HEADOFF.md" in (ROOT / name).read_text()
+        assert "HEADOFF.md" not in (ROOT / name).read_text()
 
 
 def test_handoff_protects_release_critical_live_validation_scope():
@@ -65,7 +65,14 @@ def test_handoff_requires_paired_control_fingerprints():
 
 def test_handoff_defines_incremental_feedback_packets_and_sol_consultation():
     text = HANDOFF.read_text()
-    assert "gpt56-sol-pro-consult" in text
+    for phrase in [
+        "`gpt56-sol-pro-consult` is the required adversarial consultation mechanism",
+        "At Review Checkpoints A-E, and immediately after any P0/P1 candidate, Codex must invoke `gpt56-sol-pro-consult`",
+        "Codex remains the local executor",
+        "must not be counted as evidence that `codex-agent-team` itself routed correctly",
+    ]:
+        assert phrase in text
+
     for field in [
         "COMPLETED_HEADOFF_ITEMS",
         "NEW_EVIDENCE",
