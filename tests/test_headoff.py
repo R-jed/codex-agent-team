@@ -15,52 +15,86 @@ def test_handoff_protects_release_critical_live_validation_scope():
     for phrase in [
         "# Codex Delegate Local Runtime Validation Handoff",
         "## Current checkpoint",
+        "## v0.5.0 control model",
         "## Stop line",
-        "# Completed work",
+        "# Completed repository work",
         "# Pending live validation",
-        "## Checkpoint 1: complete exact-role and Runtime Truth coverage",
+        "## Checkpoint 1: exact roles and Runtime Truth",
         "incomplete expected route -> fail closed",
-        "### 5. Shared Evidence State and invalidation",
-        "### 7. Terra delta-escalation experiment",
-        "### 8. Primary raw-prompt versus compiled-contract experiment",
-        "### 9. Luna + selective Sol experiment",
-        "## Checkpoint 5: resource governance and lifecycle stress",
-        "### 12. Workspace-scoped one-writer and multi-session matrix",
-        "## Checkpoint 6: installer migration and fault injection",
-        "### 15. Concurrent Codex-home installer matrix",
-        "# Version-scoped unknowns and technical debt",
+        "## Checkpoint 3: dependency scheduling, evidence reuse, and execution recovery",
+        "### 7. Execution-progress and stall recovery",
+        "## Checkpoint 4: product-value experiments",
+        "### 8. Raw prompt versus compiled contract",
+        "### 10. Selective fresh-context Sol experiment",
+        "## Checkpoint 5: adaptive resources, multi-session safety, and lifecycle",
+        "### 13. Workspace-scoped one-writer and multi-session matrix",
+        "## Checkpoint 6: installer and version migration",
+        "### 15. Filesystem and concurrent installer matrix",
         "# Defect triage",
-        "# Release acceptance gate",
         "# Definition of Done for v1.0.0",
         "# v1.0.0 release execution plan",
         "# Required validation artifact",
         "# Feedback protocol for continued adversarial review",
         "# Completion condition",
         "LOCAL_VALIDATION_REPORT.md",
-        "behavioral-result.schema.json",
         "RELEASE CANDIDATE",
-        "HOLD",
-        "v1.0.0 RELEASED",
+        "HOLD FOR RELEASE / VALIDATION INCOMPLETE",
     ]:
         assert phrase in text
 
     assert "[x]" in text
     assert "[ ]" in text
-    assert "origin/main only" in text
     assert "CAT-LOCAL-001" in text
-    assert "PROJECT TAKEOVER: CODEX AGENT TEAM LOCAL RUNTIME VALIDATION" not in text
 
 
-def test_handoff_requires_codex_delegate_upgrade_and_entrypoint_validation():
+def test_handoff_removes_fixed_child_ceiling_and_defines_adaptive_fanout():
     text = HANDOFF.read_text()
     for phrase in [
-        "### v0.4.0 Codex Delegate migration",
-        "Starting from a real installed v0.3.x `Codex Agent Team`",
-        "confirm `/codex-delegate` is discoverable",
-        "Characterize the old `/codex-agent-team` invocation after upgrade",
-        "package id remains `codex-agent-team`",
-        "Do not block v1 solely for cosmetic slug alignment",
-        "U20 OPEN",
+        "no fixed Agent count and no product-level hard child ceiling",
+        "up to 2 concurrently active justified children without another prompt",
+        "larger simultaneous fan-out -> consent unless already authorized",
+        "native slot shortage -> queue/serialize ready work",
+        "F4 at least five independent read-only ready dependencies",
+        "Codex Delegate imposes no hard 4 ceiling",
+        "observed_child_capacity",
+        "runtime_slot_waits",
+    ]:
+        assert phrase in text
+
+    for forbidden in [
+        "normal max 2, v1 hard max 4",
+        "main-session child envelope = normal max 2",
+        "v1 hard maximum of four children",
+    ]:
+        assert forbidden not in text
+
+
+def test_handoff_requires_dependency_and_execution_progress_validation():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "Dependency Ledger and ready frontier",
+        "A running dependency does not receive duplicate inference",
+        "Same failure signature with no new evidence -> execution stall",
+        "Clean same-lane restart uses fresh context",
+        "Evidence-supported capability gap -> Terra receives the unresolved delta before repeated same-lane retry",
+        "execution_stall_events",
+        "clean_same_lane_restarts",
+        "unjustified_retry_calls",
+        "same_failure_without_new_evidence",
+    ]:
+        assert phrase in text
+
+
+def test_handoff_requires_v05_upgrade_and_entrypoint_validation():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "Starting from real v0.3.x Codex Agent Team",
+        "Starting from real v0.4.x Codex Delegate",
+        "update to v0.5.0",
+        "fresh v0.5.0 install presents `Codex Delegate`",
+        "Characterize old `/codex-agent-team` invocation after upgrade",
+        "metadata reports `0.5.0`",
+        "Cosmetic alignment cannot block v1",
     ]:
         assert phrase in text
 
@@ -78,12 +112,12 @@ def test_handoff_requires_paired_control_fingerprints():
         assert field in text
 
 
-def test_handoff_defines_incremental_feedback_packets_and_sol_consultation():
+def test_handoff_defines_adversarial_feedback_packets():
     text = HANDOFF.read_text()
     for phrase in [
         "`gpt56-sol-pro-consult` is the required adversarial consultation mechanism",
+        "Review Checkpoints A-E",
         "immediately after any P0/P1 candidate",
-        "after any brand/entry-point migration result",
         "Codex remains the local executor",
         "must not be counted as evidence that Codex Delegate itself routed correctly",
         "Do not replace this consultation with an ad hoc generic Sol call",
@@ -93,6 +127,9 @@ def test_handoff_defines_incremental_feedback_packets_and_sol_consultation():
     for field in [
         "COMPLETED_HEADOFF_ITEMS",
         "NEW_EVIDENCE",
+        "DEPENDENCY_STATE",
+        "EXECUTION_PROGRESS",
+        "RESOURCE_STATE",
         "DEFECTS",
         "TESTS",
         "CHANGES",
@@ -107,9 +144,9 @@ def test_handoff_has_a_finite_release_finish_line():
     text = HANDOFF.read_text()
     assert "The remaining job is finite" in text
     assert "When items 1-12 are satisfied, the required action is **release v1.0.0**" in text
-    assert "P2/P3 items go to the post-v1 backlog" in text
-    assert "Luna Max / Terra XHigh / Sol High are frozen as the v1.0.0 routing baseline" in text
-    assert "Repository/package-id cosmetic alignment cannot block v1" in text
+    assert "remaining P2/P3 work is moved post-v1" in text
+    assert "Luna Max / Terra XHigh / Sol High remain the frozen v1 routing baseline" in text
+    assert "Cosmetic alignment cannot block v1" in text
     for stage in ["## Stage R1", "## Stage R2", "## Stage R3", "## Stage R4"]:
         assert stage in text
 
@@ -122,7 +159,6 @@ def test_handoff_requires_cross_session_workspace_validation_without_global_lock
         "M3 different sessions, same canonical physical checkout",
         "M4 one writing session plus one read-only session on the same checkout",
         "Do not implement a workspace lock before M3 establishes a reproducible failure",
-        "Do not infer a machine-wide or account-wide limit",
     ]:
         assert phrase in text
 
@@ -130,10 +166,10 @@ def test_handoff_requires_cross_session_workspace_validation_without_global_lock
 def test_handoff_requires_concurrent_installer_validation_before_locking():
     text = HANDOFF.read_text()
     for phrase in [
-        "I1 same clean `CODEX_HOME`",
+        "I1 same clean CODEX_HOME",
         "I2 one installer is forced to fail after mutation begins",
         "peer-success state",
-        "different managed profile generations",
+        "I3 different managed profile generations",
         "Do not add an inter-process installer lock merely because races are theoretically possible",
     ]:
         assert phrase in text

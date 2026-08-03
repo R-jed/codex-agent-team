@@ -12,7 +12,7 @@ def test_readmes_present_the_product_to_users():
             "Codex Delegate",
             "codex plugin marketplace add R-jed/codex-agent-team --ref main",
             "/codex-delegate",
-            "0.4.0",
+            "0.5.0",
             "Luna Reader",
             "Luna Worker",
             "Terra Investigator",
@@ -30,36 +30,55 @@ def test_readmes_position_codex_delegate_as_a_native_delegation_layer():
     assert "delegation framework" not in en.lower()
 
 
-def test_readmes_explain_current_delegation_and_concurrency_contract():
+def test_readmes_explain_adaptive_concurrency_without_hard_agent_count():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
 
     for text in [zh, en]:
-        assert "default: 1" in text or "默认：1 个" in text
-        assert "normal maximum: 2" in text or "一般最多：2 个" in text
-        assert "hard maximum: 4" in text or "硬上限：4 个" in text
         assert "physical checkout" in text
-        assert "0.3.x" in text and "0.4.x" in text
+        assert "0.5.0" in text
 
-    assert "跨独立主会话" in zh
-    assert "independent main sessions" in en
-    assert "机器或账号的全局 Agent 上限" in zh
-    assert "machine-wide or account-wide Agent cap" in en
+    assert "没有固定 Agent 数量" in zh
+    assert "No fixed Agent count" in en
+    assert "最多两个同时活跃" in zh
+    assert "up to two concurrently active" in en
+    assert "runtime" in zh.lower() and "runtime" in en.lower()
+
+    for forbidden in [
+        "默认：1 个",
+        "一般最多：2 个",
+        "硬上限：4 个",
+        "default: 1",
+        "normal maximum: 2",
+        "hard maximum: 4",
+    ]:
+        assert forbidden not in zh
+        assert forbidden not in en
 
 
-def test_readmes_explain_compatibility_ids_without_reverting_brand():
+def test_readmes_explain_evidence_guided_recovery():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
-    assert "compatibility identifiers" in en
-    assert "兼容标识" in zh
-    # Allow logo before title
-    zh_lines = zh.split("\n")[0:15]
-    en_lines = en.split("\n")[0:15]
-    assert any("Codex Delegate" in line for line in zh_lines)
-    assert any("Codex Delegate" in line for line in en_lines)
+    assert "卡住时如何处理" in zh
+    assert "What happens when execution stalls" in en
+    assert "固定重试次数" in zh
+    assert "fixed retry count" in en
+    assert "Terra" in zh and "Terra" in en
 
 
-def test_readmes_remain_text_first_and_user_facing():
+def test_compatibility_details_live_in_installation_guide():
+    guide = (ROOT / "docs/plugin-installation.md").read_text()
+    for phrase in [
+        "R-jed/codex-agent-team",
+        "Plugin package id",
+        "codex_agent_team_*",
+        ".codex-agent-team-agents.json",
+        "0.5.0",
+    ]:
+        assert phrase in guide
+
+
+def test_readmes_remain_user_facing():
     forbidden = [
         "```mermaid",
         "HEADOFF.md",
@@ -70,6 +89,7 @@ def test_readmes_remain_text_first_and_user_facing():
         "CAT-LOCAL-001",
         "branch audit",
         "static closure",
+        "Dependency Ledger status",
         "本地真测交接",
         "远端分支清理",
         "静态收口",
@@ -78,11 +98,9 @@ def test_readmes_remain_text_first_and_user_facing():
         text = path.read_text()
         for phrase in forbidden:
             assert phrase not in text
-        # Allow logo and shields.io images but not other images
         lines = text.splitlines()
         for line in lines:
             if "<img" in line and "logo" not in line and "shields.io" not in line:
                 assert False, f"Non-logo/shields <img> found: {line}"
-        # Allow <picture> only for logo
         if "<picture" in text:
             assert "logo" in text

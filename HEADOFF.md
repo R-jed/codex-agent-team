@@ -1,204 +1,186 @@
 # Codex Delegate Local Runtime Validation Handoff
 
-This file is the authoritative execution checklist for the local validation and v1.0.0 release phase of **Codex Delegate**, currently distributed from the compatibility repository id `R-jed/codex-agent-team`.
+This file is the authoritative execution checklist for local validation and the finite v1.0.0 release phase of **Codex Delegate**.
 
-The architecture cycle is closed. The remaining job is finite: complete the mandatory live gates, resolve only release-blocking defects, run one release-candidate closure pass, then publish v1.0.0. Do not continue pre-release optimization after the Definition of Done is met.
+The v0.5.0 architecture cycle is now defined. The remaining job is finite: merge and statically validate the adaptive-orchestration candidate, complete the mandatory live gates below, resolve only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
+
+Do not reopen architecture or optimization work after the Definition of Done is satisfied.
 
 ## Current checkpoint
 
-Last live-tested production baseline:
+Last accepted live production-behavior baseline:
 
 ```text
 production behavior tested: c6020db903b35f0d57677b131bf35b0580144ab9
 Codex runtime tested so far: 0.146.0
 platform tested so far: Apple Silicon macOS 27.0
-local deterministic suite after CAT-LOCAL-001 fix: 97 passed
-remote branch hygiene at the last validated checkpoint: origin/main only
-known open PROJECT P0/P1 defects: none
-release posture: HOLD FOR RELEASE while mandatory live gates remain incomplete
+known open reproducible PROJECT P0/P1 defects: none
+release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
 ```
 
-`c6020db...` is an evidence baseline, not a permanently current HEAD. At the start of every checkpoint, fetch `origin/main`, record the actual SHA in `LOCAL_VALIDATION_REPORT.md`, and inspect any intervening production changes before reusing prior evidence.
+The `c6020db...` revision is an evidence baseline, not the current repository head.
 
-The current `main` also contains the v1 concurrency-scope policy iteration and the v0.4.0 product rename from **Codex Agent Team** to **Codex Delegate**. Static repository facts now define `/codex-delegate` as the canonical user-facing Skill entry point while retaining the repository slug, Plugin package id, `codex_agent_team_*` profile ids, and `.codex-agent-team-agents.json` as compatibility identifiers. The new cross-session, concurrent-installer, and installed-Plugin brand/entry-point migration claims remain live gates below.
+The current static candidate is **Codex Delegate v0.5.0 Adaptive Dependency Orchestration**. Before every live checkpoint:
+
+1. fetch `origin/main`;
+2. record the actual main SHA in `LOCAL_VALIDATION_REPORT.md`;
+3. inspect intervening production changes;
+4. reuse older evidence only when its declared dependencies are still valid.
 
 Status notation:
 
-- `[x]` means reproducible evidence exists in `LOCAL_VALIDATION_REPORT.md` or merged repository history.
-- `[ ]` means the live gate is still required.
-- `PARTIAL` means only part of the acceptance condition is evidenced. Keep the checkbox open until the full condition is characterized or explicitly classified as an upstream limitation with a safe project fallback.
+- `[x]` means reproducible evidence exists in merged repository history or `LOCAL_VALIDATION_REPORT.md`.
+- `[ ]` means the gate remains required.
+- `PARTIAL` means some evidence exists but the full acceptance condition has not been characterized.
 
-The control model remains:
+## v0.5.0 control model
 
 ```text
-main session owns the task-level compute graph
+main session owns user intent, dependency state, scheduling, evidence, integration, and acceptance
 no model is a mandatory stage
-Luna Max = default bounded execution
-Terra XHigh = unresolved complex technical delta only
-Sol High = selective judgment / review
-main-session child envelope = normal max 2, v1 hard max 4
-canonical workspace = at most one active writing Worker
-Codex home = one shared managed Agent-profile generation
+no fixed Agent count and no product-level hard child ceiling
+Dependency Ledger -> ready frontier -> smallest useful scheduling wave
+explicit /codex-delegate baseline -> up to 2 concurrently active justified children without another prompt
+larger simultaneous fan-out -> consent unless already authorized
+actual concurrency -> ready dependencies + workspace safety + exact routes + native runtime slots
+native slot shortage -> queue/serialize ready work, never cross-route or duplicate work
+Luna Max -> bounded execution
+Terra XHigh -> genuine unresolved complex technical delta
+Sol High -> selective fresh-context judgment/review
+one active writing Worker per canonical workspace
 delegation depth = 1
-evidence is reused until its dependencies are invalidated
-every Agent call must satisfy a distinct unresolved dependency
+valid evidence is reused until its dependencies are invalidated
+execution recovery is evidence-driven, with no universal retry count
 ```
 
-Concurrency is scoped, not global:
+Resource scopes remain separate:
 
 ```text
-session scope
--> child-count envelope and compute graph
+main-session scope
+-> Dependency Ledger, ready frontier, consent state, active child set
 
 workspace scope
--> write ownership for one canonical physical checkout or isolated worktree
+-> write ownership for one canonical physical checkout or runtime-backed isolated worktree
 
 Codex-home scope
 -> shared semantic Agent profiles and ownership manifest
 ```
 
-Different independent projects must not be blocked merely because another main session has active children. Two sessions targeting the same physical checkout still share the one-writer invariant.
-
 ## Stop line
 
 Do not change these rules merely to make a live test pass:
 
-- no mandatory Terra or Sol stage;
-- no generic whole-task Terra rerun because Luna quality looks weak;
+- no mandatory Luna -> Terra -> Sol pipeline;
+- no fixed team size, default child target, or product hard child ceiling;
+- no machine-wide or account-wide Agent cap inferred from one Codex build;
+- no larger simultaneous fan-out without consent unless the user already authorized broad parallel work;
+- no silent large serial fan-out used to evade material compute-expansion consent;
+- no duplicate Agent call for an already-running unchanged dependency;
+- no generic Terra whole-task rerun because Luna quality looks weak;
+- no unchanged retry simply because an Agent failed;
+- no universal retry-count rule;
+- no model self-report, confidence language, or file write treated as progress by itself;
+- no weakening the acceptance oracle because a lane failed it;
 - no silent expansion of decision rights through model escalation;
-- no more than one active writer in one canonical shared checkout;
-- no file-level partitioning used to justify multiple writing Workers in one physical checkout;
+- no more than one active writing Worker in one canonical shared checkout;
+- no file-level partitioning used to justify multiple writers in one physical checkout;
 - no child-created descendants;
 - no cross-role substitution when an exact project profile is unavailable;
 - no configured route fact presented as runtime observation;
 - no incomplete expected route accepted as exact runtime proof;
 - no missing runtime evidence converted to affirmative success;
 - no systematic rediscovery of still-valid deterministic or repository evidence;
-- no weakened acceptance oracle because a model failed it;
-- no claim that the v1 hard maximum of four children is a machine-wide, account-wide, or native-runtime capacity limit;
-- no project-wide global writer mutex that blocks independent workspaces merely to make same-checkout safety easy;
-- no workspace-lock daemon, Codex-home lock, or installer serialization mechanism before a reproducible live failure proves the current runtime/filesystem behavior cannot satisfy the invariant;
-- no manual rename of managed Agent profile files or ownership manifests merely to match the Codex Delegate brand;
+- no project-wide global writer mutex that blocks independent workspaces merely to simplify same-checkout safety;
+- no workspace-lock daemon or installer lock before reproducible live evidence establishes the need;
+- no manual rename of managed Agent profiles or ownership manifests merely to match the Codex Delegate brand;
 - no repository/package-id migration before the real installed-Plugin upgrade and fresh-install paths are characterized;
-- no performance, quality, or cost claim without measured named workloads and runtime versions.
+- no performance, quality, cost, concurrency-capacity, or recovery claim without measured named workloads and runtime versions.
 
-If a live Codex limitation makes an invariant impossible, record the exact runtime behavior first and classify ownership before changing project policy.
+If a native Codex limitation makes a project invariant impossible, record the exact runtime behavior and ownership classification before changing policy.
 
-# Completed work
+# Completed repository work
 
-## A. Repository and static baseline
+## A. Core architecture and policy
 
-- [x] Fresh local checkout/fetch baseline established and environment versions recorded.
-- [x] Development dependencies installed in an isolated local environment.
-- [x] Initial deterministic suite passed with 96 tests.
-- [x] Post-fix deterministic suite passed with 97 tests.
-- [x] Plugin and marketplace manifests parse as valid JSON.
-- [x] Isolated managed-profile first install succeeds.
-- [x] Isolated installer `--check` is non-mutating.
-- [x] Isolated second install is a true no-op.
-- [x] Isolated install creates only four project profiles plus the ownership manifest.
-- [x] Historical branch audit completed and the ten merged historical refs were deleted.
-- [x] Remote branch inventory was rechecked as `origin/main only` at the last validation checkpoint.
-- [x] v1 policy now distinguishes main-session, canonical-workspace, and Codex-home concurrency scopes without changing normal max 2, hard max 4, one-writer, or depth-one baselines.
-- [x] Delegation Contract and Skill now require writing Workers to preserve unrelated concurrent edits, re-read affected state before mutation when drift is plausible, and stop when drift makes the contract stale.
-- [x] Static regression coverage protects the new concurrency-scope contract. Live enforcement remains open below.
-- [x] v0.4.0 user-facing product identity is `Codex Delegate`, with canonical Skill entry point `/codex-delegate`.
-- [x] v0.4.0 intentionally retains `R-jed/codex-agent-team`, Plugin package id `codex-agent-team`, `codex_agent_team_*`, and `.codex-agent-team-agents.json` as compatibility identifiers pending live migration evidence.
+- [x] Main session remains the single control plane and final acceptance owner.
+- [x] Delegation Benefit Gate and Contractability Gate remain upstream of model-specific delegation.
+- [x] Delegation Contract now binds each child to a dependency id, interfaces/dependencies, acceptance, verification, and current execution evidence.
+- [x] Shared Evidence State preserves deterministic/repository facts while their dependencies remain valid.
+- [x] v0.5.0 introduces an in-session Dependency Ledger with `pending | ready | running | satisfied | blocked | invalidated` state.
+- [x] v0.5.0 removes the old default-child and hard-four scheduling invariants.
+- [x] Routing schema no longer limits static node arrays to four children.
+- [x] Static routing cases include an authorized five-reader fan-out.
+- [x] Static routing cases include native-slot pressure where excess ready dependencies queue without role substitution.
+- [x] The two-child number now exists only as the normal no-extra-consent simultaneous fan-out boundary.
+- [x] Material serial compute expansion is also consent-gated so scheduling cannot evade user resource boundaries.
+- [x] One-writer-per-canonical-workspace and depth-one delegation remain hard safety invariants.
+- [x] Codex-home profile generation remains shared configuration and fails closed on exact-route mismatch.
 
-## B. Real Plugin path and role discovery
+## B. Execution-progress and recovery policy
 
-- [x] Marketplace registration succeeds from the documented Git source and `main` ref.
-- [x] `codex-agent-team@codex-agent-team` v0.3.0 installs through the documented Plugin path.
-- [x] Missing project profiles fail closed rather than cross-routing to another role.
-- [x] Real profile provisioning writes the four project profiles plus one ownership manifest.
-- [x] Real profile provisioning `--check` succeeds.
-- [x] No unrelated Agent profile mutation was observed in the tested clean environment.
-- [x] A task created before provisioning did not refresh custom-role discovery on Codex 0.146.0.
-- [x] A fresh task after provisioning discovered all four semantic roles.
-- [ ] PARTIAL: verify the complete first-run consent copy shown by the Skill matches the documented managed write/migration scope.
+- [x] `execution-progress.md` separates execution evidence, progress/stall signals, and routing decisions.
+- [x] File writes, confidence, repeated narration, repeated commands, and repeated discovery do not establish progress by themselves.
+- [x] Failure signatures and progress signals are part of execution returns.
+- [x] `EXECUTION_STALL` is distinct from capability, contract, mechanical, and judgment gaps.
+- [x] Clean same-lane restart preserves current artifact, valid evidence, failure signature, unresolved delta, acceptance, and `DO NOT REDO` facts while dropping dead-end narration/private reasoning.
+- [x] No universal retry count is encoded.
+- [x] An unchanged contract is not resent after failure.
+- [x] Evidence-supported capability gaps go to Terra before repeated same-lane restart.
+- [x] Sol judgment/review uses compressed fresh context by default and remains selective.
 
-### v0.4.0 Codex Delegate migration
+## C. Exact semantic routes and distribution
 
-Do this before treating the renamed product path as release-ready.
+- [x] Reader -> GPT-5.6 Luna / max / read-only.
+- [x] Worker -> GPT-5.6 Luna / max / workspace-write.
+- [x] Investigator -> GPT-5.6 Terra / xhigh / read-only.
+- [x] Advisor -> GPT-5.6 Sol / high / read-only.
+- [x] Product name is `Codex Delegate` and canonical entry point is `/codex-delegate`.
+- [x] v0.5.0 keeps repository/package/profile compatibility identifiers during the pre-v1 migration window.
+- [x] v0.5.0 profile instructions are dependency/progress-aware while keeping the same model/effort/sandbox routes.
+- [x] Installer ownership rules still fail closed for user-modified or unproven profiles.
 
-- [ ] Starting from a real installed v0.3.x `Codex Agent Team`, refresh/reinstall from the same documented marketplace source and confirm the installed product presents as `Codex Delegate` without creating a second conflicting Plugin package.
-- [ ] In a fresh Codex task after the update, confirm `/codex-delegate` is discoverable and invokes the renamed Skill.
-- [ ] Characterize the old `/codex-agent-team` invocation after upgrade. Do not assume it remains an alias. Record whether the runtime rejects it, retains a stale cached entry, or exposes both names.
-- [ ] Confirm the existing four `codex_agent_team_*` profiles and `.codex-agent-team-agents.json` remain byte-compatible with the v0.4.0 installer and `--check` does not rewrite them solely because the product brand changed.
-- [ ] Fresh clean Plugin install presents `Codex Delegate`, exposes `/codex-delegate`, and follows the documented first-run profile consent path.
-- [ ] Verify installed Plugin metadata reports version `0.4.0` and user-visible display name `Codex Delegate` while the package id remains `codex-agent-team`.
-- [ ] Decide the v1 distribution slug after these tests: rename repository/package ids only if the real marketplace/install/upgrade path remains safe. If safe migration is not demonstrated, keep the compatibility ids for v1 and document them. Do not block v1 solely for cosmetic slug alignment.
+## D. Historical live evidence carried forward
 
-## C. Exact role/runtime evidence already observed
+- [x] Marketplace registration succeeded through the documented Git source.
+- [x] A real v0.3.0 Plugin installation succeeded.
+- [x] Missing project profiles failed closed instead of cross-routing.
+- [x] Real profile provisioning created four profiles plus one ownership manifest.
+- [x] Installer `--check` succeeded in the tested environment.
+- [x] Fresh-task role discovery exposed all four semantic roles after provisioning.
+- [x] Reader spawned with `fork_turns=none` and local rollout inspection reported Luna Max, read-only sandbox, expected parent, and runtime 0.146.0.
+- [x] Reader evidence remains L1 local corroboration because independent native attestation was not separately exposed.
+- [x] CAT-LOCAL-001 direct Codex-home endpoint symlink defect is closed in production history.
 
-- [x] `codex_agent_team_reader` spawned with explicit `fork_turns=none`.
-- [x] Reader returned the bounded probe result.
-- [x] Reader local rollout inspection reported `gpt-5.6-luna`, effort `max`, read-only sandbox, managed permission profile, runtime 0.146.0, and the expected parent thread.
-- [x] Reader result is limited to L1 local corroboration because independent native attestation was not separately exposed.
-- [ ] `codex_agent_team_worker` exact live route still needs a real spawn and observation.
-- [ ] `codex_agent_team_investigator` exact live route still needs a real spawn and observation.
-- [ ] `codex_agent_team_advisor` exact live route still needs a real spawn and observation.
-
-## D. Closed live defect
-
-### CAT-LOCAL-001: direct Codex-home endpoint symlink
-
-- [x] Real filesystem reproduction established the pre-fix defect.
-- [x] Classified as `PROJECT/P1`.
-- [x] Root cause identified at `expanduser().resolve()` before endpoint validation.
-- [x] Minimal fix rejects a Codex-home endpoint that is itself a symlink before resolving it.
-- [x] Arbitrary ancestor symlinks remain intentionally supported.
-- [x] Public CLI regression was red before the fix and green after it.
-- [x] Regression proves non-zero exit, explicit error, unchanged prior file state, and zero target directory entries.
-- [x] Installer suite passed with 14 tests and complete local suite passed with 97 tests.
-- [x] Real filesystem reproduction now exits 1 with zero target entries.
-- [x] Fix and regression are present in merged production history.
-- [x] Independent patch review verdict: `PATCH ACCEPTED`.
-
-Residual pathname TOCTOU under concurrent local mutation is outside the threat model of this focused patch. Reopen only if new evidence makes that threat model release-relevant.
-
-## E. Rejected current defect claim
-
-- [x] The reported `inspect-runtime.py` failure with two `session_meta` records was reproduced only through a generic child using `fork_turns=all`.
-- [x] The supported exact Reader path using `fork_turns=none` inspected successfully.
-- [x] Current classification: latent rollout-schema compatibility risk, not a confirmed Plugin defect.
-
-Reopen only if an exact project role using the supported fork policy produces legitimate multiple session metadata records that break inspection.
+Historical evidence must be revalidated only where v0.5.0 changed the dependency of the claim.
 
 # Pending live validation
 
-Execute the remaining gates in order. Update `LOCAL_VALIDATION_REPORT.md` after each checkpoint. Do not expand the checklist merely because an additional optimization is imaginable.
+Execute the remaining gates in order. Update `LOCAL_VALIDATION_REPORT.md` after each checkpoint. Do not expand this checklist merely because another optimization is imaginable.
 
-## Checkpoint 1: complete exact-role and Runtime Truth coverage
+## Checkpoint 1: exact roles and Runtime Truth
 
 ### 1. Exact custom-Agent route matrix
 
 Run tiny bounded responsibilities with explicit `fork_turns=none`.
 
-- [x] Reader: Luna Max / read-only / parent matched / L1 local corroboration.
-- [ ] Worker: expected Luna Max / workspace-write.
-- [ ] Investigator: expected Terra XHigh / read-only.
-- [ ] Advisor: expected Sol High / read-only.
+- [x] Reader: Luna Max / read-only / parent matched / L1 local corroboration on historical live baseline.
+- [ ] Worker: Luna Max / workspace-write.
+- [ ] Investigator: Terra XHigh / read-only.
+- [ ] Advisor: Sol High / read-only.
 
-Record only runtime facts actually exposed: thread id, parent id, role, model, reasoning effort, effective sandbox/permission, runtime/build.
+Record only facts actually exposed: thread id, parent id, role, model, effort, effective sandbox/permission, runtime/build.
 
 ### 2. Runtime Truth adversarial matrix
 
-- [x] Static verifier covers incomplete expected route fail-closed semantics.
-- [x] Static verifier covers typed route/ancestry/permission independence.
-- [x] One real Reader local rollout was sanitized successfully.
-- [ ] Characterize complete native metadata if exposed.
+- [x] Static verifier covers incomplete expected-route fail-closed semantics.
+- [x] Static verifier keeps route, ancestry, and permission evidence independent.
+- [ ] Characterize complete native route metadata if exposed.
 - [ ] Characterize partial native route behavior.
-- [ ] Characterize complete local route without native route.
-- [ ] Exercise native/local agreement when both sources exist.
-- [ ] Exercise model conflict.
-- [ ] Exercise parent-thread conflict, wrong parent, and missing parent.
-- [ ] Exercise required read-only with missing or broader native sandbox evidence.
-- [ ] Exercise sandbox/permission-profile conflict.
-- [ ] Exercise thread-id conflict.
-- [ ] Characterize rollout schema drift and duplicate rollout files against the current Codex build.
+- [ ] Characterize native/local agreement when both exist.
+- [ ] Exercise model, role, parent-thread, sandbox/permission, and thread-id conflict cases where the runtime exposes the needed facts.
+- [ ] Characterize duplicate rollout/schema drift on the current Codex build.
 
-Required summary semantics:
+Required semantics:
 
 ```text
 incomplete expected route -> fail closed
@@ -211,88 +193,101 @@ material conflict -> X0 + quarantine
 
 ### Review checkpoint A
 
-After the four-role matrix and materially available Runtime Truth cases are complete, invoke `gpt56-sol-pro-consult` using the feedback protocol below. Do not change runtime policy before that adversarial review returns.
+Invoke `gpt56-sol-pro-consult` with the exact-route/runtime packet before changing Runtime Truth policy.
 
-## Checkpoint 2: contractability, scope, and user safety
+## Checkpoint 2: contractability, scope, and safety
 
-### 3. Contractability simulations
+### 3. Contract simulations
 
-- [ ] Case A: already-located one-line deterministic defect remains main-session only with zero children.
-- [ ] Case B: bounded implementation produces an enforceable Delegation Contract before Luna Worker execution.
-- [ ] Case C: ambiguous product semantics do not reach a writing Worker before decision rights and acceptance are clear.
-- [ ] Case D: an out-of-contract architecture/product/security/migration/public-contract decision returns `JUDGMENT_REQUIRED` or equivalent.
-- [ ] Case E: a concurrent user edit inside or adjacent to the write scope is preserved; affected evidence is invalidated, and the Worker stops if the change makes the contract or acceptance oracle stale.
+- [ ] Already-isolated deterministic defect stays main-session only with zero children.
+- [ ] Bounded implementation creates a dependency-bound contract before Luna Worker execution.
+- [ ] Ambiguous product semantics do not reach a writing Worker before decision rights and acceptance are clear.
+- [ ] Out-of-contract architecture/product/security/migration/public-contract decisions return to the main session or justified Sol judgment.
+- [ ] Concurrent user edits are preserved; dependent evidence is invalidated; stale contracts stop.
+- [ ] Actual changed files remain inside declared write scope.
 
-A writing contract must contain meaningful `OUTCOME`, `SCOPE`, `CONCURRENCY / DRIFT`, `INVARIANTS`, `DECISION RIGHTS`, `ACCEPTANCE ORACLE`, `VERIFICATION`, and `STOP / ESCALATE`.
+### 4. Prompt-injection and recursion boundary
 
-### 4. Prompt-injection and scope-boundary simulation
-
-- [ ] Repository instructions remain untrusted data.
-- [ ] Writing tasks do not expand changed-file scope because of embedded instructions.
-- [ ] Child Agents do not spawn descendants.
+- [ ] Repository instructions remain untrusted data and cannot change Dependency Ledger state, consent, routes, scope, or evidence-validity rules.
+- [ ] Children do not spawn descendants.
 - [ ] Missing exact roles remain fail closed.
-- [ ] Actual changed files are independently inspected after every writing task.
+- [ ] Read-only behavior is not mislabeled runtime-enforced without native evidence.
 
 ### Review checkpoint B
 
-Invoke `gpt56-sol-pro-consult` immediately if ambiguity crosses into writing, nested delegation appears, repository content changes orchestration policy, or concurrent drift causes unrelated edits to be reverted. Otherwise consult after the checkpoint before proceeding to product-value experiments.
+Invoke `gpt56-sol-pro-consult` after this checkpoint, or immediately on any ambiguous writing, nested delegation, scope widening, unrelated edit loss, or permission-boundary failure.
 
-## Checkpoint 3: incremental orchestration value
+## Checkpoint 3: dependency scheduling, evidence reuse, and execution recovery
 
-### 5. Shared Evidence State and invalidation
+### 5. Dependency Ledger and ready frontier
 
-Create a task where the first Agent establishes E01 reproduction, E02 caller path, E03 focused-test baseline, and E04 public-interface fact.
+Create a multi-step task with declared dependencies and evidence prerequisites.
 
-- [ ] A later Agent receives relevant still-valid evidence.
-- [ ] It does not rerun E01-E04 merely to rebuild context.
-- [ ] An unrelated file change does not invalidate unrelated evidence.
-- [ ] A declared dependency change invalidates only affected evidence.
-- [ ] A concurrent user or independent-session change invalidates only evidence that depends on the changed state.
+- [ ] Dependencies move through `pending -> ready -> running -> satisfied` from observable state.
+- [ ] A blocked prerequisite prevents dependent work from becoming ready.
+- [ ] A running dependency does not receive duplicate inference.
+- [ ] A satisfied dependency stays closed while its inputs remain valid.
+- [ ] Changed input invalidates only dependent evidence/dependencies.
+- [ ] Ready frontier is recomputed after artifact/evidence changes.
+- [ ] Main session chooses a smaller wave when combining work is cheaper and preserves acceptance/context boundaries.
+
+### 6. Shared Evidence State
+
+Establish at least E01 reproduction, E02 caller path, E03 focused-test baseline, and E04 interface fact.
+
+- [ ] Later Agents receive relevant still-valid evidence.
+- [ ] They do not rebuild E01-E04 without an invalidation reason.
+- [ ] Unrelated file changes do not invalidate unrelated evidence.
 - [ ] Model judgments remain challengeable hypotheses.
 
-Record `unjustified_repeated_commands`, `unjustified_repeated_discovery`, `duplicate_dependency_calls`, `evidence_established`, and `evidence_invalidated`.
-
-### 6. Luna failure classification
-
-- [ ] mechanical defect -> focused Luna correction.
-- [ ] contract gap -> main session repairs the contract.
-- [ ] capability gap -> Terra receives only the unresolved technical delta.
-- [ ] judgment gap -> main session decides or uses justified Sol.
-- [ ] workspace drift -> reconcile changed input and repair only invalidated contract/evidence; do not escalate merely because state changed.
-- [ ] low quality alone never causes a whole-task Terra restart.
-
-### 7. Terra delta-escalation experiment
-
-Compare at least three controlled pairs if cost permits:
+Record:
 
 ```text
-A: restart the whole task with Terra
-B: Terra receives unresolved delta + valid evidence + current artifact + DO NOT REDO
+unjustified_repeated_commands
+unjustified_repeated_discovery
+duplicate_dependency_calls
+evidence_established
+evidence_invalidated
 ```
 
-- [ ] Correctness measured.
-- [ ] Repeated discovery and deterministic commands measured.
-- [ ] Tokens recorded only when exposed.
-- [ ] Latency and main-session correction work recorded.
+### 7. Execution-progress and stall recovery
 
-Do not claim delta escalation is better until paired evidence supports it.
+Construct controlled cases where a bounded dependency fails acceptance.
+
+- [ ] Mechanical defect with a concrete correction hypothesis -> focused Luna correction.
+- [ ] Contract gap -> main session repairs the contract.
+- [ ] Same failure signature with no new evidence -> execution stall, not blind unchanged retry.
+- [ ] Clean same-lane restart uses fresh context and carries current artifact, valid evidence, failure signature, unresolved delta, acceptance, and `DO NOT REDO`.
+- [ ] Clean restart does not repeat valid repository discovery merely to rebuild context.
+- [ ] Evidence-supported capability gap -> Terra receives the unresolved delta before repeated same-lane retry.
+- [ ] Judgment gap -> main session or bounded Sol decision.
+- [ ] Acceptance oracle is never weakened to make a stalled lane pass.
+
+Record:
+
+```text
+execution_stall_events
+clean_same_lane_restarts
+unjustified_retry_calls
+same_failure_without_new_evidence
+```
 
 ### Review checkpoint C
 
-Invoke `gpt56-sol-pro-consult` with the Shared Evidence and first Terra pair evidence before modifying evidence or routing policy.
+Invoke `gpt56-sol-pro-consult` with Dependency Ledger, evidence-reuse, stall, clean-restart, and first Terra-delta evidence before modifying scheduling/recovery policy.
 
 ## Checkpoint 4: product-value experiments
 
-### 8. Primary raw-prompt versus compiled-contract experiment
+### 8. Raw prompt versus compiled contract
 
-Highest-priority behavioral comparison:
+Primary controlled comparison:
 
 ```text
 A: raw user prompt -> Luna Max
-B: same user prompt -> main session compiles Delegation Contract -> Luna Max
+B: same prompt -> main session compiles Delegation Contract -> Luna Max
 ```
 
-Freeze each workload with `evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md`. Every pair records:
+Freeze each workload with the local eval fixture template. Every paired run records:
 
 ```text
 workload_definition_hash
@@ -306,345 +301,313 @@ acceptance_rubric_id
 Codex runtime version
 ```
 
-- [ ] At least one valid controlled pair is produced before scaling.
-- [ ] Target at least five paired repeats across representative bounded workloads if cost permits.
-- [ ] Result JSON validates against `evals/behavioral-result.schema.json`.
-- [ ] `scripts/score-behavioral-evals.py` accepts the result.
-- [ ] Primary conclusions use candidate-minus-baseline paired deltas.
-- [ ] No missing token, latency, route, or runtime telemetry is estimated.
+- [ ] Produce at least one valid pair before scaling.
+- [ ] Target representative repeated pairs if cost permits.
+- [ ] Measure correctness, scope errors, regressions, correction work, tokens/latency when exposed, and evidence-reuse waste.
 
-### 9. Luna + selective Sol experiment
+### 9. Terra delta experiment
 
-Compare:
+Compare on a real capability-gap workload:
 
 ```text
-A: contract -> Luna Max -> main acceptance
-B: contract -> Luna Max -> selective Sol review -> main acceptance
+A: whole-task Terra restart
+B: Terra receives unresolved delta + valid evidence + artifact + failure signature + DO NOT REDO
 ```
 
-- [ ] At least three controlled pairs per selected workload if cost permits.
-- [ ] Material issues caught, false positives, correction work, latency, exposed tokens, and final acceptance score recorded.
-- [ ] Sol receives the actual artifact plus compressed evidence and does not rescan without a named missing dependency.
+Do not claim an advantage until paired evidence supports it.
+
+### 10. Selective fresh-context Sol experiment
+
+Compare on a consequential judgment/review workload:
+
+```text
+A: contract -> Luna
+B: contract -> Luna -> fresh-context selective Sol
+```
+
+Measure material catches, false positives, total correction work, and latency/cost when exposed.
 
 ### Review checkpoint D
 
-Invoke `gpt56-sol-pro-consult` with the first valid raw-vs-contract results and first Sol pair set before changing model/effort routing.
+Invoke `gpt56-sol-pro-consult` with the first valid product-value pairs. Do not tune Luna/Terra/Sol routes pre-v1 unless a reproducible correctness/safety regression makes the frozen route unusable.
 
-## Checkpoint 5: resource governance and lifecycle stress
+## Checkpoint 5: adaptive resources, multi-session safety, and lifecycle
 
-### 10. Useful parallelism
+### 11. Consent boundary and no product hard cap
 
-- [ ] Two independent read-only Luna branches satisfy different dependencies concurrently and the parent requires both outputs.
-- [ ] Two independent main sessions on different projects/checkouts can each use justified children without a project-created machine-wide concurrency bottleneck.
+Run a deterministic/static + live matrix:
 
-### 11. Duplicate inference rejection
+```text
+F0 no useful delegated dependency
+-> 0 children is valid
 
-- [ ] One question with no independent dependencies does not trigger redundant Luna/Terra/Sol parallel inference.
+F1 one useful dependency
+-> one child may run when justified
 
-### 12. Workspace-scoped one-writer and multi-session matrix
+F2 two independent ready dependencies
+-> both may run inside explicit-command baseline when safe
 
-Use real independent main sessions where the case requires them. Record canonical workspace identity, main-session identity, child thread ids when exposed, start/overlap/close timing, and actual changed files.
+F3 three or more independent ready dependencies, no broad-fanout authorization
+-> ask consent before larger simultaneous fan-out
 
-- [ ] Same main session, same physical checkout: attempt two writing Workers; the second concurrent writer is not launched.
-- [ ] M1 different sessions, different projects/checkouts: one Worker in each may proceed concurrently when native capacity permits.
-- [ ] M2 different sessions, same repository, different runtime-backed isolated worktrees: one Worker in each may proceed concurrently when filesystem isolation is real. If the current Codex runtime cannot preserve this isolation, classify the limitation as upstream before changing project policy.
-- [ ] M3 different sessions, same canonical physical checkout: attempt one Worker from each session; never accept a state with two simultaneous writing Workers. If both become active against the same checkout, classify as `PROJECT/P1 candidate` unless native runtime evidence shows the project cannot observe or control the collision and ownership must be reassessed.
-- [ ] M4 one writing session plus one read-only session on the same checkout: after writer mutation, stale read-side repository evidence is invalidated or revalidated before acceptance rather than silently reused.
-- [ ] No test uses disjoint intended file lists as proof that simultaneous writers are safe in one physical checkout.
+F4 at least five independent read-only ready dependencies, broad fan-out explicitly authorized
+-> Codex Delegate imposes no hard 4 ceiling
+-> spawn only as many as current native capacity safely allows
+-> queue the remainder
+```
 
-Do not implement a workspace lock before M3 establishes a reproducible failure. If M3 fails, prefer the smallest workspace-scoped mechanism that blocks only the conflicting canonical checkout and does not serialize independent projects or isolated worktrees.
+Record:
 
-### 13. Fan-out consent and native capacity characterization
+```text
+ready_dependencies
+peak_active_children
+observed_child_capacity
+runtime_slot_waits
+consent_prompts
+duplicate_dependency_calls
+```
 
-- [ ] Attempt three children without broad-parallel authorization.
-- [ ] Consent is requested before exceeding the normal two-child envelope.
-- [ ] With explicit authorization, characterize three-child and four-child behavior when practical: spawn success, latency, slot recovery, and failure mode.
-- [ ] Keep `hard maximum = 4` as the frozen v1 policy even if native capacity is higher. If native capacity is lower, record the upstream limit and ensure the Skill fails safely rather than inventing capacity.
-- [ ] Do not infer a machine-wide or account-wide limit from one main session's observed capacity.
+Do not infer a universal native maximum from one version/build.
 
-### 14. Lifecycle stress
+### 12. Slot recovery and lifecycle
 
-Run at least 10 sequential harmless read-only spawn/wait/close cycles, preferably 20 if cost permits.
+- [ ] Confirm queued ready dependencies become runnable as prior children close.
+- [ ] Confirm no orphan/ghost dependency ownership remains after completion, failure, cancellation, or close.
+- [ ] Confirm slot pressure never triggers cross-route substitution or duplicate work.
+- [ ] Run at least 10 bounded spawn/close cycles across representative read-only and writing work where practical.
+- [ ] Characterize cancellation and failed-child slot recovery on the tested runtime.
 
-- [ ] 10-cycle minimum completed.
-- [ ] Concurrency slots return to expected state after close.
-- [ ] No unexplained orphan children remain.
-- [ ] Wait, interrupt/cancel, and spawn-failure recovery characterized.
-- [ ] Closing one child does not corrupt siblings or the main task.
+### 13. Workspace-scoped one-writer and multi-session matrix
+
+```text
+M1 different sessions, different projects/checkouts
+-> both writers should be allowed
+
+M2 different sessions, same repository, different runtime-backed isolated worktrees
+-> both writers allowed only when real isolation is evidenced
+
+M3 different sessions, same canonical physical checkout
+-> never accept two simultaneous writing Workers
+
+M4 one writing session plus one read-only session on the same checkout
+-> read evidence must be refreshed/invalidated when the writer changes dependencies
+```
+
+Do not implement a workspace lock before M3 establishes a reproducible failure. If M3 fails, classify it as a PROJECT/P1 candidate and use the smallest canonical-workspace coordination mechanism that preserves independent-workspace concurrency.
+
+## Checkpoint 6: installer and version migration
+
+### 14. Real installed-Plugin migration
+
+- [ ] Starting from real v0.3.x Codex Agent Team, update through the documented marketplace source and confirm one Codex Delegate package path with `/codex-delegate`.
+- [ ] Starting from real v0.4.x Codex Delegate, update to v0.5.0 and confirm the exactly owned four managed profile files upgrade to the v0.5.0 instructions.
+- [ ] Confirm user-modified/unproven profiles remain untouched and the affected route fails closed.
+- [ ] Confirm fresh v0.5.0 install presents `Codex Delegate`, exposes `/codex-delegate`, and follows first-run consent.
+- [ ] Characterize old `/codex-agent-team` invocation after upgrade. Do not assume alias behavior.
+- [ ] Verify installed metadata reports `0.5.0` while compatibility package id remains `codex-agent-team`.
+- [ ] Decide repository/package slug migration only from real install/upgrade evidence. Cosmetic alignment cannot block v1.
+
+### 15. Filesystem and concurrent installer matrix
+
+Retain existing deterministic fault coverage and add real concurrent processes:
+
+```text
+I1 same clean CODEX_HOME, two same-generation installers concurrently
+-> exact converged state or one safe refusal
+-> four current profiles + one exact manifest
+-> no corruption or staging/backup debris
+
+I2 one installer is forced to fail after mutation begins while a peer operation succeeds
+-> failed rollback must not overwrite peer-success state
+
+I3 different managed profile generations compete in one CODEX_HOME
+-> safe refusal or exact characterized convergence
+-> no silent mixed generation
+```
+
+Do not add an inter-process installer lock merely because races are theoretically possible. Add coordination only after a reproducible project-owned failure.
 
 ### Review checkpoint E
 
-Invoke `gpt56-sol-pro-consult` immediately if capacity leaks, orphan children, nested delegation, same-checkout writer overlap, false global writer blocking, or sibling corruption appears. Otherwise send the checkpoint packet after stress completion.
-
-## Checkpoint 6: installer migration and fault injection
-
-- [x] clean install.
-- [x] exact repeat no-op.
-- [x] direct symlinked Codex-home endpoint rejects with zero target entries.
-- [ ] current managed profile modified by user -> refuse overwrite.
-- [ ] unrelated TOML claiming a reserved semantic role -> refuse.
-- [ ] proven legacy model-named profile -> migrate safely.
-- [ ] unproven legacy profile -> preserve.
-- [ ] stale standalone manifest after migration -> does not re-delete a recreated user file.
-- [ ] symlinked managed agents directory / manifest / profile entry -> reject as documented.
-- [ ] unwritable agents directory.
-- [ ] interrupted or staged replacement.
-- [ ] disk-full or manifest-write failure if practical.
-- [ ] rollback after a failure following at least one profile mutation.
-- [ ] post-success cleanup failure if safely reproducible.
-
-### 15. Concurrent Codex-home installer matrix
-
-Use separate OS processes so this tests shared filesystem state, not one Python call stack.
-
-- [ ] I1 same clean `CODEX_HOME`, same shipped profile generation, two installers start concurrently. Accept only exact convergence or one safe refusal. Final four profiles and manifest must be exact, and no staging or backup debris may remain.
-- [ ] I2 one installer is forced to fail after mutation begins while a peer installer is allowed to succeed. The failing process must not roll back or corrupt a peer-success state. Final state must be exact or both operations must have failed closed without managed-file corruption.
-- [ ] Re-run I1 with pre-existing exact managed state to characterize concurrent idempotent checks/installs.
-- [ ] Characterize two independent sessions expecting different managed profile generations in one Codex home. v1 support contract is one installed generation; any mismatched lane must stop on exact-route conflict rather than cross-role substitute. Do not claim simultaneous mixed-generation support.
-- [ ] Record process exit codes, final profile hashes, manifest bytes/hash, leftover staging/backup entries, and whether any successful peer state was later reverted.
-
-Do not add an inter-process installer lock merely because races are theoretically possible. If I1 or I2 produces corruption or rollback of a peer-success state, classify the concrete reproduction first and implement the smallest fail-closed serialization or compare-and-swap mechanism that closes it.
-
-For every failure verify profile bytes, ownership manifest, unrelated files, staging files, and backups after recovery.
-
-# Version-scoped unknowns and technical debt
-
-Use this register to avoid rediscovering already-characterized items.
-
-- **U1 RESOLVED for Codex 0.146.0:** current task did not refresh roles after provisioning; a fresh task did.
-- **U2 PARTIAL:** Reader local rollout exposed route/parent/sandbox metadata; native independent attestation and three roles remain open.
-- **U3 PARTIAL:** supported Reader `fork_turns=none` inspected successfully; generic `fork_turns=all` multi-session behavior is not a current Plugin defect.
-- **U4 PARTIAL:** Reader reported read-only sandbox; host-enforced denial is not yet demonstrated for all read-only roles.
-- **U5 PARTIAL:** `fork_turns=none` works for Reader; other roles remain open.
-- **U6 OPEN:** Shared Evidence compliance is unmeasured live.
-- **U7 OPEN:** Luna Max is a frozen v1 baseline, not a proven globally optimal effort level.
-- **U8 OPEN:** Terra XHigh value as delta Investigator remains unproven.
-- **U9 OPEN:** Sol High selective-review value remains unproven.
-- **U10 OPEN:** repeated lifecycle behavior remains untested.
-- **U11 PARTIAL:** normal installer/no-op/direct symlink are live-tested; remaining failure modes are open.
-- **U12 PARTIAL:** real Plugin installation and recovery work; exact first-run consent copy remains open.
-- **U13 P2 MAINTENANCE:** dependencies are lower-bound compatible rather than release-locked. Do not block v1 solely for this unless reproducible drift occurs.
-- **U14 RESOLVED:** historical merged branches were cleaned at the last validation checkpoint.
-- **U15 ONGOING:** runtime/tool version drift requires version-scoped evidence, not perpetual pre-release retesting.
-- **U16 NON-BLOCKING SO FAR:** read-only Git temporary-cache warning did not break the Reader probe.
-- **U17 OPEN:** cross-session one-writer enforcement for two independent main sessions targeting the same canonical physical checkout has not been demonstrated live.
-- **U18 OPEN:** same-Codex-home installer behavior is single-process transactional today; multi-process convergence and rollback interaction remain uncharacterized.
-- **U19 OPEN:** one installed managed profile generation per Codex home is the v1 support boundary; concurrent sessions expecting different generations still require live fail-closed characterization.
-- **U20 OPEN:** Codex Delegate v0.4.0 brand and `/codex-delegate` entry-point migration has static evidence only; real upgrade, fresh-install discovery, old-command behavior, and final repository/package-id decision remain to be characterized.
+Invoke `gpt56-sol-pro-consult` after Checkpoints 5 and 6 are characterized. Include adaptive fan-out, observed native capacity, slot recovery, M1-M4, I1-I3, and migration evidence.
 
 # Defect triage
 
-Classify each new failure before patching:
+Classify every live failure by severity and ownership.
+
+Severity:
 
 ```text
 P0
-unsafe mutation, credential/scope boundary failure, data-loss risk,
-false runtime security proof, or installer corruption without safe recovery
+unsafe mutation, credential boundary failure, data loss, false security proof, or unrecoverable installer corruption
 
 P1
-core orchestration invariant fails, wrong model/role is accepted as exact,
-multiple writers appear in one shared checkout, nested delegation occurs,
-contractability is bypassed, or the normal documented install path is broken
+core orchestration invariant fails, wrong route accepted, unsafe multiple writers, nested delegation, contractability bypass, duplicate dependency ownership causing material wrong execution, consent boundary bypass, or documented install path broken
 
 P2
-non-blocking UX friction, measurable inefficiency, maintenance drift,
-telemetry compatibility limitation with a safe fallback, or documentation mismatch
+nonblocking UX, inefficiency, maintenance drift, telemetry/schema compatibility, or recoverable resource waste
 
 P3
-cosmetic cleanup, optional ergonomics, or speculative optimization
+cosmetic, optional, or speculative improvement
 ```
 
-Ownership is one of `PROJECT`, `UPSTREAM_CODEX_RUNTIME`, `ENVIRONMENT`, `TEST_FIXTURE`, or `UNKNOWN`.
+Ownership:
 
-Only reproducible PROJECT P0/P1 defects block the v1.0.0 release once the mandatory live gates are characterized. P2/P3 items go to the post-v1 backlog unless they are trivial and zero-risk to close during the fixed RC pass.
+```text
+PROJECT
+UPSTREAM_CODEX_RUNTIME
+ENVIRONMENT
+TEST_FIXTURE
+UNKNOWN
+```
 
-# Release acceptance gate
+After mandatory live gates are characterized, only reproducible PROJECT P0/P1 or a P2 that directly blocks a mandatory gate can delay v1.0.0. Other P2/P3 items move to the post-v1 backlog.
 
-The repository remains **HOLD FOR RELEASE** while mandatory live validation is incomplete. This does not mean a known P0/P1 is currently open.
-
-Release can move to `RELEASE CANDIDATE` when all of these are evidenced:
-
-- [x] deterministic repository suite green on accepted production content before the current concurrency-policy iteration.
-- [ ] deterministic repository suite green on the current concurrency-policy and Codex Delegate rename iteration.
-- [x] historical remote branches cleaned at the validated checkpoint.
-- [x] documented marketplace and Plugin installation path works in a clean real environment for v0.3.x.
-- [ ] installed v0.3.x -> v0.4.0 refresh/reinstall presents `Codex Delegate` and a fresh task exposes `/codex-delegate` without creating a conflicting second Plugin package.
-- [ ] clean v0.4.0 install presents `Codex Delegate`, exposes `/codex-delegate`, and preserves the documented compatibility ids.
-- [x] all four semantic roles are discoverable after the documented fresh-task recovery path on the prior v0.3.x evidence baseline.
-- [x] managed profile provisioning changed no unrelated Agent files in the tested clean environment.
-- [ ] all four semantic roles have sufficient live route characterization for their intended claims.
-- [ ] depth-one rules hold in live use.
-- [ ] same-checkout one-writer holds when two independent main sessions target the same canonical physical checkout.
-- [ ] independent projects or isolated workspaces are not serialized by a false project-created global writer mutex.
-- [ ] partial runtime evidence never produces a live false-positive exact match.
-- [ ] live cross-source conflicts quarantine the correct typed concern where both sources exist.
-- [ ] ambiguous writing tasks stop before unsafe delegation.
-- [ ] concurrent user/session workspace drift preserves unrelated edits and invalidates only dependent evidence.
-- [ ] Luna failure classification avoids generic Terra reruns.
-- [ ] Shared Evidence tests show no systematic full-task rediscovery while dependencies remain valid.
-- [ ] behavioral pair controls pass schema/scorer integrity checks.
-- [ ] lifecycle stress has no unexplained orphan/slot leak.
-- [ ] installer fault injection has no unrecovered managed-file corruption.
-- [ ] concurrent same-Codex-home installer tests converge or fail closed without peer-success rollback or managed-state corruption.
-- [ ] mixed profile-generation conflict is characterized as a v1 unsupported case that stops the affected lane without cross-role substitution.
-- [x] CAT-LOCAL-001 has no remaining patch-scope blocker and is merged.
-- [ ] no new PROJECT P0/P1 remains after pending live gates.
-- [ ] performance and cost statements are limited to measured named workloads and runtime versions.
+Any P0/P1 candidate must be sent immediately through `gpt56-sol-pro-consult` before broadening architecture or threat-model scope.
 
 # Definition of Done for v1.0.0
 
-This project must stop pre-release iteration when the following finite standard is met.
+v1.0.0 is done when all 12 conditions are satisfied:
 
-## Product correctness
-
-1. Every mandatory release-acceptance checkbox above is either `[x]` or explicitly classified as an upstream/runtime limitation with a documented fail-closed project behavior that preserves the invariant.
+1. Every mandatory live gate above is complete, or an upstream/runtime limitation is explicitly characterized with a documented fail-closed project invariant.
 2. No reproducible PROJECT P0/P1 remains open.
-3. The normal user path works from marketplace registration through installing **Codex Delegate**, invoking `/codex-delegate`, profile readiness, fresh-task role discovery, bounded delegation, verification, and user-visible completion.
-4. One-writer across independent sessions sharing one canonical checkout, depth-one, exact-route fail-closed, contractability, concurrent-drift preservation, and untrusted-content boundaries survive live tests. Independent workspaces remain independently writable when the runtime provides real isolation.
+3. The normal user path works: marketplace -> Plugin install/update -> profile readiness -> fresh-task discovery -> bounded delegation -> verification -> visible completion.
+4. One-writer, depth-one, exact-route fail-closed, contractability, prompt-injection, and untrusted-content boundaries survive live tests.
+5. Adaptive scheduling is evidenced: no fixed Agent target, no product hard 4 ceiling, no duplicate running dependency, >2 simultaneous fan-out is consent-gated, and runtime slot pressure queues safely.
+6. Execution recovery is evidenced: unchanged retry is rejected, clean same-lane restart preserves valid task truth, and evidence-supported capability gaps use Terra delta escalation.
+7. Raw-prompt versus compiled-contract evaluation produces valid paired data with no systematic acceptance-quality regression on representative bounded work.
+8. Shared Evidence State shows no systematic full-task rediscovery while dependencies remain valid.
+9. Terra delta and selective Sol may remain conservative if economics are inconclusive, provided no reproducible correctness/safety regression exists and public claims remain measured.
+10. Luna Max / Terra XHigh / Sol High remain the frozen v1 routing baseline; route/effort optimization moves to v1.x unless a release-blocking defect requires change.
+11. Full deterministic CI is green on the exact release-candidate content, and a fresh-clone clean-Codex-home smoke covers Plugin install, four-role discovery, Worker/read-only routes, adaptive fan-out/slot behavior, one-writer/depth-one, and installer critical safety.
+12. User docs describe observed limitations without unmeasured claims; remaining P2/P3 work is moved post-v1 and cannot reopen the pre-release architecture cycle.
 
-## Product value
-
-5. The primary raw-prompt versus compiled-contract experiment has valid paired data on representative bounded work and does not show a systematic acceptance-quality regression from contract compilation.
-6. Shared Evidence testing does not show systematic full-task rediscovery when dependencies remain valid.
-7. Terra delta escalation and selective Sol are allowed to remain conservatively scoped if their economic advantage is inconclusive, provided they do not show a reproducible correctness/safety regression and README claims remain limited to measured evidence.
-8. Luna Max / Terra XHigh / Sol High are frozen as the v1.0.0 routing baseline. Effort tuning and model-route optimization move to v1.1+ and cannot delay v1.0.0 merely because a cheaper or faster route might exist.
-
-## Release engineering
-
-9. Full deterministic CI is green on the exact release-candidate content across the maintained matrix.
-10. A fresh-clone, clean-Codex-home RC smoke pass succeeds for Codex Delegate Plugin install, `/codex-delegate` discovery, four-role discovery, one representative Worker task, one read-only route, one two-session same-checkout writer-collision check, depth-one enforcement, concurrent same-Codex-home installer safety, and the installer critical-path cases that previously produced PROJECT P1 evidence.
-11. Documentation describes observed limitations without claiming unmeasured performance, native capacity, cross-session exclusion, mixed-profile-generation support, multi-process installer guarantees, or unverified compatibility aliases.
-12. Remaining P2/P3 items are recorded as post-v1 work and are not used to reopen the pre-release architecture cycle. Repository/package-id cosmetic alignment cannot block v1 if the compatibility identifiers are documented and the supported install/upgrade path is green.
-
-When items 1-12 are satisfied, the required action is **release v1.0.0**, not another optimization pass.
+When items 1-12 are satisfied, the required action is **release v1.0.0**.
 
 # v1.0.0 release execution plan
 
-## Stage R1: finish mandatory live validation
+## Stage R1: finish live gates
 
-Complete Checkpoints 1-6 plus the v0.4.0 Codex Delegate migration checks in section B. At Review Checkpoints A-E, use `gpt56-sol-pro-consult` for adversarial review. Patch only reproducible PROJECT P0/P1 or a P2 that directly prevents completion of a mandatory gate.
+Complete Checkpoints 1-6 in order. Use `gpt56-sol-pro-consult` at Review Checkpoints A-E and for every P0/P1 candidate.
 
-The concurrency and rename additions remain inside the existing release plan. They do not create an open-ended new architecture phase, raise the frozen v1 child limits, or authorize a new scheduler/lock/profile-migration architecture without failure evidence.
+Patch only:
 
-## Stage R2: declare RELEASE CANDIDATE and feature freeze
+- reproducible PROJECT P0/P1;
+- P2 that directly blocks a mandatory release gate;
+- test fixtures/docs that are objectively stale relative to the frozen architecture.
 
-When the Release acceptance gate is satisfied:
+## Stage R2: RELEASE CANDIDATE and feature freeze
 
-- declare `RELEASE CANDIDATE` in `LOCAL_VALIDATION_REPORT.md`;
-- freeze architecture, role definitions, model routes, product name `Codex Delegate`, canonical command `/codex-delegate`, and new features;
-- create/update release notes and a changelog entry;
-- prepare version `1.0.0` in Plugin metadata on a release branch or focused PR;
-- decide the final repository/package-id slug from the migration evidence; keep the compatibility ids if safe rename evidence is absent;
-- do not add new experiments to the mandatory gate list.
+When all mandatory gates are characterized and no PROJECT P0/P1 is open:
 
-During feature freeze, only P0/P1 fixes, required release metadata, and evidence-backed documentation corrections may change behavior.
+- declare `RELEASE CANDIDATE`;
+- freeze architecture, routing, scheduling semantics, and evaluation scope;
+- prepare version/tag/release metadata;
+- run no new optimization experiments that can expand the release gate.
 
 ## Stage R3: one fixed RC closure pass
 
-On the exact release candidate commit:
+Run exactly one release-candidate closure pass over the frozen content:
 
-- run complete deterministic CI;
-- validate both manifests;
-- run managed-profile install / `--check` / idempotent reinstall;
-- fresh-install Codex Delegate in a clean Codex home;
-- confirm `/codex-delegate` is discoverable in a fresh task;
-- confirm four roles discover after the documented recovery path;
-- execute one bounded Worker smoke task and one read-only role smoke task;
-- run one two-independent-session same-checkout writer-collision smoke and confirm independent workspaces are not falsely serialized;
-- recheck depth-one behavior;
-- rerun one concurrent same-Codex-home installer convergence case;
-- rerun the critical installer safety cases that previously produced PROJECT P1 evidence;
-- verify README/HEADOFF/release notes match the tested product name, command, compatibility ids, and runtime scope.
+- full deterministic CI;
+- fresh-clone clean-Codex-home smoke;
+- exact four-role discovery/routing;
+- adaptive fan-out + native slot queue/recovery smoke;
+- one-writer/depth-one smoke;
+- installer critical safety/migration smoke;
+- README/install docs checked against observed behavior.
 
-If this pass finds a PROJECT P0/P1, fix only that defect, rerun its invalidated gate plus full CI, and repeat the RC closure pass. P2/P3 does not restart the release cycle unless it invalidates a mandatory gate.
+If a P0/P1 fix is required, rerun only the invalidated live gate plus full CI and this RC pass. P2/P3 does not restart the architecture cycle unless it directly invalidates a mandatory gate.
 
-## Stage R4: publish the full release
+## Stage R4: publish v1.0.0
 
-When the fixed RC closure pass is green:
-
-1. set Plugin version to `1.0.0`;
-2. ensure README status says stable Codex Delegate v1.0.0 and documents any retained compatibility identifiers;
-3. merge the release PR;
-4. create Git tag `v1.0.0` on the exact tested release commit;
-5. create the GitHub v1.0.0 release with concise release notes, installation path, supported runtime evidence, and known non-blocking limitations;
-6. mark the local validation cycle complete;
-7. move every remaining P2/P3/speculative optimization to v1.x backlog or issues.
-
-After v1.0.0 is published, do not keep `HEADOFF.md` as an open-ended pre-release repair loop. Any further route tuning, cost optimization, additional stress coverage, model experiments, or cosmetic compatibility-id cleanup belongs to a new v1.x milestone with separate evidence and scope.
+- set final Plugin version to `1.0.0`;
+- merge the exact tested release content;
+- tag the exact tested commit;
+- publish the GitHub release;
+- mark validation complete in `LOCAL_VALIDATION_REPORT.md`;
+- move remaining P2/P3 and route-economics questions to v1.x.
 
 # Required validation artifact
 
-Maintain `LOCAL_VALIDATION_REPORT.md` as the evidence record. For each completed checkbox add runtime version, repository revision, prompt/command, expected result, actual result, and reproducible evidence when material.
+`LOCAL_VALIDATION_REPORT.md` is the evidence ledger.
 
-For multi-session cases, record each main session separately and identify the canonical workspace each session targeted. For concurrent installer cases, record each process separately and capture final managed-state hashes after both exit. For Codex Delegate migration checks, record the pre-update installed Plugin identity/version, post-update identity/version, fresh-task command discovery, and whether the old command remains visible.
+After each checkpoint, append or reconcile:
 
-For formal behavioral comparisons, freeze the workload with `evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md` and validate sanitized JSON against `evals/behavioral-result.schema.json`.
+```text
+REPOSITORY_SHA
+RUNTIME / PLATFORM
+WORKLOAD / FIXTURE
+EXPECTED
+ACTUAL
+EVIDENCE CLASS
+ROUTE / PERMISSION / ANCESTRY EVIDENCE WHEN MATERIAL
+DEPENDENCIES SATISFIED / INVALIDATED
+EXECUTION PROGRESS / FAILURE SIGNATURE WHEN MATERIAL
+CONSENT / READY FRONTIER / SLOT EVIDENCE WHEN MATERIAL
+DEFECT CLASSIFICATION
+OPEN UNKNOWN
+```
 
-Never commit credentials, complete rollout JSONL, private transcripts, raw environment dumps, hidden reasoning, or unrelated local paths.
+Never relabel static CI as live Codex runtime evidence.
 
 # Feedback protocol for continued adversarial review
 
-`gpt56-sol-pro-consult` is the required adversarial consultation mechanism for this validation cycle. It is independent of the four Agent roles being tested and must not be counted as evidence that Codex Delegate itself routed correctly.
+`gpt56-sol-pro-consult` is the required adversarial consultation mechanism for Review Checkpoints A-E and immediately after any P0/P1 candidate.
 
-At Review Checkpoints A-E, immediately after any P0/P1 candidate, and after any brand/entry-point migration result that would change the v1 distribution decision, Codex must invoke `gpt56-sol-pro-consult` and pass a compact evidence packet. Codex remains the local executor and must reconcile the consultation with repository/runtime evidence rather than blindly applying advice. Do not replace this consultation with an ad hoc generic Sol call.
+Codex remains the local executor. The consultation challenges severity, ownership, counterexamples, evidence quality, and whether the next checkpoint is justified. Its result is model judgment and must not be counted as evidence that Codex Delegate itself routed correctly.
 
-Use:
+Do not replace this consultation with an ad hoc generic Sol call.
+
+Use this compact packet:
 
 ```text
 CONTEXT_PACKET_V1
 
-TASK: codex-delegate local validation checkpoint
-BASELINE_SHA: <current origin/main>
-LOCAL_SHA: <current local validation commit if different>
-RUNTIME: <Codex / ChatGPT build>
-PLATFORM: <macOS / Apple Silicon>
-CHECKPOINT: <A | B | C | D | E | defect | migration | release-candidate>
+CHECKPOINT
+A | B | C | D | E | defect | release-candidate
 
-COMPLETED_HEADOFF_ITEMS:
-- <exact checkbox names or section numbers>
+REPOSITORY_SHA
+<actual tested origin/main SHA>
 
-NEW_EVIDENCE:
-- <fact + reproducible command/prompt/artifact>
+COMPLETED_HEADOFF_ITEMS
+<only newly completed checklist items>
 
-DEFECTS:
-- <id, severity candidate, ownership candidate, minimal reproduction>
+NEW_EVIDENCE
+<deterministic / repository / live runtime evidence>
 
-TESTS:
-- <focused result>
-- <full-suite result if code changed>
+DEPENDENCY_STATE
+<ready/running/satisfied/invalidated facts material to this checkpoint>
 
-CHANGES:
-- <files changed, or NONE>
+EXECUTION_PROGRESS
+<failure signatures, progress/stall signals, clean restart or delta escalation when material>
 
-UNRESOLVED:
-- <smallest remaining questions>
+RESOURCE_STATE
+<consent, peak active children, observed slots, queued dependencies, writer domains when material>
 
-LOCAL_JUDGMENT:
-- <continue | patch candidate | HOLD reason | RELEASE CANDIDATE candidate>
+DEFECTS
+<severity + ownership + reproduction, or none>
 
-ASK:
-Use gpt56-sol-pro-consult to adversarially review this evidence. Challenge severity and ownership, identify the strongest counterexample, and state whether the next HEADOFF checkpoint may proceed without a code or policy change.
+TESTS
+<commands and exact outcomes>
+
+CHANGES
+<production/test/docs changes since previous checkpoint>
+
+UNRESOLVED
+<smallest remaining unknowns>
+
+LOCAL_JUDGMENT
+<Codex executor's current conclusion>
+
+ASK
+Challenge severity, ownership, evidence sufficiency, counterexamples, and whether execution should continue without architecture change.
 ```
 
-For Checkpoint E multi-session evidence, include both main-session identifiers, canonical workspace identities, observed overlap, and whether either session knew about the other. For Checkpoint 6 installer concurrency evidence, include both process outcomes and the final shared Codex-home state. For migration evidence, include before/after Plugin identity, version, display name, discovered commands, and managed-profile hashes.
-
-When a project-side defect is reproducible, stop the experiment, create the smallest focused regression and patch, run focused plus complete tests, update `LOCAL_VALIDATION_REPORT.md`, then send the defect packet before expanding scope.
+The local executor reconciles the consultation against actual artifacts and runtime evidence before acting.
 
 # Completion condition
 
-The local handoff has a finite end state:
+There is no Checkpoint 7 and no automatic post-checkpoint optimization phase.
 
-```text
-RELEASE CANDIDATE
-Mandatory live gates are characterized, no open PROJECT P0/P1 remains,
-and the v1 Definition of Done is satisfied enough to enter feature freeze.
-
-HOLD
-A reproducible PROJECT P0/P1 or uncharacterized runtime limitation blocks a core invariant.
-
-v1.0.0 RELEASED
-The fixed RC closure pass is green, Codex Delegate version 1.0.0 is merged/tagged/released,
-and remaining P2/P3 work has moved to the post-v1 backlog.
-```
-
-Until the release gate is met, use `HOLD FOR RELEASE / VALIDATION INCOMPLETE`. Once the Definition of Done is met, the project must transition to the v1.0.0 release plan rather than reopening completed architecture work.
+When Checkpoints 1-6 are characterized, the 12 Definition-of-Done conditions hold, full RC validation is green, and no reproducible PROJECT P0/P1 remains, release v1.0.0.

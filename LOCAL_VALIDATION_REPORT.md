@@ -1,337 +1,388 @@
 # Codex Delegate Local Validation Report
 
-This file is the evidence ledger for local runtime validation. `HEADOFF.md` defines what must be tested next; this report records what was actually observed, on which revision/runtime, what evidence remains reusable, and what is still unverified.
+This file is the evidence ledger for local runtime validation. `HEADOFF.md` defines what must be tested next. This report records what was actually observed, on which revision/runtime, what evidence remains reusable, and what is still unverified.
 
-Do not treat repository policy text, CI, or model consultation as proof of live Codex runtime behavior.
+Repository policy, CI, and model consultation are not proof of live Codex runtime behavior.
 
 ## Current reconciliation
 
-- Report reconciled: 2026-08-03.
-- Product name: **Codex Delegate**.
-- Current Plugin version: `0.4.0`.
-- Canonical user entry point: `/codex-delegate`.
-- Compatibility repository/package namespace remains `R-jed/codex-agent-team` / `codex-agent-team` pending live migration evidence.
-- Repository head observed immediately before this reconciliation: `6945771556b1295ca2c4fcf2ee8bbe5b1516686f`.
-- Remote branch inventory observed immediately before this reconciliation: `origin/main` only.
-- Last complete deterministic CI baseline recorded for the v0.4.0 rename contract: `6ee045e8f27e62252430403bbe7b1df6ca52d64f`, with 109 tests passing on Ubuntu/Python 3.11, plus passing Ubuntu/Python 3.12 and macOS/Python 3.11 jobs, Plugin manifest validation, and managed-profile install/check/idempotent reinstall.
-- The 18 commits between `6ee045e...` and the pre-reconciliation `main` observation were limited by repository compare to README/SVG documentation and `tests/test_policy.py`; no Plugin runtime, Agent profile, installer, routing, safety, or verifier production file changed in that range. Full CI on the exact pre-reconciliation head is not recorded here unless a later checkpoint supplies it.
-- Last live-tested production behavior baseline remains `c6020db903b35f0d57677b131bf35b0580144ab9`.
-- Known open reproducible PROJECT P0/P1 defects: none.
-- Operational release posture: **HOLD FOR RELEASE / VALIDATION INCOMPLETE** while mandatory live gates in `HEADOFF.md` remain unfinished.
+Report reconciled: 2026-08-03.
 
-At every new checkpoint, fetch `origin/main`, record the actual current SHA, and inspect intervening changes before reusing evidence whose dependencies may have changed.
+Current product state:
+
+```text
+Product: Codex Delegate
+Plugin version: 0.5.0
+Canonical user entry point: /codex-delegate
+Compatibility repository/package namespace: R-jed/codex-agent-team / codex-agent-team
+Release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
+Known open reproducible PROJECT P0/P1: none
+```
+
+The v0.5.0 adaptive-orchestration candidate was statically validated on PR #22 at branch head:
+
+```text
+31b9f4e0a14048ee3d500736c5faf45dad61be49
+```
+
+GitHub Actions run `30803487630` passed on:
+
+```text
+Ubuntu / Python 3.11: PASS
+Ubuntu / Python 3.12: PASS
+macOS / Python 3.11: PASS
+pytest on Ubuntu / Python 3.11: 119 passed
+Plugin manifest validation: PASS
+managed profile install: PASS
+managed profile --check: PASS
+idempotent managed profile reinstall: PASS
+```
+
+This report reconciliation is documentation-only and follows that tested candidate. The exact final merge SHA must be recorded at the next local checkpoint after `origin/main` is fetched.
+
+The last accepted real Codex production-behavior baseline remains:
+
+```text
+c6020db903b35f0d57677b131bf35b0580144ab9
+```
+
+Do not relabel v0.5.0 static CI as live runtime evidence.
 
 ## Evidence status rules
 
 Use these distinctions throughout this report:
 
-- **Repository fact**: current source, manifest, policy, test, or commit state observed directly from the repository.
+- **Repository fact**: source, manifest, policy, test, or commit state observed directly from the repository.
 - **Deterministic evidence**: reproducible test, verifier, installer, or filesystem result.
 - **Live runtime evidence**: behavior observed from a real Codex task/session/runtime.
 - **Model judgment**: advisory conclusion that remains challengeable and cannot substitute for deterministic or runtime evidence.
 - **Carried forward**: older evidence whose declared dependencies have not changed materially.
 - **Pending revalidation**: policy or code exists, but the corresponding live claim has not yet been demonstrated on the current validation cycle.
 
-## Last live runtime environment
+## Last accepted live runtime environment
 
-The most recent accepted real-runtime evidence currently carried forward was collected on:
+The live evidence currently carried forward was collected on:
 
-- Initial validation date: 2026-08-02 (Asia/Shanghai).
-- Initial validation revision: `1eaeb5a7bcb7a55edc1f57aad22d4f00c80d9c0d`.
-- Accepted symlink-fix production baseline: `c6020db903b35f0d57677b131bf35b0580144ab9`.
-- Platform: Apple Silicon, macOS 27.0 (26A5388g).
-- Python: 3.14.6.
-- Git: 2.50.1.
-- Codex CLI/runtime: 0.146.0.
+```text
+initial validation revision: 1eaeb5a7bcb7a55edc1f57aad22d4f00c80d9c0d
+accepted symlink-fix baseline: c6020db903b35f0d57677b131bf35b0580144ab9
+platform: Apple Silicon, macOS 27.0 (26A5388g)
+Python: 3.14.6
+Git: 2.50.1
+Codex CLI/runtime: 0.146.0
+```
 
 The `c6020db...` revision is an evidence baseline, not the current repository head.
 
-## Branch and repository hygiene
+## v0.5.0 static architecture evidence
 
-Historical merged development refs and the former `local-runtime-validation` ref were previously removed after accepted work reached `main`.
+The repository now defines **Adaptive Dependency Orchestration**.
 
-Later temporary refs `docs/handoff-progress-v2` and `noop-check` were also removed. The most recent remote branch query before this reconciliation returned only:
+### Dependency-driven scheduling
 
-```text
-origin/main
-```
+Repository facts established by policy, schemas, eval fixtures, and tests:
 
-No open branch contains unique code that must be merged before continuing validation.
+- the main session owns an in-session Dependency Ledger;
+- dependency states are `pending | ready | running | satisfied | blocked | invalidated`;
+- scheduling starts from the ready frontier rather than a desired Agent count;
+- zero children remains a valid outcome;
+- there is no product-level hard child ceiling;
+- the previous `default 1 / normal max 2 / hard max 4` scheduling model is removed;
+- routing schema no longer limits `nodes` to four items;
+- an authorized static case with five independent read-only Reader dependencies is valid;
+- a slot-pressure case schedules only the currently available children and leaves remaining ready dependencies queued;
+- an already-running dependency must not receive duplicate inference.
 
-## Deterministic repository evidence
+These are repository and deterministic facts. They do not prove how many child threads a particular Codex runtime can run simultaneously.
 
-Historical deterministic progression:
+### Consent boundary
 
-- Initial suite: 96 passed.
-- Post CAT-LOCAL-001 fix: 97 passed.
-- Handoff/release closure later reached 98 and 99 tests in merged CI milestones.
-- Concurrency-policy closure reached 105 passed.
-- User-facing README closure reached 107 passed.
-- Codex Delegate v0.4.0 rename closure reached **109 passed** on Ubuntu/Python 3.11; Ubuntu/Python 3.12 and macOS/Python 3.11 also passed.
-- Plugin and marketplace manifests validated successfully on the v0.4.0 CI baseline.
-- Managed profile lifecycle passed install, `--check`, and idempotent reinstall on the v0.4.0 CI baseline.
-
-The 109-test result belongs to `6ee045e...` plus the inert PR validation marker used only to trigger CI. The marker was never merged. Do not relabel this as live Codex runtime evidence.
-
-## Product rename and compatibility state
-
-Repository facts now establish:
+The number `2` now has one narrow meaning:
 
 ```text
-Product display name: Codex Delegate
-Canonical command: /codex-delegate
-Plugin version: 0.4.0
-Repository slug: R-jed/codex-agent-team
-Plugin package id: codex-agent-team
-Managed role names: codex_agent_team_*
-Ownership manifest: .codex-agent-team-agents.json
+up to 2 concurrently active justified child Agents
+-> normal no-extra-consent envelope for explicit /codex-delegate use
 ```
 
-The internal repository/package/profile identifiers are intentionally retained as compatibility identifiers until real upgrade behavior is characterized.
+More than two simultaneous children normally requires consent unless broad parallel work was already authorized.
 
-Still pending live migration evidence:
+This is not a lifetime child-call cap, scheduler target, or native capacity claim. Material serial compute expansion is also consent-gated so orchestration cannot evade resource consent by running a large number of calls two at a time.
 
-- upgrade from a real installed v0.3.x `Codex Agent Team` to v0.4.0;
-- confirm the installed product displays as `Codex Delegate`;
-- confirm `/codex-delegate` is discoverable in a fresh task after upgrade;
-- characterize the old `/codex-agent-team` invocation after upgrade rather than assuming alias behavior;
-- prove the four existing managed profiles and ownership manifest are preserved or updated only under existing ownership rules;
-- confirm no duplicate/conflicting Plugin installation appears;
-- decide after evidence whether the GitHub repository/package slug should also migrate to `codex-delegate` before v1.0.0.
+### Native capacity
 
-A cosmetic slug mismatch alone is not a v1 blocker unless it breaks the documented install/upgrade path or creates an unsafe/conflicting Plugin state.
+The repository policy now treats native child-slot capacity as runtime evidence.
 
-## Plugin installation and role discovery carried forward
+Expected behavior when ready work exceeds current slots:
 
-The following live evidence from the earlier validated environment remains carried forward unless a changed dependency invalidates it:
+```text
+queue or serialize remaining ready dependencies
+preserve exact role/model identity
+never duplicate the same dependency merely to keep compute busy
+never infer a universal product ceiling from one runtime build
+```
 
-- Marketplace registration succeeded from the documented Git source and `main` ref.
-- Plugin `codex-agent-team@codex-agent-team` version 0.3.0 installed successfully at that time.
-- Before profile provisioning, a fresh task correctly reported the four custom roles unavailable and did not substitute another role.
-- Real profile provisioning wrote exactly the four project profiles plus one ownership manifest; `--check` passed.
-- No unrelated Agent profiles existed or were changed in the tested clean environment.
-- A task created before provisioning did not refresh custom-role discovery on Codex 0.146.0.
-- A fresh task after provisioning discovered all four semantic roles.
-- Exact first-run consent wording still requires explicit live UX confirmation on the current product path.
+No live capacity number is established yet for the current v0.5.0 validation cycle.
 
-Because the product is now v0.4.0 and the canonical command changed, successful v0.3.0 installation evidence does not by itself prove the current upgrade/new-command user path.
+### Workspace safety
 
-## Exact role and route matrix
+The existing invariant remains:
 
-| Role | Spawn tested | Model | Effort | Sandbox | Parent | Evidence |
-| --- | --- | --- | --- | --- | --- | --- |
-| `codex_agent_team_reader` | yes, `fork_turns=none` | `gpt-5.6-luna` | `max` | `read-only` | matched | local rollout, L1 |
-| `codex_agent_team_worker` | discovery only | not observed | not observed | not observed | not observed | C1/config only |
-| `codex_agent_team_investigator` | discovery only | not observed | not observed | not observed | not observed | C1/config only |
-| `codex_agent_team_advisor` | discovery only | not observed | not observed | not observed | not observed | C1/config only |
+```text
+one active Writing Worker per canonical physical checkout/workspace
+```
 
-The Reader returned the requested bounded probe result. `inspect-runtime.py` emitted the expected role, model, effort, sandbox, managed permission profile, runtime version, and parent id.
+Independent runtime-backed worktrees or independent repositories may have independent writers.
 
-Independent native runtime attestation was not separately exposed, so the Reader result remains L1 rather than R1/R2.
+The policy applies across independent main sessions, but native cross-session enforcement has not yet been proven. Until the M1-M4 live matrix is complete, no claim is made that current Codex itself prevents two independent sessions from writing one checkout simultaneously.
 
-Pending:
+### Execution-progress and recovery policy
 
-- real Worker spawn and route observation;
-- real Investigator spawn and route observation;
-- real Advisor spawn and route observation;
-- sufficient native/local conflict characterization to support the exact runtime claims in `HEADOFF.md`.
+v0.5.0 introduces `execution-progress.md` and extends contracts/Agent profiles with:
 
-## Runtime Truth evidence
+```text
+failure_signature
+progress_signal: advanced | unchanged | regressed | blocked
+new_evidence
+invalidated_evidence
+unresolved_delta
+DO NOT REDO
+EXECUTION_STALL
+```
 
-Established deterministic/repository evidence:
+Repository rules now establish:
 
-- incomplete expected exact routes fail closed;
-- route, ancestry, and permission evidence are typed independently;
-- one real Reader local rollout was sanitized and inspected successfully;
-- configured route identity is not presented as runtime observation;
-- partial or missing observations do not establish complete runtime proof.
+- model confidence, narration, or file writes do not count as progress by themselves;
+- repeated same-failure execution without new evidence is a stall signal;
+- there is no universal retry count;
+- an unchanged contract is not resent merely because the previous attempt failed;
+- a clean same-lane restart preserves current artifact, valid evidence, failure signature, unresolved delta, acceptance, and `DO NOT REDO` facts while dropping dead-end narration/private reasoning;
+- evidence-supported capability gaps go to Terra as unresolved technical delta before repeated same-lane retry;
+- Sol receives compressed fresh context for selective high-value judgment/review.
 
-Still pending live characterization where the runtime exposes the relevant facts:
+These are static product contracts. Real clean-restart, stall detection, and capability-before-retry behavior remain live-validation items.
 
-- complete native route metadata;
-- partial native route behavior;
+## Exact semantic route state
+
+Current shipped configuration remains:
+
+| Role | Configured route | Sandbox intent | Live evidence carried forward |
+| --- | --- | --- | --- |
+| Reader | GPT-5.6 Luna / max | read-only | historical L1 local corroboration |
+| Worker | GPT-5.6 Luna / max | workspace-write | discovery only, live exact route pending |
+| Investigator | GPT-5.6 Terra / xhigh | read-only | discovery only, live exact route pending |
+| Advisor | GPT-5.6 Sol / high | read-only | discovery only, live exact route pending |
+
+The model/effort/sandbox routes did not change in v0.5.0. The profile instruction bytes did change to support dependency-bound execution and progress reporting.
+
+Configuration assurance remains separate from runtime observation.
+
+## Historical Plugin and profile evidence carried forward
+
+Real historical evidence:
+
+- marketplace registration succeeded from the documented Git source and `main` ref;
+- Plugin `codex-agent-team@codex-agent-team` version 0.3.0 installed successfully;
+- before custom-profile provisioning, a fresh task reported the roles unavailable and did not substitute another role;
+- real profile provisioning wrote four project profiles and one ownership manifest;
+- installer `--check` passed;
+- a task created before provisioning did not refresh custom-role discovery on Codex 0.146.0;
+- a fresh task after provisioning discovered all four semantic roles;
+- the real Reader used `fork_turns=none` and returned the bounded probe result;
+- local rollout inspection reported Reader role, Luna model, max effort, read-only sandbox, managed permission profile, runtime 0.146.0, and expected parent id;
+- native independent attestation was not separately exposed, so that Reader result remains L1 rather than R1/R2.
+
+Because v0.5.0 changes managed profile instruction bytes, real installed-profile **upgrade behavior** from 0.4.x to 0.5.0 is pending even though the deterministic installer lifecycle is green.
+
+## Runtime Truth evidence carried forward
+
+Static verifier coverage remains valid for:
+
+- incomplete expected exact route fails closed;
+- route, ancestry, and permission evidence remain typed independently;
+- missing or partial observations do not become affirmative proof;
+- configuration/local/native conflict can be quarantined;
+- exact role/model/effort proof is two-sided.
+
+One historical real Reader record passed sanitized local inspection.
+
+Still pending where the live runtime exposes enough facts:
+
+- Worker/Investigator/Advisor exact route observation;
+- native complete route observation;
 - native/local agreement;
-- model conflict;
-- parent-thread conflict, wrong parent, and missing parent;
-- required read-only with missing or broader native sandbox evidence;
-- sandbox/permission-profile conflict;
-- thread-id conflict;
-- rollout schema drift and duplicate rollout records.
+- partial native route behavior;
+- role/model/effort/parent/sandbox conflict characterization;
+- duplicate rollout and schema drift on the current Codex build.
 
-## Contractability, concurrent drift, and user-flow status
+## Contractability and safety evidence
 
-Carried-forward live evidence:
+Historical live evidence carried forward:
 
-- missing-profile case failed closed and avoided role substitution;
-- fresh-task Reader used an explicit bounded responsibility and `fork_turns=none`.
+- missing-profile path failed closed;
+- a fresh Reader task used a bounded responsibility and explicit `fork_turns=none`.
 
-Repository policy added after the last live production baseline now requires:
+Static v0.5.0 policy now additionally covers:
 
-- a bounded Delegation Contract before ambiguous writing execution;
-- writing Workers to preserve unrelated existing edits;
-- re-read affected state before mutation when concurrent drift is plausible;
-- stop and return to the main session if drift invalidates scope, invariants, decision rights, acceptance oracle, or dependent evidence.
+- dependency-bound Delegation Contract;
+- concurrent workspace drift invalidation;
+- one owner for one running dependency;
+- no child descendants;
+- prompt-injection content cannot change dependency state, consent, routes, or evidence policy;
+- exact profile mismatch fails closed;
+- behavioral read-only never becomes a runtime-enforced claim without native evidence.
 
-These are current policy/repository facts. Their complete live behavior remains pending.
+Live contractability, prompt injection, changed-file scope, and concurrent-edit simulations remain pending.
 
-Still pending:
+## Shared Evidence and dependency-state evidence
 
-- main-session-only deterministic case;
-- bounded Luna Worker contract;
-- ambiguous-writing stop behavior;
-- judgment escape;
-- prompt-injection/scope-boundary behavior;
-- actual changed-file verification after writing;
-- concurrent user edit preservation;
-- Shared Evidence invalidation and reuse;
-- Luna failure classification;
-- Terra delta escalation;
-- selective Sol behavior;
-- representative multi-step user flow.
-
-## Concurrency and lifecycle status
-
-The current v1 policy is repository-defined as:
+Static v0.5.0 contract defines both:
 
 ```text
-main-session scope: normal child maximum 2, v1 hard maximum 4
-canonical workspace scope: at most one active writing Worker
-Codex-home scope: one installed managed profile generation
-delegation depth: 1
+Dependency Ledger
+Shared Evidence State
 ```
 
-No machine-wide/account-wide Agent cap is claimed by the project.
+No live claim is yet made that the current Codex behavior consistently:
 
-Static regression coverage protects these scopes, but the following live multi-session matrix remains pending:
+- prevents duplicate running-dependency calls;
+- avoids rediscovering valid evidence;
+- propagates invalidation only through dependent facts;
+- recomputes the ready frontier correctly after concurrent/user changes.
 
-- M1: two independent sessions, different projects/checkouts, each may use justified children without a project-created global bottleneck;
-- M2: same repository, genuinely isolated runtime-backed worktrees, one Writer per isolated workspace when the runtime preserves isolation;
-- M3: two independent sessions targeting the same canonical physical checkout must never result in two simultaneous writing Workers;
-- M4: writer plus read-only session on the same checkout must invalidate or revalidate stale read-side repository evidence after mutation.
+These are Checkpoint 3 live gates.
 
-M3 is the release-critical cross-session one-writer test. Do not claim project-side cross-session exclusion until live evidence demonstrates it. If two same-checkout Writers become active, classify the reproduction before implementing the smallest workspace-scoped mechanism.
+## Behavioral evaluation state
 
-Also pending:
+Behavioral schema/workloads/scorer are now version `3.0` for the adaptive architecture.
 
-- useful parallel read-only work;
-- duplicate-inference rejection;
-- fan-out consent beyond two children;
-- native three/four-child capacity characterization;
-- slot recovery;
-- cancellation/spawn-failure recovery;
-- minimum 10-cycle lifecycle stress;
-- orphan-child behavior.
+New measurable fields include:
 
-## Installer evidence and fault injection
+```text
+peak_active_children
+ready_dependencies
+dependency_ids
+runtime_slot_waits
+execution_stall_events
+clean_same_lane_restarts
+unjustified_retry_calls
+same_failure_without_new_evidence
+```
+
+The scorer still enforces paired controls for primary product-value experiments.
+
+No live behavioral result has yet established that:
+
+- compiled contracts improve acceptance quality or cost;
+- adaptive fan-out improves latency;
+- a clean same-lane restart improves recovery;
+- Terra delta reduces rework;
+- selective Sol improves review quality;
+- any particular Codex runtime supports a particular universal concurrency maximum.
+
+Those remain measurements, not product claims.
+
+## Adaptive fan-out and lifecycle status
+
+Static coverage includes:
+
+```text
+F0 zero child valid
+F1 one dependency may use one child
+F2 two concurrent justified children fit the explicit-command baseline
+F3 more than two simultaneous children without broad authorization asks consent
+F4 five authorized independent read-only dependencies are legal at the product-policy level
+slot pressure queues remaining dependencies
+```
+
+Live evidence is still required for:
+
+- actual available native slots;
+- peak active children;
+- slot recovery after close/failure/cancellation;
+- queued dependency resumption;
+- orphan/ghost ownership;
+- 10-cycle lifecycle stress;
+- no duplicate dependency call under real fan-out.
+
+## Multi-session workspace status
+
+The required live matrix is:
+
+```text
+M1 different sessions + different projects/checkouts
+M2 different sessions + isolated worktrees
+M3 different sessions + same canonical physical checkout
+M4 writer session + read-only session on same checkout
+```
+
+No cross-session workspace lock has been added. A project-side coordination mechanism remains conditional on a reproducible M3 failure.
+
+## Installer evidence
 
 ### CAT-LOCAL-001: direct Codex-home endpoint symlink
 
-- Severity: P1.
-- Ownership: PROJECT.
-- Pre-fix revision: `1eaeb5a7bcb7a55edc1f57aad22d4f00c80d9c0d`.
-- Fixed production revision: `c6020db903b35f0d57677b131bf35b0580144ab9`.
-- Runtime used for reproduction: Python 3.14.6 on macOS 27.0.
-- Expected: a symlink supplied as the `--codex-home` endpoint is rejected before any managed target entry is created.
-- Pre-fix actual: installer exited 0, resolved the link, and wrote four profiles plus the ownership manifest into the target.
-- Root cause: `install()` resolved the caller-supplied Codex-home path before preserving and validating endpoint identity.
-- Fix: preserve the expanded caller path, reject when that endpoint itself is a symlink, then resolve normally. Arbitrary ancestor symlinks remain supported.
-- Regression: public CLI fails non-zero, emits the explicit refusal, preserves prior file state, and leaves the target with zero entries.
-- Verification: focused regression passed; installer suite 14 passed; complete suite 97 passed; `git diff --check` passed; original filesystem reproduction exits 1 with zero target entries.
-- Compatibility characterization: a non-symlink Codex-home endpoint below a symlinked ancestor still installs successfully and creates the expected managed files.
-- Independent patch review final verdict: `PATCH ACCEPTED`.
-- Current status: **CLOSED ON PRODUCTION HISTORY**.
+Historical defect:
 
-Residual pathname TOCTOU under concurrent local mutation remains outside that focused patch threat model unless new evidence makes it release-relevant.
+```text
+Severity: P1
+Ownership: PROJECT
+Pre-fix revision: 1eaeb5a7bcb7a55edc1f57aad22d4f00c80d9c0d
+Fixed baseline: c6020db903b35f0d57677b131bf35b0580144ab9
+Status: CLOSED
+```
 
-### Remaining installer live gates
+Expected behavior was to reject a symlink supplied directly as the `--codex-home` endpoint before creating any managed target entry. Pre-fix behavior resolved the symlink and wrote the four profiles plus manifest into the target. The accepted fix rejects the endpoint symlink before normal resolution while preserving compatibility with a non-symlink endpoint beneath symlinked ancestors.
+
+Focused regression, installer suite, full deterministic suite, and the original filesystem reproduction all passed after the fix.
+
+Residual pathname TOCTOU was outside that focused patch threat model and is not a blocker without new evidence.
+
+### v0.5.0 managed profile upgrade
+
+Deterministic CI proves fresh v0.5.0 profile install, exact `--check`, and idempotent reinstall.
+
+Real upgrade still required:
+
+```text
+0.3.x Codex Agent Team -> current Codex Delegate
+0.4.x Codex Delegate -> 0.5.0 profile instruction generation
+user-modified/unproven profile -> untouched + affected route fail closed
+fresh v0.5.0 install -> display name and /codex-delegate discovery
+```
+
+### Concurrent installer gates
 
 Still pending:
 
-- user-modified current profile refuses overwrite;
-- unrelated TOML claiming a reserved semantic role refuses;
-- proven legacy model-named profile migrates safely;
-- unproven legacy profile is preserved;
-- stale standalone manifest cannot re-delete a recreated user file;
-- symlinked managed agents directory/manifest/profile is rejected as documented;
-- unwritable agents directory;
-- interrupted/staged replacement;
-- disk-full or manifest-write failure when practical;
-- rollback after partial mutation;
-- post-success cleanup failure when safely reproducible.
-
-### Concurrent Codex-home installer matrix
-
-The installer is currently proven transactional only in the single-process cases already exercised. Multi-process behavior remains uncharacterized.
-
-Pending:
-
-- I1: two installer processes start concurrently against the same clean `CODEX_HOME` and same shipped profile generation; acceptable result is exact convergence or one safe refusal with exact final managed state and no debris;
-- I2: one process fails after mutation begins while a peer succeeds; the failing process must not roll back or corrupt the peer-success state;
-- repeat I1 against pre-existing exact managed state;
-- mixed expected profile generations in one Codex home must fail closed at the affected route rather than cross-role substitute.
-
-Do not claim multi-process installer safety and do not add a lock solely from theoretical concern. A concrete I1/I2 failure must be reproduced and classified first.
-
-## Shared Evidence and behavioral evaluation
-
-Shared Evidence reuse has not yet been demonstrated on the required live multi-Agent workflow.
-
-Pending measures include:
-
-- unjustified repeated commands;
-- unjustified repeated repository discovery;
-- duplicate dependency calls;
-- evidence established;
-- evidence invalidated;
-- preservation of unrelated evidence after unrelated changes.
-
-The primary controlled behavioral experiment remains:
-
 ```text
-A: raw user prompt -> Luna Max
-B: same prompt -> main session compiles Delegation Contract -> Luna Max
+I1 two same-generation installers on one clean CODEX_HOME
+I2 one forced-failure transaction concurrent with a peer success
+I3 competing managed profile generations in one CODEX_HOME
 ```
 
-No claim is currently established that compiled contracts improve quality, cost, or latency.
+No inter-process lock has been added before evidence establishes the need.
 
-Terra delta-escalation and Luna-plus-selective-Sol controlled pairs also remain pending. Missing token/latency telemetry must not be estimated.
+## Review reconciliation
 
-One historical fresh-task role probe consumed roughly 711k input tokens, mostly cached. That single diagnostic path is not representative enough for a product-cost conclusion.
+Historical inspector dispute remains characterized as a latent schema-compatibility risk rather than a confirmed supported-path defect. The reproduction that saw two `session_meta` records used a generic child with `fork_turns=all`; the supported Reader path used `fork_turns=none` and inspected successfully.
 
-## Review and adversarial consultation record
+The historical symlink defect received adversarial review and was accepted as a minimal PROJECT/P1 repair.
 
-The CAT-LOCAL-001 symlink defect received repeated adversarial review and converged on PROJECT/P1 with a minimal endpoint-only repair. The first regression was tightened to prove zero target entries before the patch was accepted.
+For the v0.5.0 cycle, `gpt56-sol-pro-consult` remains the required independent adversarial consultation mechanism at Review Checkpoints A-E and for any P0/P1 candidate. Its output is model judgment and cannot count as Codex Delegate runtime-route evidence.
 
-A separate claim that `inspect-runtime.py` fails with two `session_meta` records was reproduced only through a generic child using `fork_turns=all`; it did not reproduce on the supported exact Reader path using `fork_turns=none`. Current classification remains a latent schema-compatibility signal rather than a confirmed Plugin defect.
-
-For the current validation cycle, `gpt56-sol-pro-consult` is the required independent adversarial consultation mechanism at Review Checkpoints A-E, after any P0/P1 candidate, and for release-candidate review as defined in `HEADOFF.md`.
-
-Consultation output is model judgment. It must not be counted as evidence that Codex Delegate itself routed the four managed Agent roles correctly. Codex remains the local executor and reconciles consultation against repository/runtime evidence.
-
-## Upstream and environment observations
-
-- On Codex 0.146.0, a task created before profile provisioning did not refresh role discovery; a fresh task did. This is version-scoped evidence, not a permanent statement about newer runtimes.
-- A read-only task emitted system Git temporary-cache warnings while still completing successfully. No release-blocking product impact has been established.
-
-## Current release status
+## Current takeover status
 
 **HOLD FOR RELEASE / VALIDATION INCOMPLETE**
 
-This status reflects unfinished mandatory live gates. It does not mean a reproducible PROJECT P0/P1 is currently open.
+This status is caused by unfinished mandatory live gates, not by a currently known reproducible PROJECT P0/P1.
 
-Highest-priority unfinished evidence now is:
+Highest-priority unfinished evidence now follows `HEADOFF.md`:
 
-1. v0.3.x to Codex Delegate v0.4.0 real Plugin upgrade and `/codex-delegate` fresh-task discovery;
-2. exact live Worker, Investigator, and Advisor route characterization;
-3. materially available Runtime Truth conflict/partial cases;
-4. contractability, prompt-injection, and concurrent-drift simulations;
-5. Shared Evidence reuse/invalidation and Luna failure classification;
-6. raw-prompt versus compiled-contract paired evaluation;
-7. Terra delta and selective Sol controlled pairs;
-8. M1-M4 multi-session/workspace concurrency matrix;
-9. fan-out and lifecycle stress;
-10. remaining installer fault injection and I1/I2 multi-process installer matrix.
+1. exact live Worker, Investigator, and Advisor routes plus Runtime Truth cases;
+2. contractability, concurrent-edit, prompt-injection, and scope simulations;
+3. Dependency Ledger, ready-frontier, evidence-reuse, stall, clean-restart, and capability-before-retry behavior;
+4. raw-prompt versus compiled-contract product-value pairs plus Terra/Sol controlled pairs;
+5. adaptive fan-out, consent boundary, native slot capacity/recovery, lifecycle, and M1-M4 workspace matrix;
+6. real 0.3/0.4 -> 0.5 migration and I1-I3 installer concurrency.
 
-Continue in the order defined by `HEADOFF.md`. After every review checkpoint, send the compact `CONTEXT_PACKET_V1` through `gpt56-sol-pro-consult` before changing core policy or architecture.
-
-The pre-release process remains finite. When the v1.0.0 Definition of Done and fixed release-candidate closure pass are satisfied, the required next action is release, not another open-ended optimization cycle.
+Continue in the finite checkpoint order in `HEADOFF.md`. After each checkpoint, append the actual tested `origin/main` SHA, runtime/platform, evidence class, dependency/progress/resource state, defects, and unresolved unknowns before the required adversarial review.

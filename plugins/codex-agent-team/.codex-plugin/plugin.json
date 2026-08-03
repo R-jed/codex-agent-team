@@ -1,7 +1,7 @@
 {
   "name": "codex-agent-team",
-  "version": "0.4.0",
-  "description": "Codex Delegate compiles bounded delegation contracts, reuses established evidence, and schedules Luna, Terra, or Sol only when each call adds a distinct dependency.",
+  "version": "0.5.0",
+  "description": "Codex Delegate builds the smallest useful dependency-driven compute graph, reuses established evidence, and adapts execution without fixed Agent counts or mandatory model ladders.",
   "author": {
     "name": "R-jed",
     "url": "https://github.com/R-jed"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Delegate",
-    "shortDescription": "Delegate only bounded work that adds distinct value.",
-    "longDescription": "Codex Delegate keeps the current session in control, compiles bounded work into verifiable delegation contracts, uses Luna Max for execution, Terra only for unresolved complex technical deltas, and Sol High for selective judgment or review. Established evidence is reused so escalation resolves only the remaining dependency instead of restarting the task.",
+    "shortDescription": "Adaptive delegation over bounded dependencies and evidence.",
+    "longDescription": "Codex Delegate keeps the current session in control, tracks unresolved dependencies, compiles bounded delegation contracts, reuses valid evidence, schedules only the smallest useful set of ready responsibilities, and recovers from execution stalls using evidence rather than fixed retry counts or model ladders. Luna Max handles bounded execution, Terra XHigh receives genuine unresolved technical deltas, and Sol High provides selective fresh-context judgment or review.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": [
@@ -29,9 +29,9 @@
     ],
     "websiteURL": "https://github.com/R-jed/codex-agent-team",
     "defaultPrompt": [
-      "Use /codex-delegate to solve this coding task with the smallest useful compute graph and reuse established evidence across any Subagents.",
-      "Use /codex-delegate to implement this change with a bounded Luna contract, escalating only unresolved technical or judgment dependencies.",
-      "Use /codex-delegate to review this task without repeating work that existing evidence already proves."
+      "Use /codex-delegate to solve this coding task with adaptive dependency-driven delegation and reuse established evidence instead of repeating work.",
+      "Use /codex-delegate to implement this change with bounded contracts, scheduling only ready dependencies and escalating only evidence-supported technical or judgment gaps.",
+      "Use /codex-delegate to review this task without fixed Agent counts, repeated discovery, or mandatory model stages."
     ]
   }
 }

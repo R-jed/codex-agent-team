@@ -10,7 +10,7 @@ Register the GitHub repository as a marketplace source:
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-Then reopen the ChatGPT desktop app, open the Plugins Directory, choose the `Codex Delegate` marketplace entry, and install `Codex Delegate`.
+Then reopen the ChatGPT desktop app, open the Plugins Directory, choose `Codex Delegate`, and install it.
 
 Use the canonical workflow entry point:
 
@@ -35,25 +35,41 @@ codex_agent_team_advisor       -> gpt-5.6-sol / high
 
 These role names are retained compatibility identifiers. They describe responsibilities and do not change the `/codex-delegate` user entry point.
 
-The main Skill checks profile readiness only after a responsibility has actually justified model-specific delegation.
+The main Skill checks profile readiness only after a responsibility has justified model-specific delegation.
 
-When a required role is missing, `/codex-delegate`:
+When a required role is missing or an exactly owned earlier profile generation needs upgrading, `/codex-delegate`:
 
 1. explains the exact project-managed file scope and asks permission;
 2. discloses that the installer may write the four current profiles and `.codex-agent-team-agents.json`;
-3. discloses that an older model-named profile may be removed only when its current bytes exactly match ownership recorded by a previous project manifest;
-4. resolves `../../scripts/install-agents.py` relative to the installed Skill;
-5. runs the installer and its non-mutating `--check` verification;
-6. re-inspects live native role discovery;
-7. continues immediately if the required role is visible, otherwise asks the user to start a fresh Codex task.
+3. discloses that a project-owned earlier profile may be replaced only when its current bytes match the active previous ownership hash;
+4. discloses that an older model-named profile may be removed only when its current bytes exactly match proven previous project ownership;
+5. resolves `../../scripts/install-agents.py` relative to the installed Skill;
+6. runs the installer and its non-mutating `--check` verification;
+7. re-inspects live native role discovery;
+8. continues immediately if the required role is visible, otherwise asks the user to start a fresh Codex task.
 
 Successful file installation is configuration evidence. It does not prove that the current task refreshed role discovery.
 
-## Migration from Codex Agent Team 0.3.x
+## Version 0.5.0
 
-Version 0.4.0 changes the user-facing product name to `Codex Delegate` and the canonical Skill entry point to `/codex-delegate`.
+Version `0.5.0` keeps the same four semantic routes and compatibility identifiers while changing orchestration policy from fixed child-count limits to adaptive dependency scheduling.
 
-For migration safety, the following identifiers remain unchanged during the pre-v1 window:
+The shipped profile instructions are updated to support:
+
+- dependency-bound responsibilities;
+- evidence-based progress reporting;
+- execution-stall reporting instead of unchanged retry loops;
+- clean same-lane recovery packets;
+- Terra capability-gap validation;
+- fresh-context Sol judgment packets.
+
+Because the managed profile bytes changed, upgrading from an exactly owned `0.4.x` profile generation may replace those four managed profile files. This replacement is allowed only when the installed bytes match the ownership hashes from the active project manifest. User-modified or unproven profiles remain untouched and cause the affected route to fail closed.
+
+## Migration from Codex Agent Team 0.3.x and Codex Delegate 0.4.x
+
+Version `0.4.0` introduced the user-facing `Codex Delegate` name and `/codex-delegate` entry point. Version `0.5.0` keeps that identity and introduces adaptive dependency/evidence-driven orchestration.
+
+For migration safety, these identifiers remain unchanged during the pre-v1 window:
 
 ```text
 GitHub repository:     R-jed/codex-agent-team
@@ -62,7 +78,7 @@ Agent profile ids:     codex_agent_team_*
 ownership manifest:    .codex-agent-team-agents.json
 ```
 
-Do not rename these managed profile files or manifests manually. The v1 release process will validate installed-Plugin upgrade/reinstall behavior before any repository or package-id migration is considered.
+Do not rename managed profile files or manifests manually. The v1 release process validates real installed-Plugin upgrade/reinstall behavior before any repository or package-id migration is considered.
 
 Older managed releases also used these model-named profiles:
 
@@ -73,7 +89,7 @@ terra_reviewer
 sol_judge
 ```
 
-The installer migrates away from those names. An old profile is removed only when its current bytes match a hash recorded by the active previous project ownership manifest. A modified or unproven legacy file is left untouched.
+The installer migrates away from those names. An old profile is removed only when its current bytes match a hash recorded by the authoritative previous project ownership state. A modified or unproven legacy file is left untouched.
 
 The ownership model has an explicit migration epoch:
 
@@ -99,6 +115,8 @@ The bundled installer:
 - supports a strictly non-mutating `--check` mode.
 
 It does not edit `config.toml`, app settings, MCP configuration, credentials, repositories, or unrelated Agent profiles.
+
+The installer is transactional within one process. Concurrent same-Codex-home multi-process behavior remains a live release-validation gate until it is characterized with real filesystem tests.
 
 ## Failure behavior
 

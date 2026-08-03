@@ -52,19 +52,23 @@ def test_depth_one_preserves_not_observed_state():
 
 def test_consent_policy_defines_resource_envelope_not_fixed_team_shape():
     consent = (SKILL / "references" / "consent-policy.md").read_text()
-    assert "0-2 justified child Agents" in consent
+    assert "up to 2 concurrently active justified child Agents" in consent
     assert "at most 1 active writer" in consent
-    assert "Luna + Sol selective review" in consent
-    assert "team shape is dynamic" in consent.lower()
+    assert "The exact team shape is dynamic" in consent
+    assert "lifetime number of child calls" in consent
+    assert "does not add another numerical hard ceiling" in consent
 
 
-def test_live_evals_are_paired_and_track_correction_cost():
+def test_live_evals_are_controlled_paired_runs_and_track_correction_cost():
     docs = (ROOT / "docs" / "behavioral-evals.md").read_text()
     workloads = (ROOT / "evals" / "behavioral-workloads.json").read_text()
-    assert "paired live runs" in docs
+    assert "controlled live runs" in docs
+    assert "Pairing rules" in docs
     assert "Main-session correction cost" in docs
     assert "raw_prompt_luna" in docs
     assert "contract_luna_selective_sol" in docs
+    assert "Adaptive fan-out experiment" in docs
+    assert "Execution-stall experiment" in docs
     assert "no claimed benchmark results" in workloads
 
 
@@ -73,5 +77,7 @@ def test_plugin_profile_lifecycle_remains_present():
     installation = (ROOT / "docs" / "plugin-installation.md").read_text()
     assert "codex_agent_team_worker" in installation
     assert "Migration from Codex Agent Team 0.3.x" in installation
+    assert "0.4.x" in installation
+    assert "0.5.0" in installation
     assert "luna_explorer" in installation
     assert ".codex-agent-team-agents.json" in installation

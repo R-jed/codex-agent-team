@@ -1,56 +1,81 @@
 ---
 name: codex-delegate
-description: Build the smallest useful native Codex Subagent compute graph. Keep the current main session in control, use GPT-5.6 Luna Max for bounded execution, Terra only for unresolved complex technical deltas, and Sol High for selective judgment or review. Reuse established evidence, avoid duplicated work, and require every Agent call to contribute a distinct dependency to task completion.
+description: Build the smallest useful native Codex Subagent compute graph. Keep the current main session in control, route only bounded responsibilities that satisfy distinct unresolved dependencies, reuse established evidence, and adapt execution from observed progress instead of fixed Agent counts or model ladders.
 ---
 
 # Codex Delegate
 
-Use this Skill as a policy layer over Codex Native Subagents. The main session owns the task and the compute graph. Subagents receive bounded responsibilities only when delegation creates concrete value and the responsibility can be expressed as a verifiable contract.
+Use this Skill as a policy layer over Codex Native Subagents. The main session owns the task and its logical dependency state. Subagents receive bounded responsibilities only when delegation creates concrete value and the responsibility can be expressed as a verifiable contract.
 
 ## Core invariants
 
 1. The current main session owns user intent, scope, architecture, scheduling, risk, integration, acceptance, and the final answer.
-2. No model is a mandatory stage. Every Agent call must contribute a distinct dependency that existing work cannot already satisfy.
-3. Zero Subagents is normal. Default child count is 1, normal maximum is 2, hard maximum is 4.
-4. Luna Max is the default execution tier. Terra is an exception lane for unresolved complex technical deltas. Sol High is a selective judgment or review tier.
-5. Low quality alone never triggers Terra. Classify the failure first and escalate only the unresolved delta.
-6. Established deterministic and repository evidence is reused while its dependencies remain valid. Do not rediscover valid facts by default.
-7. One canonical shared workspace has at most one active writing Worker. Children do not create further Subagents.
-8. Role-specific spawns always set `fork_turns` explicitly.
-9. Model-specific children require a provable project-profile route. Missing or conflicting routes return the responsibility to the main session.
-10. Configuration assurance and runtime observation are separate facts. Empty or partial observations never count as complete runtime route evidence.
-11. Worker reports are claims. Accept work from actual artifacts, deterministic verification, and reproducible evidence.
-12. `/codex-delegate` is the canonical user-facing workflow entry point. First-run custom-Agent readiness is handled inside this Skill.
-13. Child-count limits are per main session. Workspace write ownership is per canonical physical checkout or isolated worktree. Managed Agent profiles are shared at Codex-home scope.
+2. No model is a mandatory stage. Every Agent call must satisfy a distinct unresolved dependency that valid existing evidence does not already satisfy.
+3. There is no product-level hard child count and no fixed team shape. Zero Subagents is normal. Create only the smallest useful scheduling wave from currently ready dependencies.
+4. Explicit `/codex-delegate` use includes a normal no-extra-consent envelope of up to two concurrently active child Agents. Larger simultaneous fan-out or other material compute expansion requires consent unless the user already requested broad parallel work.
+5. Native runtime capacity is an observed execution constraint, not a Codex Delegate architecture constant. Slot pressure queues or serializes ready work; it does not justify duplicate work, cross-routing, or a fake product ceiling.
+6. Luna Max is the default bounded execution tier. Terra XHigh is an exception lane for unresolved complex technical deltas. Sol High is a selective judgment or review tier.
+7. Progress is established from artifacts, deterministic verification, repository facts, or a materially narrowed unresolved dependency. Model confidence, narration, or a file write alone is not progress.
+8. Established deterministic and repository evidence is reused while its dependencies remain valid. Do not rediscover valid facts by default.
+9. One canonical shared workspace has at most one active writing Worker. Children do not create further Subagents.
+10. Role-specific spawns always set `fork_turns` explicitly. Fresh bounded packets are preferred over inherited conversational history.
+11. Model-specific children require a provable project-profile route. Missing or conflicting routes return the responsibility to the main session.
+12. Configuration assurance and runtime observation are separate facts. Empty or partial observations never count as complete runtime route evidence.
+13. Worker reports are claims. Accept work from actual artifacts, deterministic verification, and reproducible evidence.
+14. `/codex-delegate` is the canonical user-facing workflow entry point. First-run custom-Agent readiness is handled inside this Skill.
+15. Resource state has separate scopes: task dependency state is main-session scoped, write ownership is canonical-workspace scoped, and managed Agent profiles are Codex-home scoped.
 
 ## 1. Understand the task
 
-Identify the requested outcome, existing authorization, known scope, consequence of error, and acceptance signals.
+Identify the requested outcome, existing authorization, known scope, consequence of error, acceptance signals, and current repository/runtime facts.
 
-Do not start with model selection. First determine what responsibilities exist and which dependencies must be satisfied.
+Do not start with model selection or an Agent-count target. First determine what must become true and which dependencies remain unresolved.
 
-## 2. Delegation Benefit Gate
+## 2. Build the Dependency Ledger
 
-Delegate only when at least one concrete benefit exists:
+Maintain a compact in-session Dependency Ledger. It is logical task state, not a persistent external DAG or scheduler.
+
+Each material dependency records enough information to answer whether it is ready and whether another Agent would add new value:
+
+```text
+DEPENDENCY ID
+OUTCOME
+STATUS: pending | ready | running | satisfied | blocked | invalidated
+REQUIRES: dependency ids and/or evidence ids
+PRODUCES: artifact, decision, or evidence expected
+WRITE INTENT
+WORKSPACE
+ACCEPTANCE
+```
+
+A dependency becomes `ready` only when its prerequisites are satisfied. A dependency already `running` or `satisfied` must not receive a duplicate Agent call unless new evidence invalidates the prior result.
+
+Recompute the ready frontier after meaningful evidence or artifact changes.
+
+## 3. Delegation Benefit Gate
+
+Delegate a ready dependency only when at least one concrete benefit exists:
 
 - **Context isolation**: noisy source, logs, tests, or documents can be compressed into reusable evidence.
-- **Useful parallelism**: independent branches satisfy different dependencies and can progress concurrently.
-- **Specialized capability**: a bounded responsibility materially benefits from a different execution or judgment tier.
+- **Useful parallelism**: independent ready dependencies can progress concurrently and materially shorten the critical path or protect main-session context.
+- **Specialized capability**: a bounded responsibility materially benefits from a different execution or investigation tier.
 - **Independent judgment**: a consequential decision or artifact benefits from a fresh Sol review.
 
-Task length, file count, spare concurrency, or a cheaper model do not justify delegation by themselves.
+Task length, file count, spare concurrency, an arbitrary desire for more Agents, or a cheaper model do not justify delegation by themselves.
 
-If no concrete benefit exists, keep the task in the main session.
+If no concrete benefit exists, keep the dependency in the main session.
 
-## 3. Contractability Gate
+## 4. Contractability Gate
 
 Before creating an execution Subagent, compile the responsibility with `references/delegation-contract.md`.
 
 A writing responsibility must have explicit enough:
 
 ```text
+DEPENDENCY
 OUTCOME
 SCOPE
+INTERFACES / DEPENDENCIES
 INVARIANTS
 DECISION RIGHTS
 ACCEPTANCE ORACLE
@@ -62,31 +87,30 @@ If the acceptance oracle or decision rights are materially unclear, do not spawn
 
 Never hand Luna the user's raw ambiguous request when a bounded execution contract can be compiled first.
 
-## 4. Build the compute graph
+## 5. Schedule the ready frontier
 
-Route responsibilities, not prestige levels.
+Choose the smallest useful scheduling wave from dependencies that are simultaneously ready.
 
-Common valid graphs include:
+A dependency is eligible to run only when all of these hold:
 
 ```text
-main session
-
-main session -> Luna -> main session
-
-main session -> Luna -> Sol -> main session
-
-main session -> Terra -> Luna -> main session
-
-main session -> Luna -> Terra(delta only) -> Luna or main session
-
-main session -> Sol -> main session
+it contributes a distinct unresolved dependency
+its contract is enforceable
+its required exact route is available
+its workspace mutation is compatible with active work
+its consent requirements are already satisfied
+native runtime capacity is currently available or the work can wait safely
 ```
 
-`Luna -> Terra -> Sol` is never a required pipeline.
+Prefer fewer children when one child can satisfy the ready work without sacrificing context isolation, independent judgment, or critical-path progress.
 
-Every node must answer: what new dependency does this call satisfy that valid existing evidence cannot?
+Do not create multiple children for the same question simply because slots are available. Do not reserve a fixed number of children in advance.
 
-## 5. Agent Profile Readiness and route assurance
+When more than two children would be concurrently active, use the Consent Gate unless broad fan-out was already authorized. After consent, the ready frontier and native runtime decide actual concurrency. Codex Delegate does not impose another numerical hard ceiling.
+
+If the runtime has fewer slots than ready dependencies, queue or serialize the remaining dependencies. Never change role/model identity solely to occupy a slot.
+
+## 6. Agent Profile Readiness and route assurance
 
 Check the live native `spawn_agent` role surface only after a model-specific responsibility is justified.
 
@@ -127,19 +151,34 @@ python "$installer" --check
 
 Then inspect the live role surface again. Continue immediately when the role is visible. If exact installation succeeded but current-task role discovery did not refresh, ask the user to start a fresh Codex task and invoke `/codex-delegate` again.
 
-The four profiles and ownership manifest are Codex-home scoped shared configuration. Multiple projects may use one installed generation. Mixed concurrent profile generations are unsupported for v1.0.0: if a session's expected exact route does not match the currently installed profile, stop that delegation instead of substituting, silently downgrading, or cross-routing.
+The four profiles and ownership manifest are Codex-home scoped shared configuration. Multiple projects may use one installed generation. Mixed concurrent profile generations are unsupported for v1.0.0: if a session's expected exact route does not match the installed profile, stop that delegation instead of substituting, silently downgrading, or cross-routing.
 
 There is no Portable Mode and no built-in-role substitution.
 
 Read `references/routing-policy.md` for route details.
 
-## 6. Route by responsibility
+## 7. Route by responsibility
+
+Route responsibilities, not prestige levels and not prompt length.
+
+Common valid graphs include:
+
+```text
+main session
+main session -> Luna -> main session
+main session -> Luna -> Sol -> main session
+main session -> Terra -> Luna -> main session
+main session -> Luna -> Terra(delta only) -> Luna or main session
+main session -> Sol -> main session
+```
+
+`Luna -> Terra -> Sol` is never a required pipeline.
 
 ### Luna Reader
 
 Use `codex_agent_team_reader` for bounded search, tracing, test mapping, documentation extraction, and evidence collection.
 
-Reuse established evidence. Add only new facts needed by the current dependency.
+Reuse established evidence. Add only new facts needed by the assigned dependency.
 
 ### Luna Worker
 
@@ -153,7 +192,7 @@ File-level ownership promises do not authorize a second writing Worker in the sa
 
 ### Terra Investigator
 
-Use `codex_agent_team_investigator` only when a clear contract exposes a genuine technical capability gap that Luna or the main session cannot efficiently resolve.
+Use `codex_agent_team_investigator` when a clear dependency exposes a genuine technical capability gap that Luna or the main session cannot efficiently resolve.
 
 Terra receives the unresolved delta, valid established evidence, and current artifact. It does not redo the full Luna responsibility and does not serve as a generic quality-upgrade button.
 
@@ -161,22 +200,46 @@ Default Terra work is read-only investigation. After Terra resolves the delta, t
 
 ### Sol Advisor
 
-Use `codex_agent_team_advisor` for a high-value judgment or selective review that cannot be replaced by deterministic verification or existing evidence.
+Use `codex_agent_team_advisor` for a high-value judgment or selective review that deterministic verification and existing evidence cannot replace.
 
-Give Sol compressed established facts, the actual artifact or decision options, and one bounded question. Do not ask Sol to rescan the repository by default.
+A consequential architecture, security, migration, data-integrity, or public-contract commitment is a valid Sol boundary when the unresolved question is genuinely judgmental.
 
-Sol may appear directly after Luna when implementation is clear but the resulting artifact merits higher-value review. Terra is not required in that path.
+Give Sol compressed established facts, the actual artifact or decision options, and one bounded question. Use fresh context by default. Do not ask Sol to rescan the repository or inherit dead-end narration when established evidence can carry the dependency.
 
-## 7. Failure classification and delta escalation
+Final Sol review is selective, not mandatory.
 
-When Luna fails acceptance, classify the cause before choosing another model:
+## 8. Execution Progress Gate
+
+Use `references/execution-progress.md` after a delegated execution attempt or whenever repeated work is being considered.
+
+Progress must be grounded in observable task movement. Examples include:
+
+- a previously failing acceptance check now passes;
+- a new deterministic result narrows the failure space;
+- a new repository fact resolves part of the dependency;
+- the unresolved delta becomes materially smaller;
+- the artifact moves toward the acceptance oracle without violating invariants.
+
+These are not progress by themselves:
+
+- model confidence or narration;
+- rewriting a file while verification remains unchanged;
+- rerunning the same command with the same result and no invalidation reason;
+- repeating repository discovery that valid evidence already covers.
+
+Do not retry an unchanged contract merely because a prior attempt failed. A follow-up requires new evidence, a repaired contract, a distinct correction hypothesis, or a changed artifact/runtime state.
+
+When progress stalls, classify before escalating:
 
 ```text
 mechanical defect
--> focused Luna correction
+-> focused Luna correction when there is a concrete local correction path
 
 contract gap
 -> main session repairs the contract
+
+execution stall / context pollution
+-> fresh same-lane packet with current artifact + valid evidence + DO NOT REDO
 
 capability gap
 -> Terra receives only the unresolved technical delta
@@ -185,67 +248,67 @@ judgment gap
 -> main session decides or uses Sol when justified
 ```
 
-Concurrent workspace drift is changed input, not a capability upgrade signal. Reconcile the current artifact and invalidate only dependent evidence.
+Capability takes precedence over repeatedly restarting the same execution lane. A clean same-lane restart is for polluted or unproductive context when the lane still appears capable of satisfying the contract.
 
-Preserve valid evidence across retries. Recompute only dependencies invalidated by changed files, artifacts, runtime facts, or contradictory evidence.
+Preserve facts and artifacts across a clean restart. Do not transfer private reasoning or dead-end narration as task state.
 
-Use `references/delegation-contract.md` for Shared Evidence State and Delta Escalation packets.
+## 9. Useful parallelism
 
-## 8. Useful parallelism
-
-Parallel work is justified only when outputs satisfy different dependencies.
+Parallel work is justified only when outputs satisfy different ready dependencies.
 
 Good examples:
 
-- one Luna Reader traces a runtime path while another read-only branch maps independent test coverage;
-- the main session prepares acceptance and risk checks while Luna executes a bounded implementation;
-- a slow deterministic test suite runs while independent read-only analysis proceeds;
-- independent projects or runtime-backed isolated worktrees may each use one writer without creating a machine-wide writer bottleneck.
+- independent Luna Readers map separate subsystems;
+- the main session prepares acceptance and risk checks while Luna implements;
+- a slow deterministic test suite runs while unrelated read-only analysis proceeds;
+- independent projects or runtime-backed isolated worktrees each use a writer without creating a machine-wide bottleneck.
 
 Do not parallelize multiple models over the same question merely to keep compute busy.
 
 Concurrency has three scopes:
 
 ```text
-main-session scope: child-count envelope, normal max 2, hard max 4
+main-session scope: Dependency Ledger, ready frontier, consent state, active child set
 workspace scope: one active writer per canonical physical checkout or isolated worktree
 Codex-home scope: one installed managed profile generation shared by sessions using that home
 ```
 
-The hard maximum of four is a v1.0.0 per-main-session policy limit, not a claim about native machine/account capacity. Do not create a global Agent cap that blocks independent projects.
+Two sessions targeting the same physical checkout share the one-writer invariant even if their intended file sets differ. Current session-local orchestration must not be assumed to enforce cross-session exclusion until live validation proves native coordination or a reproducible failure justifies a project-side mechanism.
 
-One canonical shared workspace still has at most one active writing Worker. Two sessions targeting the same physical checkout share this invariant even if their intended file sets differ. Current session-local orchestration must not be assumed to enforce cross-session exclusion until live validation proves native coordination or a reproducible failure justifies a project-side mechanism.
-
-## 9. Consent Gate
+## 10. Consent Gate
 
 Use `references/consent-policy.md`.
 
-The baseline resource envelope is at most two child Agents, at most one writer, and no permission, scope, or external-impact expansion. When `/codex-delegate` was explicitly invoked, one justified Sol read-only judgment or review may fit inside that envelope.
+Explicit `/codex-delegate` invocation authorizes ordinary orchestration within the baseline resource envelope. The baseline covers up to two concurrently active justified children, at most one writer per canonical workspace, and no permission, scope, external-impact, or material compute expansion.
 
-Ask before larger fan-out, additional permissions, broader scope, external side effects, or a material capability/cost expansion outside the enabled envelope.
+The number two is a consent boundary for concurrent fan-out, not a task lifetime cap and not a scheduler target.
 
-## 10. Safety
+Ask before larger simultaneous fan-out, repeated serial delegation that materially expands compute cost, additional permissions, broader scope, external side effects, or other material capability/cost expansion outside the enabled envelope.
+
+## 11. Safety
 
 Use `references/safety-policy.md` when a child may write, handle untrusted content, or require read-only guarantees.
 
 Prompt text does not prove runtime permission enforcement. If safety requires host-enforced read-only and the runtime cannot report it, keep that responsibility in the main session.
 
-Do not claim cross-session writer exclusion or multi-process installer safety unless current runtime/filesystem evidence proves it. Those are v1 release gates, not assumptions derived from the Skill text.
+Do not claim cross-session writer exclusion or multi-process installer safety unless current runtime/filesystem evidence proves it. Those are v1 release gates, not assumptions derived from Skill text.
 
-## 11. Execute, merge evidence, and verify
+## 12. Execute, merge evidence, and verify
 
 After each child returns:
 
 1. Treat the report as a claim.
 2. Inspect actual files, diff, commands, tests, and scope.
 3. Merge new deterministic or repository evidence into Shared Evidence State.
-4. Invalidate only evidence whose declared dependencies changed or conflicted, including changes made by the user or another independent session.
-5. Rerun deterministic verification when required by the acceptance oracle.
-6. Collect runtime evidence only when route identity, ancestry, permission, conflict, or an explicit user request makes it material.
-7. Use `scripts/verify-runtime.py` for deterministic evidence reconciliation.
-8. Allow at most one focused follow-up per child responsibility when useful.
+4. Update Dependency Ledger status and recompute the ready frontier.
+5. Invalidate only evidence whose declared dependencies changed or conflicted, including changes made by the user or another independent session.
+6. Rerun deterministic verification when required by the acceptance oracle.
+7. Record execution-progress signals before deciding whether another attempt is justified.
+8. Collect runtime evidence only when route identity, ancestry, permission, conflict, or an explicit user request makes it material.
+9. Use `scripts/verify-runtime.py` for deterministic runtime-evidence reconciliation.
+10. Never spawn a duplicate dependency call solely because the previous Agent returned slowly, confidently, or incompletely.
 
-## 12. Runtime evidence
+## 13. Runtime evidence
 
 Use `references/runtime-assurance.md`.
 
@@ -259,17 +322,18 @@ permission_evidence
 
 The compact legacy grades `C1`, `L1`, `R1`, `R2`, and `X0` remain derived summaries only. A grade must never imply evidence for fields that were missing.
 
-## 13. Close and report
+## 14. Close and report
 
-Close completed, rejected, or no-longer-needed Subagents promptly.
+Close completed, rejected, superseded, or no-longer-needed Subagents promptly so native capacity can recover.
 
 Use `references/orchestration-receipt.md` when the Skill was explicitly invoked, any child was created, or orchestration materially changed execution. Keep trivial implicit main-session-only work quiet by default.
 
 ## References
 
-- `references/delegation-contract.md`: contractability, Shared Evidence State, failure classification, delta escalation
-- `references/routing-policy.md`: compute graph, semantic responsibilities, route policy, useful parallelism, concurrency scopes
+- `references/delegation-contract.md`: dependency contract, Shared Evidence State, delta escalation
+- `references/execution-progress.md`: observable progress, stall detection, clean same-lane restart, capability-before-retry
+- `references/routing-policy.md`: adaptive compute graph, semantic responsibilities, route policy, ready-frontier scheduling
 - `references/runtime-assurance.md`: typed runtime evidence and deterministic verifier
-- `references/consent-policy.md`: baseline resource envelope and escalation consent
+- `references/consent-policy.md`: baseline concurrent resource envelope and expansion consent
 - `references/safety-policy.md`: permissions, prompt injection, depth, mutation, shared-workspace and Codex-home safety
 - `references/orchestration-receipt.md`: compact user-visible execution record

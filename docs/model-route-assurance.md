@@ -1,6 +1,6 @@
 # Model Route Assurance
 
-Codex Agent Team uses model-specific Subagents only through its namespaced custom-Agent profiles. Route policy is separate from semantic responsibility, and post-spawn runtime evidence is a separate layer again.
+Codex Delegate uses model-specific Subagents only through its namespaced custom-Agent profiles. Route policy is separate from semantic responsibility, and post-spawn runtime evidence is a separate layer again.
 
 ## Why this exists
 
@@ -46,7 +46,7 @@ fork_turns = none
 
 ## No Portable Mode
 
-The public and internal policy no longer uses built-in roles plus explicit model/effort as a compatibility route.
+The public and internal policy does not use built-in roles plus explicit model/effort as a compatibility route.
 
 If a required project profile cannot be proven available:
 
@@ -57,7 +57,7 @@ or repair managed profile readiness
 
 Do not substitute another role, another model, another effort, or inherited defaults.
 
-This removes an unnecessary second routing system from the supported architecture.
+This keeps one exact routing system for the supported architecture.
 
 ## Effective Codex precedence
 
@@ -70,19 +70,21 @@ custom Agent file value
   -> parent value
 ```
 
-Codex Agent Team intentionally uses the first path for model and effort. It does not rely on omission or inheritance for exact model-specific routing.
+Codex Delegate intentionally uses the custom-profile path for model and effort. It does not rely on omission or inheritance for exact model-specific routing.
 
 ## Current policy routes are hypotheses
 
-Luna Max is fixed as the current default execution baseline.
+Luna Max is fixed as the current v1 execution baseline.
 
-Terra XHigh and Sol High remain policy choices that must be evaluated on representative workloads. The project does not claim they are globally optimal simply because they are stronger reasoning settings.
+Terra XHigh and Sol High remain policy choices that must be evaluated on representative workloads. The project does not claim they are globally optimal simply because they use stronger reasoning settings.
+
+Adaptive scheduling does not change route identity to work around native slot pressure. If the exact role is unavailable, the dependency waits, stays in the main session, or fails closed according to the task boundary.
 
 Future route tuning should change profile contents and benchmark evidence, not semantic role names or task contracts.
 
 ## Post-spawn evidence
 
-Runtime Truth v2 tracks:
+Runtime Truth tracks:
 
 ```text
 route_evidence
@@ -102,6 +104,8 @@ R2_runtime_reported_and_local_record_agree
 X0_conflicted
 ```
 
+Native child capacity is a separate runtime observation. A successful fan-out does not prove that a route changed, and a route observation does not prove a universal capacity ceiling.
+
 See the installed Skill reference `references/runtime-assurance.md` and `scripts/verify-runtime.py`.
 
 ## Failure rule
@@ -109,9 +113,10 @@ See the installed Skill reference `references/runtime-assurance.md` and `scripts
 ```text
 project profile missing -> managed readiness flow
 profile exact but current task cannot discover role -> fresh task
-profile route provable -> spawn may proceed
+profile route provable -> spawn may proceed when dependency is ready and resources allow
 profile route unprovable -> main session
 verifier expected route incomplete -> fail closed
 post-spawn route partial when runtime proof is required -> main session
 post-spawn evidence conflict -> quarantine
+runtime slot unavailable -> queue/serialize dependency, do not cross-route
 ```
