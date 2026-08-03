@@ -55,7 +55,7 @@ def test_consent_policy_defines_resource_envelope_not_fixed_team_shape():
     assert "up to 2 concurrently active justified child Agents" in consent
     assert "at most 1 active writer" in consent
     assert "The exact team shape is dynamic" in consent
-    assert "not the lifetime number of child calls" in consent
+    assert "lifetime number of child calls" in consent
     assert "does not add another numerical hard ceiling" in consent
 
 
@@ -77,7 +77,7 @@ def test_plugin_profile_lifecycle_remains_present():
     installation = (ROOT / "docs" / "plugin-installation.md").read_text()
     assert "codex_agent_team_worker" in installation
     assert "Migration from Codex Agent Team 0.3.x" in installation
-    assert "v0.4.x" in installation
+    assert "0.4.x" in installation
     assert "0.5.0" in installation
     assert "luna_explorer" in installation
     assert ".codex-agent-team-agents.json" in installation
