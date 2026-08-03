@@ -1,18 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Codex Agent Team live behavioral result",
+  "title": "Codex Delegate live behavioral result",
   "type": "object",
   "required": ["schema_version", "suite", "runtime", "runs"],
   "properties": {
-    "schema_version": {"const": "2.1"},
-    "suite": {"const": "codex-agent-team-live-behavior"},
+    "schema_version": {"const": "3.0"},
+    "suite": {"const": "codex-delegate-live-behavior"},
     "runtime": {
       "type": "object",
       "required": ["codex_version", "date"],
       "properties": {
         "codex_version": {"type": "string", "minLength": 1},
         "date": {"type": "string", "minLength": 1},
-        "platform": {"type": ["string", "null"]}
+        "platform": {"type": ["string", "null"]},
+        "observed_child_capacity": {"type": ["integer", "null"], "minimum": 0}
       },
       "additionalProperties": true
     },
@@ -46,6 +47,7 @@
               "contract_luna",
               "contract_luna_selective_sol",
               "contract_delta_terra",
+              "adaptive_orchestration",
               "external_baseline"
             ]
           },
@@ -62,6 +64,10 @@
           "acceptance_score": {"type": ["number", "null"], "minimum": 0},
           "decision": {"type": "string"},
           "agent_count": {"type": "integer", "minimum": 0},
+          "peak_active_children": {"type": ["integer", "null"], "minimum": 0},
+          "ready_dependencies": {"type": ["integer", "null"], "minimum": 0},
+          "dependency_ids": {"type": "array", "items": {"type": "string"}},
+          "runtime_slot_waits": {"type": "integer", "minimum": 0},
           "roles": {"type": "array", "items": {"type": "string"}},
           "route_evidence_grade": {"type": ["string", "null"]},
           "policy_violations": {"type": "array", "items": {"type": "string"}},
@@ -69,6 +75,10 @@
           "wrong_edits": {"type": "integer", "minimum": 0},
           "regressions": {"type": "integer", "minimum": 0},
           "correction_turns": {"type": "integer", "minimum": 0},
+          "execution_stall_events": {"type": "integer", "minimum": 0},
+          "clean_same_lane_restarts": {"type": "integer", "minimum": 0},
+          "unjustified_retry_calls": {"type": "integer", "minimum": 0},
+          "same_failure_without_new_evidence": {"type": "integer", "minimum": 0},
           "main_session_correction_tokens": {"type": ["integer", "null"], "minimum": 0},
           "main_session_correction_ms": {"type": ["integer", "null"], "minimum": 0},
           "review_findings": {"type": "integer", "minimum": 0},
