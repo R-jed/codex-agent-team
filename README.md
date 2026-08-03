@@ -9,6 +9,8 @@
     <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
   </picture>
 </p>
+
+<p align="center">
   <a href="README_EN.md">English</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
 </p>
 
@@ -18,7 +20,7 @@
   <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
 </p>
 
-Codex Delegate 是一个 Codex 原生 Subagent 委派框架。你描述开发任务，当前会话决定哪些工作值得委派、交给谁、怎么验收。
+Codex Delegate 是一个 Codex 原生的 Subagent 委派框架。你描述开发任务，当前任务会话决定哪些工作值得委派、交给谁、怎么验收。
 
 ## 快速开始
 
@@ -26,7 +28,7 @@ Codex Delegate 是一个 Codex 原生 Subagent 委派框架。你描述开发任
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-在 ChatGPT Desktop 的 Plugins Directory 中安装 `Codex Delegate`，然后直接给它开发任务：
+在 ChatGPT 桌面App的插件市场中安装 `Codex Delegate`，然后直接给它开发任务：
 
 ```text
 /codex-delegate 修复这个登录重试 bug，并运行相关测试。
@@ -34,7 +36,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 /codex-delegate review 这次改动，重点检查数据一致性和回归风险。
 ```
 
-不用决定调用哪个模型、按什么顺序。Codex Delegate 自己判断。
+不用决定调用哪个模型、按什么顺序，Codex Delegate 自己判断。
 
 ## 工作原理
 
@@ -50,7 +52,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 ## 委派流程
 
-没有固定的三级流水线。每次调用 Subagent 都必须解决一个当前仍未满足的独立依赖。
+没有固定的Model流水线。每次调用 Subagent 都必须解决一个当前仍未满足的独立依赖。
 
 ## 委派合同
 
