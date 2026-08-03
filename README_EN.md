@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.5.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
 </p>
 
@@ -23,15 +23,19 @@ Codex Delegate turns an engineering task into the smallest useful set of verifia
 
 The current main session always owns user intent, scope, consequential decisions, scheduling, acceptance, and the final response. Luna, Terra, and Sol are selectable execution or judgment resources. There is no fixed model pipeline and no fixed Agent count.
 
-Current version: `0.5.0`, pre-v1.
+Current version: `0.5.1`, pre-v1.
 
 ## Quick start
 
 ```bash
-codex plugin marketplace add R-jed/codex-agent-team --ref main
+codex plugin marketplace add R-jed/codex-agent-team --ref main \
+  --sparse .agents/plugins \
+  --sparse plugins/codex-agent-team
+
+codex plugin add codex-agent-team@codex-agent-team
 ```
 
-Reopen the ChatGPT desktop app, install `Codex Delegate` from the Plugins Directory, then give it a task directly:
+Start a new Codex thread after installation, then give it a task directly:
 
 ```text
 /codex-delegate Fix this login retry bug and run the relevant tests.
@@ -83,17 +87,21 @@ This reduces repeated discovery, repeated tests, and whole-task restarts. Indepe
 
 ## What happens when execution stalls
 
-An Agent saying that it made progress does not automatically justify another attempt. The main session checks actual artifacts, deterministic verification, failure signatures, and new evidence.
+Failing acceptance and needing to change execution are separate decisions.
 
-When acceptance is not reached, Codex Delegate chooses recovery from the evidence:
+If a test still fails while new deterministic evidence narrows the root cause or unresolved delta, the main session can continue the current responsibility instead of restarting context or escalating models early.
+
+Only when evidence supports intervention does Codex Delegate classify the recovery path:
 
 - a concrete local mechanical defect can return to Luna for a focused correction;
 - an incomplete contract returns to the main session for repair;
-- repeated unproductive context can trigger a clean same-lane restart using the current artifact and valid evidence;
+- repeated unproductive context can trigger a clean same-lane restart using the current artifact, valid evidence, and compact recovery history;
 - an evidence-supported complex technical capability gap sends only the unresolved delta to Terra;
 - a consequential judgment stays with the main session or uses Sol when appropriate.
 
-There is no fixed retry count and no automatic model upgrade after a failure.
+The main session keeps a bounded Recovery Ledger so fresh context does not accidentally revisit an established dead end. An Agent's suggested next action remains a recommendation; the effective action still passes main-session consent, safety, route, and runtime policy.
+
+There is no fixed retry count, fixed stall count, or automatic model upgrade after a failure.
 
 ## Parallelism and multiple sessions
 
@@ -101,17 +109,19 @@ Independent projects may run their own Codex Delegate workflows concurrently.
 
 Writing ownership is scoped to the canonical workspace. One physical checkout has at most one active Writing Worker. Separate, genuinely isolated workspaces or worktrees may each have a writer.
 
-Version `0.5.0` is still completing live validation of same-checkout writer exclusion across independent main sessions. Before v1.0.0, if you run multiple independent Codex sessions, avoid having two sessions write the same physical checkout at the same time.
+Version `0.5.1` is still completing live validation of same-checkout writer exclusion across independent main sessions. Before v1.0.0, if you run multiple independent Codex sessions, avoid having two sessions write the same physical checkout at the same time.
 
 ## First run
 
-Codex Delegate uses four project-managed role profiles: Reader, Worker, Investigator, and Advisor. Exact internal profile identifiers and migration rules are documented in the [installation guide](docs/plugin-installation.md).
+Codex Delegate distributes its Skill through the native Plugin system. Its four project-managed custom Agent profiles use Codex's supported personal custom-Agent location under `$CODEX_HOME/agents`, normally `~/.codex/agents`.
 
 When a required profile is missing or an exactly project-managed earlier generation needs upgrading, the Skill explains the Codex-home paths it may manage and asks for permission first. The installer creates, updates, or migrates only project-owned profiles and its ownership manifest when ownership rules permit.
 
+The Plugin manifest does not invent an `agents` component. Custom Agent provisioning is an explicit post-install step; exact internal profile identifiers and migration rules are documented in the [installation guide](docs/plugin-installation.md).
+
 It does not edit credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
-If installation succeeds but the current task still does not expose the new role, start a fresh Codex task and invoke `/codex-delegate` again.
+Use a new Codex thread after Plugin installation or reinstall. If profile provisioning succeeds but the current task still does not expose the new role, start another fresh task and invoke `/codex-delegate` again.
 
 ## Safety boundaries
 
@@ -121,16 +131,16 @@ If installation succeeds but the current task still does not expose the new role
 - The Skill does not silently switch the main-session model or reasoning effort
 - If an exact project profile is unavailable, the affected responsibility returns to the main session instead of silently using a similar role
 - A Worker must preserve unrelated user or concurrent-session edits; if workspace drift invalidates the contract, it stops and returns control to the main session
-- A Subagent completion report is an execution claim; final acceptance is based on actual files, diffs, tests, and reproducible evidence
+- A Subagent completion report or recovery recommendation is an execution claim; final acceptance and effective recovery actions rely on actual artifacts, reproducible evidence, and main-session policy
 - Publishing, deployment, payments, account-permission changes, and other consequential external actions remain under main-session control
 
 ## Current release and compatibility
 
-Version `0.5.0` keeps the `Codex Delegate` product name and `/codex-delegate` canonical entry point while moving scheduling to dependency- and execution-evidence-driven orchestration.
+Version `0.5.1` keeps the `Codex Delegate` product name and `/codex-delegate` canonical entry point while refining evidence-driven intervention and making the native Plugin versus custom-Agent provisioning boundary explicit.
 
 To reduce pre-v1 upgrade risk, the GitHub repository slug, Plugin package id, and internal managed-profile namespace temporarily retain `codex-agent-team` compatibility identifiers. Users do not need to rename these resources manually.
 
-Before v1.0.0, live validation still covers real Plugin upgrades, cross-session same-checkout writer exclusion, concurrent installer behavior in one Codex home, and native fan-out capacity/slot recovery. This README describes the current product contract without presenting uncompleted runtime tests as established guarantees.
+Before v1.0.0, live validation still covers real Plugin install/upgrades, official Plugin validation, child-progress observability, cross-session same-checkout writer exclusion, concurrent installer behavior in one Codex home, and native fan-out capacity/slot recovery. This README describes the current product contract without presenting uncompleted runtime tests as established guarantees.
 
 ## License
 
