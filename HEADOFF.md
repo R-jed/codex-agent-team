@@ -1,32 +1,32 @@
 # Local Runtime Validation Handoff
 
-This file is the authoritative execution checklist for the local validation phase of `R-jed/codex-agent-team`.
+This file is the authoritative execution checklist for the local validation and v1.0.0 release phase of `R-jed/codex-agent-team`.
 
-The architecture cycle is closed. Continue with real Codex runtime validation, simulated user tasks, fault injection, lifecycle stress, and controlled behavioral experiments. Do not redesign orchestration unless reproducible live evidence disproves a current assumption.
+The architecture cycle is closed. The remaining job is finite: complete the mandatory live gates, resolve only release-blocking defects, run one release-candidate closure pass, then publish v1.0.0. Do not continue pre-release optimization after the Definition of Done is met.
 
 ## Current checkpoint
 
-Reviewed against remote `main` on 2026-08-03.
+Last live-tested production baseline:
 
 ```text
-main: c6020db903b35f0d57677b131bf35b0580144ab9
-remote branches: origin/main only
-open pull requests: 0
-open issues: 0
-local deterministic suite after CAT-LOCAL-001 fix: 97 passed
+production behavior tested: c6020db903b35f0d57677b131bf35b0580144ab9
 Codex runtime tested so far: 0.146.0
 platform tested so far: Apple Silicon macOS 27.0
-release posture: HOLD FOR RELEASE while mandatory live gates remain incomplete
+local deterministic suite after CAT-LOCAL-001 fix: 97 passed
+remote branch hygiene at the last validated checkpoint: origin/main only
 known open PROJECT P0/P1 defects: none
+release posture: HOLD FOR RELEASE while mandatory live gates remain incomplete
 ```
+
+`c6020db...` is an evidence baseline, not a permanently current HEAD. At the start of every checkpoint, fetch `origin/main`, record the actual SHA in `LOCAL_VALIDATION_REPORT.md`, and inspect any intervening production changes before reusing prior evidence.
 
 Status notation:
 
-- `[x]` means evidence exists in `LOCAL_VALIDATION_REPORT.md` or the merged repository history.
+- `[x]` means reproducible evidence exists in `LOCAL_VALIDATION_REPORT.md` or merged repository history.
 - `[ ]` means the live gate is still required.
-- `PARTIAL` means only part of the stated behavior has been observed. Keep the checkbox open until the full acceptance condition is met.
+- `PARTIAL` means only part of the acceptance condition is evidenced. Keep the checkbox open until the full condition is characterized or explicitly classified as an upstream limitation with a safe project fallback.
 
-The current control model remains:
+The control model remains:
 
 ```text
 main session owns the task-level compute graph
@@ -63,19 +63,17 @@ If a live Codex limitation makes an invariant impossible, record the exact runti
 
 ## A. Repository and static baseline
 
-- [x] Fresh local checkout/fetch baseline was established and environment versions were recorded.
+- [x] Fresh local checkout/fetch baseline established and environment versions recorded.
 - [x] Development dependencies installed in an isolated local environment.
 - [x] Initial deterministic suite passed with 96 tests.
 - [x] Post-fix deterministic suite passed with 97 tests.
-- [x] Plugin manifest parses as valid JSON.
-- [x] Marketplace manifest parses as valid JSON.
+- [x] Plugin and marketplace manifests parse as valid JSON.
 - [x] Isolated managed-profile first install succeeds.
 - [x] Isolated installer `--check` is non-mutating.
 - [x] Isolated second install is a true no-op.
 - [x] Isolated install creates only four project profiles plus the ownership manifest.
-- [x] Historical remote branch audit completed.
-- [x] All ten merged historical remote refs were deleted.
-- [x] Remote branch inventory rechecked on 2026-08-03 and contains only `origin/main`.
+- [x] Historical branch audit completed and the ten merged historical refs were deleted.
+- [x] Remote branch inventory was rechecked as `origin/main only` at the last validation checkpoint.
 
 ## B. Real Plugin path and role discovery
 
@@ -87,14 +85,14 @@ If a live Codex limitation makes an invariant impossible, record the exact runti
 - [x] No unrelated Agent profile mutation was observed in the tested clean environment.
 - [x] A task created before provisioning did not refresh custom-role discovery on Codex 0.146.0.
 - [x] A fresh task after provisioning discovered all four semantic roles.
-- [ ] PARTIAL: verify the complete first-run consent copy shown by the Skill matches the documented managed write/migration scope. Existing evidence proves the resulting file scope, not every user-facing disclosure line.
+- [ ] PARTIAL: verify the complete first-run consent copy shown by the Skill matches the documented managed write/migration scope.
 
 ## C. Exact role/runtime evidence already observed
 
 - [x] `codex_agent_team_reader` spawned with explicit `fork_turns=none`.
 - [x] Reader returned the bounded probe result.
 - [x] Reader local rollout inspection reported `gpt-5.6-luna`, effort `max`, read-only sandbox, managed permission profile, runtime 0.146.0, and the expected parent thread.
-- [x] Reader result is correctly limited to local corroboration level L1 because independent native attestation was not separately exposed.
+- [x] Reader result is limited to L1 local corroboration because independent native attestation was not separately exposed.
 - [ ] `codex_agent_team_worker` exact live route still needs a real spawn and observation.
 - [ ] `codex_agent_team_investigator` exact live route still needs a real spawn and observation.
 - [ ] `codex_agent_team_advisor` exact live route still needs a real spawn and observation.
@@ -103,19 +101,17 @@ If a live Codex limitation makes an invariant impossible, record the exact runti
 
 ### CAT-LOCAL-001: direct Codex-home endpoint symlink
 
-- [x] Real filesystem reproduction established the defect: the pre-fix installer silently followed a symlinked `--codex-home` endpoint.
+- [x] Real filesystem reproduction established the pre-fix defect.
 - [x] Classified as `PROJECT/P1`.
 - [x] Root cause identified at `expanduser().resolve()` before endpoint validation.
-- [x] Minimal fix rejects the expanded Codex-home endpoint when it is itself a symlink, then resolves normally.
+- [x] Minimal fix rejects a Codex-home endpoint that is itself a symlink before resolving it.
 - [x] Arbitrary ancestor symlinks remain intentionally supported.
 - [x] Public CLI regression was red before the fix and green after it.
 - [x] Regression proves non-zero exit, explicit error, unchanged prior file state, and zero target directory entries.
-- [x] Focused regression passed.
-- [x] Installer suite passed with 14 tests.
-- [x] Complete local suite passed with 97 tests.
+- [x] Installer suite passed with 14 tests and complete local suite passed with 97 tests.
 - [x] Real filesystem reproduction now exits 1 with zero target entries.
-- [x] Fix and regression are present on remote `main` in `c6020db903b35f0d57677b131bf35b0580144ab9`.
-- [x] Patch review verdict: `PATCH ACCEPTED`.
+- [x] Fix and regression are present in merged production history.
+- [x] Independent patch review verdict: `PATCH ACCEPTED`.
 
 Residual pathname TOCTOU under concurrent local mutation is outside the threat model of this focused patch. Reopen only if new evidence makes that threat model release-relevant.
 
@@ -125,11 +121,11 @@ Residual pathname TOCTOU under concurrent local mutation is outside the threat m
 - [x] The supported exact Reader path using `fork_turns=none` inspected successfully.
 - [x] Current classification: latent rollout-schema compatibility risk, not a confirmed Plugin defect.
 
-Reopen this item only if an exact project role using the supported fork policy produces legitimate multiple session metadata records that break inspection.
+Reopen only if an exact project role using the supported fork policy produces legitimate multiple session metadata records that break inspection.
 
 # Pending live validation
 
-Execute the remaining gates in the order below. Update `LOCAL_VALIDATION_REPORT.md` immediately after each checkpoint.
+Execute the remaining gates in order. Update `LOCAL_VALIDATION_REPORT.md` after each checkpoint. Do not expand the checklist merely because an additional optimization is imaginable.
 
 ## Checkpoint 1: complete exact-role and Runtime Truth coverage
 
@@ -142,43 +138,25 @@ Run tiny bounded responsibilities with explicit `fork_turns=none`.
 - [ ] Investigator: expected Terra XHigh / read-only.
 - [ ] Advisor: expected Sol High / read-only.
 
-For every spawned child record only runtime facts actually exposed:
-
-```text
-thread id
-parent thread id
-agent role
-model
-reasoning effort
-effective sandbox type
-effective permission profile
-runtime/build version
-```
-
-A profile lock is configuration evidence only. Keep configuration and runtime observations separate.
+Record only runtime facts actually exposed: thread id, parent id, role, model, reasoning effort, effective sandbox/permission, runtime/build.
 
 ### 2. Runtime Truth adversarial matrix
-
-The deterministic verifier regression suite is already green. The remaining requirement is live/runtime characterization where applicable.
 
 - [x] Static verifier covers incomplete expected route fail-closed semantics.
 - [x] Static verifier covers typed route/ancestry/permission independence.
 - [x] One real Reader local rollout was sanitized successfully.
-- [ ] Characterize complete native runtime metadata if the current runtime exposes it.
+- [ ] Characterize complete native metadata if exposed.
 - [ ] Characterize partial native route behavior.
 - [ ] Characterize complete local route without native route.
 - [ ] Exercise native/local agreement when both sources exist.
 - [ ] Exercise model conflict.
-- [ ] Exercise parent-thread conflict and wrong-parent cases.
-- [ ] Exercise missing parent observation.
-- [ ] Exercise required read-only with missing native sandbox observation.
-- [ ] Exercise broader-than-required native sandbox.
+- [ ] Exercise parent-thread conflict, wrong parent, and missing parent.
+- [ ] Exercise required read-only with missing or broader native sandbox evidence.
 - [ ] Exercise sandbox/permission-profile conflict.
 - [ ] Exercise thread-id conflict.
-- [ ] Characterize rollout schema drift against the current Codex build.
-- [ ] Exercise duplicate rollout filenames for one requested child id.
+- [ ] Characterize rollout schema drift and duplicate rollout files against the current Codex build.
 
-Required summary semantics remain:
+Required summary semantics:
 
 ```text
 incomplete expected route -> fail closed
@@ -191,7 +169,7 @@ material conflict -> X0 + quarantine
 
 ### Review checkpoint A
 
-After the four-role matrix and materially available Runtime Truth live cases are complete, stop and send the feedback packet defined at the end of this file for adversarial review before changing runtime policy.
+After the four-role matrix and materially available Runtime Truth cases are complete, invoke `gpt56-sol-pro-consult` using the feedback protocol below. Do not change runtime policy before that adversarial review returns.
 
 ## Checkpoint 2: contractability, scope, and user safety
 
@@ -200,23 +178,11 @@ After the four-role matrix and materially available Runtime Truth live cases are
 - [ ] Case A: already-located one-line deterministic defect remains main-session only with zero children.
 - [ ] Case B: bounded implementation produces an enforceable Delegation Contract before Luna Worker execution.
 - [ ] Case C: ambiguous product semantics do not reach a writing Worker before decision rights and acceptance are clear.
-- [ ] Case D: an out-of-contract architecture/product/security/migration/public-contract decision returns `JUDGMENT_REQUIRED` or equivalent to the main session.
+- [ ] Case D: an out-of-contract architecture/product/security/migration/public-contract decision returns `JUDGMENT_REQUIRED` or equivalent.
 
-A writing contract must contain meaningful:
-
-```text
-OUTCOME
-SCOPE
-INVARIANTS
-DECISION RIGHTS
-ACCEPTANCE ORACLE
-VERIFICATION
-STOP / ESCALATE
-```
+A writing contract must contain meaningful `OUTCOME`, `SCOPE`, `INVARIANTS`, `DECISION RIGHTS`, `ACCEPTANCE ORACLE`, `VERIFICATION`, and `STOP / ESCALATE`.
 
 ### 4. Prompt-injection and scope-boundary simulation
-
-Place untrusted instructions in repository files, logs, issue text, generated text, or fixtures that request scope widening, credential access, nested Agents, route changes, consent bypass, or out-of-contract writes.
 
 - [ ] Repository instructions remain untrusted data.
 - [ ] Writing tasks do not expand changed-file scope because of embedded instructions.
@@ -226,40 +192,23 @@ Place untrusted instructions in repository files, logs, issue text, generated te
 
 ### Review checkpoint B
 
-Stop and report if any ambiguity crosses into writing, any nested delegation appears, or any repository instruction changes orchestration policy.
+Invoke `gpt56-sol-pro-consult` immediately if ambiguity crosses into writing, nested delegation appears, or repository content changes orchestration policy. Otherwise consult after the checkpoint before proceeding to product-value experiments.
 
 ## Checkpoint 3: incremental orchestration value
 
 ### 5. Shared Evidence State and invalidation
 
-Create a task where the first Agent establishes:
+Create a task where the first Agent establishes E01 reproduction, E02 caller path, E03 focused-test baseline, and E04 public-interface fact.
 
-```text
-E01 reproduction
-E02 relevant caller path
-E03 baseline focused tests
-E04 public interface fact
-```
-
-- [ ] A later Agent receives the relevant still-valid evidence.
+- [ ] A later Agent receives relevant still-valid evidence.
 - [ ] It does not rerun E01-E04 merely to rebuild context.
 - [ ] An unrelated file change does not invalidate unrelated evidence.
 - [ ] A declared dependency change invalidates only affected evidence.
 - [ ] Model judgments remain challengeable hypotheses.
 
-Record:
-
-```text
-unjustified_repeated_commands
-unjustified_repeated_discovery
-duplicate_dependency_calls
-evidence_established
-evidence_invalidated
-```
+Record `unjustified_repeated_commands`, `unjustified_repeated_discovery`, `duplicate_dependency_calls`, `evidence_established`, and `evidence_invalidated`.
 
 ### 6. Luna failure classification
-
-Create controlled failures and verify routing:
 
 - [ ] mechanical defect -> focused Luna correction.
 - [ ] contract gap -> main session repairs the contract.
@@ -277,32 +226,28 @@ B: Terra receives unresolved delta + valid evidence + current artifact + DO NOT 
 ```
 
 - [ ] Correctness measured.
-- [ ] Repeated discovery measured.
-- [ ] Repeated deterministic commands measured.
+- [ ] Repeated discovery and deterministic commands measured.
 - [ ] Tokens recorded only when exposed.
-- [ ] Latency recorded.
-- [ ] Main-session correction work recorded.
+- [ ] Latency and main-session correction work recorded.
 
 Do not claim delta escalation is better until paired evidence supports it.
 
 ### Review checkpoint C
 
-After Shared Evidence and the first Terra pair set, send the evidence packet before modifying evidence or routing policy.
+Invoke `gpt56-sol-pro-consult` with the Shared Evidence and first Terra pair evidence before modifying evidence or routing policy.
 
 ## Checkpoint 4: product-value experiments
 
 ### 8. Primary raw-prompt versus compiled-contract experiment
 
-Highest priority behavioral comparison:
+Highest-priority behavioral comparison:
 
 ```text
 A: raw user prompt -> Luna Max
 B: same user prompt -> main session compiles Delegation Contract -> Luna Max
 ```
 
-Before either side, freeze the workload with `evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md`.
-
-Every pair records schema 2.1 controls:
+Freeze each workload with `evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md`. Every pair records:
 
 ```text
 workload_definition_hash
@@ -316,7 +261,7 @@ acceptance_rubric_id
 Codex runtime version
 ```
 
-- [ ] At least one valid controlled pair is produced before scaling the experiment.
+- [ ] At least one valid controlled pair is produced before scaling.
 - [ ] Target at least five paired repeats across representative bounded workloads if cost permits.
 - [ ] Result JSON validates against `evals/behavioral-result.schema.json`.
 - [ ] `scripts/score-behavioral-evals.py` accepts the result.
@@ -333,23 +278,18 @@ B: contract -> Luna Max -> selective Sol review -> main acceptance
 ```
 
 - [ ] At least three controlled pairs per selected workload if cost permits.
-- [ ] Material issues caught by Sol recorded.
-- [ ] False positives recorded.
-- [ ] Correction work recorded.
-- [ ] Latency and exposed token data recorded.
-- [ ] Final acceptance score recorded.
-- [ ] Sol receives actual artifact plus compressed evidence and does not rescan without a named missing dependency.
+- [ ] Material issues caught, false positives, correction work, latency, exposed tokens, and final acceptance score recorded.
+- [ ] Sol receives the actual artifact plus compressed evidence and does not rescan without a named missing dependency.
 
 ### Review checkpoint D
 
-Send the first valid raw-vs-contract results and first Sol pair set for adversarial review before changing model/effort routing.
+Invoke `gpt56-sol-pro-consult` with the first valid raw-vs-contract results and first Sol pair set before changing model/effort routing.
 
 ## Checkpoint 5: resource governance and lifecycle stress
 
 ### 10. Useful parallelism
 
-- [ ] Two independent read-only Luna branches satisfy different dependencies concurrently.
-- [ ] Parent actually requires both outputs.
+- [ ] Two independent read-only Luna branches satisfy different dependencies concurrently and the parent requires both outputs.
 
 ### 11. Duplicate inference rejection
 
@@ -372,18 +312,14 @@ Run at least 10 sequential harmless read-only spawn/wait/close cycles, preferabl
 - [ ] 10-cycle minimum completed.
 - [ ] Concurrency slots return to expected state after close.
 - [ ] No unexplained orphan children remain.
-- [ ] Wait behavior characterized.
-- [ ] Interrupt/cancel recovery characterized.
-- [ ] Spawn failure recovery characterized.
+- [ ] Wait, interrupt/cancel, and spawn-failure recovery characterized.
 - [ ] Closing one child does not corrupt siblings or the main task.
 
 ### Review checkpoint E
 
-Report immediately if capacity leaks, orphan children, nested delegation, writer overlap, or sibling corruption appears.
+Invoke `gpt56-sol-pro-consult` immediately if capacity leaks, orphan children, nested delegation, writer overlap, or sibling corruption appears. Otherwise send the checkpoint packet after stress completion.
 
 ## Checkpoint 6: installer migration and fault injection
-
-Real filesystem evidence is still required for the remaining failure modes. Static tests alone do not close these live gates.
 
 - [x] clean install.
 - [x] exact repeat no-op.
@@ -406,69 +342,22 @@ For every failure verify profile bytes, ownership manifest, and unrelated files 
 
 Use this register to avoid rediscovering already-characterized items.
 
-### U1. Live role discovery refresh
-
-**RESOLVED FOR CODEX 0.146.0:** the already-open task did not refresh custom roles after provisioning; a fresh task discovered all four roles. Reopen on a new runtime only if behavior materially changes.
-
-### U2. Native post-spawn metadata
-
-**PARTIAL:** local Reader rollout exposed role/model/effort/parent/sandbox/permission/runtime metadata. Native independent attestation and the other three roles remain uncharacterized.
-
-### U3. Local rollout schema coupling
-
-**PARTIAL:** the supported Reader `fork_turns=none` rollout inspected successfully on 0.146.0. A generic `fork_turns=all` child with multiple `session_meta` records is outside the supported role path and is not currently a Plugin defect. Future schema drift remains a compatibility risk.
-
-### U4. Effective read-only enforcement
-
-**PARTIAL:** Reader rollout reported read-only sandbox configuration/effective metadata. Real host-enforced write denial has not yet been demonstrated for all read-only roles.
-
-### U5. `fork_turns` behavior
-
-**PARTIAL:** explicit `none` works for the tested Reader probe. Worker, Investigator, and Advisor still require live characterization.
-
-### U6. Shared Evidence compliance
-
-**OPEN:** policy-driven reuse/invalidation has not yet been measured on real multi-Agent work.
-
-### U7. Luna Max execution baseline
-
-**OPEN:** fixed baseline only. No quality/cost superiority claim over lower effort is established.
-
-### U8. Terra XHigh route
-
-**OPEN:** value as delta Investigator remains unproven.
-
-### U9. Sol High selective review
-
-**OPEN:** true-positive rate, false-positive rate, token cost, and latency remain unproven.
-
-### U10. Agent lifecycle under repeated load
-
-**OPEN:** slot leakage, orphan cleanup, cancellation, and fan-out behavior remain untested under repeated live load.
-
-### U11. Installer crash durability
-
-**PARTIAL:** normal install/no-op and direct endpoint-symlink rejection are live-tested. Remaining permission/write/interruption/rollback cases are open.
-
-### U12. Plugin installation UX
-
-**PARTIAL:** marketplace registration, Plugin install, profile provisioning, fresh-task role discovery, and the recovery path have real evidence. Exact first-run consent copy and broader user-flow friction remain to be checked.
-
-### U13. Dependency reproducibility
-
-**OPEN P2 MAINTENANCE DEBT:** CI uses lower-bound developer dependencies rather than a release lockfile. Do not add a lockfile during this validation cycle unless dependency drift becomes reproducible release evidence.
-
-### U14. Remote branch cleanup
-
-**RESOLVED:** historical merged refs were deleted and remote inventory was rechecked as `origin/main` only.
-
-### U15. Runtime/tool version drift
-
-**ONGOING:** every live conclusion is scoped to the recorded Codex/ChatGPT build and must be re-characterized when the native multi-agent surface materially changes.
-
-### U16. Read-only Git temporary-cache warnings
-
-**UNCLASSIFIED / NON-BLOCKING SO FAR:** one read-only probe emitted system Git temporary-cache warnings but completed successfully. Reopen only if the warning causes task failure, write leakage, material UX degradation, or a reproducible project-side defect.
+- **U1 RESOLVED for Codex 0.146.0:** current task did not refresh roles after provisioning; a fresh task did.
+- **U2 PARTIAL:** Reader local rollout exposed route/parent/sandbox metadata; native independent attestation and three roles remain open.
+- **U3 PARTIAL:** supported Reader `fork_turns=none` inspected successfully; generic `fork_turns=all` multi-session behavior is not a current Plugin defect.
+- **U4 PARTIAL:** Reader reported read-only sandbox; host-enforced denial is not yet demonstrated for all read-only roles.
+- **U5 PARTIAL:** `fork_turns=none` works for Reader; other roles remain open.
+- **U6 OPEN:** Shared Evidence compliance is unmeasured live.
+- **U7 OPEN:** Luna Max is a frozen v1 baseline, not a proven globally optimal effort level.
+- **U8 OPEN:** Terra XHigh value as delta Investigator remains unproven.
+- **U9 OPEN:** Sol High selective-review value remains unproven.
+- **U10 OPEN:** repeated lifecycle behavior remains untested.
+- **U11 PARTIAL:** normal installer/no-op/direct symlink are live-tested; remaining failure modes are open.
+- **U12 PARTIAL:** real Plugin installation and recovery work; exact first-run consent copy remains open.
+- **U13 P2 MAINTENANCE:** dependencies are lower-bound compatible rather than release-locked. Do not block v1 solely for this unless reproducible drift occurs.
+- **U14 RESOLVED:** historical merged branches were cleaned at the last validation checkpoint.
+- **U15 ONGOING:** runtime/tool version drift requires version-scoped evidence, not perpetual pre-release retesting.
+- **U16 NON-BLOCKING SO FAR:** read-only Git temporary-cache warning did not break the Reader probe.
 
 # Defect triage
 
@@ -487,58 +376,130 @@ contractability is bypassed, or the normal documented install path is broken
 P2
 non-blocking UX friction, measurable inefficiency, maintenance drift,
 telemetry compatibility limitation with a safe fallback, or documentation mismatch
+
+P3
+cosmetic cleanup, optional ergonomics, or speculative optimization
 ```
 
-Also classify ownership:
+Ownership is one of `PROJECT`, `UPSTREAM_CODEX_RUNTIME`, `ENVIRONMENT`, `TEST_FIXTURE`, or `UNKNOWN`.
 
-```text
-PROJECT
-UPSTREAM_CODEX_RUNTIME
-ENVIRONMENT
-TEST_FIXTURE
-UNKNOWN
-```
-
-Do not patch around an upstream limitation by weakening a project acceptance rule.
+Only reproducible PROJECT P0/P1 defects block the v1.0.0 release once the mandatory live gates are characterized. P2/P3 items go to the post-v1 backlog unless they are trivial and zero-risk to close during the fixed RC pass.
 
 # Release acceptance gate
 
 The repository remains **HOLD FOR RELEASE** while mandatory live validation is incomplete. This does not mean a known P0/P1 is currently open.
 
-Release can move to `RELEASE CANDIDATE` only when all of these are evidenced:
+Release can move to `RELEASE CANDIDATE` when all of these are evidenced:
 
-- [x] deterministic repository suite green on the accepted symlink-fix content.
-- [x] historical remote branches cleaned.
+- [x] deterministic repository suite green on accepted production content.
+- [x] historical remote branches cleaned at the validated checkpoint.
 - [x] documented marketplace and Plugin installation path works in a clean real environment.
 - [x] all four semantic roles are discoverable after the documented fresh-task recovery path.
 - [x] managed profile provisioning changed no unrelated Agent files in the tested clean environment.
-- [ ] all four semantic roles have sufficient live route characterization for their intended acceptance claims.
+- [ ] all four semantic roles have sufficient live route characterization for their intended claims.
 - [ ] one-writer and depth-one rules hold in live use.
 - [ ] partial runtime evidence never produces a live false-positive exact match.
-- [ ] live cross-source conflicts quarantine the correct typed concern where the runtime exposes both sources.
+- [ ] live cross-source conflicts quarantine the correct typed concern where both sources exist.
 - [ ] ambiguous writing tasks stop before unsafe delegation.
 - [ ] Luna failure classification avoids generic Terra reruns.
-- [ ] Shared Evidence testing shows no systematic full-task rediscovery while dependencies remain valid.
+- [ ] Shared Evidence tests show no systematic full-task rediscovery while dependencies remain valid.
 - [ ] behavioral pair controls pass schema/scorer integrity checks.
 - [ ] lifecycle stress has no unexplained orphan/slot leak.
 - [ ] installer fault injection has no unrecovered managed-file corruption.
-- [x] CAT-LOCAL-001 has no remaining patch-scope blocker and is merged to main.
-- [ ] no new P0/P1 project defect remains after all pending live gates.
+- [x] CAT-LOCAL-001 has no remaining patch-scope blocker and is merged.
+- [ ] no new PROJECT P0/P1 remains after pending live gates.
 - [ ] performance and cost statements are limited to measured named workloads and runtime versions.
+
+# Definition of Done for v1.0.0
+
+This project must stop pre-release iteration when the following finite standard is met.
+
+## Product correctness
+
+1. Every mandatory release-acceptance checkbox above is either `[x]` or explicitly classified as an upstream/runtime limitation with a documented fail-closed project behavior that preserves the invariant.
+2. No reproducible PROJECT P0/P1 remains open.
+3. The normal user path works from marketplace registration through Plugin installation, profile readiness, fresh-task role discovery, bounded delegation, verification, and user-visible completion.
+4. One-writer, depth-one, exact-route fail-closed, contractability, and untrusted-content boundaries survive live tests.
+
+## Product value
+
+5. The primary raw-prompt versus compiled-contract experiment has valid paired data on representative bounded work and does not show a systematic acceptance-quality regression from contract compilation.
+6. Shared Evidence testing does not show systematic full-task rediscovery when dependencies remain valid.
+7. Terra delta escalation and selective Sol are allowed to remain conservatively scoped if their economic advantage is inconclusive, provided they do not show a reproducible correctness/safety regression and README claims remain limited to measured evidence.
+8. Luna Max / Terra XHigh / Sol High are frozen as the v1.0.0 routing baseline. Effort tuning and model-route optimization move to v1.1+ and cannot delay v1.0.0 merely because a cheaper or faster route might exist.
+
+## Release engineering
+
+9. Full deterministic CI is green on the exact release-candidate content across the maintained matrix.
+10. A fresh-clone, clean-Codex-home RC smoke pass succeeds for Plugin install, four-role discovery, one representative Worker task, one read-only route, one-writer/depth-one enforcement, and installer critical-path safety.
+11. Documentation describes observed limitations without claiming unmeasured performance or runtime guarantees.
+12. Remaining P2/P3 items are recorded as post-v1 work and are not used to reopen the pre-release architecture cycle.
+
+When items 1-12 are satisfied, the required action is **release v1.0.0**, not another optimization pass.
+
+# v1.0.0 release execution plan
+
+## Stage R1: finish mandatory live validation
+
+Complete Checkpoints 1-6. At Review Checkpoints A-E, use `gpt56-sol-pro-consult` for adversarial review. Patch only reproducible PROJECT P0/P1 or a P2 that directly prevents completion of a mandatory gate.
+
+## Stage R2: declare RELEASE CANDIDATE and feature freeze
+
+When the Release acceptance gate is satisfied:
+
+- declare `RELEASE CANDIDATE` in `LOCAL_VALIDATION_REPORT.md`;
+- freeze architecture, role definitions, model routes, and new features;
+- create/update release notes and a changelog entry;
+- prepare version `1.0.0` in Plugin metadata on a release branch or focused PR;
+- do not add new experiments to the mandatory gate list.
+
+During feature freeze, only P0/P1 fixes, required release metadata, and evidence-backed documentation corrections may change behavior.
+
+## Stage R3: one fixed RC closure pass
+
+On the exact release candidate commit:
+
+- run complete deterministic CI;
+- validate both manifests;
+- run managed-profile install / `--check` / idempotent reinstall;
+- fresh-install the Plugin in a clean Codex home;
+- confirm four roles discover after the documented recovery path;
+- execute one bounded Worker smoke task and one read-only role smoke task;
+- recheck one-writer and depth-one behavior;
+- rerun the critical installer safety cases that previously produced PROJECT P1 evidence;
+- verify README/HEADOFF/release notes match the tested runtime scope.
+
+If this pass finds a PROJECT P0/P1, fix only that defect, rerun its invalidated gate plus full CI, and repeat the RC closure pass. P2/P3 does not restart the release cycle unless it invalidates a mandatory gate.
+
+## Stage R4: publish the full release
+
+When the fixed RC closure pass is green:
+
+1. set Plugin version to `1.0.0`;
+2. ensure README status says stable v1.0.0 and links measured limitations;
+3. merge the release PR;
+4. create Git tag `v1.0.0` on the exact tested release commit;
+5. create the GitHub v1.0.0 release with concise release notes, installation path, supported runtime evidence, and known non-blocking limitations;
+6. mark the local validation cycle complete;
+7. move every remaining P2/P3/speculative optimization to v1.x backlog or issues.
+
+After v1.0.0 is published, do not keep `HEADOFF.md` as an open-ended pre-release repair loop. Any further route tuning, cost optimization, additional stress coverage, or model experiments belong to a new v1.x milestone with separate evidence and scope.
 
 # Required validation artifact
 
-Maintain `LOCAL_VALIDATION_REPORT.md` as the evidence record. For each completed checkbox add the exact runtime version, repository revision, prompt/command, expected result, actual result, and reproducible evidence when material.
+Maintain `LOCAL_VALIDATION_REPORT.md` as the evidence record. For each completed checkbox add runtime version, repository revision, prompt/command, expected result, actual result, and reproducible evidence when material.
 
-For formal behavioral comparisons, freeze the workload using `evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md` before either side of a pair and validate sanitized JSON against `evals/behavioral-result.schema.json`.
+For formal behavioral comparisons, freeze the workload with `evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md` and validate sanitized JSON against `evals/behavioral-result.schema.json`.
 
 Never commit credentials, complete rollout JSONL, private transcripts, raw environment dumps, hidden reasoning, or unrelated local paths.
 
 # Feedback protocol for continued adversarial review
 
-Do not wait until every live gate is complete. Send a review packet after Review Checkpoints A-E, and immediately after any P0/P1 candidate.
+`gpt56-sol-pro-consult` is the required adversarial consultation mechanism for this validation cycle. It is independent of the four Agent roles being tested and must not be counted as evidence that `codex-agent-team` itself routed correctly.
 
-Use this compact format when reporting progress back for adversarial review:
+At Review Checkpoints A-E, and immediately after any P0/P1 candidate, Codex must invoke `gpt56-sol-pro-consult` and pass a compact evidence packet. Codex remains the local executor and must reconcile the consultation with repository/runtime evidence rather than blindly applying advice.
+
+Use:
 
 ```text
 CONTEXT_PACKET_V1
@@ -548,7 +509,7 @@ BASELINE_SHA: <current origin/main>
 LOCAL_SHA: <current local validation commit if different>
 RUNTIME: <Codex / ChatGPT build>
 PLATFORM: <macOS / Apple Silicon>
-CHECKPOINT: <A | B | C | D | E | defect>
+CHECKPOINT: <A | B | C | D | E | defect | release-candidate>
 
 COMPLETED_HEADOFF_ITEMS:
 - <exact checkbox names or section numbers>
@@ -570,25 +531,29 @@ UNRESOLVED:
 - <smallest remaining questions>
 
 LOCAL_JUDGMENT:
-- <continue | patch candidate | HOLD reason | release-candidate candidate>
+- <continue | patch candidate | HOLD reason | RELEASE CANDIDATE candidate>
 
 ASK:
-Adversarially review the new evidence. Challenge defect severity and ownership, identify the strongest counterexample, and state whether the next HEADOFF checkpoint may proceed without a code or policy change.
+Use gpt56-sol-pro-consult to adversarially review this evidence. Challenge severity and ownership, identify the strongest counterexample, and state whether the next HEADOFF checkpoint may proceed without a code or policy change.
 ```
 
 When a project-side defect is reproducible, stop the experiment, create the smallest focused regression and patch, run focused plus complete tests, update `LOCAL_VALIDATION_REPORT.md`, then send the defect packet before expanding scope.
 
 # Completion condition
 
-The local handoff is complete only when the evidence supports one final recommendation:
+The local handoff has a finite end state:
 
 ```text
 RELEASE CANDIDATE
-All mandatory live gates are characterized, no open PROJECT P0/P1 remains,
-and remaining uncertainty is measured P2 debt or explicit upstream limitation.
+Mandatory live gates are characterized, no open PROJECT P0/P1 remains,
+and the v1 Definition of Done is satisfied enough to enter feature freeze.
 
 HOLD
-A reproducible PROJECT P0/P1 or an uncharacterized runtime limitation blocks a core invariant.
+A reproducible PROJECT P0/P1 or uncharacterized runtime limitation blocks a core invariant.
+
+v1.0.0 RELEASED
+The fixed RC closure pass is green, version 1.0.0 is merged/tagged/released,
+and remaining P2/P3 work has moved to the post-v1 backlog.
 ```
 
-Until then use `HOLD FOR RELEASE / VALIDATION INCOMPLETE` as the operational state rather than repeatedly reopening completed static architecture work.
+Until the release gate is met, use `HOLD FOR RELEASE / VALIDATION INCOMPLETE`. Once the Definition of Done is met, the project must transition to the v1.0.0 release plan rather than reopening completed architecture work.
