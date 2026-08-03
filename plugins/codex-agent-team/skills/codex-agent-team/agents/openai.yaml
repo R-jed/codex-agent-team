@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Delegate"
-  short_description: "Bounded delegation with evidence reuse"
-  default_prompt: "Use /codex-delegate to build the smallest useful compute graph for this task, compile bounded delegation contracts, and reuse established evidence instead of repeating work."
+  short_description: "Adaptive bounded delegation with evidence reuse"
+  default_prompt: "Use /codex-delegate to identify unresolved dependencies, build the smallest useful native Subagent compute graph, compile bounded contracts, reuse established evidence, and adapt retries or escalation from observed execution progress."
 
 policy:
   allow_implicit_invocation: true
