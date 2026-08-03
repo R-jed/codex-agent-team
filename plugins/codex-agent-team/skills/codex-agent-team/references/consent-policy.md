@@ -8,7 +8,7 @@ The user should understand practical changes in scope, permission, external impa
 
 ## 2. Baseline resource envelope
 
-When the user explicitly invokes `/codex-agent-team`, the normal orchestration envelope is:
+When the user explicitly invokes `/codex-delegate`, the normal orchestration envelope is:
 
 ```text
 0-2 justified child Agents
@@ -31,7 +31,7 @@ Sol only
 
 No Agent is mandatory, and using two Agents is not a goal by itself.
 
-A single read-only Sol advisor may fit inside the explicit `/codex-agent-team` baseline when it satisfies a distinct judgment or review dependency. Do not ask again merely because the selected tier is Sol.
+A single read-only Sol advisor may fit inside the explicit `/codex-delegate` baseline when it satisfies a distinct judgment or review dependency. Do not ask again merely because the selected tier is Sol.
 
 For implicit Skill invocation, ask before adding Sol unless the current user request already clearly authorizes a stronger model review.
 
