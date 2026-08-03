@@ -27,7 +27,7 @@ Codex Delegate 是一个 Codex 原生的 Subagent 委派框架。你描述开发
 codex plugin marketplace add R-jed/codex-agent-team --ref main
 ```
 
-在 ChatGPT Desktop 的 Plugins Directory 中安装 `Codex Delegate`，然后直接给它开发任务：
+在 ChatGPT 桌面App的插件市场中安装 `Codex Delegate`，然后直接给它开发任务：
 
 ```text
 /codex-delegate 修复这个登录重试 bug，并运行相关测试。
