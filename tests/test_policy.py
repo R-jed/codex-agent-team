@@ -175,8 +175,12 @@ def test_readmes_are_text_first_and_explain_incremental_orchestration():
     assert "README_EN.md" in zh and "README.md" in en
     for text in [zh, en]:
         assert len(text.splitlines()) <= 220
-        assert "<img" not in text
-        assert "<picture" not in text
+        # Allow logo and shields.io images but not other images
+        lines = text.splitlines()
+        for line in lines:
+            if "<img" in line and "logo" not in line and "shields.io" not in line:
+                assert False, f"Non-logo/shields <img> found: {line}"
+        assert "<picture" not in text or "logo" in text
         assert "```mermaid" not in text
         assert "/codex-delegate" in text
         assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text

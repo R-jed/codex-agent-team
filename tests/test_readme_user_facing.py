@@ -49,9 +49,6 @@ def test_readmes_explain_compatibility_ids_without_reverting_brand():
 
 def test_readmes_remain_text_first_and_user_facing():
     forbidden = [
-        "<img",
-        "<picture",
-        "shields.io",
         "```mermaid",
         "HEADOFF.md",
         "LOCAL_VALIDATION_REPORT.md",
@@ -69,3 +66,11 @@ def test_readmes_remain_text_first_and_user_facing():
         text = path.read_text()
         for phrase in forbidden:
             assert phrase not in text
+        # Allow logo and shields.io images but not other images
+        lines = text.splitlines()
+        for line in lines:
+            if "<img" in line and "logo" not in line and "shields.io" not in line:
+                assert False, f"Non-logo/shields <img> found: {line}"
+        # Allow <picture> only for logo
+        if "<picture" in text:
+            assert "logo" in text

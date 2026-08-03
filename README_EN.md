@@ -1,8 +1,23 @@
 # Codex Delegate
 
-> Native Subagent delegation framework for Codex. Turn engineering tasks into the smallest useful set of verifiable delegations.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
+    <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
+  </picture>
+</p>
 
-[中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
+<p align="center">
+  Native Subagent delegation framework for Codex. Turn engineering tasks into the smallest useful set of verifiable delegations.<br>
+  <a href="README.md">中文</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
+</p>
 
 Codex Delegate turns an engineering task into the smallest useful set of verifiable delegations, and calls Codex Native Subagents only when delegation adds concrete value.
 

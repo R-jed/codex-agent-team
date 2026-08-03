@@ -1,8 +1,23 @@
 # Codex Delegate
 
-> Codex 原生 Subagent 委派框架。把开发任务变成最小的一组可验证委派。
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
+    <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
+  </picture>
+</p>
 
-[English](README_EN.md) · [安装指南](docs/plugin-installation.md) · [MIT License](LICENSE)
+<p align="center">
+  Codex 原生 Subagent 委派框架。把开发任务变成最小的一组可验证委派。<br>
+  <a href="README_EN.md">English</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
+</p>
 
 Codex Delegate 把开发任务变成最小的一组可验证委派，并只在委派能增加实际价值时调用 Codex Native Subagents。
 
