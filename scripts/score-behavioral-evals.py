@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and summarize recorded paired Codex Agent Team live runs.
+"""Validate and summarize recorded paired Codex Delegate live runs.
 
 The scorer never executes Codex and never invents missing telemetry. Declared primary
 comparisons and experimental controls are checked pair-by-pair before descriptive
@@ -33,10 +33,17 @@ PAIR_CONTROL_FIELDS = (
 DELTA_FIELDS = (
     "acceptance_score",
     "agent_count",
+    "peak_active_children",
+    "ready_dependencies",
+    "runtime_slot_waits",
     "scope_violations",
     "wrong_edits",
     "regressions",
     "correction_turns",
+    "execution_stall_events",
+    "clean_same_lane_restarts",
+    "unjustified_retry_calls",
+    "same_failure_without_new_evidence",
     "main_session_correction_tokens",
     "main_session_correction_ms",
     "review_findings",
@@ -59,7 +66,7 @@ def fail(message: str) -> NoReturn:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Score recorded paired Codex Agent Team live evals.")
+    parser = argparse.ArgumentParser(description="Score recorded paired Codex Delegate live evals.")
     parser.add_argument("result", type=Path)
     parser.add_argument("--json", action="store_true")
     return parser.parse_args()
@@ -143,11 +150,18 @@ def mode_summary(runs: list[dict[str, Any]]) -> dict[str, Any]:
         "success_rate": sum(bool(run["success"]) for run in runs) / len(runs),
         "mean_acceptance_score": mean_present(runs, "acceptance_score"),
         "mean_agent_count": statistics.fmean(run["agent_count"] for run in runs),
+        "mean_peak_active_children": mean_present(runs, "peak_active_children"),
+        "mean_ready_dependencies": mean_present(runs, "ready_dependencies"),
+        "runtime_slot_waits": sum(run.get("runtime_slot_waits", 0) for run in runs),
         "policy_violations": sum(len(run.get("policy_violations", [])) for run in runs),
         "scope_violations": sum(run.get("scope_violations", 0) for run in runs),
         "wrong_edits": sum(run.get("wrong_edits", 0) for run in runs),
         "regressions": sum(run.get("regressions", 0) for run in runs),
         "mean_correction_turns": mean_present(runs, "correction_turns"),
+        "execution_stall_events": sum(run.get("execution_stall_events", 0) for run in runs),
+        "clean_same_lane_restarts": sum(run.get("clean_same_lane_restarts", 0) for run in runs),
+        "unjustified_retry_calls": sum(run.get("unjustified_retry_calls", 0) for run in runs),
+        "same_failure_without_new_evidence": sum(run.get("same_failure_without_new_evidence", 0) for run in runs),
         "mean_main_session_correction_tokens": mean_present(runs, "main_session_correction_tokens"),
         "mean_main_session_correction_ms": mean_present(runs, "main_session_correction_ms"),
         "mean_input_tokens": mean_present(runs, "input_tokens"),
@@ -272,6 +286,8 @@ def main() -> None:
         return
 
     print(f"Runtime: {payload['runtime']['codex_version']} ({payload['runtime']['date']})")
+    if payload["runtime"].get("observed_child_capacity") is not None:
+        print(f"Observed child capacity: {payload['runtime']['observed_child_capacity']}")
     print(f"Pairs: {summary['pair_count']}")
 
     if summary["comparisons"]:
@@ -287,6 +303,7 @@ def main() -> None:
                 "input_tokens",
                 "reasoning_tokens",
                 "latency_ms",
+                "unjustified_retry_calls",
                 "unjustified_repeated_commands",
                 "unjustified_repeated_discovery",
                 "duplicate_dependency_calls",
@@ -301,6 +318,8 @@ def main() -> None:
         print(f"  success_rate: {stats['success_rate']:.3f}")
         print(f"  mean_agent_count: {stats['mean_agent_count']:.2f}")
         for field in [
+            "mean_peak_active_children",
+            "mean_ready_dependencies",
             "mean_acceptance_score",
             "mean_correction_turns",
             "mean_main_session_correction_tokens",
@@ -310,6 +329,10 @@ def main() -> None:
         ]:
             value = stats[field]
             print(f"  {field}: {'not_recorded' if value is None else round(value, 2)}")
+        print(f"  runtime_slot_waits: {stats['runtime_slot_waits']}")
+        print(f"  execution_stall_events: {stats['execution_stall_events']}")
+        print(f"  clean_same_lane_restarts: {stats['clean_same_lane_restarts']}")
+        print(f"  unjustified_retry_calls: {stats['unjustified_retry_calls']}")
 
 
 if __name__ == "__main__":
