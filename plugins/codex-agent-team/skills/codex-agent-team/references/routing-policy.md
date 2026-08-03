@@ -4,7 +4,7 @@
 
 The current user-facing Codex session is the main session and owns the task-level dependency state and compute graph.
 
-It owns intent, scope, architecture, decision rights, scheduling, evidence state, integration, acceptance, and the final answer. It does not need to be Sol.
+It owns intent, scope, architecture, decision rights, scheduling, evidence state, recovery state, integration, acceptance, and the final answer. It does not need to be Sol.
 
 Models are compute lanes, not mandatory stages.
 
@@ -105,6 +105,7 @@ main-session scope
 - ready frontier
 - consent state
 - active child set
+- Recovery Ledger
 - no product-level hard child count
 
 workspace scope
@@ -155,7 +156,7 @@ Terra is not a mandatory reviewer and not a generic second implementation attemp
 
 Use it when a clear task exposes a difficult technical dependency whose resolution requires materially more technical investigation or synthesis than the Luna contract can safely carry.
 
-Terra receives the unresolved delta, relevant valid evidence, current artifact or failure, and explicit `DO NOT REDO` items. By default Terra remains read-only.
+Terra receives the unresolved delta, relevant valid evidence, current artifact or failure, material recovery history, and explicit `DO NOT REDO` items. By default Terra remains read-only.
 
 ### Sol judgment and review
 
@@ -172,18 +173,28 @@ Sol receives compressed facts and one decision/review question in fresh context 
 
 Final Sol review is selective, not mandatory.
 
-## 9. Evidence-guided recovery
+## 9. Evidence-guided intervention and recovery
 
-Use `execution-progress.md` before repeating or escalating an execution responsibility.
+Use `execution-progress.md` before repeating, restarting, or escalating an execution responsibility.
 
-A model saying it made progress is not a progress signal. Prefer deterministic verification, repository facts, artifact state, and a materially narrowed unresolved delta.
+A model saying it made progress is not a progress signal. Prefer deterministic verification, repository facts, artifact state, and a materially narrowed unresolved delta. A successful command also does not prove progress if acceptance and useful evidence remain unchanged.
 
-When acceptance fails, classify the evidence:
+### Stage A: Intervention Gate
+
+Acceptance failure and need for intervention are separate facts.
+
+Ask whether the current responsibility still shows evidence-supported forward progress inside a valid contract and safe runtime boundary.
+
+If yes, continue the same responsibility. A still-failing verification can coexist with healthy progress when new evidence narrows the root cause or unresolved delta.
+
+If no, or a contract, capability, judgment, consent, permission, workspace, route, or runtime boundary blocks safe continuation, enter recovery classification.
+
+### Stage B: Recovery classification
 
 ```text
 mechanical defect -> focused Luna correction with a new correction hypothesis
 contract gap -> main session repairs contract
-execution stall/context pollution -> fresh same-lane packet with valid evidence and DO NOT REDO
+execution stall/context pollution -> fresh same-lane packet with valid evidence + Recovery Ledger + DO NOT REDO
 capability gap -> Terra receives unresolved technical delta
 judgment gap -> main session or Sol
 ```
@@ -192,9 +203,76 @@ Do not impose a universal retry count. Do not resend an unchanged contract. Repe
 
 If evidence already shows a capability gap, escalate the delta instead of repeatedly restarting the same execution lane.
 
-A clean same-lane restart preserves current artifacts, valid established evidence, the failure signature, acceptance oracle, and unresolved delta. It drops private reasoning and dead-end narration.
+A clean same-lane restart preserves current artifacts, valid established evidence, material Recovery Ledger entries, the failure signature, acceptance oracle, and unresolved delta. It drops private reasoning and dead-end narration.
 
-## 10. Shared Evidence State
+## 10. Recovery Ledger and decision provenance
+
+The main session keeps a bounded semantic history for material attempts on each unresolved dependency:
+
+```text
+attempt_id
+lane
+correction_hypothesis
+failure_signature
+progress_signal
+new_evidence_ids
+unresolved_delta
+recovery_action
+decision_source
+```
+
+This ledger detects repeated or oscillating recovery paths across fresh contexts without preserving a transcript or private reasoning.
+
+When a child, Investigator, or Advisor proposes a next action, keep it separate from the action that the main session actually authorizes:
+
+```text
+proposed_action
+effective_action
+decision_source
+policy_transform
+```
+
+The main session owns the effective action. Consent, workspace ownership, exact-route availability, permission boundaries, runtime constraints, and user decisions may reject or transform a model proposal.
+
+`decision_source` is one of:
+
+```text
+deterministic_evidence
+main_session_judgment
+user_decision
+runtime_constraint
+model_judgment
+```
+
+A model proposal remains `model_judgment` even when accepted.
+
+More disruptive interventions require stronger qualitative evidence. Do not turn this principle into numeric retry counts or probability thresholds.
+
+## 11. Event-driven recovery evaluation and child observability
+
+Recovery evaluation itself consumes attention and context. Re-evaluate on material events:
+
+- child return;
+- material acceptance or failure-signature change;
+- evidence establishment, contradiction, or invalidation;
+- dependency blocking/readiness change;
+- user outcome/scope/authorization change;
+- material workspace ownership, route, permission, or runtime-capacity change.
+
+Do not re-run recovery classification after every ordinary tool call simply to mimic a proxy router.
+
+Child progress before return is a runtime fact, not an architectural assumption. Characterize the tested native surface only from facts actually exposed, for example:
+
+```text
+none
+terminal_only
+periodic_summary
+structured_live
+```
+
+If the runtime does not expose structured mid-run child progress, Codex Delegate remains dependency-level or return-level for recovery. Do not claim SageRoute-style mid-run anti-thrashing without evidence.
+
+## 12. Shared Evidence State
 
 Evidence is reused across nodes while its dependencies remain valid.
 
@@ -210,7 +288,7 @@ A change invalidates only evidence that depends on the changed input. Do not rer
 
 Changes made by the user or another independent session are ordinary dependency changes. Reconcile the current artifact and invalidate affected evidence before continuing delegated work.
 
-## 11. Useful parallelism
+## 13. Useful parallelism
 
 Parallel execution is useful when concurrent outputs satisfy different ready dependencies.
 
@@ -227,9 +305,9 @@ Do not treat disjoint intended file lists as proof that two writers are safe in 
 
 When runtime slots are saturated, leave remaining ready dependencies pending. Slot pressure is not a reason for duplicate inference or lower-quality role substitution.
 
-## 12. Profile route assurance
+## 14. Profile route assurance
 
-The supported Plugin path uses only project custom-Agent profiles.
+The supported Plugin path uses only project custom-Agent profiles for model-specific lanes.
 
 Before a model-specific child is spawned, require live role guidance to expose the exact semantic role with its expected locked route. Record:
 
@@ -245,7 +323,7 @@ If the required project profile is unavailable or conflicting, keep the responsi
 
 The profiles are Codex-home scoped shared configuration. A session whose expected profile generation no longer matches the installed exact route must fail closed for that lane. It must not silently reinstall, downgrade, or cross-route merely to keep a concurrent older/newer project session working.
 
-## 13. Runtime Evidence Gate
+## 15. Runtime Evidence Gate
 
 Runtime observation is demand-driven. Ordinary bounded execution does not require rollout inspection merely because it is available.
 
@@ -255,7 +333,7 @@ Use runtime evidence when:
 - route or parent-thread identity is material to the acceptance claim;
 - a claimed independent model review must be proven;
 - configured and observed facts conflict;
-- native capacity or lifecycle behavior is being characterized for release validation;
+- native capacity, child-progress observability, or lifecycle behavior is being characterized for release validation;
 - the user explicitly requests runtime proof.
 
 Use `runtime-assurance.md` and `scripts/verify-runtime.py`.
