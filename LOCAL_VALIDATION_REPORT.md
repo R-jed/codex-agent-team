@@ -10,45 +10,30 @@ Reconciled: 2026-08-03.
 
 ```text
 Product: Codex Delegate
-Candidate Plugin version: 0.5.1
+Plugin version: 0.5.1
 Canonical user entry point: /codex-delegate
 Compatibility repository/package namespace: R-jed/codex-agent-team / codex-agent-team
-Candidate PR: #24
-Exact static-tested branch head: 0254f112e7345ca4abc800d68340a9f576472d18
-GitHub Actions run: 30823045269
+Accepted v0.5.1 feature merge: 9adf8edd303be22506744d569e6552b8fdbc7574
+PR #24 final tested head: 7dadef8065f46bdb90accd38a3ffccfb75b23a51
+Final PR workflow run: 30823406796
+Post-merge HEADOFF reconciliation: 0fd04f9535baa57c64e824b8d556021087fd05fb
 Release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
 Known open reproducible PROJECT P0/P1: none
 ```
 
-The candidate becomes the accepted repository baseline only after PR #24 is merged and the resulting `origin/main` SHA is recorded. This report update follows the exact tested branch head and is documentation-only.
+v0.5.1 is now the accepted **static repository baseline**. It is no longer a candidate branch state. The remaining work is the finite live-validation sequence in `HEADOFF.md`.
 
-## Static CI evidence
-
-GitHub Actions run `30823045269` produced:
+The last accepted real Codex production-behavior baseline remains:
 
 ```text
-Ubuntu / Python 3.11: PASS
-Ubuntu / Python 3.12: PASS
-macOS / Python 3.11: PASS
-pytest on Ubuntu / Python 3.11: 131 passed
-JSON manifest syntax checks: PASS
-pinned official OpenAI Plugin validator: PASS
-managed profile install: PASS
-managed profile --check: PASS
-idempotent managed profile reinstall: PASS
+revision: c6020db903b35f0d57677b131bf35b0580144ab9
+platform: Apple Silicon macOS 27.0 (26A5388g)
+Python: 3.14.6
+Git: 2.50.1
+Codex CLI/runtime: 0.146.0
 ```
 
-Official Plugin validator used in CI:
-
-```text
-repository: openai/codex
-source revision: 7750465934d97dd3cbcb3b1655d2f622744010d3
-validator: codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py
-target: plugins/codex-agent-team
-result: PASS
-```
-
-This is deterministic compatibility evidence for that official validator revision. It is not evidence that a particular local Codex build completed marketplace registration, Plugin installation, fresh-thread discovery, custom-Agent discovery, or exact route spawning.
+Do not relabel v0.5.1 static evidence as current live runtime proof.
 
 ## Evidence classes
 
@@ -60,11 +45,39 @@ This is deterministic compatibility evidence for that official validator revisio
 - **Carried forward**: older evidence whose dependencies have not materially changed.
 - **Pending revalidation**: code/policy exists but the corresponding current live claim has not yet been demonstrated.
 
-## v0.5.1 architecture evidence
+## Accepted v0.5.1 static CI evidence
 
-v0.5.1 is a bounded refinement of v0.5.0. It does not reopen fixed Agent counts, route tuning, or the six-checkpoint release scope.
+PR #24 final head `7dadef8065f46bdb90accd38a3ffccfb75b23a51` completed GitHub Actions run `30823406796` successfully.
 
-### Scheduling remains dependency-driven
+```text
+Ubuntu / Python 3.11: PASS
+Ubuntu / Python 3.12: PASS
+macOS / Python 3.11: PASS
+pytest: 131 passed
+JSON Plugin/marketplace syntax: PASS
+pinned official OpenAI Plugin validator: PASS
+managed profile install: PASS
+managed profile --check: PASS
+idempotent managed profile reinstall: PASS
+```
+
+Pinned official validator:
+
+```text
+repository: openai/codex
+source revision: 7750465934d97dd3cbcb3b1655d2f622744010d3
+validator: codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py
+target: plugins/codex-agent-team
+result: PASS
+```
+
+This proves compatibility with that official validator revision. The RC gate still reruns the then-current official validator on the exact release candidate.
+
+## v0.5.1 architecture state
+
+### Dependency-driven orchestration
+
+The accepted static control graph remains:
 
 ```text
 Dependency Ledger
@@ -75,21 +88,21 @@ Dependency Ledger
 -> smallest useful scheduling wave
 ```
 
-Static facts remain:
+Repository facts:
 
-- zero children is valid;
-- no product-level hard child ceiling exists;
-- the old `default 1 / normal max 2 / hard max 4` scheduler model remains removed;
+- zero Subagents is a normal valid outcome;
+- there is no product-level hard child ceiling;
+- the old `default 1 / normal max 2 / hard max 4` scheduling semantics remain removed;
 - up to two concurrently active justified children is only the normal no-extra-consent envelope for explicit `/codex-delegate` use;
-- larger simultaneous fan-out normally requires consent unless already authorized;
-- native slot capacity is observed instead of hardcoded;
-- one running dependency has one owner;
+- larger simultaneous fan-out requires consent unless already authorized;
+- native slot capacity is runtime evidence, not a product constant;
+- a running dependency has one owner and does not receive duplicate inference;
 - one canonical physical checkout has at most one active Writing Worker;
 - delegation depth remains one.
 
-### Recovery now has an explicit Intervention Gate
+### Evidence-gated recovery
 
-The static control model is:
+v0.5.1 adds the accepted static recovery model:
 
 ```text
 execution evidence
@@ -100,7 +113,7 @@ execution evidence
 -> bounded Recovery Ledger
 ```
 
-Acceptance failure and need for intervention are separate facts. A still-failing responsibility may continue when deterministic/repository evidence materially narrows the cause or unresolved delta.
+Acceptance failure and need for intervention are separate facts. Healthy incomplete execution may continue when deterministic/repository evidence materially narrows the cause or unresolved delta.
 
 These do not establish progress by themselves:
 
@@ -108,7 +121,7 @@ These do not establish progress by themselves:
 - a file write;
 - a successful command that does not improve acceptance, establish useful evidence, or narrow the delta;
 - repeated discovery already covered by valid Shared Evidence State;
-- a different patch that reproduces the same failure without useful new evidence.
+- another model repeating the same judgment.
 
 Structured signals may include:
 
@@ -122,11 +135,11 @@ unresolved_delta_trend
 scope_churn
 ```
 
-They are evidence inputs, not numeric auto-routing rules. No fixed rule such as `three repeats -> Terra` exists.
+They are observations, not fixed auto-routing thresholds. No rule such as `three repeats -> Terra` exists.
 
-### Recovery Ledger
+### Recovery Ledger and decision provenance
 
-Material semantic history may retain:
+A bounded Recovery Ledger may retain:
 
 ```text
 attempt_id
@@ -140,11 +153,9 @@ recovery_action
 decision_source
 ```
 
-The ledger is bounded, is not a transcript, and contains no private chain-of-thought. Its main purpose is to prevent a fresh context from unknowingly returning to a previously established dead end such as `A -> B -> A`.
+It is not a transcript and contains no private chain-of-thought.
 
-### Proposed action is not orchestration authority
-
-Current contract distinguishes:
+Recovery also separates:
 
 ```text
 proposed_action
@@ -153,17 +164,15 @@ decision_source
 policy_transform
 ```
 
-A child, Terra, or Sol recommendation remains `model_judgment`. The main session owns the effective action after user consent, workspace ownership, exact-route, permission, runtime, and other policy gates.
+A child, Terra, or Sol recommendation remains `model_judgment`. The main session owns the effective action after consent, workspace, route, permission, runtime, and user-decision gates.
 
-### Event-driven recovery
-
-Recovery is reevaluated on material events such as child return, acceptance/failure/evidence changes, dependency blocking/readiness, user changes, or material workspace/runtime changes. There is no fixed turn cadence.
+Recovery evaluation is event-driven rather than turn-count-driven.
 
 ## Child-progress observability
 
-Codex Delegate no longer assumes that a parent can inspect a child's structured trajectory before child return.
+Codex Delegate does not assume a SageRoute-style live trajectory stream from a running child.
 
-The tested runtime must be characterized as exactly one of:
+The tested runtime must be characterized as:
 
 ```text
 none
@@ -172,15 +181,15 @@ periodic_summary
 structured_live
 ```
 
-No level has yet been established for the current v0.5.1 validation cycle.
+No level is yet accepted for the current live-validation cycle.
 
-If the runtime exposes only terminal evidence, recovery remains dependency-level/return-level. No SageRoute-style mid-run anti-thrashing claim is allowed without structured live runtime evidence.
+If only terminal evidence is exposed, recovery remains dependency-level/return-level. A mid-run anti-thrashing claim is forbidden without structured live runtime evidence.
 
-## Official Plugin contract evidence
+## Official Codex Plugin evidence
 
-### Bundle and marketplace shape
+### Static Plugin contract
 
-Current repository facts:
+Accepted repository shape:
 
 ```text
 .agents/plugins/marketplace.json
@@ -191,37 +200,19 @@ plugins/codex-agent-team/
   agent-profiles/
 ```
 
-The Plugin folder and manifest `name` both equal `codex-agent-team`.
+Static facts:
 
-The manifest version is `0.5.1`, uses strict semver, declares the supported Skill component and interface metadata, and does not invent an `agents` Plugin-manifest component.
+- Plugin folder and `plugin.json` name are both `codex-agent-team`;
+- Plugin version is `0.5.1` and uses strict semver;
+- Plugin manifest declares the Skill and supported interface metadata;
+- Plugin manifest does not invent an unsupported `agents` component;
+- marketplace source is `./plugins/codex-agent-team`;
+- marketplace carries `policy.installation`, `policy.authentication`, and `category`;
+- pinned official OpenAI Plugin validator passes.
 
-The repository marketplace points to:
+### Fresh Git marketplace/install contract
 
-```text
-./plugins/codex-agent-team
-```
-
-with:
-
-```text
-policy.installation = AVAILABLE
-policy.authentication = ON_INSTALL
-category = Productivity
-```
-
-The pinned official OpenAI Plugin validator passed this candidate.
-
-### Git marketplace CLI contract
-
-Current upstream Codex CLI source inspected during this iteration supports:
-
-- `codex plugin marketplace add` with Git `owner/repo` sources;
-- `--ref` for the Git ref;
-- repeatable `--sparse` arguments;
-- `codex plugin marketplace upgrade [MARKETPLACE_NAME]`;
-- `codex plugin add PLUGIN@MARKETPLACE`.
-
-Current documented fresh-install command:
+Current documented fresh-install path:
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main \
@@ -231,34 +222,40 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main \
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-Current documented update/reinstall command:
+Then start a new Codex thread before checking `/codex-delegate` discovery.
+
+### Existing Git marketplace upgrade/reinstall contract
+
+Current documented update path:
 
 ```bash
 codex plugin marketplace upgrade codex-agent-team
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-A new Codex thread is required before testing the installed/reinstalled Skill surface.
+Then start a new Codex thread.
 
-These are upstream/source and repository-contract facts. Real execution on the user's current Codex build remains pending.
+Current upstream Codex CLI source supports Git `owner/repo` marketplace sources, `--ref`, repeatable `--sparse`, marketplace `upgrade`, and `plugin add PLUGIN@MARKETPLACE`.
+
+These are upstream source and repository-contract facts. They remain pending live execution on the user's current Codex build.
 
 ### Full Plugin bundle availability
 
-Current OpenAI Codex `PluginStore` source was inspected directly. Its install path stages the Plugin by recursively copying the entire source directory into the versioned Plugin cache, not only the declared Skill. The recursive copy accepts normal files/directories and rejects symlinks.
+Current upstream OpenAI Codex `PluginStore` source stages installation by recursively copying the complete Plugin source directory into the versioned Plugin cache and rejects symlink entries.
 
-This upstream source fact supports the project's relative-path design:
+This upstream source fact supports the project's installed relative paths:
 
 ```text
 installed Skill
 -> ../../scripts/install-agents.py
--> ../agent-profiles templates through the bundled installer
+-> bundled agent-profiles/
 ```
 
-It means bundled `scripts/` and `agent-profiles/` are expected to survive Plugin installation under that implementation. Live Checkpoint 6 must still verify this on the tested Codex build before treating it as a runtime guarantee.
+Checkpoint 6 must still verify that the tested local Codex build actually exposes these bundled files after real installation.
 
 ### Plugin versus custom-Agent boundary
 
-Current upstream Plugin manifest does not provide a first-class custom-Agent bundle component. The project therefore keeps these responsibilities separate:
+The current Plugin spec does not provide a first-class custom-Agent bundle component. Codex Delegate therefore separates:
 
 ```text
 Plugin install
@@ -269,13 +266,13 @@ explicit user-approved first-run provisioning
 -> writes one ownership manifest under Codex home
 ```
 
-The public default personal Agent directory is `~/.codex/agents`. When Codex home is explicitly overridden, the project installer targets that active Codex home's `agents` directory and requires live role discovery to confirm behavior.
+The public default personal custom-Agent location is `~/.codex/agents`. When Codex home is explicitly overridden, the project installer targets that active Codex home's `agents` directory and requires live native discovery before claiming success.
 
 The installer does not edit `config.toml`, credentials, MCP configuration, repositories, or unrelated profiles.
 
 ## Exact semantic route state
 
-Configured routes remain unchanged from v0.5.0:
+Configured routes remain:
 
 | Role | Configured route | Sandbox intent | Live evidence carried forward |
 | --- | --- | --- | --- |
@@ -284,38 +281,29 @@ Configured routes remain unchanged from v0.5.0:
 | Investigator | GPT-5.6 Terra / xhigh | read-only | discovery only, exact live route pending |
 | Advisor | GPT-5.6 Sol / high | read-only | discovery only, exact live route pending |
 
-v0.5.1 does not change the managed Agent profile template bytes from v0.5.0. Recovery behavior is refined in the Skill/contracts rather than by another profile-generation rewrite.
+v0.5.1 does not change the managed Agent profile template bytes from v0.5.0. Configuration assurance remains separate from runtime observation.
 
 ## Historical live evidence carried forward
 
-Last accepted production-behavior baseline:
+Still-valid historical facts include:
 
-```text
-revision: c6020db903b35f0d57677b131bf35b0580144ab9
-platform: Apple Silicon macOS 27.0 (26A5388g)
-Python: 3.14.6
-Git: 2.50.1
-Codex CLI/runtime: 0.146.0
-```
-
-Carried-forward live facts where dependencies remain valid:
-
-- prior marketplace registration succeeded;
+- prior Git marketplace registration succeeded;
 - Plugin `codex-agent-team@codex-agent-team` v0.3.0 installed successfully;
 - missing project roles failed closed before provisioning;
-- provisioning wrote four profiles plus one ownership manifest;
+- provisioning wrote four project profiles plus one ownership manifest;
 - installer `--check` passed;
-- a task created before provisioning did not refresh roles on Codex 0.146.0;
+- a pre-provisioning task did not refresh role discovery on Codex 0.146.0;
 - a fresh task after provisioning discovered all four semantic roles;
 - a real Reader used `fork_turns=none`;
 - local rollout inspection reported Reader role, Luna model, max effort, read-only sandbox, managed permission profile, expected parent, and runtime 0.146.0;
-- no independent complete native route attestation was exposed, so the historical Reader remains L1 rather than R1/R2.
+- no independent complete native route attestation was exposed, so historical Reader evidence remains L1 rather than R1/R2;
+- CAT-LOCAL-001 direct Codex-home endpoint-symlink defect remains closed.
 
-These historical facts do not prove the v0.5.1 marketplace-upgrade/install path, fresh-thread pickup, bundled-script accessibility, or current custom-Agent discovery.
+These historical facts do not prove the v0.5.1 Git marketplace upgrade/install path, fresh-thread Skill pickup, bundled-script accessibility, current custom-Agent discovery, or current exact routes.
 
 ## Behavioral evaluation state
 
-Schema remains version `3.0` and now records:
+Behavioral schema remains version `3.0` and now records:
 
 ```text
 intervention_gate_evaluations
@@ -329,7 +317,7 @@ policy_transform
 child_progress_observability
 ```
 
-New controlled workloads include:
+Controlled workloads now include:
 
 ```text
 healthy-failure-no-intervention
@@ -339,18 +327,18 @@ proposed-action-policy-transform
 child-progress-observability
 ```
 
-No live result yet establishes that compiled contracts, adaptive fan-out, clean restart, Recovery Ledger, Terra delta, selective Sol, or any particular observability level improves product outcomes. Those remain measurements.
+No live result yet proves that compiled contracts, adaptive fan-out, clean restart, Recovery Ledger, Terra delta, selective Sol, or a particular child-observability level improves product outcomes.
 
 ## Outstanding live gates
 
-The mandatory finite sequence remains Checkpoints 1-6 in `HEADOFF.md`:
+The finite mandatory sequence remains Checkpoints 1-6 in `HEADOFF.md`:
 
-1. Worker / Investigator / Advisor exact routes and Runtime Truth adversarial cases.
-2. Contractability, concurrent edits, prompt injection, recursion, and write-scope safety.
+1. Worker / Investigator / Advisor exact routes and Runtime Truth cases.
+2. Contractability, concurrent-edit, prompt-injection, recursion, and scope safety.
 3. Dependency Ledger, Shared Evidence, Intervention Gate, Recovery Ledger, clean restart, capability-before-retry, and child-progress observability.
 4. Raw-prompt versus compiled-contract pairs plus controlled Terra/Sol pairs.
 5. Adaptive fan-out, consent, native slots/recovery, lifecycle, and M1-M4 workspace behavior.
-6. Current official Plugin validator at RC time, real Git marketplace add/upgrade, `codex plugin add`, fresh-thread `/codex-delegate` discovery, bundled provisioning-script/template availability, custom-Agent provisioning/discovery, migrations, and I1-I3 installer concurrency.
+6. Current official Plugin validator at RC time, real Git marketplace add/upgrade, `codex plugin add`, fresh-thread `/codex-delegate` discovery, installed bundle accessibility, custom-Agent provisioning/discovery, migration, and I1-I3 installer concurrency.
 
 No cross-session workspace lock or inter-process installer lock has been added before reproducible evidence establishes the need.
 
