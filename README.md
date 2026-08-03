@@ -1,12 +1,16 @@
 # Codex Agent Team
 
-[English](README_EN.md) · [安装](docs/plugin-installation.md) · [架构](docs/architecture.md) · [评测](docs/behavioral-evals.md) · [本地真测交接](HEADOFF.md)
+[English](README_EN.md) · [安装指南](docs/plugin-installation.md) · [MIT License](LICENSE)
 
-Codex 已经能创建 Subagent。日常开发真正难的是调度：哪些工作值得交出去，交出去之前要说明到什么程度，前一个 Agent 已经查清的东西要不要重算，什么时候需要更强的模型，最后由谁验收。
+Codex Agent Team 是一个面向 Codex 的原生 Subagent 工作流。你只需要描述开发任务，当前 Codex 会话会继续作为**主会话**，根据任务需要决定是否委派、委派给谁、哪些证据可以复用，以及最后如何验收。
 
-Codex Agent Team 把这些问题收进一套工作流。当前 Codex 会话始终是**主会话**，负责理解需求、划定边界、安排计算、维护有效证据和最终验收。Luna、Terra、Sol 是按未解决依赖调用的计算资源，没有固定出场顺序。
+它的目标很简单：用尽可能小的 Agent Team 完成任务，同时减少重复搜索、无意义的多模型并跑和失控的写入范围。
 
-## 快速开始
+当前版本：`0.3.0`，v1.0.0 发布前预览版。
+
+## 安装
+
+先把仓库加入 Codex Plugin marketplace：
 
 ```bash
 codex plugin marketplace add R-jed/codex-agent-team --ref main
@@ -14,141 +18,127 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main
 
 重新打开 ChatGPT Desktop，在 Plugins Directory 中安装 `Codex Agent Team`。
 
-需要显式调用时：
+需要使用时，在 Codex 会话中调用：
 
 ```text
 /codex-agent-team
 ```
 
-## 当前状态
+## 怎么用
 
-仓库已经完成当前架构周期的静态收口。静态测试覆盖 Plugin packaging、managed Agent profile lifecycle、Delegation Contract、调度 policy、Runtime Truth 和 paired behavioral eval tooling。
+直接给它正常的开发任务即可，例如：
 
-远端分支清理已经完成。审计确认 `main` 之外的 10 个分支全部对应已经合并的历史 PR，无需再次合并；当前远端只保留 `origin/main`。
+```text
+/codex-agent-team 修复这个登录重试 bug，并运行相关测试。
+```
 
-下一阶段固定为**本地真实运行验证**。静态 CI 无法证明真实 Codex runtime 的角色发现、模型路由、sandbox、parent thread、Agent lifecycle、证据复用、成本或质量表现。接手本地测试前请先完整执行 `HEADOFF.md`，不要先重构当前 orchestration model。
+```text
+/codex-agent-team 重构这个模块，保持现有 public API 不变。
+```
 
-## 这套工作流怎么分工
+```text
+/codex-agent-team review 这次改动，重点检查数据一致性和回归风险。
+```
 
-| 层 | 当前路由 | 主要用途 |
+你不需要手工决定 Luna、Terra、Sol 的调用顺序，也不需要为了“组成一个团队”强制启用多个 Agent。
+
+## 它会怎么处理任务
+
+主会话先理解目标、范围、风险和验收标准，然后选择最小可用路径。
+
+| 角色 | 当前路由 | 用途 |
 | --- | --- | --- |
-| 主会话 | 当前 Codex 会话 | 理解任务、定范围、做关键决策、调度、验收 |
+| 主会话 | 当前 Codex 会话 | 理解需求、做关键决策、安排工作、验收结果 |
 | Luna Reader | GPT-5.6 Luna `max` | 搜索、追踪、测试映射、证据收集 |
-| Luna Worker | GPT-5.6 Luna `max` | 边界明确的实现、调试、测试、局部重构 |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | 只处理尚未解决的复杂技术依赖 |
+| Luna Worker | GPT-5.6 Luna `max` | 边界明确的实现、调试、测试和局部重构 |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | 处理仍未解决的复杂技术依赖 |
 | Sol Advisor | GPT-5.6 Sol `high` | 高价值判断和选择性复核 |
 
-模型没有固定流水线。常见路径可以很短：
+常见路径可能只有：
 
 ```text
 主会话
+```
+
+或者：
+
+```text
 主会话 -> Luna -> 主会话
+```
+
+复杂任务也可能出现：
+
+```text
+主会话 -> Luna -> Terra（只处理未决技术问题）-> Luna / 主会话
+```
+
+以及：
+
+```text
 主会话 -> Luna -> Sol -> 主会话
-主会话 -> Luna -> Terra（只处理未决问题）-> Luna / 主会话
 ```
 
-`Luna -> Terra -> Sol` 从来不要求完整走完。
+没有固定的三级流水线。每次 Subagent 调用都需要解决一个当前仍未满足的独立依赖。
 
-## 先把任务变成可委派的合同
+## 写入任务会先收紧边界
 
-写文件的任务不会把一段模糊需求直接丢给 Worker。主会话会先明确：
+当任务需要修改文件时，主会话会先把工作整理成可验收的 Delegation Contract，明确：
 
 ```text
-OUTCOME          最后要得到什么
-SCOPE            可以读什么、改什么
-INVARIANTS       哪些行为不能改变
-DECISION RIGHTS  Worker 可以自己决定什么
-ACCEPTANCE       怎样才算完成
-VERIFICATION     用什么命令或证据验证
-STOP / ESCALATE  什么情况必须停下来交回主会话
+要完成什么
+可以读写哪些范围
+哪些行为必须保持不变
+Worker 可以自行决定什么
+怎样才算完成
+需要运行哪些验证
+什么情况必须停止并交回主会话
 ```
 
-验收标准或决策权限说不清时，不创建 Writing Worker。
+如果关键决策或验收标准还不清楚，Writing Worker 不会直接开始猜测式修改。
 
-主会话负责 `WHAT / WHY / SCOPE / RISK / ACCEPTANCE`，Luna 在合同内解决 `HOW TO EXECUTE`。
+## 已经确认的结果会尽量复用
 
-## 已经算过的东西尽量不再算一遍
+同一个任务中，主会话会保存仍然有效的测试结果、调用路径、接口事实和其他可复用证据。
 
-主会话维护一份精简的 Shared Evidence State。它保存已经确认的测试结果、文件关系、调用路径、接口事实和其他可复用证据，并记录这些证据依赖哪些文件或产物。
+后续 Agent 默认使用这些已确认信息。只有相关文件、产物或前提发生变化时，受影响的证据才需要重新验证。
 
-后续 Agent 默认复用仍然有效的证据。只有依赖变化、证据冲突，或者当前问题确实需要重新验证时才重算。
+这样可以减少模型切换后从头搜索仓库、重复跑相同命令和重复推理同一个问题。
 
-模型判断和事实证据分开处理。一个 Agent 的推测可以被后续模型挑战，不会因为重复出现就自动成为事实。
+## Luna 遇到问题时
 
-## Luna 做不好时，先分类失败
+工作流会先判断问题类型：
 
 ```text
-机械错误 -> Luna 定点修正
-合同缺口 -> 主会话补齐合同，再继续受影响的部分
-能力缺口 -> Terra 只接收尚未解决的技术问题
-判断缺口 -> 主会话决定，或在确有价值时交给 Sol
+机械错误        -> Luna 定点修正
+任务边界不完整  -> 主会话补齐合同
+复杂技术缺口    -> Terra 只调查未解决部分
+关键判断问题    -> 主会话决定，必要时调用 Sol
 ```
 
-Terra 默认是 read-only 的复杂问题调查层。它会收到已经确认的证据、当前 artifact、未决问题和明确的 `DO NOT REDO` 项，不会因为 Luna 输出质量一般就重新扫描整个仓库或把实现从头做一遍。
+Terra 不会因为 Luna 的结果“看起来一般”就自动重做整个任务。
 
-Terra 解决技术依赖后，具体实现通常再回到 Luna 或主会话。
+Sol 也不会成为每次任务都必须经过的最终关卡。测试和验收已经足够明确时，主会话可以直接完成验收。
 
-## Luna + Sol 是一条正常的短路径
+## 并行与多个会话
 
-有些任务实现标准很明确，Luna 完成后只需要一次更高价值的判断或复核。这时可以直接：
+默认资源边界是：
 
 ```text
-主会话
--> Luna Max 实现
--> Sol 检查实际 diff 和证据
--> 主会话验收
+0 个 Subagent 也属于正常结果
+默认 1 个
+通常最多 2 个
+v1 硬上限 4 个
 ```
 
-Terra 不需要为了补齐三级结构加入。
+两个独立项目可以各自运行自己的 Agent Team。项目没有设置整台机器或整个账号共享的 Agent 总数上限。
 
-如果 deterministic oracle 已经足够强，也可能只有：
+对于写入任务，当前策略以工作区为边界：同一个 canonical physical checkout 同时只允许一个 Writing Worker。真实隔离的独立 worktree 或独立项目可以分别拥有自己的 Writer。
 
-```text
-主会话 -> Luna -> 主会话
-```
+当前 `0.3.0` 仍处于 v1 发布前验证阶段。如果你同时打开多个独立 Codex 会话，建议在 v1.0.0 发布前避免让两个会话同时对同一个 physical checkout 执行写入任务。
 
-甚至 0 个 Subagent。
+## 第一次运行
 
-## 并行只解决独立依赖
-
-适合并行的例子包括两个互不依赖的 read-only 调查，或者 Luna 实现时主会话提前准备验收清单和风险检查。
-
-让 Luna、Terra、Sol 同时分析同一个问题，只会重复消耗上下文和推理算力。每次 Agent 调用都必须增加一项已有结果无法替代的价值。
-
-## 你会看到什么
-
-实际创建 Subagent，或者调度决策明显改变执行路径时，Skill 会附上一段简短说明：
-
-```text
-Agent Team
-Luna Worker: implemented the bounded retry fix
-Sol Advisor: reviewed the final diff because payment-state semantics were high consequence
-Reused evidence: E03 reproduction, E07 caller trace, E11 baseline tests
-Verification: 38 tests passed
-```
-
-主会话直接完成时：
-
-```text
-Agent Team: Main session only
-Why: the change was already isolated and delegation added no useful dependency
-Verification: 12 tests passed
-```
-
-## 边界
-
-- 0 个 Subagent 是正常结果，默认 1 个，通常最多 2 个，硬上限 4 个。
-- 一个共享 Workspace 同时最多 1 个 Writing Worker。
-- 子 Agent 不继续创建新的 Subagent，委派深度保持 1 层。
-- Skill 不会暗中切换主会话模型或 reasoning effort。
-- 缺少精确 project profile 时，责任留在主会话，不跨角色替换。
-- Runtime route proof 要求 expected route 和 observed route 都完整包含 role、model、effort；缺字段时 fail closed。
-- Subagent 的完成报告只是声明，最终验收看实际文件、diff、命令、测试和可复现证据。
-
-项目直接使用 Codex 原生 `spawn_agent`，没有第二套 Agent Runtime、持久 Task DAG 或后台调度器。
-
-<details>
-<summary>第一次运行会检查哪些 Agent profiles？</summary>
+Codex Agent Team 使用四个项目管理的 custom Agent profiles：
 
 ```text
 codex_agent_team_reader
@@ -157,32 +147,33 @@ codex_agent_team_investigator
 codex_agent_team_advisor
 ```
 
-缺少 profile 时，Skill 会先说明完整的项目管理文件范围并请求授权。Installer 只管理这 4 个当前 profiles 和 ownership manifest。旧版本的 model-named profiles 只有在当前文件字节能够由上一轮项目 ownership manifest 精确证明时才会清理。用户修改过、无法证明归属，或者在迁移完成后重新创建的 legacy 文件不会因为陈旧 manifest 被再次删除。
+如果 profile 尚未安装，Skill 会先说明将要写入的 managed 文件范围并请求你的授权。Installer 只管理这四个 profiles 和自己的 ownership manifest，不会借此修改你的凭据、MCP 配置、仓库文件或其他 Agent profiles。
 
-</details>
+安装完成后，如果当前任务仍没有发现新角色，启动一个新的 Codex task 再调用 `/codex-agent-team`。
 
-## 接下来验证什么
+## 安全边界
 
-[`HEADOFF.md`](HEADOFF.md) 是本地 Codex 接手的唯一测试合同，重点分为四组：
+- 主会话始终保留任务范围、关键决策和最终验收权。
+- 同一个共享 checkout 同时最多一个 Writing Worker。
+- 子 Agent 不继续创建新的 Subagent，委派深度保持一层。
+- Skill 不会暗中切换主会话模型或 reasoning effort。
+- 缺少精确项目 profile 时，对应责任会停回主会话，不会偷偷换成相似角色。
+- Worker 会保留用户或其他会话产生的无关修改；工作区状态发生变化并影响当前合同后，它应停止并把变化交回主会话处理。
+- Subagent 的完成报告只是声明，最终结果仍由主会话根据实际文件、diff、测试和可复现证据验收。
+- 发布、部署、支付、账号权限修改等高影响外部动作仍由主会话控制，并遵循当前用户授权范围。
 
-- Plugin 安装、profile consent、真实 route / sandbox / ancestry 和 Runtime Truth；
-- Contractability、Shared Evidence、Luna 失败分类、Terra delta 和 selective Sol；
-- raw prompt 对 compiled contract 的 paired A/B，以及 useful parallelism 和 Agent lifecycle 压力；
-- installer fault injection、远端历史分支清理和最终 release gate。
+## 当前版本说明
 
-Luna Max 目前是执行 baseline。Terra XHigh 和 Sol High 仍属于需要真实 workload 证明的 route hypotheses。没有真实数据前，不发布成本、延迟或质量提升结论。
+`0.3.0` 已提供完整的 Plugin 安装路径、四个语义 Agent 角色、Delegation Contract、证据复用、选择性 Terra/Sol 路由和受控并行策略。
 
-## 文档
+v1.0.0 发布前仍在验证少数真实运行边界，包括多个独立会话同时面对同一 checkout，以及同一 Codex home 下的并发 profile 安装行为。因此当前 README 不承诺未经实测证明的吞吐量、成本降低、延迟改善或跨会话互斥保证。
 
-- [本地真实运行交接](HEADOFF.md)
+不同 Plugin 版本同时期望不同 managed profile generation 的场景不属于 v1 支持范围。遇到精确 route 不匹配时，受影响的 delegation 应停止并提示处理，而不是跨角色替换。
+
+## 更多信息
+
 - [安装与首次运行](docs/plugin-installation.md)
-- [整体架构](docs/architecture.md)
-- [Codex 原生 Subagent Runtime](docs/native-subagent-runtime.md)
-- [模型路由与证据](docs/model-route-assurance.md)
-- [Delegation Contract](plugins/codex-agent-team/skills/codex-agent-team/references/delegation-contract.md)
-- [Runtime Evidence](plugins/codex-agent-team/skills/codex-agent-team/references/runtime-assurance.md)
-- [Behavioral Evals](docs/behavioral-evals.md)
-- [OpenAI References](docs/openai-references.md)
+- [项目主页](https://github.com/R-jed/codex-agent-team)
 
 ## License
 
