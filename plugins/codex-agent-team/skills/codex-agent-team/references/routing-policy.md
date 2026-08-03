@@ -55,6 +55,34 @@ Missing acceptance or decision boundaries return the responsibility to the main 
 
 The normal envelope is resource-based, not a fixed team shape: at most two justified children and at most one writer, without permission, scope, or external-impact expansion.
 
+The child-count limits are per main session. They are not a machine-wide or account-wide concurrency limit. Do not block independent projects merely because another main session has active children.
+
+## 5A. Concurrency scopes
+
+Treat concurrent state in three separate scopes:
+
+```text
+session scope
+- owns one task compute graph and its child-count envelope
+- normal maximum 2, hard maximum 4 for v1.0.0
+
+workspace scope
+- identified by the canonical physical checkout or isolated worktree
+- at most one active writing Worker per canonical workspace
+- independent workspaces may have independent writers when runtime isolation is real
+
+Codex-home scope
+- custom-Agent profiles and the managed ownership manifest are shared configuration
+- one installed Codex Agent Team profile generation is visible to all sessions using that Codex home
+- mixed concurrent profile generations are unsupported for v1.0.0; an exact-route mismatch stops the affected delegation rather than cross-routing
+```
+
+Repository identity alone is not the writer lock domain. Two runtime-backed isolated worktrees may be independent workspaces even when they belong to the same repository. Two sessions pointing at the same physical checkout are the same workspace even when their task scopes or intended file sets differ.
+
+File-level ownership promises are insufficient to justify multiple writing Workers in one physical checkout. Shared generated state, lockfiles, formatters, git metadata, tests, or dependency chains may couple nominally disjoint files.
+
+Current policy defines the invariant. Release validation must determine whether the native runtime already enforces cross-session writer exclusivity. Do not add a project lock or global scheduler until a reproducible live failure demonstrates that the invariant is otherwise unenforceable.
+
 ## 6. Semantic roles and route policy
 
 Role identity is separate from model identity.
@@ -76,6 +104,8 @@ Use Luna Reader for bounded evidence gathering and Luna Worker for contractable 
 
 Luna owns execution choices explicitly granted in the Delegation Contract. It does not receive broader decision authority merely because the task is difficult.
 
+A writing Worker treats the workspace as potentially changed by the user or another independent session. It preserves unrelated edits, re-reads affected state before mutation when concurrent change is plausible, and stops when drift makes its contract or evidence stale.
+
 When Luna fails acceptance, do not automatically upgrade the whole task. Classify the failure:
 
 ```text
@@ -84,6 +114,8 @@ contract gap -> main session repairs contract
 capability gap -> Terra receives unresolved delta
 judgment gap -> main session or Sol
 ```
+
+Workspace drift is reconciled as changed input, not as a capability gap.
 
 ## 8. Terra investigation tier
 
@@ -137,6 +169,8 @@ Deterministic and repository facts may be cached with dependencies. Model judgme
 
 A change invalidates only evidence that depends on the changed input. Do not rerun a full scan because one unrelated file changed.
 
+Changes made by the user or another independent session are ordinary dependency changes. Reconcile the current artifact and invalidate affected evidence before continuing delegated work.
+
 ## 11. Useful parallelism
 
 Parallel execution is useful when concurrent outputs satisfy different dependencies.
@@ -145,9 +179,12 @@ Examples:
 
 - two independent read-only Luna branches map separate subsystems;
 - the main session prepares acceptance/risk checks while Luna implements;
-- a long deterministic test command runs while independent read-only analysis progresses.
+- a long deterministic test command runs while independent read-only analysis progresses;
+- independent projects or runtime-backed isolated worktrees may each have one writing Worker without creating a machine-wide writer bottleneck.
 
 Do not launch Luna, Terra, and Sol over the same question simply to maximize concurrency.
+
+Do not treat disjoint intended file lists as proof that two writers are safe in the same physical checkout.
 
 ## 12. Profile route assurance
 
@@ -164,6 +201,8 @@ This is configuration assurance only.
 There is no Portable Mode, built-in-role substitution, hidden model ladder, or inheritance-based exact route.
 
 If the required project profile is unavailable or conflicting, keep the responsibility in the main session and report the limitation.
+
+The profiles are Codex-home scoped shared configuration. A session whose expected profile generation no longer matches the installed exact route must fail closed for that lane. It must not silently reinstall, downgrade, or cross-route merely to keep a concurrent older/newer project session working.
 
 ## 13. Runtime Evidence Gate
 
@@ -200,6 +239,10 @@ Return the responsibility to the main session. Do not cross-role substitute.
 
 Classify before escalation. Preserve valid evidence and recompute only invalidated dependencies.
 
+### Concurrent workspace drift
+
+Preserve unrelated changes. Re-read the current artifact, invalidate only evidence that depends on changed state, and return to the main session when the original contract or acceptance oracle is no longer safe to execute. Do not overwrite peer or user edits and do not escalate merely because the workspace changed.
+
 ### Terra unable to resolve the delta
 
 Return the unresolved delta to the main session. Do not expand Terra into the original task.
@@ -214,4 +257,4 @@ Quarantine the affected result.
 
 ### Policy violation
 
-Reject or quarantine results involving nested delegation, unauthorized writes, scope expansion, credential exposure, wrong ancestry when material, or unapproved external side effects.
+Reject or quarantine results involving nested delegation, unauthorized writes, scope expansion, credential exposure, wrong ancestry when material, concurrent writers in one canonical workspace, or unapproved external side effects.
