@@ -1,6 +1,6 @@
-# Local Runtime Validation Handoff
+# Codex Delegate Local Runtime Validation Handoff
 
-This file is the authoritative execution checklist for the local validation and v1.0.0 release phase of `R-jed/codex-agent-team`.
+This file is the authoritative execution checklist for the local validation and v1.0.0 release phase of **Codex Delegate**, currently distributed from the compatibility repository id `R-jed/codex-agent-team`.
 
 The architecture cycle is closed. The remaining job is finite: complete the mandatory live gates, resolve only release-blocking defects, run one release-candidate closure pass, then publish v1.0.0. Do not continue pre-release optimization after the Definition of Done is met.
 
@@ -20,7 +20,7 @@ release posture: HOLD FOR RELEASE while mandatory live gates remain incomplete
 
 `c6020db...` is an evidence baseline, not a permanently current HEAD. At the start of every checkpoint, fetch `origin/main`, record the actual SHA in `LOCAL_VALIDATION_REPORT.md`, and inspect any intervening production changes before reusing prior evidence.
 
-The current `main` also contains the v1 concurrency-scope policy iteration added after the last live-tested baseline. Its policy and regression files are repository facts, but its new cross-session and concurrent-installer claims remain unverified until Checkpoints 5 and 6 run locally.
+The current `main` also contains the v1 concurrency-scope policy iteration and the v0.4.0 product rename from **Codex Agent Team** to **Codex Delegate**. Static repository facts now define `/codex-delegate` as the canonical user-facing Skill entry point while retaining the repository slug, Plugin package id, `codex_agent_team_*` profile ids, and `.codex-agent-team-agents.json` as compatibility identifiers. The new cross-session, concurrent-installer, and installed-Plugin brand/entry-point migration claims remain live gates below.
 
 Status notation:
 
@@ -78,6 +78,8 @@ Do not change these rules merely to make a live test pass:
 - no claim that the v1 hard maximum of four children is a machine-wide, account-wide, or native-runtime capacity limit;
 - no project-wide global writer mutex that blocks independent workspaces merely to make same-checkout safety easy;
 - no workspace-lock daemon, Codex-home lock, or installer serialization mechanism before a reproducible live failure proves the current runtime/filesystem behavior cannot satisfy the invariant;
+- no manual rename of managed Agent profile files or ownership manifests merely to match the Codex Delegate brand;
+- no repository/package-id migration before the real installed-Plugin upgrade and fresh-install paths are characterized;
 - no performance, quality, or cost claim without measured named workloads and runtime versions.
 
 If a live Codex limitation makes an invariant impossible, record the exact runtime behavior first and classify ownership before changing project policy.
@@ -100,6 +102,8 @@ If a live Codex limitation makes an invariant impossible, record the exact runti
 - [x] v1 policy now distinguishes main-session, canonical-workspace, and Codex-home concurrency scopes without changing normal max 2, hard max 4, one-writer, or depth-one baselines.
 - [x] Delegation Contract and Skill now require writing Workers to preserve unrelated concurrent edits, re-read affected state before mutation when drift is plausible, and stop when drift makes the contract stale.
 - [x] Static regression coverage protects the new concurrency-scope contract. Live enforcement remains open below.
+- [x] v0.4.0 user-facing product identity is `Codex Delegate`, with canonical Skill entry point `/codex-delegate`.
+- [x] v0.4.0 intentionally retains `R-jed/codex-agent-team`, Plugin package id `codex-agent-team`, `codex_agent_team_*`, and `.codex-agent-team-agents.json` as compatibility identifiers pending live migration evidence.
 
 ## B. Real Plugin path and role discovery
 
@@ -112,6 +116,18 @@ If a live Codex limitation makes an invariant impossible, record the exact runti
 - [x] A task created before provisioning did not refresh custom-role discovery on Codex 0.146.0.
 - [x] A fresh task after provisioning discovered all four semantic roles.
 - [ ] PARTIAL: verify the complete first-run consent copy shown by the Skill matches the documented managed write/migration scope.
+
+### v0.4.0 Codex Delegate migration
+
+Do this before treating the renamed product path as release-ready.
+
+- [ ] Starting from a real installed v0.3.x `Codex Agent Team`, refresh/reinstall from the same documented marketplace source and confirm the installed product presents as `Codex Delegate` without creating a second conflicting Plugin package.
+- [ ] In a fresh Codex task after the update, confirm `/codex-delegate` is discoverable and invokes the renamed Skill.
+- [ ] Characterize the old `/codex-agent-team` invocation after upgrade. Do not assume it remains an alias. Record whether the runtime rejects it, retains a stale cached entry, or exposes both names.
+- [ ] Confirm the existing four `codex_agent_team_*` profiles and `.codex-agent-team-agents.json` remain byte-compatible with the v0.4.0 installer and `--check` does not rewrite them solely because the product brand changed.
+- [ ] Fresh clean Plugin install presents `Codex Delegate`, exposes `/codex-delegate`, and follows the documented first-run profile consent path.
+- [ ] Verify installed Plugin metadata reports version `0.4.0` and user-visible display name `Codex Delegate` while the package id remains `codex-agent-team`.
+- [ ] Decide the v1 distribution slug after these tests: rename repository/package ids only if the real marketplace/install/upgrade path remains safe. If safe migration is not demonstrated, keep the compatibility ids for v1 and document them. Do not block v1 solely for cosmetic slug alignment.
 
 ## C. Exact role/runtime evidence already observed
 
@@ -414,6 +430,7 @@ Use this register to avoid rediscovering already-characterized items.
 - **U17 OPEN:** cross-session one-writer enforcement for two independent main sessions targeting the same canonical physical checkout has not been demonstrated live.
 - **U18 OPEN:** same-Codex-home installer behavior is single-process transactional today; multi-process convergence and rollback interaction remain uncharacterized.
 - **U19 OPEN:** one installed managed profile generation per Codex home is the v1 support boundary; concurrent sessions expecting different generations still require live fail-closed characterization.
+- **U20 OPEN:** Codex Delegate v0.4.0 brand and `/codex-delegate` entry-point migration has static evidence only; real upgrade, fresh-install discovery, old-command behavior, and final repository/package-id decision remain to be characterized.
 
 # Defect triage
 
@@ -448,10 +465,12 @@ The repository remains **HOLD FOR RELEASE** while mandatory live validation is i
 Release can move to `RELEASE CANDIDATE` when all of these are evidenced:
 
 - [x] deterministic repository suite green on accepted production content before the current concurrency-policy iteration.
-- [ ] deterministic repository suite green on the current concurrency-policy iteration.
+- [ ] deterministic repository suite green on the current concurrency-policy and Codex Delegate rename iteration.
 - [x] historical remote branches cleaned at the validated checkpoint.
-- [x] documented marketplace and Plugin installation path works in a clean real environment.
-- [x] all four semantic roles are discoverable after the documented fresh-task recovery path.
+- [x] documented marketplace and Plugin installation path works in a clean real environment for v0.3.x.
+- [ ] installed v0.3.x -> v0.4.0 refresh/reinstall presents `Codex Delegate` and a fresh task exposes `/codex-delegate` without creating a conflicting second Plugin package.
+- [ ] clean v0.4.0 install presents `Codex Delegate`, exposes `/codex-delegate`, and preserves the documented compatibility ids.
+- [x] all four semantic roles are discoverable after the documented fresh-task recovery path on the prior v0.3.x evidence baseline.
 - [x] managed profile provisioning changed no unrelated Agent files in the tested clean environment.
 - [ ] all four semantic roles have sufficient live route characterization for their intended claims.
 - [ ] depth-one rules hold in live use.
@@ -480,7 +499,7 @@ This project must stop pre-release iteration when the following finite standard 
 
 1. Every mandatory release-acceptance checkbox above is either `[x]` or explicitly classified as an upstream/runtime limitation with a documented fail-closed project behavior that preserves the invariant.
 2. No reproducible PROJECT P0/P1 remains open.
-3. The normal user path works from marketplace registration through Plugin installation, profile readiness, fresh-task role discovery, bounded delegation, verification, and user-visible completion.
+3. The normal user path works from marketplace registration through installing **Codex Delegate**, invoking `/codex-delegate`, profile readiness, fresh-task role discovery, bounded delegation, verification, and user-visible completion.
 4. One-writer across independent sessions sharing one canonical checkout, depth-one, exact-route fail-closed, contractability, concurrent-drift preservation, and untrusted-content boundaries survive live tests. Independent workspaces remain independently writable when the runtime provides real isolation.
 
 ## Product value
@@ -493,9 +512,9 @@ This project must stop pre-release iteration when the following finite standard 
 ## Release engineering
 
 9. Full deterministic CI is green on the exact release-candidate content across the maintained matrix.
-10. A fresh-clone, clean-Codex-home RC smoke pass succeeds for Plugin install, four-role discovery, one representative Worker task, one read-only route, one two-session same-checkout writer-collision check, depth-one enforcement, concurrent same-Codex-home installer safety, and the installer critical-path cases that previously produced PROJECT P1 evidence.
-11. Documentation describes observed limitations without claiming unmeasured performance, native capacity, cross-session exclusion, mixed-profile-generation support, or multi-process installer guarantees.
-12. Remaining P2/P3 items are recorded as post-v1 work and are not used to reopen the pre-release architecture cycle.
+10. A fresh-clone, clean-Codex-home RC smoke pass succeeds for Codex Delegate Plugin install, `/codex-delegate` discovery, four-role discovery, one representative Worker task, one read-only route, one two-session same-checkout writer-collision check, depth-one enforcement, concurrent same-Codex-home installer safety, and the installer critical-path cases that previously produced PROJECT P1 evidence.
+11. Documentation describes observed limitations without claiming unmeasured performance, native capacity, cross-session exclusion, mixed-profile-generation support, multi-process installer guarantees, or unverified compatibility aliases.
+12. Remaining P2/P3 items are recorded as post-v1 work and are not used to reopen the pre-release architecture cycle. Repository/package-id cosmetic alignment cannot block v1 if the compatibility identifiers are documented and the supported install/upgrade path is green.
 
 When items 1-12 are satisfied, the required action is **release v1.0.0**, not another optimization pass.
 
@@ -503,18 +522,19 @@ When items 1-12 are satisfied, the required action is **release v1.0.0**, not an
 
 ## Stage R1: finish mandatory live validation
 
-Complete Checkpoints 1-6. At Review Checkpoints A-E, use `gpt56-sol-pro-consult` for adversarial review. Patch only reproducible PROJECT P0/P1 or a P2 that directly prevents completion of a mandatory gate.
+Complete Checkpoints 1-6 plus the v0.4.0 Codex Delegate migration checks in section B. At Review Checkpoints A-E, use `gpt56-sol-pro-consult` for adversarial review. Patch only reproducible PROJECT P0/P1 or a P2 that directly prevents completion of a mandatory gate.
 
-The concurrency additions remain inside Checkpoints 2, 3, 5, and 6. They do not create new checkpoints, raise the frozen v1 child limits, or authorize a new scheduler/lock architecture without failure evidence.
+The concurrency and rename additions remain inside the existing release plan. They do not create an open-ended new architecture phase, raise the frozen v1 child limits, or authorize a new scheduler/lock/profile-migration architecture without failure evidence.
 
 ## Stage R2: declare RELEASE CANDIDATE and feature freeze
 
 When the Release acceptance gate is satisfied:
 
 - declare `RELEASE CANDIDATE` in `LOCAL_VALIDATION_REPORT.md`;
-- freeze architecture, role definitions, model routes, and new features;
+- freeze architecture, role definitions, model routes, product name `Codex Delegate`, canonical command `/codex-delegate`, and new features;
 - create/update release notes and a changelog entry;
 - prepare version `1.0.0` in Plugin metadata on a release branch or focused PR;
+- decide the final repository/package-id slug from the migration evidence; keep the compatibility ids if safe rename evidence is absent;
 - do not add new experiments to the mandatory gate list.
 
 During feature freeze, only P0/P1 fixes, required release metadata, and evidence-backed documentation corrections may change behavior.
@@ -526,14 +546,15 @@ On the exact release candidate commit:
 - run complete deterministic CI;
 - validate both manifests;
 - run managed-profile install / `--check` / idempotent reinstall;
-- fresh-install the Plugin in a clean Codex home;
+- fresh-install Codex Delegate in a clean Codex home;
+- confirm `/codex-delegate` is discoverable in a fresh task;
 - confirm four roles discover after the documented recovery path;
 - execute one bounded Worker smoke task and one read-only role smoke task;
 - run one two-independent-session same-checkout writer-collision smoke and confirm independent workspaces are not falsely serialized;
 - recheck depth-one behavior;
 - rerun one concurrent same-Codex-home installer convergence case;
 - rerun the critical installer safety cases that previously produced PROJECT P1 evidence;
-- verify README/HEADOFF/release notes match the tested runtime scope.
+- verify README/HEADOFF/release notes match the tested product name, command, compatibility ids, and runtime scope.
 
 If this pass finds a PROJECT P0/P1, fix only that defect, rerun its invalidated gate plus full CI, and repeat the RC closure pass. P2/P3 does not restart the release cycle unless it invalidates a mandatory gate.
 
@@ -542,20 +563,20 @@ If this pass finds a PROJECT P0/P1, fix only that defect, rerun its invalidated 
 When the fixed RC closure pass is green:
 
 1. set Plugin version to `1.0.0`;
-2. ensure README status says stable v1.0.0 and links measured limitations;
+2. ensure README status says stable Codex Delegate v1.0.0 and documents any retained compatibility identifiers;
 3. merge the release PR;
 4. create Git tag `v1.0.0` on the exact tested release commit;
 5. create the GitHub v1.0.0 release with concise release notes, installation path, supported runtime evidence, and known non-blocking limitations;
 6. mark the local validation cycle complete;
 7. move every remaining P2/P3/speculative optimization to v1.x backlog or issues.
 
-After v1.0.0 is published, do not keep `HEADOFF.md` as an open-ended pre-release repair loop. Any further route tuning, cost optimization, additional stress coverage, or model experiments belong to a new v1.x milestone with separate evidence and scope.
+After v1.0.0 is published, do not keep `HEADOFF.md` as an open-ended pre-release repair loop. Any further route tuning, cost optimization, additional stress coverage, model experiments, or cosmetic compatibility-id cleanup belongs to a new v1.x milestone with separate evidence and scope.
 
 # Required validation artifact
 
 Maintain `LOCAL_VALIDATION_REPORT.md` as the evidence record. For each completed checkbox add runtime version, repository revision, prompt/command, expected result, actual result, and reproducible evidence when material.
 
-For multi-session cases, record each main session separately and identify the canonical workspace each session targeted. For concurrent installer cases, record each process separately and capture final managed-state hashes after both exit.
+For multi-session cases, record each main session separately and identify the canonical workspace each session targeted. For concurrent installer cases, record each process separately and capture final managed-state hashes after both exit. For Codex Delegate migration checks, record the pre-update installed Plugin identity/version, post-update identity/version, fresh-task command discovery, and whether the old command remains visible.
 
 For formal behavioral comparisons, freeze the workload with `evals/LOCAL_EVAL_FIXTURE_TEMPLATE.md` and validate sanitized JSON against `evals/behavioral-result.schema.json`.
 
@@ -563,21 +584,21 @@ Never commit credentials, complete rollout JSONL, private transcripts, raw envir
 
 # Feedback protocol for continued adversarial review
 
-`gpt56-sol-pro-consult` is the required adversarial consultation mechanism for this validation cycle. It is independent of the four Agent roles being tested and must not be counted as evidence that `codex-agent-team` itself routed correctly.
+`gpt56-sol-pro-consult` is the required adversarial consultation mechanism for this validation cycle. It is independent of the four Agent roles being tested and must not be counted as evidence that Codex Delegate itself routed correctly.
 
-At Review Checkpoints A-E, and immediately after any P0/P1 candidate, Codex must invoke `gpt56-sol-pro-consult` and pass a compact evidence packet. Codex remains the local executor and must reconcile the consultation with repository/runtime evidence rather than blindly applying advice.
+At Review Checkpoints A-E, immediately after any P0/P1 candidate, and after any brand/entry-point migration result that would change the v1 distribution decision, Codex must invoke `gpt56-sol-pro-consult` and pass a compact evidence packet. Codex remains the local executor and must reconcile the consultation with repository/runtime evidence rather than blindly applying advice. Do not replace this consultation with an ad hoc generic Sol call.
 
 Use:
 
 ```text
 CONTEXT_PACKET_V1
 
-TASK: codex-agent-team local validation checkpoint
+TASK: codex-delegate local validation checkpoint
 BASELINE_SHA: <current origin/main>
 LOCAL_SHA: <current local validation commit if different>
 RUNTIME: <Codex / ChatGPT build>
 PLATFORM: <macOS / Apple Silicon>
-CHECKPOINT: <A | B | C | D | E | defect | release-candidate>
+CHECKPOINT: <A | B | C | D | E | defect | migration | release-candidate>
 
 COMPLETED_HEADOFF_ITEMS:
 - <exact checkbox names or section numbers>
@@ -605,7 +626,7 @@ ASK:
 Use gpt56-sol-pro-consult to adversarially review this evidence. Challenge severity and ownership, identify the strongest counterexample, and state whether the next HEADOFF checkpoint may proceed without a code or policy change.
 ```
 
-For Checkpoint E multi-session evidence, include both main-session identifiers, canonical workspace identities, observed overlap, and whether either session knew about the other. For Checkpoint 6 installer concurrency evidence, include both process outcomes and the final shared Codex-home state.
+For Checkpoint E multi-session evidence, include both main-session identifiers, canonical workspace identities, observed overlap, and whether either session knew about the other. For Checkpoint 6 installer concurrency evidence, include both process outcomes and the final shared Codex-home state. For migration evidence, include before/after Plugin identity, version, display name, discovered commands, and managed-profile hashes.
 
 When a project-side defect is reproducible, stop the experiment, create the smallest focused regression and patch, run focused plus complete tests, update `LOCAL_VALIDATION_REPORT.md`, then send the defect packet before expanding scope.
 
@@ -622,7 +643,7 @@ HOLD
 A reproducible PROJECT P0/P1 or uncharacterized runtime limitation blocks a core invariant.
 
 v1.0.0 RELEASED
-The fixed RC closure pass is green, version 1.0.0 is merged/tagged/released,
+The fixed RC closure pass is green, Codex Delegate version 1.0.0 is merged/tagged/released,
 and remaining P2/P3 work has moved to the post-v1 backlog.
 ```
 
