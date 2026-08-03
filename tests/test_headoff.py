@@ -13,6 +13,7 @@ def test_local_runtime_handoff_is_an_internal_release_contract():
 def test_handoff_protects_release_critical_live_validation_scope():
     text = HANDOFF.read_text()
     for phrase in [
+        "# Codex Delegate Local Runtime Validation Handoff",
         "## Current checkpoint",
         "## Stop line",
         "# Completed work",
@@ -50,6 +51,20 @@ def test_handoff_protects_release_critical_live_validation_scope():
     assert "PROJECT TAKEOVER: CODEX AGENT TEAM LOCAL RUNTIME VALIDATION" not in text
 
 
+def test_handoff_requires_codex_delegate_upgrade_and_entrypoint_validation():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "### v0.4.0 Codex Delegate migration",
+        "Starting from a real installed v0.3.x `Codex Agent Team`",
+        "confirm `/codex-delegate` is discoverable",
+        "Characterize the old `/codex-agent-team` invocation after upgrade",
+        "Plugin package id remains `codex-agent-team`",
+        "Do not block v1 solely for cosmetic slug alignment",
+        "U20 OPEN",
+    ]:
+        assert phrase in text
+
+
 def test_handoff_requires_paired_control_fingerprints():
     text = HANDOFF.read_text()
     for field in [
@@ -67,9 +82,11 @@ def test_handoff_defines_incremental_feedback_packets_and_sol_consultation():
     text = HANDOFF.read_text()
     for phrase in [
         "`gpt56-sol-pro-consult` is the required adversarial consultation mechanism",
-        "At Review Checkpoints A-E, and immediately after any P0/P1 candidate, Codex must invoke `gpt56-sol-pro-consult`",
+        "immediately after any P0/P1 candidate",
+        "after any brand/entry-point migration result",
         "Codex remains the local executor",
-        "must not be counted as evidence that `codex-agent-team` itself routed correctly",
+        "must not be counted as evidence that Codex Delegate itself routed correctly",
+        "Do not replace this consultation with an ad hoc generic Sol call",
     ]:
         assert phrase in text
 
@@ -92,6 +109,7 @@ def test_handoff_has_a_finite_release_finish_line():
     assert "When items 1-12 are satisfied, the required action is **release v1.0.0**" in text
     assert "P2/P3 items go to the post-v1 backlog" in text
     assert "Luna Max / Terra XHigh / Sol High are frozen as the v1.0.0 routing baseline" in text
+    assert "Repository/package-id cosmetic alignment cannot block v1" in text
     for stage in ["## Stage R1", "## Stage R2", "## Stage R3", "## Stage R4"]:
         assert stage in text
 
