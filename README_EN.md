@@ -1,6 +1,6 @@
 # Codex Delegate
 
-> Native Subagent delegation framework for Codex. Turn engineering tasks into the smallest useful set of verifiable delegations.
+> A delegation policy layer over Codex Native Subagents. Turn engineering tasks into the smallest useful set of verifiable delegations.
 
 [中文](README.md) · [Installation](docs/plugin-installation.md) · [MIT License](LICENSE)
 
