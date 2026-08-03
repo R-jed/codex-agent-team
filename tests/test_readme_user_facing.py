@@ -37,7 +37,6 @@ def test_readmes_explain_adaptive_concurrency_without_hard_agent_count():
     for text in [zh, en]:
         assert "physical checkout" in text
         assert "0.5.0" in text
-        assert "0.3.x" not in text or "0.5" in text
 
     assert "没有固定 Agent 数量" in zh
     assert "No fixed Agent count" in en
@@ -67,15 +66,16 @@ def test_readmes_explain_evidence_guided_recovery():
     assert "Terra" in zh and "Terra" in en
 
 
-def test_readmes_explain_compatibility_ids_without_reverting_brand():
-    zh = (ROOT / "README.md").read_text()
-    en = (ROOT / "README_EN.md").read_text()
-    assert "兼容标识" in zh
-    assert "compatibility identifiers" in en
-    zh_lines = zh.split("\n")[0:15]
-    en_lines = en.split("\n")[0:15]
-    assert any("Codex Delegate" in line for line in zh_lines)
-    assert any("Codex Delegate" in line for line in en_lines)
+def test_compatibility_details_live_in_installation_guide():
+    guide = (ROOT / "docs/plugin-installation.md").read_text()
+    for phrase in [
+        "R-jed/codex-agent-team",
+        "Plugin package id",
+        "codex_agent_team_*",
+        ".codex-agent-team-agents.json",
+        "0.5.0",
+    ]:
+        assert phrase in guide
 
 
 def test_readmes_remain_user_facing():
