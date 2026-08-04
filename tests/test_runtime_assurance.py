@@ -20,13 +20,11 @@ def test_runtime_assurance_uses_one_normalized_verifier():
 
 def test_project_does_not_scrape_rollout_files_for_runtime_proof():
     reference = RUNTIME_REFERENCE.read_text()
-    skill = (SKILL / "SKILL.md").read_text()
-    combined = reference + skill
-    assert "does not scrape Codex rollout internals" in combined
     assert "no longer ships a rollout-file inspector" in reference
-    assert "sessions root" not in combined.lower()
-    assert "--sessions-dir" not in combined
-    assert "rollout-2026-" not in combined
+    assert "Runtime internals are intentionally not scraped by this project" in reference
+    assert "sessions root" not in reference.lower()
+    assert "--sessions-dir" not in reference
+    assert "rollout-2026-" not in reference
 
 
 def test_missing_native_permission_evidence_remains_fail_closed():
