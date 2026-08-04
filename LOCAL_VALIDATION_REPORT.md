@@ -2,7 +2,7 @@
 
 This is the evidence ledger for Codex Delegate. `HEADOFF.md` defines the remaining live/release gates. This report records what was actually established, on which repository/runtime baseline, and which claims remain unverified.
 
-Repository policy, static CI, Plugin validation, source inspection, and model judgment are not substitutes for live Codex runtime evidence.
+Repository policy, static CI, Plugin validation, upstream source inspection, and model judgment are not substitutes for live Codex runtime evidence.
 
 ## Current reconciliation
 
@@ -14,15 +14,19 @@ Plugin version: 0.6.0
 Canonical entry point: /codex-delegate
 Repository/package compatibility namespace: R-jed/codex-agent-team / codex-agent-team
 Accepted v0.6.0 feature merge: b043428223ba99ce77e2268c32cfa6a38daad3ed
-Current main at start of engineering consolidation: bbadaf0febf3c9b89b542c2a62ff208ea268e176
+Accepted engineering-consolidation merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f
+Engineering-consolidation source PR: #28
+Exact tested consolidation head: ac5976d41e44a7ffddb3dad94686c2729c4b6687
+Consolidation workflow: 30886554206
 Release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 Static architecture posture: ARCHITECTURE FROZEN AT v0.6.0
+Repository maintenance posture: ENGINEERING CONSOLIDATION COMPLETE
 Known open reproducible PROJECT P0/P1: none
 ```
 
-PR #27 is merged. It is no longer a feature candidate. The accepted v0.6.0 implementation baseline is the squash merge `b043428...`; later main commits reconciled README/HEADOFF wording without claiming new runtime proof.
+PR #27 established the accepted v0.6.0 product behavior. PR #28 was a behavior-preserving engineering consolidation and is now merged. It reduced duplicated executable/policy surfaces without creating a new product architecture baseline or changing Plugin version `0.6.0`.
 
-The current `refactor/engineering-consolidation-v061` branch is a behavior-preserving maintenance candidate. Until its own CI is green and it is accepted/merged, this report does not treat its new verifier/policy-contract refactor as accepted static evidence.
+The remaining release work is the finite live-validation sequence in `HEADOFF.md`.
 
 ## Evidence classes
 
@@ -36,7 +40,7 @@ The current `refactor/engineering-consolidation-v061` branch is a behavior-prese
 
 ## Accepted v0.6.0 static evidence
 
-The final PR #27 closure tree was:
+The final PR #27 feature closure tree was:
 
 ```text
 closure head: 3833e9d7c322a3feddc3cb8a7386e022a3bb8b1e
@@ -80,16 +84,116 @@ The machine-readable behavioral schema includes `contract_luna_final_review_gate
 
 `plugins/codex-agent-team/scripts/review-artifact.py` is accepted deterministic tooling for binding a Git deliverable to a `review_artifact_id`.
 
-It covers:
-
-- current `HEAD` when present;
-- complete tracked working-tree diff against `HEAD`;
-- Git-relevant executable-mode changes;
-- non-ignored untracked regular files and symlinks;
-- unborn repositories without writing synthetic Git objects;
-- double-sampled workspace state so a mutation during identity capture fails closed.
+It covers current `HEAD` when present, complete tracked working-tree diff, Git-relevant executable-mode changes, non-ignored untracked regular files/symlinks, unborn repositories, and double-sampled workspace state so mutation during identity capture fails closed.
 
 Ignored/generated deliverables require an additional deterministic digest when they are part of the requested deliverable.
+
+## Accepted engineering-consolidation static evidence
+
+PR #28 reduced repository maintenance surface while preserving the v0.6.0 product contract.
+
+Exact accepted test evidence:
+
+```text
+PR: #28
+exact tested head: ac5976d41e44a7ffddb3dad94686c2729c4b6687
+workflow: 30886554206
+Ubuntu / Python 3.11: PASS
+Ubuntu / Python 3.12: PASS
+macOS / Python 3.11: PASS
+pytest: 157 passed
+Plugin/marketplace JSON validation: PASS
+pinned official OpenAI Plugin validator: PASS
+managed profile install: PASS
+managed profile --check: PASS
+idempotent reinstall: PASS
+squash merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f
+```
+
+The lower test count versus the feature closure is intentional. Redundant legacy runtime-verifier and rollout-coupled implementation/test surfaces were removed together. Replacement semantics are covered through the single normalized runtime evidence verifier and semantic policy tests.
+
+Accepted maintenance ownership now is:
+
+```text
+plugins/codex-agent-team/policy-contract.json
+-> stable route/resource/final-review constants
+
+plugins/codex-agent-team/scripts/runtime-evidence.py
+-> normalized route/ancestry/permission evidence reconciliation
+
+SKILL.md
+-> orchestration kernel
+
+reference documents
+-> detailed normative policy
+
+LOCAL_VALIDATION_REPORT.md
+-> evidence ledger
+
+HEADOFF.md
+-> finite release checklist
+```
+
+The consolidation did not change:
+
+- Reader/Worker/Investigator/Advisor profile bytes or model/effort tuples;
+- delegation depth;
+- baseline two-child no-extra-consent envelope;
+- one-writer rule;
+- Final Review trigger codes or `ship | fix-first | rethink` completion verdicts;
+- `INSUFFICIENT_EVIDENCE` fail-closed behavior;
+- installer ownership/migration authority;
+- Plugin package id or version;
+- the no-new-lock/no-new-scheduler architecture boundary.
+
+### Normalized Runtime Evidence tool
+
+The accepted verifier consumes normalized JSON with:
+
+```text
+expected
+native  optional
+local   optional corroboration
+```
+
+and keeps:
+
+```text
+route_evidence
+ancestry_evidence
+permission_evidence
+```
+
+independent.
+
+Compatibility grades remain:
+
+```text
+C1_configuration_only
+L1_local_record_observed
+R1_runtime_reported
+R2_runtime_reported_and_local_record_agree
+X0_conflicted
+```
+
+Incomplete expected role/model/effort fails input validation. Partial native route never becomes runtime proof. Local corroboration alone never establishes host-enforced read-only permission. When enforced read-only is required and native sandbox evidence is absent, the affected responsibility returns to the main session.
+
+The project no longer manufactures missing runtime facts from private rollout internals. Missing runtime evidence remains missing/partial.
+
+### Same-version Plugin maintenance boundary
+
+PR #28 intentionally kept Plugin manifest version `0.6.0` because it is a behavior-preserving maintenance merge.
+
+Current inspected OpenAI PluginStore source indicates explicit install replaces the selected version directory atomically. Current CLI source routes `codex plugin add` through Plugin installation. These are upstream source facts, not proof of the user's current Codex build.
+
+Checkpoint 6 therefore requires a real test that:
+
+```text
+codex plugin marketplace upgrade codex-agent-team
+codex plugin add codex-agent-team@codex-agent-team
+```
+
+refreshes installed Plugin bytes even when the marketplace content changed while the manifest version remains `0.6.0`. If the tested runtime does not refresh correctly, bump a patch version before RC.
 
 ## Accepted v0.5.1 historical static evidence
 
@@ -120,41 +224,33 @@ Codex CLI/runtime: 0.146.0
 
 That live baseline predates v0.6.0.
 
-It may be carried forward only for observations whose dependencies have not changed. It is not proof that v0.6.0:
+It may be carried forward only for observations whose dependencies have not changed. It is not proof that the accepted current tree:
 
+- exposes every expected exact role/model/effort through current native runtime metadata;
 - uses the expected fresh Sol route for a required Final Review Gate;
 - passes the intended artifact identity into that review;
 - invalidates `ship` after post-review mutation;
 - handles `fix-first`, `rethink`, or `INSUFFICIENT_EVIDENCE` correctly in a current live task;
 - preserves current consent behavior across repeated review cycles;
 - enforces writer exclusion across independent sessions;
-- has safe concurrent same-`CODEX_HOME` installation behavior.
+- has safe concurrent same-`CODEX_HOME` installation behavior;
+- refreshes same-version maintenance Plugin bytes on the user's current Codex build.
 
-## Current engineering-consolidation candidate
+## Adversarial consultation contract
 
-`refactor/engineering-consolidation-v061` is intentionally behavior-preserving. Its engineering goals are maintenance and contract repair:
+Required project consultation mechanism:
 
 ```text
-restore a shipped deterministic Runtime Evidence executable path
-remove dependence on a project rollout-file inspector
-introduce policy-contract.json as the stable constant source
-make installer/profile tests consume that contract
-reduce SKILL.md to the task-level policy kernel
-replace arbitrary README line budgets / broad phrase locks with semantic tests
-reconcile user architecture and evidence docs with merged v0.6.0 state
+/gpt56-sol-pro-consult
 ```
 
-This candidate does not intentionally change:
+Exact target conversation:
 
-- Luna/Terra/Sol model routes;
-- delegation depth;
-- one-writer policy;
-- consent envelope;
-- Final Review trigger semantics or verdict lifecycle;
-- installer ownership/migration authority;
-- Plugin package id or version.
+```text
+分支 · 分支 · 项目对比分析
+```
 
-Its acceptance requires its own complete maintained CI matrix and pinned Plugin validator result before merge.
+Resolution uses exact-title unique-match semantics. Missing or ambiguous resolution returns `CONSULTATION_TARGET_UNRESOLVED`; no replacement or isolated conversation may be substituted for a required Review Checkpoint. Consultation output remains `model_judgment` and never counts as Plugin-install, route, permission, or runtime evidence.
 
 ## Pending live validation
 
@@ -166,7 +262,7 @@ The remaining release evidence is runtime work, not another architecture-design 
 4. Dependency Ledger/evidence reuse/intervention/recovery behavior on representative tasks;
 5. authorized adaptive read-only fan-out and observed native capacity behavior;
 6. same-checkout multi-session writer characterization;
-7. real marketplace install/upgrade and current official Plugin validator;
+7. real marketplace install/upgrade, same-version maintenance refresh, and current official Plugin validator;
 8. concurrent same-`CODEX_HOME` installer characterization;
 9. controlled live behavioral pairs and review-yield/cost measurements.
 
@@ -175,3 +271,5 @@ Until those gates are complete, release posture remains:
 ```text
 HOLD FOR RELEASE / LIVE VALIDATION PENDING
 ```
+
+Known open reproducible PROJECT P0/P1 remains: none.

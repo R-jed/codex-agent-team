@@ -2,7 +2,7 @@
 
 This is the authoritative finite live-validation and v1.0.0 release checklist for Codex Delegate.
 
-The v0.6.0 architecture cycle is closed. The remaining job is to validate the accepted behavior on a current real Codex runtime, fix only evidence-backed release blockers, run one fixed release-candidate closure pass, and release v1.0.0.
+The v0.6.0 architecture cycle and repository-side engineering consolidation are closed. The remaining job is finite: validate the accepted behavior on a current real Codex runtime, fix only evidence-backed release blockers, run one fixed release-candidate closure pass, and release v1.0.0.
 
 ## Current checkpoint
 
@@ -19,7 +19,7 @@ static posture: COMPLETE / ARCHITECTURE FROZEN AT v0.6.0
 release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 ```
 
-Accepted v0.6.0 closure evidence:
+Accepted v0.6.0 feature closure evidence:
 
 ```text
 PR #27 closure head: 3833e9d7c322a3feddc3cb8a7386e022a3bb8b1e
@@ -30,11 +30,25 @@ macOS / Python 3.11: PASS
 pytest: 167 passed
 pinned official OpenAI Plugin validator: PASS
 managed profile install / --check / idempotent reinstall: PASS
+feature merge: b043428223ba99ce77e2268c32cfa6a38daad3ed
 ```
 
-PR #27 was squash-merged as `b043428223ba99ce77e2268c32cfa6a38daad3ed`.
+Accepted engineering-consolidation evidence:
 
-The current `refactor/engineering-consolidation-v061` branch is a behavior-preserving maintenance candidate. It may repair stale executable/documentation contracts and reduce duplication, but it must not change product behavior without a new explicit architecture decision supported by evidence.
+```text
+source PR: #28
+exact tested head: ac5976d41e44a7ffddb3dad94686c2729c4b6687
+workflow: 30886554206
+Ubuntu / Python 3.11: PASS
+Ubuntu / Python 3.12: PASS
+macOS / Python 3.11: PASS
+pytest: 157 passed
+pinned official OpenAI Plugin validator: PASS
+managed profile install / --check / idempotent reinstall: PASS
+squash merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f
+```
+
+The lower test count after consolidation is intentional. Redundant legacy runtime-verifier and rollout-coupled test surfaces were removed together with their implementations; replacement runtime evidence behavior is tested directly through the single normalized verifier and semantic contract tests. This maintenance merge does not create a new product architecture baseline and does not change Plugin version `0.6.0`.
 
 Before any live checkpoint, fetch `origin/main`, record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`, and invalidate only evidence whose declared dependencies changed.
 
@@ -67,6 +81,7 @@ The repository already contains and statically tests:
 - `/codex-delegate` as the canonical entry point;
 - namespaced Reader / Worker / Investigator / Advisor profiles;
 - managed profile ownership/migration safeguards;
+- `policy-contract.json` as the machine-readable owner of stable role/resource/final-review constants;
 - Dependency Ledger and ready-frontier policy;
 - Delegation Benefit + Contractability gates;
 - Shared Evidence State and dependency-aware invalidation;
@@ -75,12 +90,13 @@ The repository already contains and statically tests:
 - one-writer and depth-one safety policy;
 - risk-triggered Final Review Gate;
 - deterministic `review_artifact_id` helper;
+- one deterministic normalized `runtime-evidence.py` verifier;
 - behavioral workload/result/scorer infrastructure;
 - pinned official OpenAI Plugin validator CI.
 
 ## Engineering-consolidation closure
 
-The v0.6.x maintenance candidate may reduce duplicated implementation/policy surface while preserving the accepted v0.6.0 semantics. Its intended static end state is:
+PR #28 completed the allowed behavior-preserving maintenance consolidation. The accepted static ownership model is:
 
 ```text
 policy-contract.json owns stable route/resource/final-review constants
@@ -92,7 +108,7 @@ LOCAL_VALIDATION_REPORT.md remains the evidence ledger
 HEADOFF.md remains the finite release checklist
 ```
 
-The maintenance candidate is accepted only after the maintained CI matrix, managed-profile lifecycle, and pinned official Plugin validator are green. It does not create a new architecture baseline or a new mandatory checkpoint.
+The consolidation did not change model/effort routes, delegation depth, consent envelope, one-writer semantics, Final Review triggers/verdict lifecycle, managed profile bytes, installer ownership/migration authority, Plugin id/version, or introduce a scheduler, lock, or persistent runtime service.
 
 # Pending live validation
 
@@ -142,7 +158,7 @@ material conflict -> X0 + quarantine
 hard read-only required + native sandbox absent -> return to main session
 ```
 
-Do not introduce a project rollout-file scraper merely to manufacture runtime evidence. If the public/native surface does not expose a fact, record that limitation.
+Do not introduce a project rollout-file scraper merely to manufacture runtime evidence. If the public/native surface does not expose a fact, record that limitation instead of inferring it.
 
 Record results in `LOCAL_VALIDATION_REPORT.md`.
 
@@ -166,7 +182,7 @@ For every writing case, verify the actual changed-file set, preserved unrelated 
 
 ### Review Checkpoint B
 
-Send only the new evidence and unresolved judgment to the required project consultation target. Do not reopen already satisfied architecture questions without invalidating evidence.
+Send only new evidence and unresolved judgment to the required project consultation target. Do not reopen already satisfied architecture questions without invalidating evidence.
 
 ## Checkpoint 3: dependency scheduling, evidence reuse, intervention, and recovery
 
@@ -273,7 +289,7 @@ Also exercise:
 - `INSUFFICIENT_EVIDENCE -> gate unresolved`;
 - `fix-first -> correction + re-verification + new artifact + new fresh review`;
 - `rethink -> invalidate affected architecture/contract assumptions`;
-- post-review deliverable mutation makes `--verify` fail and invalidates old `ship`;
+- post-review deliverable mutation makes artifact verification fail and invalidates old `ship`;
 - material Terra escalation or material recovery dynamically promotes Final Review Gate state when the semantic trigger is present.
 
 Record review material catches, false positives, attempts, artifact failures, post-review mutations, and review yield. No quality/cost claim is made until live data supports it.
@@ -340,9 +356,9 @@ codex plugin add codex-agent-team@codex-agent-team
 4. confirm `/codex-delegate` discovery;
 5. verify metadata reports `0.6.0` or the selected RC/release version;
 6. validate first-run managed profile consent and exact role discovery;
-7. while a behavior-preserving maintenance update still reports manifest version `0.6.0`, verify on the tested Codex build that `marketplace upgrade` followed by explicit `plugin add` refreshes the installed Plugin bytes. If it does not, bump the patch version before RC instead of relying on stale-cache assumptions.
+7. while behavior-preserving maintenance content still reports manifest version `0.6.0`, verify on the tested Codex build that `marketplace upgrade` followed by explicit `plugin add` refreshes the installed Plugin bytes. If it does not, bump the patch version before RC instead of relying on stale-cache assumptions.
 
-Current upstream OpenAI `PluginStore` source atomically replaces the selected version directory during an explicit install, but this is upstream source evidence only. Checkpoint 6 must prove the actual user-build behavior before release.
+Current upstream OpenAI PluginStore source indicates that an explicit install atomically replaces the selected version directory, but this is upstream source evidence only. Checkpoint 6 must prove the actual user-build behavior before release.
 
 ### Real upgrade/migration paths
 
@@ -439,7 +455,7 @@ RESULT
 UNRESOLVED
 ```
 
-Do not commit credentials, unrelated prompts, private rollout logs, or hidden reasoning.
+Do not commit credentials, unrelated prompts, private runtime logs, or hidden reasoning.
 
 # Feedback protocol for continued adversarial review
 
@@ -454,7 +470,7 @@ TARGET_MODE: continue_existing_conversation
 MATCH_POLICY: exact_title_unique_match
 ```
 
-The target is the existing user + GPT-5.6 Sol Codex Delegate project discussion thread. Exact-title continuity is required so adversarial review receives the accumulated project context while each request still carries a current sanitized evidence packet.
+The target is the existing user + GPT-5.6 Sol Codex Delegate project discussion thread. Exact-title continuity is required so adversarial review receives the accumulated project context while every request still carries a current sanitized evidence packet.
 
 Target resolution is fail closed:
 
