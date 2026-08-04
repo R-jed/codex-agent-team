@@ -25,7 +25,14 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
     assert SKILL.is_dir()
     market = json.loads(MARKETPLACE.read_text())
     assert market["name"] == "codex-delegate"
-    assert market["plugins"] == [{"name": "codex-delegate", "source": {"source": "local", "path": "./plugins/codex-delegate"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"}]
+    assert market["plugins"] == [
+        {
+            "name": "codex-delegate",
+            "source": {"source": "local", "path": "./plugins/codex-delegate"},
+            "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+            "category": "Productivity",
+        }
+    ]
 
 
 def test_plugin_brand_assets_and_supported_components():
@@ -38,7 +45,8 @@ def test_plugin_brand_assets_and_supported_components():
     for unsupported in ["agents", "hooks"]:
         assert unsupported not in payload
     for field in ["homepage", "repository"]:
-        parsed = urlparse(payload[field]); assert parsed.scheme == "https" and parsed.netloc
+        parsed = urlparse(payload[field])
+        assert parsed.scheme == "https" and parsed.netloc
 
 
 def test_only_current_profiles_are_packaged():
@@ -47,7 +55,6 @@ def test_only_current_profiles_are_packaged():
     assert {p.name for p in (PLUGIN_ROOT / "agent-profiles").glob("*.toml")} == expected
     assert all(name.startswith("codex-delegate-") for name in expected)
     assert all(spec["agent_type"].startswith("codex_delegate_") for spec in policy["roles"].values())
-    assert not (ROOT / "plugins" / "codex-agent-team").exists()
 
 
 def test_skill_owns_current_profile_setup_and_no_standalone_installer_surface():
@@ -56,25 +63,24 @@ def test_skill_owns_current_profile_setup_and_no_standalone_installer_surface():
     assert 'python "$installer" --check' in text
     assert ".codex-delegate-agents.json" in text
     assert "/codex-delegate" in text
+    assert "Other Agent profiles are user-owned and must remain untouched" in text
     assert not (ROOT / "scripts" / "install.py").exists()
     assert not (ROOT / "scripts" / "doctor.py").exists()
 
 
-def test_install_doc_explains_current_and_legacy_migration_without_dual_runtime_identity():
+def test_install_doc_explains_current_install_and_profile_lifecycle():
     text = INSTALL_DOC.read_text()
     for phrase in [
         "codex plugin marketplace add R-jed/codex-delegate --ref main",
         "--sparse plugins/codex-delegate",
         "codex plugin marketplace upgrade codex-delegate",
         "codex plugin add codex-delegate@codex-delegate",
-        "codex plugin remove codex-agent-team@codex-agent-team",
-        "codex plugin marketplace remove codex-agent-team",
         "codex_delegate_reader",
         ".codex-delegate-agents.json",
-        "Version 0.7.0",
+        "Version:         0.7.0",
+        "leaves unrelated Agent profiles untouched",
     ]:
         assert phrase in text
-    assert "old names do not remain as fallback roles" in text
 
 
 def test_readmes_and_ai_reference_share_current_install_path():
