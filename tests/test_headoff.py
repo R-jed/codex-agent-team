@@ -168,32 +168,40 @@ def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
     assert "分支 · 项目对比分析" not in lines
 
 
-def test_validation_report_reflects_current_accepted_static_chain():
+def test_validation_report_is_compact_evidence_ledger_not_second_handoff_or_changelog():
     text = REPORT.read_text()
     for phrase in [
+        "This file is the release evidence ledger for Codex Delegate",
+        "## Current accepted baseline",
+        "## Evidence classes",
+        "## Evidence matrix",
+        "## Last accepted real Codex runtime baseline",
+        "## Pending live claims",
+        "## Live validation record format",
+        "## Minimal provenance",
         "Plugin version: 0.6.0",
-        "Accepted v0.6.0 feature merge: b043428223ba99ce77e2268c32cfa6a38daad3ed",
-        "Accepted engineering-consolidation merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f",
-        "Accepted completion-driven/policy-reduction merge: a086229a6fd8e64f502fc3574c0da931ffa8c929",
-        "Exact tested completion-driven head: 148a5ab599578b0a4f0aafaa09e5007633388143",
-        "Completion-driven workflow: 30890469536",
-        "Accepted v0.6.0 static evidence",
-        "Accepted engineering-consolidation static evidence",
-        "Accepted completion-driven / policy-reduction static evidence",
-        "pytest: 167 passed",
-        "pytest: 157 passed",
-        "pytest: 158 passed",
-        "net: -681 lines",
-        "completion-driven",
-        "barrier_only",
-        "any_child_update",
-        "That live baseline predates v0.6.0 and the completion-driven refinement",
-        "review_artifact_id",
-        "contract_luna_final_review_gate",
         "HOLD FOR RELEASE / LIVE VALIDATION PENDING",
-        "ARCHITECTURE FROZEN AT v0.6.0",
-        "ENGINEERING CONSOLIDATION + POLICY REDUCTION COMPLETE",
+        "ENGINEERING CONSOLIDATION + POLICY REDUCTION + DEAD-SURFACE SWEEP COMPLETE",
+        "PR: #32",
+        "exact tested sweep head: 350a336417d5d8a0cf0c1c86817740e1ddc23f2f",
+        "workflow: 30894739615",
+        "pytest: 158 passed",
+        "Dead duplicate route-assurance document removed",
+        "Behavioral scorer dead abstractions removed",
+        "Completion-driven ready-frontier refill",
+        "STATIC PASS / LIVE PENDING",
+        "barrier_only | per_child_terminal | any_child_update",
+        "分支 · 分支 · 项目对比分析",
     ]:
         assert phrase in text
-    assert "Current engineering-consolidation candidate" not in text
-    assert "Current feature PR: #27" not in text
+
+    for historical_section in [
+        "## Accepted v0.5.1 historical static evidence",
+        "## Accepted v0.6.0 static evidence",
+        "## Accepted engineering-consolidation static evidence",
+        "## Accepted completion-driven / policy-reduction static evidence",
+    ]:
+        assert historical_section not in text
+
+    assert "Do not add a second planning checklist here" in text
+    assert len(text.splitlines()) < 230

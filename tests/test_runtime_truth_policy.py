@@ -29,11 +29,11 @@ def test_compact_grades_remain_derived_compatibility_summaries():
 
 def test_profile_locked_is_the_only_route_assurance_path():
     runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
-    route = (ROOT / "docs" / "model-route-assurance.md").read_text()
-    assert "profile_locked" in runtime and "profile_locked" in route
+    routing = (SKILL / "references" / "routing-policy.md").read_text()
+    assert "profile_locked" in runtime and "profile_locked" in routing
     assert "native_explicit_validated" not in runtime
-    assert "native_explicit_validated" not in route
-    assert "No Portable Mode" in route
+    assert "native_explicit_validated" not in routing
+    assert "There is no Portable Mode" in routing
 
 
 def test_normalized_verifier_is_wired_into_skill_and_runtime_reference():
