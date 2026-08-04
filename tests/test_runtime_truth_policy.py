@@ -1,8 +1,8 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-agent-team"
-SKILL = PLUGIN / "skills" / "codex-agent-team"
+PLUGIN = ROOT / "plugins" / "codex-delegate"
+SKILL = PLUGIN / "skills" / "codex-delegate"
 
 
 def test_runtime_evidence_is_typed_and_partial_observation_is_not_proof():
@@ -76,12 +76,12 @@ def test_live_evals_are_controlled_paired_runs_and_track_correction_cost():
     assert "no claimed benchmark results" in workloads
 
 
-def test_plugin_profile_lifecycle_remains_present():
+def test_plugin_profile_lifecycle_remains_present_across_public_id_migration():
     assert (PLUGIN / "scripts" / "install-agents.py").exists()
     installation = (ROOT / "docs" / "plugin-installation.md").read_text()
+    assert "One-time migration from the legacy public id" in installation
+    assert "codex plugin remove codex-agent-team@codex-agent-team" in installation
     assert "codex_agent_team_worker" in installation
-    assert "Migration from Codex Agent Team 0.3.x" in installation
-    assert "0.4.x" in installation
-    assert "0.5.0" in installation
+    assert "Legacy managed-profile migration" in installation
     assert "luna_explorer" in installation
     assert ".codex-agent-team-agents.json" in installation
