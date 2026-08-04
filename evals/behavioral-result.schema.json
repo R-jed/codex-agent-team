@@ -103,6 +103,23 @@
           "review_findings": {"type": "integer", "minimum": 0},
           "review_caught_material_issue": {"type": ["boolean", "null"]},
           "review_false_positives": {"type": "integer", "minimum": 0},
+          "final_review_requirement": {
+            "type": ["string", "null"],
+            "enum": [null, "not_required", "required"]
+          },
+          "final_review_trigger_reasons": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1},
+            "uniqueItems": true
+          },
+          "final_review_attempts": {"type": "integer", "minimum": 0},
+          "final_review_verdict": {
+            "type": ["string", "null"],
+            "enum": [null, "ship", "fix-first", "rethink", "incomplete", "declined"]
+          },
+          "final_review_gate_satisfied": {"type": ["boolean", "null"]},
+          "review_artifact_verify_failures": {"type": "integer", "minimum": 0},
+          "post_review_mutations": {"type": "integer", "minimum": 0},
           "consent_prompts": {"type": "integer", "minimum": 0},
           "input_tokens": {"type": ["integer", "null"], "minimum": 0},
           "output_tokens": {"type": ["integer", "null"], "minimum": 0},
