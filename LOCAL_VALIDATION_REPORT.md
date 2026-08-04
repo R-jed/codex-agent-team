@@ -19,24 +19,24 @@ Release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 Known open reproducible PROJECT P0/P1: none
 ```
 
-The 0.7.0 identity closure removes the old project Agent namespace from current runtime/profile/ownership state. Historical `codex_agent_team_*`, `codex-agent-team-*.toml`, and `.codex-agent-team-*.json` values are recognized only by the bounded migration path and migration tests. Successful migration must leave no active old project generation.
+The current repository tree has one project identity and one managed Agent generation. Runtime policy, installer code, public/AI documentation, architecture references, tests, and release gates are all defined in terms of `codex-delegate` / `codex_delegate_*` only.
 
-Static validation for this exact 0.7.0 tree is pending the direct-main CI run. Do not convert the previous 0.6.0 green run into evidence for changed profile/installer identity.
+Static validation for the exact current tree is pending a maintained full-suite run and current Plugin validation. Do not convert an older green run into evidence for files changed by the current cleanup.
 
 ## Repository review on 2026-08-04
 
-Repository inspection through GitHub confirmed:
+Repository inspection and direct-main cleanup established:
 
-- `README.md` and `README_EN.md` both direct AI Agents to `README_AI.md` with the required strict-follow instruction;
-- `README_AI.md` is the canonical AI-facing product/install/usage reference and identifies all old public/internal names as migration inputs only;
-- active policy/profile/routing/eval surfaces use the single current `codex_delegate_*` generation;
-- the installer treats old project-named profiles/manifests as bounded one-way migration inputs, removes only exact proven project-owned state, fails closed on unproven state, and verifies that the old project generation is absent after successful migration;
-- when both recognized historical ownership receipts exist, disjoint proven hashes are merged for migration, while conflicting hashes for the same file fail closed before mutation;
-- `docs/plugin-installation.md` documents the same one-way migration boundary and explicitly states that 0.7.0 removes the active compatibility layer;
-- there are no open pull requests;
-- remote branch cleanup is complete and `main` is the only remaining branch.
-
-No branch was created for this maintenance pass. Clear, bounded owner-authorized maintenance is documented to land directly on `main` by default.
+- `README.md` and `README_EN.md` present only the current product identity and current install/update path;
+- `README_AI.md` is the canonical AI-facing reference and tells Agents to use only the canonical identities declared there;
+- active policy/profile/routing/eval surfaces use only the current `codex_delegate_*` role namespace;
+- the managed installer owns only the four current profiles plus `.codex-delegate-agents.json`;
+- unrelated Agent profiles are user-owned and left untouched;
+- current-profile replacement is allowed only when the current ownership receipt proves the exact previous managed bytes;
+- architecture, runtime, safety, installation, Skill, handoff, and evidence documentation no longer carry retired project identity semantics;
+- repository tests include a tree-wide retired-identity guard so historical package identifiers cannot silently re-enter current text/config/code surfaces;
+- remote branch cleanup is complete and `main` is the only remaining branch;
+- there are no open pull requests at the time of the repository check.
 
 This review is repository fact only. It does not substitute for deterministic test execution, official Plugin validation, or the live Codex checkpoints below.
 
@@ -54,13 +54,13 @@ This review is repository fact only. It does not substitute for deterministic te
 
 | Claim | Status | Boundary |
 | --- | --- | --- |
-| public repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
-| current role namespace is exclusively `codex_delegate_*` | repository fact, deterministic revalidation pending | policy/profile/test tree changed in 0.7.0 |
-| current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer changed in 0.7.0 |
-| proven 0.6.x project state migrates one-way and old project state is removed | repository implementation fact, deterministic + live validation pending | static migration tests then Checkpoint 6 |
-| recognized historical ownership receipts merge safely or fail closed on conflict | repository implementation fact, deterministic + live validation pending | migration ownership fix reviewed through 476fcb45363844e680521d6484a90a81ca1cfd24 |
-| unproven old project profile fails closed | repository implementation fact, deterministic + live validation pending | no silent overwrite/delete |
-| Plugin structure/current official validator | pending 0.7.0 CI | RC reruns then-current validator |
+| repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
+| current role namespace is exclusively `codex_delegate_*` | repository fact, deterministic revalidation pending | policy/profile/test tree |
+| current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer/profile lifecycle |
+| installer manages only current project profiles | repository implementation fact, deterministic validation pending | fresh/update/adopt/check cases |
+| unrelated Agent profiles are preserved | repository implementation fact, deterministic validation pending | installer safety |
+| retired project identity is absent from current text/config/code surfaces | repository implementation fact, deterministic validation pending | tree-wide identity guard |
+| Plugin structure/current official validator | pending current CI/RC validation | RC reruns then-current validator |
 | exact current Reader/Worker/Investigator/Advisor routes | live pending | Checkpoint 1 |
 | host-enforced read-only | live pending | configuration intent is not proof |
 | completion-driven refill/wait surface | live pending | Checkpoint 3 |
@@ -78,7 +78,7 @@ Git: 2.50.1
 Codex CLI/runtime: 0.146.0
 ```
 
-That evidence predates the 0.7.0 Agent identity migration and cannot prove current role discovery.
+That evidence predates the current profile/installer cleanup and cannot prove the exact current role-discovery or installer behavior.
 
 ## Live validation record format
 
