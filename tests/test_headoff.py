@@ -2,12 +2,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HANDOFF = ROOT / "HEADOFF.md"
+REPORT = ROOT / "LOCAL_VALIDATION_REPORT.md"
 
 
 def test_local_runtime_handoff_is_an_internal_release_contract():
     assert HANDOFF.is_file()
+    assert REPORT.is_file()
     for name in ["README.md", "README_EN.md"]:
-        assert "HEADOFF.md" not in (ROOT / name).read_text()
+        text = (ROOT / name).read_text()
+        assert "HEADOFF.md" not in text
+        assert "LOCAL_VALIDATION_REPORT.md" not in text
 
 
 def test_handoff_protects_release_critical_live_validation_scope():
@@ -15,19 +19,21 @@ def test_handoff_protects_release_critical_live_validation_scope():
     for phrase in [
         "# Codex Delegate Local Runtime Validation Handoff",
         "## Current checkpoint",
-        "## v0.5.1 control model",
+        "Accepted v0.6.0 static product baseline",
+        "## v0.6.0 control model",
         "## Stop line",
         "# Completed repository work",
+        "## E. Final Review Gate static closure",
         "# Pending live validation",
         "## Checkpoint 1: exact roles and Runtime Truth",
         "incomplete expected route -> fail closed",
         "## Checkpoint 3: dependency scheduling, evidence reuse, intervention, and recovery",
         "### 7. Intervention Gate and recovery",
         "### 8. Child progress observability",
-        "## Checkpoint 4: product-value experiments",
+        "## Checkpoint 4: product-value and final-review experiments",
         "### 9. Raw prompt versus compiled contract",
-        "### 11. Selective fresh-context Sol experiment",
-        "## Checkpoint 5: adaptive resources, multi-session safety, and lifecycle",
+        "### 11. Selective and mandatory fresh-context Sol experiments",
+        "## Checkpoint 5: adaptive resources, consent, multi-session safety, and lifecycle",
         "### 14. Workspace-scoped one-writer and multi-session matrix",
         "## Checkpoint 6: official Plugin install, migration, and installer concurrency",
         "### 15. Current official Plugin contract validation",
@@ -40,13 +46,14 @@ def test_handoff_protects_release_critical_live_validation_scope():
         "# Completion condition",
         "LOCAL_VALIDATION_REPORT.md",
         "RELEASE CANDIDATE",
-        "HOLD FOR RELEASE / VALIDATION INCOMPLETE",
+        "HOLD FOR RELEASE / LIVE VALIDATION PENDING",
     ]:
         assert phrase in text
 
     assert "[x]" in text
     assert "[ ]" in text
     assert "CAT-LOCAL-001" in text
+    assert "Do not add a Checkpoint 7" in text
 
 
 def test_handoff_keeps_adaptive_fanout_without_product_hard_ceiling():
@@ -88,11 +95,34 @@ def test_handoff_requires_intervention_recovery_and_observability_validation():
         "recovery_ledger_entries",
         "attempt_cycle_detected",
         "same_failure_without_new_evidence",
+        "material Terra escalation or material recovery dynamically promotes Final Review Gate state",
     ]:
         assert phrase in text
 
 
-def test_handoff_requires_official_plugin_validation_and_v051_upgrade():
+def test_handoff_requires_final_review_gate_live_validation():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "Final Review Gate required -> main-session acceptance creates Candidate Ready only",
+        "required gate completion -> fresh Sol ship + unchanged review_artifact_id",
+        "fix-first -> correction + re-verification + new artifact + new fresh review",
+        "rethink -> invalidate affected architecture/contract assumptions",
+        "INSUFFICIENT_EVIDENCE -> gate unresolved",
+        "Post-review deliverable mutation makes `--verify` fail",
+        "A declined additional required review keeps `Candidate Ready`",
+        "FINAL REVIEW REQUIREMENT / REASONS / ARTIFACT / VERDICT",
+        "FINAL_REVIEW_STATE",
+        "Final Review Gate smoke covering required trigger",
+    ]:
+        assert phrase in text
+
+    assert "no universal Sol review stage for low-risk work" in text
+    assert "no required Final Review Gate silently downgraded" in text
+    assert "no old `ship` retained after any deliverable mutation" in text
+    assert "no `INSUFFICIENT_EVIDENCE` converted into `ship` or `fix-first`" in text
+
+
+def test_handoff_requires_official_plugin_validation_and_v060_upgrade():
     text = HANDOFF.read_text()
     for phrase in [
         "plugin-creator/scripts/validate_plugin.py",
@@ -104,14 +134,15 @@ def test_handoff_requires_official_plugin_validation_and_v051_upgrade():
         "$CODEX_HOME/agents",
         "Starting from real v0.3.x Codex Agent Team",
         "Starting from real v0.4.x Codex Delegate",
-        "Starting from v0.5.0, update/reinstall v0.5.1",
-        "metadata reports `0.5.1`",
+        "Starting from v0.5.0/v0.5.1, update/reinstall v0.6.0",
+        "metadata reports `0.6.0`",
+        "scripts/review-artifact.py",
         "Cosmetic alignment cannot block v1",
     ]:
         assert phrase in text
 
 
-def test_handoff_requires_paired_control_fingerprints():
+def test_handoff_requires_paired_control_fingerprints_and_review_metrics():
     text = HANDOFF.read_text()
     for field in [
         "workload_definition_hash",
@@ -120,6 +151,14 @@ def test_handoff_requires_paired_control_fingerprints():
         "permissions_fingerprint",
         "tool_surface_fingerprint",
         "acceptance_rubric_id",
+        "final_review_requirement",
+        "final_review_trigger_reasons",
+        "final_review_attempts",
+        "final_review_verdict",
+        "final_review_gate_satisfied",
+        "review_artifact_verify_failures",
+        "post_review_mutations",
+        "review_yield",
     ]:
         assert field in text
 
@@ -142,6 +181,7 @@ def test_handoff_defines_adversarial_feedback_packets():
         "DEPENDENCY_STATE",
         "EXECUTION_PROGRESS",
         "RECOVERY_STATE",
+        "FINAL_REVIEW_STATE",
         "RESOURCE_STATE",
         "PLUGIN_STATE",
         "DEFECTS",
@@ -211,3 +251,22 @@ def test_handoff_requires_concurrent_installer_validation_before_locking():
         "Do not add an inter-process installer lock merely because races are theoretically possible",
     ]:
         assert phrase in text
+
+
+def test_validation_report_separates_v060_static_evidence_from_historical_live_evidence():
+    text = REPORT.read_text()
+    for phrase in [
+        "Plugin version: 0.6.0",
+        "Validated workflow: 30876233050",
+        "pytest: 164 passed",
+        "Accepted v0.6.0 static evidence",
+        "Accepted v0.5.1 historical static evidence",
+        "That live baseline predates v0.6.0",
+        "review_artifact_id",
+        "contract_luna_final_review_gate",
+        "HOLD FOR RELEASE / LIVE VALIDATION PENDING",
+        "ARCHITECTURE FROZEN AT v0.6.0",
+    ]:
+        assert phrase in text
+
+    assert "No live result yet proves that mandatory Final Review Gate use improves product outcomes" in text
