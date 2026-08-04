@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Delegate"
-  short_description: "Adaptive bounded delegation with evidence reuse"
-  default_prompt: "Use /codex-delegate to identify unresolved dependencies, build the smallest useful native Subagent compute graph, compile bounded contracts, reuse established evidence, and adapt retries or escalation from observed execution progress."
+  short_description: "Adaptive delegation with evidence reuse and final review"
+  default_prompt: "Use /codex-delegate to identify unresolved dependencies, build the smallest useful native Subagent compute graph, compile bounded contracts, reuse established evidence, adapt retries or escalation from observed execution progress, and apply the risk-triggered Final Review Gate when required."
 
 policy:
   allow_implicit_invocation: true

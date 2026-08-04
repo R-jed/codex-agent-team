@@ -14,7 +14,7 @@ Use this Skill as a policy layer over Codex Native Subagents. The main session o
 3. There is no product-level hard child count and no fixed team shape. Zero Subagents is normal. Create only the smallest useful scheduling wave from currently ready dependencies.
 4. Explicit `/codex-delegate` use includes a normal no-extra-consent envelope of up to two concurrently active child Agents. Larger simultaneous fan-out or other material compute expansion requires consent unless the user already requested broad parallel work.
 5. Native runtime capacity is an observed execution constraint, not a Codex Delegate architecture constant. Slot pressure queues or serializes ready work; it does not justify duplicate work, cross-routing, or a fake product ceiling.
-6. Luna Max is the default bounded execution tier. Terra XHigh is an exception lane for unresolved complex technical deltas. Sol High is a selective judgment or review tier.
+6. Luna Max is the default bounded execution tier. Terra XHigh is an exception lane for unresolved complex technical deltas. Sol High is a selective judgment tier and the risk-triggered independent final-review tier.
 7. Acceptance failure and need for intervention are separate facts. Continue a valid responsibility while evidence shows forward progress; classify recovery only when intervention is justified.
 8. Progress is established from artifacts, deterministic verification, repository facts, or a materially narrowed unresolved dependency. Model confidence, narration, a successful command, or a file write alone is not progress.
 9. Material recovery keeps a compact Recovery Ledger and distinguishes proposed actions from effective actions and their decision source. Model suggestions never become orchestration authority by themselves.
@@ -26,6 +26,7 @@ Use this Skill as a policy layer over Codex Native Subagents. The main session o
 15. Worker reports are claims. Accept work from actual artifacts, deterministic verification, and reproducible evidence.
 16. `/codex-delegate` is the canonical user-facing workflow entry point. First-run custom-Agent readiness is handled inside this Skill with explicit user-approved provisioning.
 17. Resource state has separate scopes: task dependency state is main-session scoped, write ownership is canonical-workspace scoped, and managed Agent profiles are Codex-home scoped.
+18. A deliverable whose Final Review Gate is `required` is not complete until a fresh Sol `ship` verdict is bound to the unchanged candidate artifact.
 
 ## 1. Understand the task
 
@@ -206,13 +207,13 @@ Default Terra work is read-only investigation. After Terra resolves the delta, t
 
 ### Sol Advisor
 
-Use `codex_agent_team_advisor` for a high-value judgment or selective review that deterministic verification and existing evidence cannot replace.
+Use `codex_agent_team_advisor` for a high-value judgment or independent review that deterministic verification and existing evidence cannot replace.
 
 A consequential architecture, security, migration, data-integrity, or public-contract commitment is a valid Sol boundary when the unresolved question is genuinely judgmental.
 
 Give Sol compressed established facts, the actual artifact or decision options, and one bounded question. Use fresh context by default. Do not ask Sol to rescan the repository or inherit dead-end narration when established evidence can carry the dependency.
 
-Final Sol review is selective, not mandatory.
+Sol is not a globally mandatory stage. Outside the Final Review Gate it remains selective. When `references/final-review-gate.md` evaluates a deliverable as `required`, the same exact Advisor route becomes a mandatory completion dependency and must run with fresh context.
 
 ## 8. Execution Progress and Intervention Gate
 
@@ -330,7 +331,29 @@ After each child returns:
 10. Use `scripts/verify-runtime.py` for deterministic runtime-evidence reconciliation.
 11. Never spawn a duplicate dependency call solely because the previous Agent returned slowly, confidently, or incompletely.
 
-## 13. Runtime evidence
+After implementation work is verified enough for main-session acceptance, evaluate `references/final-review-gate.md` against the actual candidate and the full execution history that remains materially relevant. If review is not required, normal main-session acceptance may complete the task. If review is required, the state is only **Candidate Ready** until the Final Review Gate succeeds.
+
+## 13. Final Review Gate
+
+Use `references/final-review-gate.md` for deliverable mutations after the main session has inspected the actual change set and rerun the acceptance oracle's deterministic verification.
+
+The gate is semantic and risk-triggered. It does not use a numeric risk score, diff-size threshold, fixed Agent pipeline, or universal review requirement.
+
+Mandatory triggers include material public-contract, persistence, security, authorization, data-integrity, concurrency, migration, wide-blast-radius, Terra-escalation, material-recovery, verification-gap, or explicit-user-review conditions defined in the reference.
+
+When the gate is `required`:
+
+1. Capture a deterministic `review_artifact_id` for the exact candidate deliverable.
+2. Spawn exactly `codex_agent_team_advisor` with `fork_turns: none`.
+3. Give the reviewer the actual candidate, compressed valid evidence, acceptance oracle, invariants, primary verification, review reasons, and residual risks. Do not tell the reviewer that the main session already considers the change correct.
+4. Require exactly `ship`, `fix-first`, or `rethink`, plus the supplied artifact identity.
+5. Treat `fix-first` findings as unresolved bounded dependencies, route fixes normally, rerun affected verification, capture a new artifact identity, and launch a new fresh review.
+6. Treat `rethink` as invalidation of the affected architecture/contract assumptions, not as a local implementation fix.
+7. Invalidate any prior `ship` verdict after any deliverable mutation. A required-review task may complete only when the current artifact still matches the artifact that received `ship`.
+
+Established repository discovery may be reused. Inspection of the actual final artifact cannot be replaced by a previous model report or cached review.
+
+## 14. Runtime evidence
 
 Use `references/runtime-assurance.md`.
 
@@ -346,7 +369,7 @@ The compact legacy grades `C1`, `L1`, `R1`, `R2`, and `X0` remain derived summar
 
 Child-progress observability is also a runtime fact. Classify it only from the surface actually exposed by the tested Codex build, for example `none`, `terminal_only`, `periodic_summary`, or `structured_live`. Do not infer a stronger observability level from documentation or a child self-report.
 
-## 14. Close and report
+## 15. Close and report
 
 Close completed, rejected, superseded, or no-longer-needed Subagents promptly so native capacity can recover.
 
@@ -357,6 +380,7 @@ Use `references/orchestration-receipt.md` when the Skill was explicitly invoked,
 - `references/delegation-contract.md`: dependency contract, Shared Evidence State, Recovery Ledger, delta escalation
 - `references/execution-progress.md`: observable progress, Intervention Gate, structured signals, recovery provenance, clean same-lane restart
 - `references/routing-policy.md`: adaptive compute graph, semantic responsibilities, route policy, ready-frontier scheduling
+- `references/final-review-gate.md`: risk-triggered independent final review, artifact binding, verdict lifecycle
 - `references/runtime-assurance.md`: typed runtime evidence and deterministic verifier
 - `references/consent-policy.md`: baseline concurrent resource envelope and expansion consent
 - `references/safety-policy.md`: permissions, prompt injection, depth, mutation, shared-workspace and Codex-home safety

@@ -16,7 +16,7 @@ def test_plugin_manifest_packages_single_canonical_skill_tree():
     payload = json.loads(PLUGIN.read_text())
     assert payload["name"] == "codex-agent-team"
     assert PLUGIN_ROOT.name == payload["name"]
-    assert payload["version"] == "0.5.1"
+    assert payload["version"] == "0.6.0"
     assert payload["skills"] == "./skills/"
     assert payload["license"] == "MIT"
     assert payload["author"]["name"] == "R-jed"
@@ -25,9 +25,11 @@ def test_plugin_manifest_packages_single_canonical_skill_tree():
     assert "Codex Delegate" in payload["description"]
     assert "dependency-driven" in payload["description"]
     assert "intervention gate" in payload["description"].lower()
+    assert "final review" in payload["description"].lower()
     assert MAIN_SKILL.is_dir()
     assert sorted(path.name for path in (PLUGIN_ROOT / "skills").iterdir() if path.is_dir()) == ["codex-agent-team"]
     assert (PLUGIN_ROOT / "scripts" / "install-agents.py").is_file()
+    assert (PLUGIN_ROOT / "scripts" / "review-artifact.py").is_file()
 
 
 def test_plugin_manifest_default_prompts_are_bounded_and_use_canonical_entrypoint():
@@ -91,11 +93,13 @@ def test_main_skill_owns_first_run_profile_setup_and_receipts():
     assert "codex-agent-team-setup" not in text
     assert "references/orchestration-receipt.md" in text
     assert "references/execution-progress.md" in text
+    assert "references/final-review-gate.md" in text
     receipt = (MAIN_SKILL / "references" / "orchestration-receipt.md").read_text()
     assert "Codex Delegate: Main session only" in receipt
     assert "Adaptive parallel example" in receipt
     assert "Clean-restart example" in receipt
     assert "Policy-transform example" in receipt
+    assert "Required Final Review Gate example" in receipt
 
 
 def test_repository_has_no_standalone_or_setup_install_surface():
@@ -118,6 +122,9 @@ def test_install_docs_use_cli_marketplace_and_plugin_lifecycle_without_manual_co
     assert "does not claim a native `agents` component" in text
     assert "manually editing `config.toml`" in text
     assert "scripts/validate_plugin.py" in text
+    assert "Version 0.6.0" in text
+    assert "Final Review Gate" in text
+    assert "review_artifact_id" in text
 
 
 def test_readmes_expose_plugin_only_single_command_path():
@@ -131,6 +138,8 @@ def test_readmes_expose_plugin_only_single_command_path():
         assert "/codex-delegate" in text
         assert "Codex Delegate" in text
         assert "docs/plugin-installation.md" in text
+        assert "0.6.0" in text
+        assert "Final Review Gate" in text
         assert "codex-agent-team-setup" not in text
         assert "python scripts/install.py" not in text
     assert "Plugin" in zh

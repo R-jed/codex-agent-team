@@ -1,7 +1,7 @@
 {
   "name": "codex-agent-team",
-  "version": "0.5.1",
-  "description": "Codex Delegate builds the smallest useful dependency-driven compute graph, reuses established evidence, and adapts execution through an intervention gate without fixed Agent counts or model ladders.",
+  "version": "0.6.0",
+  "description": "Codex Delegate builds the smallest useful dependency-driven compute graph, reuses established evidence, adapts execution through an intervention gate, and applies risk-triggered independent final review without fixed Agent counts or model ladders.",
   "author": {
     "name": "R-jed",
     "url": "https://github.com/R-jed"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Delegate",
-    "shortDescription": "Adaptive delegation over bounded dependencies and evidence.",
-    "longDescription": "Codex Delegate keeps the current session in control, tracks unresolved dependencies, compiles bounded delegation contracts, reuses valid evidence, schedules only the smallest useful set of ready responsibilities, and changes execution only after an evidence-driven intervention gate. Luna Max handles bounded execution, Terra XHigh receives genuine unresolved technical deltas, and Sol High provides selective fresh-context judgment or review.",
+    "shortDescription": "Adaptive delegation with risk-triggered final review.",
+    "longDescription": "Codex Delegate keeps the current session in control, tracks unresolved dependencies, compiles bounded delegation contracts, reuses valid evidence, schedules only the smallest useful set of ready responsibilities, and changes execution only after an evidence-driven intervention gate. Luna Max handles bounded execution, Terra XHigh receives genuine unresolved technical deltas, and Sol High provides selective judgment while becoming a mandatory fresh-context final reviewer when semantic Final Review Gate triggers apply.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": [
@@ -31,7 +31,7 @@
     "defaultPrompt": [
       "Use /codex-delegate to solve this task with bounded, evidence-driven delegation.",
       "Use /codex-delegate to implement this change with verifiable contracts and evidence reuse.",
-      "Use /codex-delegate to review this change with selective, evidence-grounded delegation."
+      "Use /codex-delegate to review this change and apply the risk-triggered final quality gate."
     ]
   }
 }

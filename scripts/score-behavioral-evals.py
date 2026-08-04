@@ -48,6 +48,9 @@ DELTA_FIELDS = (
     "main_session_correction_ms",
     "review_findings",
     "review_false_positives",
+    "final_review_attempts",
+    "review_artifact_verify_failures",
+    "post_review_mutations",
     "consent_prompts",
     "input_tokens",
     "output_tokens",
@@ -145,6 +148,16 @@ def validate_pairs(
 
 
 def mode_summary(runs: list[dict[str, Any]]) -> dict[str, Any]:
+    final_review_attempts = sum(run.get("final_review_attempts", 0) for run in runs)
+    review_material_catches = sum(run.get("review_caught_material_issue") is True for run in runs)
+    required_review_runs = sum(run.get("final_review_requirement") == "required" for run in runs)
+    satisfied_review_runs = sum(run.get("final_review_gate_satisfied") is True for run in runs)
+    unsatisfied_required_review_runs = sum(
+        run.get("final_review_requirement") == "required"
+        and run.get("final_review_gate_satisfied") is not True
+        for run in runs
+    )
+
     return {
         "runs": len(runs),
         "success_rate": sum(bool(run["success"]) for run in runs) / len(runs),
@@ -168,8 +181,21 @@ def mode_summary(runs: list[dict[str, Any]]) -> dict[str, Any]:
         "mean_output_tokens": mean_present(runs, "output_tokens"),
         "mean_reasoning_tokens": mean_present(runs, "reasoning_tokens"),
         "mean_latency_ms": mean_present(runs, "latency_ms"),
-        "review_material_catches": sum(run.get("review_caught_material_issue") is True for run in runs),
+        "review_material_catches": review_material_catches,
         "review_false_positives": sum(run.get("review_false_positives", 0) for run in runs),
+        "final_review_required_runs": required_review_runs,
+        "final_review_satisfied_runs": satisfied_review_runs,
+        "final_review_unsatisfied_required_runs": unsatisfied_required_review_runs,
+        "final_review_attempts": final_review_attempts,
+        "final_review_yield": (
+            review_material_catches / final_review_attempts
+            if final_review_attempts > 0
+            else None
+        ),
+        "review_artifact_verify_failures": sum(
+            run.get("review_artifact_verify_failures", 0) for run in runs
+        ),
+        "post_review_mutations": sum(run.get("post_review_mutations", 0) for run in runs),
         "unjustified_repeated_commands": sum(run.get("unjustified_repeated_commands", 0) for run in runs),
         "unjustified_repeated_discovery": sum(run.get("unjustified_repeated_discovery", 0) for run in runs),
         "duplicate_dependency_calls": sum(run.get("duplicate_dependency_calls", 0) for run in runs),
@@ -304,6 +330,11 @@ def main() -> None:
                 "reasoning_tokens",
                 "latency_ms",
                 "unjustified_retry_calls",
+                "review_findings",
+                "review_false_positives",
+                "final_review_attempts",
+                "review_artifact_verify_failures",
+                "post_review_mutations",
                 "unjustified_repeated_commands",
                 "unjustified_repeated_discovery",
                 "duplicate_dependency_calls",
@@ -333,6 +364,16 @@ def main() -> None:
         print(f"  execution_stall_events: {stats['execution_stall_events']}")
         print(f"  clean_same_lane_restarts: {stats['clean_same_lane_restarts']}")
         print(f"  unjustified_retry_calls: {stats['unjustified_retry_calls']}")
+        print(f"  final_review_required_runs: {stats['final_review_required_runs']}")
+        print(f"  final_review_satisfied_runs: {stats['final_review_satisfied_runs']}")
+        print(f"  final_review_unsatisfied_required_runs: {stats['final_review_unsatisfied_required_runs']}")
+        print(f"  final_review_attempts: {stats['final_review_attempts']}")
+        print(
+            "  final_review_yield: "
+            + ("not_recorded" if stats["final_review_yield"] is None else f"{stats['final_review_yield']:.3f}")
+        )
+        print(f"  review_artifact_verify_failures: {stats['review_artifact_verify_failures']}")
+        print(f"  post_review_mutations: {stats['post_review_mutations']}")
 
 
 if __name__ == "__main__":

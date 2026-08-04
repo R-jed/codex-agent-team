@@ -134,7 +134,7 @@ Role identity is separate from model identity.
 | reader | `codex_agent_team_reader` | GPT-5.6 Luna `max` | read-only | bounded search, tracing, mapping, evidence collection |
 | worker | `codex_agent_team_worker` | GPT-5.6 Luna `max` | workspace-write | contractable implementation, debugging, tests |
 | investigator | `codex_agent_team_investigator` | GPT-5.6 Terra `xhigh` | read-only | unresolved complex technical delta |
-| advisor | `codex_agent_team_advisor` | GPT-5.6 Sol `high` | read-only | judgment and selective review |
+| advisor | `codex_agent_team_advisor` | GPT-5.6 Sol `high` | read-only | judgment, selective review, and risk-triggered final review |
 
 Luna Max is intentionally fixed for the current execution baseline. Terra and Sol routes remain policy hypotheses to validate with representative workloads.
 
@@ -171,7 +171,28 @@ Use it when:
 
 Sol receives compressed facts and one decision/review question in fresh context by default. It should not repeat repository discovery or deterministic tests already established unless their evidence is invalid, contradictory, or insufficient.
 
-Final Sol review is selective, not mandatory.
+Sol is not a globally mandatory stage. Outside the Final Review Gate, final Sol review remains selective. When `final-review-gate.md` marks a deliverable `required`, a fresh Sol `ship` verdict becomes a mandatory completion dependency for that candidate.
+
+## 8A. Risk-triggered Final Review Gate
+
+The Final Review Gate is a post-verification acceptance boundary, not a model ladder and not another recovery stage.
+
+Evaluate it after the main session has inspected the actual accumulated change set and rerun deterministic verification required by the acceptance oracle. Use semantic triggers from `final-review-gate.md`, including material public-contract, persistence, security, authorization, data-integrity, concurrency, migration, wide-blast-radius, Terra-escalation, material-recovery, verification-gap, and explicit-user-review conditions.
+
+Do not derive the decision from a numeric risk score, file count, diff size, retry count, or model confidence.
+
+When review is required:
+
+- main-session acceptance creates only Candidate Ready;
+- bind the candidate to a deterministic `review_artifact_id`;
+- spawn `codex_agent_team_advisor` with `fork_turns: none`;
+- require `ship | fix-first | rethink` for the supplied artifact identity;
+- any deliverable mutation invalidates the prior verdict;
+- `fix-first` returns bounded correction dependencies to normal scheduling and requires fresh re-verification plus a new fresh review;
+- `rethink` invalidates affected architecture/contract assumptions instead of becoming a local patch;
+- completion requires the current artifact to match the artifact that received `ship`.
+
+The gate can make Sol mandatory for one deliverable without making Sol globally mandatory for every task. This preserves the adaptive compute graph while adding an independent quality barrier where consequence justifies it.
 
 ## 9. Evidence-guided intervention and recovery
 
