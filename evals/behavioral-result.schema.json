@@ -50,6 +50,7 @@
               "raw_prompt_luna",
               "contract_luna",
               "contract_luna_selective_sol",
+              "contract_luna_final_review_gate",
               "contract_delta_terra",
               "adaptive_orchestration",
               "external_baseline"
@@ -140,7 +141,8 @@
                   "enum": [
                     "raw_prompt_luna",
                     "contract_luna",
-                    "contract_luna_selective_sol"
+                    "contract_luna_selective_sol",
+                    "contract_luna_final_review_gate"
                   ]
                 }
               },
