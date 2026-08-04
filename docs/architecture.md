@@ -208,7 +208,7 @@ Recovery evaluation runs on material events rather than a fixed turn count:
 - user authorization/scope change;
 - material workspace, route, permission, or runtime change.
 
-SageRoute-style mid-run trajectory intervention is not assumed. Child progress before return is a runtime fact. The tested runtime may expose `none`, `terminal_only`, `periodic_summary`, or `structured_live` observability. Codex Delegate records only what the current Codex build actually exposes.
+Structured live mid-run trajectory intervention is not assumed. Child progress before return is a runtime fact. The tested runtime may expose `none`, `terminal_only`, `periodic_summary`, or `structured_live` observability. Codex Delegate records only what the current Codex build actually exposes.
 
 ## Terra delta escalation
 

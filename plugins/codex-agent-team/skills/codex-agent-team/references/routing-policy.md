@@ -270,7 +270,7 @@ periodic_summary
 structured_live
 ```
 
-If the runtime does not expose structured mid-run child progress, Codex Delegate remains dependency-level or return-level for recovery. Do not claim SageRoute-style mid-run anti-thrashing without evidence.
+If the runtime does not expose structured mid-run child progress, Codex Delegate remains dependency-level or return-level for recovery. Do not claim structured live mid-run anti-thrashing without evidence.
 
 ## 12. Shared Evidence State
 

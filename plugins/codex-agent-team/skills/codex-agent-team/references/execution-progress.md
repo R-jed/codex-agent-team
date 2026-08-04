@@ -254,7 +254,7 @@ Typical events are:
 - the user changes outcome, scope, or authorization;
 - workspace ownership or runtime capacity changes materially.
 
-If the native runtime exposes structured child progress before return, record that capability and use only facts actually exposed. If it does not, recovery remains dependency-level or return-level. Do not claim SageRoute-style mid-run intervention without runtime evidence.
+If the native runtime exposes structured child progress before return, record that capability and use only facts actually exposed. If it does not, recovery remains dependency-level or return-level. Do not claim structured live mid-run intervention without runtime evidence.
 
 ## 12. Clean restart semantics
 

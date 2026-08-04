@@ -210,7 +210,7 @@ Recovery evaluation is event-driven rather than turn-count-driven.
 
 ## Child-progress observability
 
-Codex Delegate does not assume a SageRoute-style live trajectory stream from a running child.
+Codex Delegate does not assume a structured live trajectory stream from a running child.
 
 The tested runtime must be characterized as:
 

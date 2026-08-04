@@ -83,7 +83,7 @@ def test_recovery_evaluation_is_event_driven_and_observability_fail_closed():
     assert "not after every ordinary tool call" in progress
     for level in ["none", "terminal_only", "periodic_summary", "structured_live"]:
         assert level in routing
-    assert "Do not claim SageRoute-style mid-run anti-thrashing without evidence" in routing
+    assert "Do not claim structured live mid-run anti-thrashing without evidence" in routing
 
 
 def test_behavioral_workloads_cover_intervention_counterexamples():
