@@ -14,17 +14,36 @@ from pathlib import Path
 import sys
 from typing import Any, NoReturn
 
+ROOT = Path(__file__).resolve().parents[1]
+POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
 CHILD_ROUTE_FIELDS = ("agent_role", "model", "effort")
 MAIN_ROUTE_FIELDS = ("model", "effort")
 IDENTITY_FIELDS = ("thread_id", "parent_thread_id")
 PERMISSION_FIELDS = ("sandbox_policy_type", "permission_profile_type")
 OBSERVED_FIELDS = (*CHILD_ROUTE_FIELDS, *IDENTITY_FIELDS, *PERMISSION_FIELDS)
 READ_ONLY_SANDBOXES = {"read-only", "read_only", "readonly"}
-SOL_MODEL_PREFIX = "gpt-5.6-sol"
 
 
 def fail(message: str) -> NoReturn:
     raise SystemExit(f"ERROR: {message}")
+
+
+def load_judgment_reference_model() -> str:
+    try:
+        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
+        classification = payload["classification"]
+        role = classification["main_coverage_reference_role"]
+        model = payload["roles"][role]["model"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        fail(f"invalid Routing V4 policy contract for main coverage: {exc}")
+    if payload.get("schema_version") != 2:
+        fail("main coverage requires policy contract schema 2")
+    if not isinstance(role, str) or not isinstance(model, str) or not model.strip():
+        fail("main coverage reference role/model is invalid")
+    return model.strip().lower()
+
+
+JUDGMENT_REFERENCE_MODEL = load_judgment_reference_model()
 
 
 def parse_args() -> argparse.Namespace:
@@ -141,14 +160,16 @@ def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
     else:
         status = "not_observed"
 
-    # Routing V4 uses only host/native complete route metadata to suppress a
-    # capability-uplift Sol call. Local/configured records can be reported but do
-    # not prove the current main-session model.
     if conflict or not native_complete:
         coverage = "unknown"
     else:
         model = str(native.get("model") or "").lower()
-        coverage = "covered" if model.startswith(SOL_MODEL_PREFIX) else "uncovered"
+        coverage = (
+            "covered"
+            if model == JUDGMENT_REFERENCE_MODEL
+            or model.startswith(JUDGMENT_REFERENCE_MODEL + "-")
+            else "uncovered"
+        )
 
     return {
         "subject": "main_session",
@@ -164,6 +185,7 @@ def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
         },
         "main_judgment_coverage": coverage,
         "coverage_source": "trusted_session_metadata" if native_complete and not conflict else "not_observed",
+        "coverage_reference_model": JUDGMENT_REFERENCE_MODEL,
         "observed_main_model": native.get("model") if native_complete and native is not None else None,
         "observed_main_effort": native.get("effort") if native_complete and native is not None else None,
         "violations": sorted(set(violations)),
@@ -264,7 +286,13 @@ def build_permission_evidence(
     local: dict[str, str | None] | None,
     violations: list[str],
 ) -> dict[str, Any]:
-    if any(item in violations for item in ("source_conflict:sandbox_policy_type", "source_conflict:permission_profile_type")):
+    if any(
+        item in violations
+        for item in (
+            "source_conflict:sandbox_policy_type",
+            "source_conflict:permission_profile_type",
+        )
+    ):
         return {"status": "conflict", "source": "both"}
     if not expected.get("requires_enforced_read_only", False):
         return {"status": "not_required", "source": "none"}
@@ -309,7 +337,8 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
         violations.append("permission:read_only_not_enforced")
 
     identity_conflict = any(
-        item.endswith("thread_id_mismatch") or item.startswith("source_conflict:thread_id")
+        item.endswith("thread_id_mismatch")
+        or item.startswith("source_conflict:thread_id")
         for item in violations
     )
     conflict = (
@@ -334,9 +363,14 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
 
     source_agreement = None
     if native is not None and local is not None:
-        overlap = any(native.get(field) is not None and local.get(field) is not None for field in OBSERVED_FIELDS)
+        overlap = any(
+            native.get(field) is not None and local.get(field) is not None
+            for field in OBSERVED_FIELDS
+        )
         if overlap:
-            source_agreement = not any(item.startswith("source_conflict:") for item in violations)
+            source_agreement = not any(
+                item.startswith("source_conflict:") for item in violations
+            )
 
     return {
         "subject": "child",
@@ -350,7 +384,9 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
         "runtime_reported": native_complete,
         "local_record_observed": local_complete,
         "source_agreement": source_agreement,
-        "permission_match": tri_state(permission["status"], failed={"broader_than_required", "conflict"}),
+        "permission_match": tri_state(
+            permission["status"], failed={"broader_than_required", "conflict"}
+        ),
         "ancestry_match": tri_state(ancestry["status"], failed={"conflict"}),
         "violations": sorted(set(violations)),
     }
