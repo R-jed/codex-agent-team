@@ -27,6 +27,37 @@ For clear, bounded, low-risk maintenance that the repository owner has already a
 
 Use a separate branch or pull request only when there is a concrete need for isolation, multiple independent writers, external review, risky experimental work, or an explicit owner request. Remove temporary branches after their work is integrated. Do not accumulate merged documentation/refactor branches that must be cleaned up later.
 
+## Deterministic execution preflight
+
+Complete this gate on the exact current `main` revision before treating any live-runtime checkpoint as release evidence.
+
+Record the exact Git SHA, Python version, validator revision where applicable, commands, exit codes, and concise outputs in `LOCAL_VALIDATION_REPORT.md`.
+
+Required deterministic execution:
+
+```bash
+python -m pytest tests/test_identity_cleanup.py -q
+python -m pytest tests/test_install_agents.py tests/test_installer_safety.py tests/test_plugin_packaging.py tests/test_policy.py tests/test_runtime_truth_policy.py tests/test_headoff.py tests/test_readme_user_facing.py -q
+python -m pytest -q
+```
+
+Also run the repository's pinned official Plugin validator path used by maintained CI, then run the then-current official OpenAI Plugin validator against `plugins/codex-delegate` and record the validator revision.
+
+The deterministic gate passes only when:
+
+- every command above exits successfully;
+- the complete pytest suite has no failures or errors;
+- any skips, xfails, or warnings that affect release claims are explicitly reviewed and recorded rather than ignored;
+- the retired-identity tree guard passes on the exact tested tree;
+- focused installer/profile lifecycle regressions pass;
+- Plugin packaging and policy contracts pass;
+- both required Plugin validator runs pass;
+- the tested SHA remains unchanged after validation.
+
+If any deterministic check fails, stop the release-validation sequence, classify the failure, fix only evidence-backed project defects, rerun the affected focused checks, then rerun the complete deterministic gate on the new exact SHA. Do not carry forward a green result from an earlier SHA.
+
+Deterministic execution passing is necessary for release candidacy but does not prove native runtime routing, permissions, concurrency, lifecycle, or product-value behavior. Those remain owned by Checkpoints 1–6.
+
 ## Stop line
 
 Do not change these accepted rules merely to make a live test pass:
@@ -151,7 +182,7 @@ Only add inter-process serialization/CAS if a reproducible invariant failure est
 
 ## Definition of Done for v1.0.0
 
-Release v1.0.0 when maintained CI and current official Plugin validation pass on a fixed RC, real fresh install/update/profile lifecycle validation passes, exact required role routing and permission behavior have no open P0/P1, contract/scope simulations pass, scheduling/recovery/resource/multi-session gates have no open P0/P1, required Final Review lifecycle passes, installer concurrency has no open P0/P1, and required product experiments are recorded without unsupported quality/cost claims.
+Release v1.0.0 when the deterministic execution preflight passes on the fixed RC, maintained CI and current official Plugin validation pass on that same RC, real fresh install/update/profile lifecycle validation passes, exact required role routing and permission behavior have no open P0/P1, contract/scope simulations pass, scheduling/recovery/resource/multi-session gates have no open P0/P1, required Final Review lifecycle passes, installer concurrency has no open P0/P1, and required product experiments are recorded without unsupported quality/cost claims.
 
 Then feature-freeze, run one fixed RC closure, tag `v1.0.0`, publish the GitHub Release, and move P2/P3 work post-v1.
 
