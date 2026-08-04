@@ -9,7 +9,13 @@ def test_runtime_evidence_is_typed_and_partial_is_not_proof():
     runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
     for field in ["route_evidence", "ancestry_evidence", "permission_evidence"]:
         assert field in runtime
-    for grade in ["C1_configuration_only", "L1_local_record_observed", "R1_runtime_reported", "R2_runtime_reported_and_local_record_agree", "X0_conflicted"]:
+    for grade in [
+        "C1_configuration_only",
+        "L1_local_record_observed",
+        "R1_runtime_reported",
+        "R2_runtime_reported_and_local_record_agree",
+        "X0_conflicted",
+    ]:
         assert grade in runtime
     assert "partial record never earns" in runtime
 
@@ -26,7 +32,12 @@ def test_profile_locked_is_only_route_assurance_and_verifier_is_current():
 
 def test_consent_and_live_eval_boundaries_remain():
     consent = (SKILL / "references" / "consent-policy.md").read_text()
-    for phrase in ["up to 2 concurrently active justified child Agents", "at most 1 active writer", "The exact team shape is dynamic", "does not add another numerical hard ceiling"]:
+    for phrase in [
+        "up to 2 concurrently active justified child Agents",
+        "at most 1 active writer",
+        "The exact team shape is dynamic",
+        "does not add another numerical hard ceiling",
+    ]:
         assert phrase in consent
     docs = (ROOT / "docs" / "behavioral-evals.md").read_text()
     assert "controlled live runs" in docs
@@ -34,10 +45,10 @@ def test_consent_and_live_eval_boundaries_remain():
     assert "contract_luna_final_review_gate" in docs
 
 
-def test_profile_lifecycle_is_current_and_legacy_is_one_way_migration_only():
+def test_profile_lifecycle_is_current_only():
     installation = (ROOT / "docs" / "plugin-installation.md").read_text()
+    skill = (SKILL / "SKILL.md").read_text()
     assert "codex_delegate_worker" in installation
     assert ".codex-delegate-agents.json" in installation
-    assert "Migration from codex delegate 0.6.x" in installation
-    assert "old names do not remain as fallback roles" in installation
-    assert "codex plugin remove codex-agent-team@codex-agent-team" in installation
+    assert "leaves unrelated Agent profiles untouched" in installation
+    assert "Other Agent profiles are user-owned and must remain untouched" in skill
