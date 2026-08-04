@@ -36,7 +36,6 @@ class Metric:
     field: str
     summary_key: str
     aggregate: Literal["mean", "sum"]
-    delta: bool = True
 
 
 METRICS = (
@@ -72,8 +71,7 @@ METRICS = (
     Metric("duplicate_dependency_calls", "duplicate_dependency_calls", "sum"),
 )
 
-DELTA_FIELDS = tuple(metric.field for metric in METRICS if metric.delta)
-METRIC_BY_FIELD = {metric.field: metric for metric in METRICS}
+DELTA_FIELDS = tuple(metric.field for metric in METRICS)
 
 COMPARISON_CLI_FIELDS = (
     "acceptance_score",
