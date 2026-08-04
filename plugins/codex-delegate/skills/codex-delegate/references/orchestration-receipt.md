@@ -1,160 +1,155 @@
 # Orchestration Receipt
 
-The receipt makes meaningful Codex Delegate decisions visible without turning normal coding into ceremony.
+The receipt makes material Codex Delegate decisions visible without turning ordinary coding into ceremony.
 
-Emit a receipt when any of these are true:
+Emit one when:
 
 - the user explicitly invoked `/codex-delegate`;
-- at least one child Agent was created;
-- a contractability, consent, route, runtime-capacity, intervention, execution-recovery, delta-escalation, or Final Review Gate decision materially changed execution.
+- at least one child was created;
+- main-session judgment coverage materially changed Sol placement;
+- dependency reclassification materially changed execution;
+- consent, route, runtime, recovery, or Final Review materially affected completion.
 
-For an implicit trivial task that stays in the main session, omit the receipt unless the user asks for orchestration details.
+For trivial implicit main-session-only work, omit it unless requested.
 
-Use **main session** in user-visible copy. Internal architecture terminology should not be required vocabulary for ordinary users.
+Use **main session** in user-visible copy.
 
-## Main-session-only example
+## Main-session-only
 
 ```text
 Codex Delegate: Main session only
-Why: the change was already isolated and delegation added no useful dependency
+Why: the dependency was already isolated and delegation added no useful value
 Verification: 12 tests passed
 ```
 
-## Luna-only example
+## Sol main avoided redundant Sol delegation
 
 ```text
 Codex Delegate
-Luna Worker: implemented dependency D01, the bounded retry fix
+Main judgment coverage: covered by current Sol session
+Routing: architecture decision and judgment-coupled implementation stayed in the main session
+Extra Sol capability-uplift calls: 0
+Verification: 31 tests passed
+```
+
+Do not claim this unless trusted current-session metadata actually established coverage.
+
+## Luna bounded execution
+
+```text
+Codex Delegate
+Luna Worker: completed D01, bounded retry implementation
 Reused evidence: E03 reproduction, E07 caller trace
 Verification: 38 tests passed
 ```
 
-## Adaptive parallel example
+## Sol Solver
+
+```text
+Codex Delegate
+Main judgment coverage: uncovered
+Sol Solver: completed D04 because implementation required material compatibility judgment that could not be separated from the write
+Material judgment calls: preserved legacy fallback order; kept public response shape unchanged
+Verification: 52 tests passed
+```
+
+## Reclassification
+
+```text
+Codex Delegate
+D03 started as bounded execution
+New evidence: implementation exposed an unresolved cache-invalidation semantic decision
+Reclassified: judgment_coupled_execution
+Effective actor: Sol Solver
+```
+
+A weak Luna result alone is not a reclassification reason. Report the evidence that changed the dependency kind.
+
+## Technical investigation
+
+```text
+Codex Delegate
+D05: semantic intent was already resolved
+Terra Investigator: resolved only the remaining lock-order technical uncertainty
+Returned evidence was reused by the writing dependency
+```
+
+Do not describe Terra as a generic escalation or stronger retry.
+
+## Parallel evidence
 
 ```text
 Codex Delegate
 Ready dependencies: 5 independent read-only checks
 Consent: broader fan-out approved
-Runtime: 3 child slots were available; 2 checks waited for a slot
+Runtime: 3 child slots observed; 2 checks queued
 Duplicate dependency calls: 0
 ```
 
-Do not present an observed slot count as a universal Codex limit.
+Never present one observed slot count as a universal Codex limit.
 
-## Continue-without-intervention example
+## Continue without intervention
 
 ```text
 Codex Delegate
-Luna Worker: D03 still has one failing acceptance check
+D03 still has one failing acceptance check
 Intervention: none
-Why: new deterministic evidence narrowed the root cause and the unresolved delta is smaller
+Why: new deterministic evidence narrowed the cause and the unresolved delta is smaller
 ```
 
-A failing check does not automatically justify a restart or stronger lane.
-
-## Clean-restart example
+## Clean same-role restart
 
 ```text
 Codex Delegate
-Luna Worker: D03 stalled on the same failing verification without new evidence
-Recovery: restarted D03 in fresh Luna context with the current artifact, valid evidence, material recovery history, and DO NOT REDO facts
-Decision source: deterministic evidence
-Verification: the failure signature changed and the dependency advanced
+D03 classification remained bounded_execution but repeated the same factual failure without new evidence
+Recovery: fresh Luna context with current artifact, valid evidence, failure signature, and DO NOT REDO facts
 ```
 
-## Policy-transform example
-
-Use this only when the proposed and effective actions materially differ:
-
-```text
-Codex Delegate
-Proposed action: Terra escalation
-Effective action: continue Luna with a focused correction
-Decision source: main-session judgment
-Policy transform: capability gap was not established by the available evidence
-```
-
-Do not surface proposed/effective action fields when they add no useful explanation.
-
-## Luna + Sol example
-
-```text
-Codex Delegate
-Luna Worker: implemented the bounded retry fix
-Sol Advisor: reviewed the actual diff in fresh context because payment-state semantics were high consequence
-Reused evidence: E03 reproduction, E07 caller trace, E11 baseline tests
-Verification: 38 tests passed
-```
-
-## Required Final Review Gate example
+## Required Final Review
 
 ```text
 Codex Delegate
 Review requirement: required
-Why: public_contract_change, terra_escalation
+Why: public_contract_change
 Candidate verification: 64 tests passed
-Final Review Gate: fresh Sol / High reviewed artifact sha256:A17F...
+Final Review: fresh Sol Advisor reviewed artifact sha256:A17F...
 Verdict: ship
 Artifact unchanged after review: yes
 ```
 
-Only show `Verdict: ship` as a completed mandatory gate when the reviewed artifact identity still matches the deliverable being reported complete. If a fix or other deliverable mutation happened after review, the old verdict is invalid and the receipt must reflect the new review state instead.
+Process history such as Terra use, Solver use, recovery, or a large diff must not be listed as an automatic review reason. If it created material residual uncertainty, record the actual semantic trigger such as `verification_gap`.
 
-## Required review needs more evidence example
-
-Use this when the existing Advisor profile returns `INSUFFICIENT_EVIDENCE`:
+## Required review incomplete
 
 ```text
 Codex Delegate
 Review requirement: required
 Candidate verification: 64 tests passed
-Final Review Gate: incomplete
+Final Review: incomplete
 Reviewer outcome: INSUFFICIENT_EVIDENCE
-Missing evidence: rollback behavior for partial migration failure
-State: Candidate Ready; gather the missing evidence, then run a new fresh review
+Missing evidence: rollback behavior for partial state transition
+State: Candidate Ready
 ```
 
-Do not count `INSUFFICIENT_EVIDENCE` as `fix-first`, `rethink`, or a successful verdict. It creates an evidence dependency while the current candidate remains unshipped.
-
-## Required review declined example
-
-Use this when the quality policy requires independent review but the Sol call is outside the current consent envelope and the user declines it:
+or, when consent is declined:
 
 ```text
 Codex Delegate
 Review requirement: required
-Candidate verification: 64 tests passed
-Final Review Gate: incomplete
-Consent: additional Sol review declined by user
-State: Candidate Ready; independent final review not satisfied
+Final Review: incomplete
+Consent: additional Sol review declined
+State: Candidate Ready; independent assurance not satisfied
 ```
 
-Do not rewrite this as `review_requirement: not_required`. User choice controls the additional compute call; it does not retroactively remove the semantic trigger or create a `ship` verdict.
+## Rules
 
-## Delta-escalation example
-
-```text
-Codex Delegate
-Luna Worker: stopped on unresolved concurrency dependency D04
-Terra Investigator: resolved only D04 using the existing reproduction, caller evidence, and material recovery history
-Luna Worker: applied the revised bounded contract
-Verification: 41 tests passed
-```
-
-Rules:
-
-- Do not list Agents that were considered but never spawned.
-- Do not imply a fixed Luna -> Terra -> Sol pipeline or fixed Agent count.
-- Mention broader fan-out only when it actually affected scheduling or consent.
-- Mention evidence reuse only for evidence actually carried forward as valid.
-- A file write, successful command, or Agent self-report is not evidence of progress by itself.
-- Acceptance failure is not automatically an intervention trigger; mention intervention only when the Intervention Gate materially changed execution.
-- When a proposed action differs from the effective action, the effective action belongs to the main session after policy/runtime gates.
-- `model_judgment` is never displayed as deterministic evidence.
-- Do not claim child mid-run observability, runtime capacity, route, permission, or ancestry evidence that was not observed.
-- Do not claim a mandatory final review succeeded without a fresh Sol `ship` verdict bound to the unchanged current artifact.
-- `INSUFFICIENT_EVIDENCE` leaves the Final Review Gate incomplete and must name the evidence dependency before another fresh review.
-- If required review was declined or could not run, report Candidate Ready or blocked state instead of claiming the quality gate passed.
-- Use `C1`, `L1`, `R1`, `R2`, or `X0` only when the deterministic verifier established the corresponding compact grade.
-- Keep detailed route diagnostics and Recovery Ledger internals out of the receipt unless they materially affected execution.
-- The receipt summarizes orchestration; it never replaces the normal completion report.
+- List only Agents actually spawned.
+- Do not imply a fixed model pipeline or model escalation ladder.
+- Do not claim a Sol capability-uplift call was necessary when main-session coverage already supplied that capability.
+- A file write, successful irrelevant command, confidence statement, or child self-report is not progress evidence.
+- Show reclassification only when new evidence changed the dependency kind or contract truth.
+- Keep proposed child actions separate from the main session's effective action when they differ materially.
+- `model_judgment` is never deterministic evidence.
+- Do not claim runtime route, permission, ancestry, capacity, main-session model, or progress observability that was not observed.
+- A required Final Review succeeds only with fresh Sol `ship` for the unchanged current artifact.
+- The receipt summarizes orchestration; it does not replace the task completion report.
