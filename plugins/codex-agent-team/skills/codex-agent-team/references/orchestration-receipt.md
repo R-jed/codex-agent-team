@@ -93,12 +93,27 @@ Codex Delegate
 Review requirement: required
 Why: public_contract_change, terra_escalation
 Candidate verification: 64 tests passed
-Final Review Gate: fresh Sol / High reviewed artifact A17F...
+Final Review Gate: fresh Sol / High reviewed artifact sha256:A17F...
 Verdict: ship
 Artifact unchanged after review: yes
 ```
 
 Only show `Verdict: ship` as a completed mandatory gate when the reviewed artifact identity still matches the deliverable being reported complete. If a fix or other deliverable mutation happened after review, the old verdict is invalid and the receipt must reflect the new review state instead.
+
+## Required review declined example
+
+Use this when the quality policy requires independent review but the Sol call is outside the current consent envelope and the user declines it:
+
+```text
+Codex Delegate
+Review requirement: required
+Candidate verification: 64 tests passed
+Final Review Gate: incomplete
+Consent: additional Sol review declined by user
+State: Candidate Ready; independent final review not satisfied
+```
+
+Do not rewrite this as `review_requirement: not_required`. User choice controls the additional compute call; it does not retroactively remove the semantic trigger or create a `ship` verdict.
 
 ## Delta-escalation example
 
@@ -122,6 +137,7 @@ Rules:
 - `model_judgment` is never displayed as deterministic evidence.
 - Do not claim child mid-run observability, runtime capacity, route, permission, or ancestry evidence that was not observed.
 - Do not claim a mandatory final review succeeded without a fresh Sol `ship` verdict bound to the unchanged current artifact.
+- If required review was declined or could not run, report Candidate Ready or blocked state instead of claiming the quality gate passed.
 - Use `C1`, `L1`, `R1`, `R2`, or `X0` only when the deterministic verifier established the corresponding compact grade.
 - Keep detailed route diagnostics and Recovery Ledger internals out of the receipt unless they materially affected execution.
 - The receipt summarizes orchestration; it never replaces the normal completion report.
