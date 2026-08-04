@@ -23,6 +23,22 @@ The 0.7.0 identity closure removes the old project Agent namespace from current 
 
 Static validation for this exact 0.7.0 tree is pending the direct-main CI run. Do not convert the previous 0.6.0 green run into evidence for changed profile/installer identity.
 
+## Repository review on 2026-08-04
+
+Repository inspection through GitHub confirmed:
+
+- `README.md` and `README_EN.md` both direct AI Agents to `README_AI.md` with the required strict-follow instruction;
+- `README_AI.md` is the canonical AI-facing product/install/usage reference and identifies all old public/internal names as migration inputs only;
+- active policy/profile/routing/eval surfaces use the single current `codex_delegate_*` generation;
+- the installer treats old project-named profiles/manifests as bounded one-way migration inputs, removes only exact proven project-owned state, fails closed on unproven state, and verifies that the old project generation is absent after successful migration;
+- `docs/plugin-installation.md` documents the same one-way migration boundary and explicitly states that 0.7.0 removes the active compatibility layer;
+- there are no open pull requests;
+- four historical work branches remain, and each compares as `ahead_by: 0` against `main`, so none contains work missing from `main`.
+
+The connected GitHub surface used for this review does not expose branch-ref deletion, so branch deletion itself remains a repository-hygiene action outside this evidence update. No branch was created for this maintenance pass. Clear, bounded owner-authorized maintenance is now documented to land directly on `main` by default.
+
+This review is repository fact only. It does not substitute for deterministic test execution, official Plugin validation, or the live Codex checkpoints below.
+
 ## Evidence classes
 
 - **Repository fact**: inspected source/manifest/policy/test state.
@@ -38,10 +54,10 @@ Static validation for this exact 0.7.0 tree is pending the direct-main CI run. D
 | Claim | Status | Boundary |
 | --- | --- | --- |
 | public repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
-| current role namespace is exclusively `codex_delegate_*` | pending deterministic validation | policy/profile/test tree changed in 0.7.0 |
-| current ownership receipt is `.codex-delegate-agents.json` | pending deterministic validation | installer changed in 0.7.0 |
-| proven 0.6.x project state migrates one-way and old project state is removed | pending deterministic + live validation | static migration tests then Checkpoint 6 |
-| unproven old project profile fails closed | pending deterministic + live validation | no silent overwrite/delete |
+| current role namespace is exclusively `codex_delegate_*` | repository fact, deterministic revalidation pending | policy/profile/test tree changed in 0.7.0 |
+| current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer changed in 0.7.0 |
+| proven 0.6.x project state migrates one-way and old project state is removed | repository implementation fact, deterministic + live validation pending | static migration tests then Checkpoint 6 |
+| unproven old project profile fails closed | repository implementation fact, deterministic + live validation pending | no silent overwrite/delete |
 | Plugin structure/current official validator | pending 0.7.0 CI | RC reruns then-current validator |
 | exact current Reader/Worker/Investigator/Advisor routes | live pending | Checkpoint 1 |
 | host-enforced read-only | live pending | configuration intent is not proof |
