@@ -60,6 +60,7 @@ def test_current_profile_filenames_and_roles_are_single_generation():
     assert names == {
         "codex-delegate-reader.toml",
         "codex-delegate-worker.toml",
+        "codex-delegate-solver.toml",
         "codex-delegate-investigator.toml",
         "codex-delegate-advisor.toml",
     }
