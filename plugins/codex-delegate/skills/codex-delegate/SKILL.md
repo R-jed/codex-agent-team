@@ -1,232 +1,254 @@
 ---
 name: codex-delegate
-description: Build the smallest useful native Codex Subagent compute graph. Keep the current main session in control, route only bounded responsibilities that satisfy distinct unresolved dependencies, reuse established evidence, and adapt execution through an evidence-driven intervention gate instead of fixed Agent counts, retry counts, or model ladders.
+description: Build the smallest useful native Codex Subagent compute graph by classifying unresolved dependencies, accounting for main-session judgment coverage, routing bounded execution to Luna, judgment-coupled execution to Sol, difficult technical uncertainty to Terra, reusing evidence, and applying independent final review only when the deliverable's consequences require it.
 ---
 
 # Codex Delegate
 
-Use this Skill as a thin policy layer over Codex Native Subagents. The current main session owns the task. Child Agents receive bounded responsibilities only when delegation creates concrete value and the responsibility can be verified independently.
+Use this Skill as a thin policy layer over Codex Native Subagents. The current main session remains the task-level control plane. Child Agents receive one classified unresolved dependency only when delegation creates concrete value.
 
-Stable role/resource/final-review constants live in `../../policy-contract.json`. Detailed policy has one normative owner in `references/`; this file owns only the task-level orchestration loop and first-run profile readiness flow.
+Stable role/classification/review constants live in `../../policy-contract.json`. `references/routing-policy.md` is the single normative owner for dependency classification, actor selection, main-session judgment coverage, scheduling, and reclassification.
 
 ## Core invariants
 
-1. The main session owns user intent, scope, architecture, scheduling, risk, integration, acceptance, and the final answer.
-2. Every Agent call satisfies a distinct unresolved dependency that valid existing evidence does not already satisfy.
-3. Zero Subagents is normal. There is no fixed team shape, mandatory model pipeline, or product hard child count.
-4. Dispatch is completion-driven: react to completed/meaningfully updated children, recompute readiness, and refill useful free capacity without waiting for unrelated active children.
-5. One canonical physical checkout has at most one active writing Worker. Delegation depth remains one.
-6. Model-specific children require the exact project profile. There is no Portable Mode or built-in-role substitution.
-7. Configuration and observed runtime facts stay separate. Missing runtime evidence stays missing.
-8. Worker reports are claims. Accept artifacts from actual diff/state plus deterministic or reproducible evidence.
-9. Acceptance failure and need for intervention are separate facts. Do not retry or escalate without evidence.
-10. Established deterministic/repository evidence is reused until its declared dependencies change.
-11. Consent governs material expansion in concurrency, compute, permission, scope, or external impact; it is not the scheduler.
-12. A deliverable whose Final Review Gate is `required` completes only after the current artifact receives a fresh Sol `ship` verdict and remains unchanged.
+1. Main session owns user intent, scope, authorization, task state, integration, acceptance, and final response.
+2. Main-session authority is independent of model identity; main-session judgment coverage is not.
+3. Every child call satisfies a distinct unresolved dependency that valid existing evidence does not already satisfy.
+4. Zero children is normal. There is no mandatory model sequence, fixed team shape, or product hard child count.
+5. Luna Worker receives only standardized bounded execution whose material behavior decisions are already made.
+6. Sol Solver receives judgment-coupled implementation only when material judgment cannot be safely separated and the main session does not already cover that capability.
+7. Terra receives only a narrow difficult technical uncertainty after semantic intent is stable.
+8. Sol Advisor provides material judgment uplift or fresh independent final review. A Sol main session suppresses redundant capability-uplift Sol calls but never substitutes for required independent review.
+9. One canonical physical checkout has at most one active writing project Agent. Delegation depth remains one.
+10. Child reports are claims. Acceptance uses actual artifact state plus deterministic/reproducible evidence.
+11. Failure does not imply escalation. New evidence reclassifies the same dependency when its nature changed.
+12. Valid deterministic/repository evidence is reused until its dependencies change.
+13. Consent governs material expansion in compute, concurrency, permission, scope, or external impact; it is not the scheduler.
+14. A required Final Review Gate completes only on a fresh Sol `ship` verdict for the unchanged bound artifact.
 
-## 1. Understand the outcome and build task state
+## 1. Understand the task and initialize compact state
 
-Identify the requested outcome, authorization, constraints, consequence of error, acceptance signals, and relevant repository/runtime facts.
+Identify the user's observable outcome, authorization, constraints, consequence of error, acceptance signals, and relevant repository/runtime facts.
 
-Do not begin with a model or Agent-count target.
+Do not begin with a model, Agent count, or planned Luna -> Terra -> Sol sequence.
 
-Maintain compact in-session state:
+Maintain only:
 
 ```text
 Dependency Ledger
-- dependency id
-- outcome
-- status: pending | ready | running | satisfied | blocked | invalidated
-- requires / produces
-- write intent / workspace
-- acceptance
+- id / outcome / status / requires / produces
+- kind: evidence | bounded_execution | judgment | judgment_coupled_execution | technical_investigation
+- write intent / workspace / acceptance
 
 Shared Evidence State
-- evidence id
-- type: deterministic | repository_fact | model_judgment
+- id / type: deterministic | repository_fact | model_judgment
 - claim / source / depends_on / validity
 
 Recovery Ledger
-- only material attempt facts needed to avoid repeated dead ends
+- material attempt facts needed to avoid repeated dead ends
+
+Main Judgment Coverage
+- covered | uncovered | unknown
+- source when actually observed
 ```
 
-A dependency already `running` or `satisfied` must not receive duplicate inference unless changed inputs invalidate it.
+Do not duplicate a dependency already running or satisfied unless changed inputs invalidate it.
 
-The detailed responsibility/return schema lives in `references/delegation-contract.md`.
+## 2. Classify what is actually unresolved
 
-## 2. Form the ready frontier
+Use `references/routing-policy.md`.
 
-For each ready dependency apply, in order:
-
-1. **Delegation Benefit Gate**: delegation must provide context isolation, useful parallelism, specialized capability, or independent high-value judgment.
-2. **Contractability Gate**: a writing responsibility must have enforceable scope, interfaces, invariants, decision rights, acceptance, verification, and stop/escalation conditions.
-3. **Safety / Consent / Route / Runtime gates**: only work that can run safely and within current authorization is dispatchable.
-
-Task length, file count, spare slots, lower price, or a generic desire for more Agents are insufficient reasons by themselves.
-
-If a writing dependency cannot be made contractable, keep the decision in the main session or gather missing evidence first.
-
-Use:
-
-- `references/delegation-contract.md` for the contract;
-- `references/routing-policy.md` for readiness, dispatch, and semantic roles;
-- `references/consent-policy.md` for resource expansion;
-- `references/safety-policy.md` for workspace, permission, and trust boundaries.
-
-## 3. Ensure the exact role is available
-
-Current semantic responsibilities are Reader, Worker, Investigator, and Advisor. Exact profile/model/effort bindings come from `../../policy-contract.json` and must match the shipped profile bytes.
-
-Custom Agent profiles are a Codex configuration surface under the active Codex-home `agents` directory, separate from Plugin manifest components.
-
-Check profile readiness only after a dependency justifies a model-specific role. If the exact role is unavailable, resolve the bundled installer relative to this Skill:
+The five dependency kinds are:
 
 ```text
-skill_dir = directory containing this SKILL.md
+evidence
+-> missing inspectable facts
+
+bounded_execution
+-> desired behavior is decided; remaining discretion is local and independently verifiable
+
+judgment
+-> material architecture / behavior / compatibility / risk decision
+
+judgment_coupled_execution
+-> implementation and material semantic judgment cannot be safely separated
+
+technical_investigation
+-> semantics are stable; a narrow difficult technical uncertainty remains
+```
+
+A task being large, expensive, many-file, or contractable does not determine its kind.
+
+The critical distinction is:
+
+```text
+contractable != Luna-suitable
+```
+
+If material semantic discretion is expected during implementation, do not disguise it as bounded Luna work.
+
+## 3. Account for main-session judgment coverage only when it matters
+
+When trusted current-session metadata exposes the main model and material judgment is unresolved, normalize it through `references/runtime-assurance.md` / `../../scripts/runtime-evidence.py`.
+
+Routing V4 uses:
+
+```text
+covered   -> current main is trusted as GPT-5.6 Sol family for normal judgment placement
+uncovered -> trusted current main is outside that family
+unknown   -> route not observed completely or is conflicted
+```
+
+Do not inspect or ask for main-model metadata for routine bounded work merely to optimize cost.
+
+When coverage is `covered`, keep normal judgment and judgment-coupled implementation in the main session by default. Do not spawn another Sol solely to recreate capability already present.
+
+When coverage is `uncovered` or `unknown`, material judgment may justify Sol Advisor; judgment-coupled implementation may justify Sol Solver.
+
+Independent Final Review is separate and may still require a fresh Advisor regardless of main model.
+
+## 4. Select the smallest useful actor
+
+Classification maps to role, subject to delegation benefit:
+
+```text
+evidence                    -> main or codex_delegate_reader
+bounded_execution           -> main or codex_delegate_worker
+judgment                    -> Sol main, or codex_delegate_advisor when coverage is uncovered/unknown
+judgment_coupled_execution  -> Sol main, or codex_delegate_solver when coverage is uncovered/unknown
+technical_investigation     -> main or codex_delegate_investigator
+```
+
+A child is justified only for concrete context isolation, useful parallelism, specialized capability, or independent judgment.
+
+Cost is a constraint and tie-breaker among safe useful choices. Lower price does not make a role semantically appropriate.
+
+## 5. Compile the responsibility, then ensure the exact role
+
+Use `references/delegation-contract.md`.
+
+Writing responsibilities require enforceable outcome, scope, interfaces, invariants, decision envelope, acceptance oracle, verification, and stop conditions.
+
+Role availability is checked only after a dependency justifies that role. Exact current roles come from `../../policy-contract.json`.
+
+If a required role is unavailable, resolve the bundled installer relative to this Skill:
+
+```text
 installer = skill_dir/../../scripts/install-agents.py
 ```
 
-Before running it, explain the exact managed write scope and request permission. After approval:
+Explain its managed write scope and request permission before running:
 
 ```bash
 python "$installer"
 python "$installer" --check
 ```
 
-Then inspect native role discovery again. If installation is exact but the current task still cannot discover the role, ask the user to start a fresh Codex task and invoke `/codex-delegate` again.
+It manages only the current project profiles and `.codex-delegate-agents.json`. It does not modify unrelated Agent profiles, credentials, MCP configuration, repositories, or `config.toml`.
 
-The installer may manage only the four current project profiles and `.codex-delegate-agents.json`. Other Agent profiles are user-owned and must remain untouched. It does not authorize changes to credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+Exact-route mismatch fails closed. Do not cross-route simply to keep work moving.
 
-Concurrent changes to shared managed-profile state are unsupported unless current runtime/install validation establishes a safe behavior. An exact-route mismatch stops that delegation instead of cross-routing or silently rewriting shared configuration.
+## 6. Dispatch completion-driven work
 
-## 4. Dispatch completion-driven work
-
-Use `references/routing-policy.md` as the normative scheduler/routing policy.
-
-Dispatch the smallest useful set of currently ready dependencies that fit contractability, consent, workspace safety, exact route availability, and native capacity.
-
-When multiple children are active, do not impose a wave barrier by default.
+Dispatch the smallest useful set of ready dependencies that fits:
 
 ```text
-while unresolved work remains:
-    dispatch useful ready dependencies into available safe capacity
-
-    while children are active:
-        continue independent main-session work when it does not duplicate/conflict
-
-        on any child completion or material runtime update:
-            collect only that new result/update
-            inspect artifacts and verification
-            merge/invalidate evidence
-            update dependency state
-            close completed child promptly
-            recompute ready frontier
-            refill newly free capacity with newly-ready useful work
-
-        wait for all active children only when:
-            a real join dependency requires all results, or
-            the tested native runtime exposes only a coarser barrier surface
+classification
+contractability
+consent
+workspace safety
+exact route availability
+native capacity
 ```
 
-Do not spawn multiple children for the same question merely to fill slots. If native capacity is lower than the ready frontier, leave excess dependencies pending rather than changing role identity or inventing a product ceiling.
+Scheduling is completion-driven. Process a child's exposed completion/update as soon as useful, merge supported evidence, close completed children, recompute the ready frontier, and refill safe capacity without waiting for unrelated work.
 
-## 5. Route by responsibility
+A barrier is used only for a real join dependency or when the tested native runtime exposes no finer completion surface.
 
-Current roles are:
+At most one active writing project Agent may target one canonical checkout. Both Worker and Solver count as writers.
+
+## 7. Verify and reclassify instead of escalating
+
+When a child returns:
+
+1. inspect actual artifact/diff/state;
+2. inspect exact verification results;
+3. merge only supported evidence;
+4. update acceptance state;
+5. decide whether the dependency is satisfied;
+6. if unresolved, rerun the same classifier with the new evidence.
+
+Use `references/execution-progress.md` for progress semantics.
+
+Standard reclassification signals are:
 
 ```text
-Reader       bounded reusable evidence
-Worker       contractable implementation
-Investigator genuine unresolved technical delta
-Advisor      bounded high-value judgment/review
+CONTRACT_GAP
+JUDGMENT_REQUIRED
+TECHNICAL_GAP
+EXECUTION_STALL
 ```
 
-`Luna -> Terra -> Sol` is never a mandatory pipeline. Terra is not a generic second implementation attempt. Sol remains selective outside a required Final Review Gate.
-
-Use `references/routing-policy.md` for exact semantic triggers and route policy.
-
-## 6. Collect, verify, and update state
-
-When a child completes or returns a material update:
-
-1. treat its report as a claim;
-2. inspect actual artifact/diff/state and exact verification results;
-3. merge only supported deterministic/repository evidence;
-4. invalidate only evidence whose dependencies changed or conflict;
-5. update the Dependency Ledger;
-6. close a completed child promptly so native capacity can recover;
-7. recompute the ready frontier and refill safe useful capacity immediately when possible;
-8. rerun acceptance verification that is material to the dependency.
-
-Do not wait for unrelated active children before processing a completed dependency when the runtime exposes that completion independently.
-
-## 7. Intervene only when execution evidence justifies it
-
-Use `references/execution-progress.md`.
-
-The Intervention Gate distinguishes healthy incomplete work from execution that actually needs recovery. Do not resend an unchanged contract, impose fixed retry counts, or escalate the whole task because a lane failed once.
-
-Recovery remains responsibility-specific:
+Examples:
 
 ```text
-mechanical defect      -> focused Luna correction
-contract gap           -> main session repairs the contract
-stall/context pollution -> clean same-lane restart
-capability gap         -> Terra gets only the unresolved technical delta
-judgment gap           -> main session or justified Sol
+bounded local defect, semantics unchanged
+-> focused Luna correction
+
+material semantic choice emerged
+-> judgment or judgment_coupled_execution
+-> main Sol / Advisor / Solver according to main coverage
+
+narrow difficult technical uncertainty remains after semantics stabilize
+-> technical_investigation
+-> Terra gets only that delta
+
+same bounded work stalls but classification remains correct
+-> optional clean same-role restart with fresh evidence packet
 ```
 
-Child-progress observability is a runtime fact. Do not claim structured mid-run intervention when the tested runtime exposes only terminal or coarse-grained updates.
+Do not translate a failed Luna attempt directly into Terra or Sol. Reclassification is the decision point.
 
-## 8. Apply safety, consent, and Runtime Evidence only where material
+## 8. Apply boundary policies where relevant
 
-Read the normative owner before crossing the corresponding boundary:
+- `references/safety-policy.md`: permission, trust, writer isolation, external impact, delegation depth
+- `references/consent-policy.md`: material compute/fan-out/scope/permission expansion
+- `references/runtime-assurance.md`: main-session coverage plus child route/ancestry/permission evidence
 
-- `references/safety-policy.md`: write safety, permissions, prompt injection, depth, shared Codex-home state, external-impact boundaries;
-- `references/consent-policy.md`: concurrent fan-out and material compute/scope/permission expansion;
-- `references/runtime-assurance.md`: typed route, ancestry, and permission evidence.
+Do not manufacture runtime facts that the current Codex build did not expose.
 
-The deterministic Runtime Evidence verifier is:
+## 9. Apply independent Final Review only to the candidate's consequences
+
+After the main session has a Candidate Ready artifact, evaluate `references/final-review-gate.md`.
+
+Mandatory triggers come from the current artifact's semantic consequences and verification gaps. Prior use of Terra, Solver, recovery, or a large diff is evidence to consider, not an automatic review trigger.
+
+If review is required:
 
 ```text
-skill_dir/../../scripts/runtime-evidence.py
+Candidate Ready
+-> bind review_artifact_id
+-> fresh codex_delegate_advisor with fork_turns: none
+-> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
 ```
 
-It consumes normalized expected/native/local observations and never manufactures observed fields from configuration.
-
-## 9. Final Review Gate
-
-After the main session has inspected the complete candidate and rerun deterministic verification required by the acceptance oracle, evaluate `references/final-review-gate.md`.
-
-If review is `not_required`, normal main-session acceptance may complete.
-
-If review is `required`:
-
-1. enter **Candidate Ready**;
-2. bind the current deliverable to `review_artifact_id`;
-3. spawn exactly `codex_delegate_advisor` with fresh context (`fork_turns: none`);
-4. accept completion only on `ship` for the supplied unchanged artifact;
-5. route `fix-first` corrections back through normal dependency scheduling, then re-verify and re-review a new artifact;
-6. treat `rethink` as invalidated architecture/contract assumptions;
-7. treat `INSUFFICIENT_EVIDENCE` as an unresolved evidence dependency.
-
-Any deliverable mutation invalidates the old final-review verdict.
+Only `ship` for the unchanged current artifact satisfies a required gate.
 
 ## 10. Close and report
 
-Close completed, rejected, superseded, or no-longer-needed children promptly. Do not keep finished threads open merely as historical storage.
+Close completed, superseded, rejected, or no-longer-needed children promptly.
 
-Use `references/orchestration-receipt.md` when `/codex-delegate` was explicitly invoked, any child was created, or orchestration materially changed execution. Keep trivial implicit main-session-only work quiet by default.
+Use `references/orchestration-receipt.md` when explicit `/codex-delegate` use, child execution, capability placement, reclassification, consent, or Final Review materially affected the workflow.
 
-The receipt explains material orchestration decisions; it does not replace the normal task completion report.
+The receipt summarizes meaningful orchestration decisions and never replaces the normal completion report.
 
 ## References
 
-- `references/delegation-contract.md`: enforceable responsibility and return packet
-- `references/routing-policy.md`: ready frontier, completion-driven dispatch, semantic routing
-- `references/execution-progress.md`: progress, Intervention Gate, Recovery Ledger
-- `references/consent-policy.md`: resource authorization and expansion
-- `references/safety-policy.md`: permission, prompt injection, depth, workspace/Codex-home safety
-- `references/runtime-assurance.md`: typed post-spawn evidence and deterministic verifier
-- `references/final-review-gate.md`: risk-triggered independent review and artifact lifecycle
+- `references/routing-policy.md`: classification, actor selection, main coverage, scheduling, reclassification
+- `references/delegation-contract.md`: responsibility and return packet
+- `references/execution-progress.md`: progress/stall evidence and recovery facts
+- `references/consent-policy.md`: resource authorization
+- `references/safety-policy.md`: permission, trust, writer safety, external effects
+- `references/runtime-assurance.md`: main and child runtime evidence
+- `references/final-review-gate.md`: independent artifact-bound assurance
 - `references/orchestration-receipt.md`: compact user-visible orchestration record
