@@ -5,17 +5,18 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
+LEGACY_PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
 PLUGIN = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
-MAIN_SKILL = PLUGIN_ROOT / "skills" / "codex-agent-team"
+MAIN_SKILL = PLUGIN_ROOT / "skills" / "codex-delegate"
 INSTALL_DOC = ROOT / "docs" / "plugin-installation.md"
 POLICY_CONTRACT = PLUGIN_ROOT / "policy-contract.json"
 
 
 def test_plugin_manifest_packages_single_canonical_skill_tree():
     payload = json.loads(PLUGIN.read_text())
-    assert payload["name"] == "codex-agent-team"
+    assert payload["name"] == "codex-delegate"
     assert PLUGIN_ROOT.name == payload["name"]
     assert payload["version"] == "0.6.0"
     assert payload["skills"] == "./skills/"
@@ -27,12 +28,16 @@ def test_plugin_manifest_packages_single_canonical_skill_tree():
     assert "dependency-driven" in payload["description"]
     assert "intervention gate" in payload["description"].lower()
     assert "final review" in payload["description"].lower()
+    assert payload["repository"] == "https://github.com/R-jed/codex-delegate"
+    assert payload["homepage"] == "https://github.com/R-jed/codex-delegate#readme"
+    assert payload["interface"]["websiteURL"] == "https://github.com/R-jed/codex-delegate"
     assert MAIN_SKILL.is_dir()
-    assert sorted(path.name for path in (PLUGIN_ROOT / "skills").iterdir() if path.is_dir()) == ["codex-agent-team"]
+    assert sorted(path.name for path in (PLUGIN_ROOT / "skills").iterdir() if path.is_dir()) == ["codex-delegate"]
     assert POLICY_CONTRACT.is_file()
     assert (PLUGIN_ROOT / "scripts" / "install-agents.py").is_file()
     assert (PLUGIN_ROOT / "scripts" / "review-artifact.py").is_file()
     assert (PLUGIN_ROOT / "scripts" / "runtime-evidence.py").is_file()
+    assert not LEGACY_PLUGIN_ROOT.exists()
 
 
 def test_plugin_manifest_exposes_marketplace_brand_assets():
@@ -88,16 +93,17 @@ def test_plugin_manifest_urls_are_https_and_unsupported_components_are_absent():
 def test_plugin_packages_only_current_semantic_profiles():
     expected = {spec["profile_file"] for spec in json.loads(POLICY_CONTRACT.read_text())["roles"].values()}
     assert {path.name for path in (PLUGIN_ROOT / "agent-profiles").glob("*.toml")} == expected
+    assert all(name.startswith("codex-agent-team-") for name in expected)
 
 
 def test_repository_marketplace_points_at_nested_plugin_root():
     payload = json.loads(MARKETPLACE.read_text())
-    assert payload["name"] == "codex-agent-team"
+    assert payload["name"] == "codex-delegate"
     assert payload["interface"]["displayName"] == "Codex Delegate"
     assert len(payload["plugins"]) == 1
     plugin = payload["plugins"][0]
-    assert plugin["name"] == "codex-agent-team"
-    assert plugin["source"] == {"source": "local", "path": "./plugins/codex-agent-team"}
+    assert plugin["name"] == "codex-delegate"
+    assert plugin["source"] == {"source": "local", "path": "./plugins/codex-delegate"}
     assert plugin["policy"]["installation"] == "AVAILABLE"
     assert plugin["policy"]["authentication"] == "ON_INSTALL"
     assert plugin["category"] == "Productivity"
@@ -128,17 +134,20 @@ def test_main_skill_owns_first_run_profile_setup_and_receipts():
 def test_repository_has_no_standalone_or_setup_install_surface():
     assert not (ROOT / "scripts" / "install.py").exists()
     assert not (ROOT / "scripts" / "doctor.py").exists()
-    assert not (ROOT / "plugins" / "codex-agent-team" / "skills" / "codex-agent-team-setup").exists()
+    assert not LEGACY_PLUGIN_ROOT.exists()
+    assert not (PLUGIN_ROOT / "skills" / "codex-agent-team-setup").exists()
     assert not (ROOT / "skill" / "codex-agent-team").exists()
 
 
-def test_install_docs_use_cli_marketplace_and_plugin_lifecycle_without_manual_config_edits():
+def test_install_docs_use_current_cli_identity_and_document_legacy_migration():
     text = INSTALL_DOC.read_text()
-    assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
+    assert "codex plugin marketplace add R-jed/codex-delegate --ref main" in text
     assert "--sparse .agents/plugins" in text
-    assert "--sparse plugins/codex-agent-team" in text
-    assert "codex plugin marketplace upgrade codex-agent-team" in text
-    assert "codex plugin add codex-agent-team@codex-agent-team" in text
+    assert "--sparse plugins/codex-delegate" in text
+    assert "codex plugin marketplace upgrade codex-delegate" in text
+    assert "codex plugin add codex-delegate@codex-delegate" in text
+    assert "codex plugin remove codex-agent-team@codex-agent-team" in text
+    assert "codex plugin marketplace remove codex-agent-team" in text
     assert "new Codex thread" in text
     assert "~/.codex/agents" in text
     assert "active Codex-home `agents` directory" in text
@@ -148,18 +157,20 @@ def test_install_docs_use_cli_marketplace_and_plugin_lifecycle_without_manual_co
     assert "Version 0.6.0" in text
     assert "Final Review Gate" in text
     assert "review_artifact_id" in text
+    assert ".codex-agent-team-agents.json" in text
+    assert "codex_agent_team_reader" in text
 
 
-def test_readmes_expose_plugin_only_single_command_path():
+def test_readmes_expose_current_public_identity_and_single_command_path():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
     for text in [zh, en]:
-        assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
+        assert "codex plugin marketplace add R-jed/codex-delegate --ref main" in text
         assert "--sparse .agents/plugins" in text
-        assert "--sparse plugins/codex-agent-team" in text
-        assert "codex plugin add codex-agent-team@codex-agent-team" in text
+        assert "--sparse plugins/codex-delegate" in text
+        assert "codex plugin add codex-delegate@codex-delegate" in text
         assert "/codex-delegate" in text
-        assert "Codex Delegate" in text
+        assert "codex delegate" in text
         assert "docs/plugin-installation.md" in text
         assert "0.6.0" in text
         assert "codex-agent-team-setup" not in text
