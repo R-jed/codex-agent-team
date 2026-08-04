@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Delegate"
-  short_description: "Adaptive delegation with evidence reuse and final review"
-  default_prompt: "Use /codex-delegate to identify unresolved dependencies, build the smallest useful native Subagent compute graph, compile bounded contracts, reuse established evidence, adapt retries or escalation from observed execution progress, and apply the risk-triggered Final Review Gate when required."
+  short_description: "Capability-aware delegation with bounded execution and independent review"
+  default_prompt: "Use /codex-delegate to classify unresolved dependencies, account for the current main-session judgment coverage when material, route standardized bounded execution to Luna, judgment-coupled execution to Sol, difficult technical uncertainty to Terra, reuse valid evidence, reclassify from new execution evidence instead of following a model ladder, and apply fresh independent Sol review only when the final artifact's consequences require it."
 
 policy:
   allow_implicit_invocation: true
