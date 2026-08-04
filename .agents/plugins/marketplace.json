@@ -1,14 +1,14 @@
 {
-  "name": "codex-agent-team",
+  "name": "codex-delegate",
   "interface": {
     "displayName": "Codex Delegate"
   },
   "plugins": [
     {
-      "name": "codex-agent-team",
+      "name": "codex-delegate",
       "source": {
         "source": "local",
-        "path": "./plugins/codex-agent-team"
+        "path": "./plugins/codex-delegate"
       },
       "policy": {
         "installation": "AVAILABLE",
