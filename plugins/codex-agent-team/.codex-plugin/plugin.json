@@ -1,6 +1,6 @@
 {
   "name": "codex-agent-team",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Codex Delegate builds the smallest useful dependency-driven compute graph, reuses established evidence, adapts execution through an intervention gate, and applies risk-triggered independent final review without fixed Agent counts or model ladders.",
   "author": {
     "name": "R-jed",
