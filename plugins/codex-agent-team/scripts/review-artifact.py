@@ -2,8 +2,9 @@
 """Create or verify a deterministic identity for the current Git deliverable.
 
 The identity binds the current HEAD, the complete tracked working-tree diff against
-HEAD, and every non-ignored untracked file. It intentionally does not hash ignored
-build/cache artifacts because they are not normally part of a source deliverable.
+HEAD (or the repository's empty tree before the first commit), and every non-ignored
+untracked file. It intentionally does not hash ignored build/cache artifacts because
+they are not normally part of a source deliverable.
 
 This helper is read-only. It does not update the index, create commits, or mutate the
 working tree.
@@ -47,9 +48,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def git(repo: Path, *args: str) -> bytes:
+def git(repo: Path, *args: str, input_bytes: bytes | None = None) -> bytes:
     result = subprocess.run(
         ["git", "-C", os.fspath(repo), *args],
+        input=input_bytes,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
@@ -97,6 +99,17 @@ def head_identity(root: Path) -> str:
     fail(f"could not resolve HEAD: {detail or f'exit {result.returncode}'}")
 
 
+def empty_tree_identity(root: Path) -> str:
+    raw = git(root, "hash-object", "-t", "tree", "--stdin", input_bytes=b"").strip()
+    try:
+        value = raw.decode("ascii", errors="strict")
+    except UnicodeDecodeError as exc:
+        fail(f"Git returned a non-ASCII empty-tree identity: {exc}")
+    if not value:
+        fail("Git returned an empty empty-tree identity")
+    return value
+
+
 def tracked_diff_digest(root: Path, head: str) -> str:
     common = (
         "diff",
@@ -110,12 +123,11 @@ def tracked_diff_digest(root: Path, head: str) -> str:
         "--src-prefix=a/",
         "--dst-prefix=b/",
     )
-    if head == "UNBORN":
-        # In an unborn repository every staged tracked file is part of the candidate.
-        diff = git(root, *common, "--cached", "--")
-    else:
-        # `git diff HEAD` binds both staged and unstaged tracked changes.
-        diff = git(root, *common, "HEAD", "--")
+    base = empty_tree_identity(root) if head == "UNBORN" else "HEAD"
+    # `git diff <tree>` compares the current tracked working-tree content with the
+    # named tree, so staged + unstaged edits are both bound without making staging
+    # arrangement itself part of the deliverable identity.
+    diff = git(root, *common, base, "--")
     return sha256(diff)
 
 
