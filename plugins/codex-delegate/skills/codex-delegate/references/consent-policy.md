@@ -8,12 +8,14 @@ Explicit `/codex-delegate` invocation authorizes ordinary bounded orchestration 
 
 ```text
 up to 2 concurrently active justified child Agents
-at most 1 active writing project Agent per canonical workspace
+at most 1 active writing actor per canonical workspace inside the current orchestration
 no permission expansion
 no scope expansion
 no external side effect
 no material compute expansion beyond the requested task's ordinary execution
 ```
+
+The writing actor can be the main session, Luna Worker, or Sol Solver. A child writer and main-session writer do not concurrently mutate the same canonical checkout. Isolated workspaces can have separate writers.
 
 This is an authorization envelope, not a target. Zero children is normal.
 
@@ -26,7 +28,7 @@ Sol Solver for one bounded judgment-coupled implementation dependency
 
 The first required fresh Sol Final Review pass can also fit after explicit invocation when it is the ordinary bounded completion dependency for the task.
 
-Do not spend Sol merely because the baseline permits it. A Sol main session normally covers ordinary judgment itself, and routine bounded work does not need a Sol child.
+Do not spend Sol merely because the baseline permits it. A covered main session normally handles ordinary judgment itself, and routine bounded work does not need a Sol child.
 
 ## 2. Sequential calls still count as compute
 
