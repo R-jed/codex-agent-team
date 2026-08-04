@@ -24,7 +24,7 @@ def test_runtime_assurance_reference_and_normalized_verifier_are_installed():
     assert not (SKILL / "scripts" / "inspect-runtime.py").exists()
 
 
-def test_three_compute_tiers_have_distinct_responsibilities_not_fixed_order():
+def test_compute_lanes_have_distinct_responsibilities_not_fixed_order():
     skill = (SKILL / "SKILL.md").read_text()
     routing = (SKILL / "references" / "routing-policy.md").read_text()
     combined = skill + routing
@@ -37,14 +37,13 @@ def test_three_compute_tiers_have_distinct_responsibilities_not_fixed_order():
 
 
 def test_runtime_observation_is_demand_driven_not_universal_overhead():
-    routing = (SKILL / "references" / "routing-policy.md").read_text()
     runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
-    assert "Runtime observation is demand-driven" in routing
     assert "Do not demand runtime telemetry for every routine child" in runtime
     assert "Ordinary bounded work may proceed" in runtime
+    assert "when post-spawn route identity" in (SKILL / "references" / "routing-policy.md").read_text().lower()
 
 
-def test_delegation_contract_records_decision_rights_and_evidence_state():
+def test_delegation_contract_records_decision_rights_and_evidence_schema():
     contract = (SKILL / "references" / "delegation-contract.md").read_text()
     safety = (SKILL / "references" / "safety-policy.md").read_text()
     for section in [
@@ -57,17 +56,18 @@ def test_delegation_contract_records_decision_rights_and_evidence_state():
         "VERIFICATION",
     ]:
         assert section in contract
-    assert "Shared Evidence State" in contract
+    assert "type: deterministic | repository_fact | model_judgment" in contract
     assert "unresolved_delta" in contract
     assert "Child reports are claims" in safety
     assert "inspectable artifacts and evidence" in safety
 
 
-def test_sol_review_is_selective_and_terra_is_delta_investigation():
+def test_sol_is_selective_and_terra_is_delta_investigation():
     routing = (SKILL / "references" / "routing-policy.md").read_text()
     receipt = (SKILL / "references" / "orchestration-receipt.md").read_text()
     assert "Terra is not a mandatory reviewer" in routing
-    assert "Sol is the high-value judgment resource" in routing
+    assert "Sol handles bounded consequential judgment or independent review" in routing
+    assert "Sol is not globally mandatory" in routing
     assert "Luna + Sol example" in receipt
     assert "Delta-escalation example" in receipt
 
