@@ -161,7 +161,7 @@ Then feature-freeze, run one fixed RC closure, tag `v1.0.0`, publish the GitHub 
 Use `/gpt56-sol-pro-consult` at Review Checkpoints A-E, any P0/P1 candidate, and RC closure.
 
 ```text
-TARGET_CHATGPT_CONVERSATION_TITLE: 分支 · 分支 · 项目对比分析
+TARGET_CHATGPT_CONVERSATION_TITLE: R-jed/codex-delegate
 TARGET_MODE: continue_existing_conversation
 MATCH_POLICY: exact_title_unique_match
 FAILURE: CONSULTATION_TARGET_UNRESOLVED
