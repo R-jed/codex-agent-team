@@ -230,15 +230,15 @@ def test_parallelism_consent_writer_and_depth_invariants():
 
 
 def test_route_assurance_has_no_portable_mode():
-    skill = (SKILL_DIR / "SKILL.md").read_text()
     routing = (REF_DIR / "routing-policy.md").read_text()
+    runtime = (REF_DIR / "runtime-assurance.md").read_text()
     assurance = read("docs/model-route-assurance.md")
-    for text in [skill, routing, assurance]:
+    for text in [routing, runtime, assurance]:
         assert "profile_locked" in text
         assert "native_explicit_validated" not in text
-    assert "There is no Portable Mode" in skill
     assert "There is no Portable Mode" in routing
     assert "## No Portable Mode" in assurance
+    assert "Portable Mode" in (SKILL_DIR / "SKILL.md").read_text()
 
 
 def test_readmes_are_concise_user_product_docs_not_release_handoffs():
