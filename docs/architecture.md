@@ -184,7 +184,7 @@ Codex Plugin is the supported distribution path and `/codex-delegate` is the use
 
 Custom Agent profiles are a separate Codex configuration surface. The Plugin bundles templates and a managed installer; it does not invent an unsupported `agents` manifest component.
 
-Current profiles and runtime roles use the `codex-delegate` / `codex_delegate_*` namespace. Historical `codex-agent-team` / `codex_agent_team_*` values are one-way migration inputs only and are not fallback runtime identities.
+Current profiles and runtime roles use only the `codex-delegate` / `codex_delegate_*` namespace. The installer manages only current project-owned profiles and leaves unrelated Agent configuration untouched.
 
 ## Evaluation boundary
 
