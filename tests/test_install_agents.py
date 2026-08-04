@@ -13,6 +13,7 @@ PROFILE_SOURCE = PLUGIN / "agent-profiles"
 CURRENT_FILES = (
     "codex-delegate-reader.toml",
     "codex-delegate-worker.toml",
+    "codex-delegate-solver.toml",
     "codex-delegate-investigator.toml",
     "codex-delegate-advisor.toml",
 )
@@ -36,7 +37,11 @@ def sha(data: bytes) -> str:
 def state(root: Path) -> dict[str, bytes]:
     if not root.exists():
         return {}
-    return {path.relative_to(root).as_posix(): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in root.rglob("*")
+        if path.is_file()
+    }
 
 
 def test_fresh_install_creates_only_current_managed_generation(tmp_path: Path):
@@ -81,7 +86,7 @@ def test_check_is_non_mutating_and_repeat_install_is_noop(tmp_path: Path):
 def test_modified_current_profile_is_not_overwritten_without_current_ownership(tmp_path: Path):
     home = tmp_path / "codex-home"
     assert run(home).returncode == 0
-    profile = home / "agents" / "codex-delegate-worker.toml"
+    profile = home / "agents" / "codex-delegate-solver.toml"
     profile.write_bytes(profile.read_bytes() + b"\n# user change\n")
     (home / CURRENT_MANIFEST).unlink()
     before = profile.read_bytes()
@@ -104,6 +109,31 @@ def test_previous_current_profile_can_upgrade_with_exact_current_manifest(tmp_pa
     result = run(home)
     assert result.returncode == 0, result.stderr
     assert profile.read_bytes() == (PROFILE_SOURCE / profile.name).read_bytes()
+
+
+def test_current_manifest_can_add_new_managed_profile_without_touching_existing_profiles(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    old_generation = [name for name in CURRENT_FILES if name != "codex-delegate-solver.toml"]
+    hashes = {}
+    for filename in old_generation:
+        data = (PROFILE_SOURCE / filename).read_bytes()
+        (agents / filename).write_bytes(data)
+        hashes[filename] = sha(data)
+    (home / CURRENT_MANIFEST).write_text(
+        json.dumps({"schema_version": 1, "managed_by": "codex-delegate", "profile_hashes": hashes})
+    )
+    before = {filename: (agents / filename).read_bytes() for filename in old_generation}
+
+    result = run(home)
+
+    assert result.returncode == 0, result.stderr
+    assert (agents / "codex-delegate-solver.toml").read_bytes() == (
+        PROFILE_SOURCE / "codex-delegate-solver.toml"
+    ).read_bytes()
+    assert {filename: (agents / filename).read_bytes() for filename in old_generation} == before
+    assert run(home, "--check").returncode == 0
 
 
 def test_unrelated_agent_profiles_are_preserved(tmp_path: Path):
