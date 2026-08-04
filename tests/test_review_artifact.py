@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -41,13 +42,17 @@ def artifact(repo: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def artifact_id(repo: Path) -> str:
+def artifact_payload(repo: Path) -> dict:
     result = artifact(repo)
     assert result.returncode == 0, result.stderr
     payload = json.loads(result.stdout)
     assert payload["schema_version"] == 1
     assert payload["review_artifact_id"].startswith("sha256:")
-    return payload["review_artifact_id"]
+    return payload
+
+
+def artifact_id(repo: Path) -> str:
+    return artifact_payload(repo)["review_artifact_id"]
 
 
 def test_review_artifact_is_stable_and_verify_accepts_exact_state(tmp_path: Path):
@@ -97,9 +102,41 @@ def test_untracked_deliverable_is_bound_and_content_changes_invalidate(tmp_path:
     second = artifact_id(repo)
     assert second != first
 
-    payload = json.loads(artifact(repo).stdout)
+    payload = artifact_payload(repo)
     assert payload["untracked"][0]["path"] == "new_module.py"
     assert payload["untracked"][0]["kind"] == "file"
+    assert payload["untracked"][0]["mode"] == "100644"
+
+
+def test_untracked_executable_mode_is_part_of_identity(tmp_path: Path):
+    repo = init_repo(tmp_path)
+    tool = repo / "tool.sh"
+    tool.write_text("#!/bin/sh\necho ok\n", encoding="utf-8")
+    tool.chmod(0o755)
+    executable = artifact_payload(repo)
+    entry = next(item for item in executable["untracked"] if item["path"] == "tool.sh")
+    assert entry["mode"] == "100755"
+
+    tool.chmod(0o644)
+    non_executable = artifact_payload(repo)
+    assert non_executable["review_artifact_id"] != executable["review_artifact_id"]
+    entry = next(item for item in non_executable["untracked"] if item["path"] == "tool.sh")
+    assert entry["mode"] == "100644"
+
+
+def test_untracked_symlink_target_is_bound_without_following_target(tmp_path: Path):
+    repo = init_repo(tmp_path)
+    link = repo / "current-config"
+    os.symlink("config-a", link)
+    first = artifact_payload(repo)
+    entry = next(item for item in first["untracked"] if item["path"] == "current-config")
+    assert entry["kind"] == "symlink"
+    assert entry["mode"] == "120000"
+
+    link.unlink()
+    os.symlink("config-b", link)
+    second = artifact_payload(repo)
+    assert second["review_artifact_id"] != first["review_artifact_id"]
 
 
 def test_ignored_cache_artifacts_do_not_change_source_deliverable_identity(tmp_path: Path):
@@ -122,3 +159,16 @@ def test_head_change_invalidates_artifact_even_with_clean_worktree(tmp_path: Pat
     git(repo, "commit", "-m", "change head")
     after = artifact_id(repo)
     assert after != before
+
+
+def test_unborn_repository_is_supported(tmp_path: Path):
+    repo = tmp_path / "unborn"
+    repo.mkdir()
+    git(repo, "init")
+    (repo / "staged.txt").write_text("staged\n", encoding="utf-8")
+    (repo / "untracked.txt").write_text("untracked\n", encoding="utf-8")
+    git(repo, "add", "staged.txt")
+
+    payload = artifact_payload(repo)
+    assert payload["head"] == "UNBORN"
+    assert [item["path"] for item in payload["untracked"]] == ["untracked.txt"]
