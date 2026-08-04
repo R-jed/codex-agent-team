@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
 </p>
 
@@ -23,7 +23,7 @@ Codex Delegate turns an engineering task into the smallest useful set of verifia
 
 The current main session always owns user intent, scope, consequential decisions, scheduling, acceptance, and the final response. Luna, Terra, and Sol are selectable execution or judgment resources. There is no fixed model pipeline and no fixed Agent count.
 
-Current version: `0.5.1`, pre-v1.
+Current version: `0.6.0`, pre-v1.
 
 ## Quick start
 
@@ -68,9 +68,29 @@ When delegation is useful, the responsibility is compiled into a verifiable Dele
 | Luna Reader | GPT-5.6 Luna `max` | search, tracing, test mapping, evidence collection |
 | Luna Worker | GPT-5.6 Luna `max` | implementation, debugging, tests, local refactors |
 | Terra Investigator | GPT-5.6 Terra `xhigh` | resolve a remaining complex technical dependency |
-| Sol Advisor | GPT-5.6 Sol `high` | high-value judgment and selective review |
+| Sol Advisor | GPT-5.6 Sol `high` | high-value judgment and risk-triggered independent review |
 
 Task size does not automatically select a stronger model. A large but clear dependency can stay with Luna, while a small change may justify Sol when it crosses an important architecture, security, migration, or public-contract boundary.
+
+## Final quality gate for higher-risk changes
+
+Sol is not a fixed stage for every task. Ordinary low-risk work can still finish after the main session inspects the actual diff and completes the required deterministic verification.
+
+When the final deliverable materially crosses a public contract, persistent-state, security or authorization, data-integrity, concurrency, migration, or wide-blast-radius boundary, or when execution materially depended on Terra escalation, significant recovery, or a verification gap, Codex Delegate promotes the Final Review Gate to `required`.
+
+At that point main-session acceptance produces only `Candidate Ready`. Completion additionally requires a fresh-context Sol Advisor to independently review the final actual artifact. The verdict is bound to a deterministic `review_artifact_id`, so any deliverable mutation after review invalidates the old verdict.
+
+Completion verdicts are:
+
+```text
+ship       -> the current artifact may complete
+fix-first  -> correct the finding, verify again, then run a new fresh review
+rethink    -> revisit the architecture, contract, or material assumption
+```
+
+If the Advisor lacks evidence required for a justified conclusion, it returns `INSUFFICIENT_EVIDENCE`. The gate remains unsatisfied until the named evidence dependency is established and a new fresh review runs; that state is never silently converted into `ship` or `fix-first`.
+
+The Final Review Gate is triggered by semantic risk, not a fixed line count, file count, retry count, numeric risk score, or mandatory Luna -> Terra -> Sol pipeline.
 
 ## No fixed Agent count
 
@@ -118,7 +138,7 @@ Independent projects may run their own Codex Delegate workflows concurrently.
 
 Writing ownership is scoped to the canonical workspace. One physical checkout has at most one active Writing Worker. Separate, genuinely isolated workspaces or worktrees may each have a writer.
 
-Version `0.5.1` is still completing live validation of same-checkout writer exclusion across independent main sessions. Before v1.0.0, if you run multiple independent Codex sessions, avoid having two sessions write the same physical checkout at the same time.
+Version `0.6.0` is still completing live validation of same-checkout writer exclusion across independent main sessions and the Final Review Gate runtime path. Before v1.0.0, if you run multiple independent Codex sessions, avoid having two sessions write the same physical checkout at the same time.
 
 ## First run
 
@@ -141,6 +161,7 @@ Use a new Codex thread after Plugin installation or reinstall. If profile provis
 - If an exact project profile is unavailable, the affected responsibility returns to the main session instead of silently using a similar role
 - A Worker must preserve unrelated user or concurrent-session edits; if workspace drift invalidates the contract, it stops and returns control to the main session
 - A Subagent completion report or recovery recommendation is an execution claim; final acceptance and effective recovery actions rely on actual artifacts, reproducible evidence, and main-session policy
+- When the Final Review Gate is required, the quality gate cannot be reported as passed without a fresh Sol `ship` bound to the unchanged current artifact
 - Publishing, deployment, payments, account-permission changes, and other consequential external actions remain under main-session control
 
 ## License
