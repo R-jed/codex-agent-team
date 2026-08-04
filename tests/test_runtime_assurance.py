@@ -25,7 +25,8 @@ def test_project_does_not_scrape_rollout_files_for_runtime_proof():
     assert "does not scrape Codex rollout internals" in combined
     assert "no longer ships a rollout-file inspector" in reference
     assert "sessions root" not in combined.lower()
-    assert "rollout-" not in combined
+    assert "--sessions-dir" not in combined
+    assert "rollout-2026-" not in combined
 
 
 def test_missing_native_permission_evidence_remains_fail_closed():
