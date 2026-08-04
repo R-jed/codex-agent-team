@@ -1,76 +1,53 @@
 # Runtime Evidence
 
-Runtime evidence answers three separate questions after a native Subagent is spawned:
+Runtime evidence keeps configured intent separate from what the current Codex runtime actually exposed. Routing V4 uses the same bundled verifier for two subjects:
 
 ```text
-route_evidence
-ancestry_evidence
-permission_evidence
+main_session
+child
 ```
 
-Missing evidence is never success merely because no mismatch was observed.
+Missing evidence remains missing.
 
-## 1. Keep configuration separate from observation
+## 1. Main-session route evidence
 
-Before spawn, configuration assurance may record:
+Main-session model identity affects compute placement for material judgment, but it never changes main-session authority.
 
-```text
-preferred_route
-configured_route
-route_assurance = profile_locked
-```
-
-After spawn, record only facts the runtime or another explicitly supplied observation source actually exposed. Never copy configured role/model/effort or sandbox intent into observed fields.
-
-## 2. Typed evidence
-
-### Route
-
-```text
-status: not_observed | partial | matched | conflict
-source: none | native | local | both
-observed_fields: [agent_role, model, effort]
-```
-
-`matched` requires both a complete expected route and a complete observed `agent_role`, `model`, and `effort` tuple that agrees with it. An incomplete expected tuple is invalid input. An incomplete observed tuple is `partial` or `not_observed`.
-
-### Ancestry
-
-```text
-status: not_required | not_observed | matched | conflict
-source: none | native | local | both
-```
-
-When `parent_thread_id` matters, absence remains `not_observed`. Native/local parent disagreement is a typed ancestry conflict and does not relabel an otherwise matched route as a route conflict.
-
-### Permission
-
-```text
-status: not_required | not_observed | matched | broader_than_required | conflict
-source: none | native | local | both
-```
-
-A host-enforced read-only claim requires native evidence of the effective sandbox. A local or reconstructed record can corroborate native evidence but cannot establish host-enforced read-only by itself.
-
-## 3. One deterministic verifier
-
-The bundled verifier is resolved from the installed Skill directory:
-
-```text
-skill_dir=<directory-containing-this-SKILL.md>
-runtime_verifier="$skill_dir/../../scripts/runtime-evidence.py"
-```
-
-Run it with normalized JSON on stdin or with `--input <case.json>`:
-
-```bash
-python "$runtime_verifier" --input <case.json>
-```
-
-Input shape:
+When trusted current-session or host metadata exposes model and effort, normalize it with:
 
 ```json
 {
+  "subject": "main_session",
+  "native": {
+    "model": "gpt-5.6-sol",
+    "effort": "high"
+  },
+  "local": null
+}
+```
+
+The verifier returns:
+
+```text
+main_judgment_coverage: covered | uncovered | unknown
+coverage_source: trusted_session_metadata | not_observed
+observed_main_model
+observed_main_effort
+```
+
+For the current Routing V4 contract, complete native metadata identifying the GPT-5.6 Sol family yields `covered`; complete native metadata identifying another family yields `uncovered`; missing, partial, local-only, or conflicting evidence yields `unknown`.
+
+This is intentionally conservative. A configured child profile, repository file, child statement, or cached assumption cannot prove which model owns the current main session.
+
+Main-session coverage is used only to avoid redundant capability-uplift Sol calls. It does not satisfy fresh independent Final Review.
+
+## 2. Child route/safety evidence
+
+Child mode retains exact route reconciliation:
+
+```json
+{
+  "subject": "child",
   "expected": {
     "agent_role": "codex_delegate_worker",
     "model": "gpt-5.6-luna",
@@ -93,9 +70,51 @@ Input shape:
 }
 ```
 
-`native` and `local` are optional normalized observations. Codex Delegate no longer ships a rollout-file inspector. If another source is used for `local`, the caller owns collecting and sanitizing it. Runtime internals are intentionally not scraped by this project.
+Child route evidence is typed independently from ancestry and permission evidence.
 
-The verifier returns typed route, ancestry, and permission evidence plus the compact compatibility grade:
+### Route
+
+```text
+status: not_observed | partial | matched | conflict
+source: none | native | local | both
+```
+
+`matched` requires a complete expected `agent_role/model/effort` tuple and a complete agreeing observation.
+
+### Ancestry
+
+```text
+status: not_required | not_observed | matched | conflict
+```
+
+When parent identity matters, absence remains `not_observed`.
+
+### Permission
+
+```text
+status: not_required | not_observed | matched | broader_than_required | conflict
+```
+
+A host-enforced read-only claim requires native evidence of effective sandbox behavior. Local reconstruction can corroborate but cannot establish host enforcement.
+
+## 3. Deterministic verifier
+
+Resolve it relative to the installed Skill:
+
+```text
+skill_dir=<directory-containing-this-SKILL.md>
+runtime_verifier="$skill_dir/../../scripts/runtime-evidence.py"
+```
+
+Run:
+
+```bash
+python "$runtime_verifier" --input <case.json>
+```
+
+or pipe normalized JSON to stdin.
+
+The compact grades remain:
 
 ```text
 C1_configuration_only
@@ -105,59 +124,58 @@ R2_runtime_reported_and_local_record_agree
 X0_conflicted
 ```
 
-A partial record never earns `L1`, `R1`, or `R2`.
+A partial observation never earns `R1` or `R2`.
 
-## 4. Source rules
+## 4. When evidence is material
 
-Prefer public native spawn/details metadata whenever the required fact is exposed. An optional `local` observation is corroborating evidence only.
+Do not require runtime telemetry for every routine child.
 
-When two supplied sources expose the same field, disagreement is a material conflict. Keep conflicts typed by concern:
+Main-session route evidence becomes material when the route decision depends on whether Sol judgment is already covered. If the main route is not exposed, keep `main_judgment_coverage = unknown` and use the Routing V4 unknown-coverage rules. Do not invent a route merely to save compute.
 
-- role/model/effort disagreement -> route conflict;
-- parent disagreement -> ancestry conflict;
-- sandbox/permission disagreement -> permission conflict;
-- child thread identity disagreement -> identity conflict.
+Child runtime evidence becomes material when:
 
-A conflict quarantines the affected result, but one concern must not be rewritten as another concern merely to produce one global failure flag.
-
-## 5. When runtime evidence is required
-
-Do not demand runtime telemetry for every routine child. It becomes material when:
-
-- safety depends on host-enforced read-only;
-- exact post-spawn route identity is part of the acceptance claim;
-- cross-model independence is part of a required Final Review claim;
-- parent-thread identity is material to the depth-one claim;
+- hard host-enforced read-only matters;
+- exact post-spawn model/role/effort is part of an acceptance claim;
+- cross-context or cross-model independence is part of required Final Review;
+- ancestry is material to depth-one enforcement;
 - configured and observed facts conflict;
-- release validation is characterizing native capacity, lifecycle, or observability;
+- release validation is characterizing capacity, lifecycle, or observability;
 - the user explicitly requests runtime proof.
 
-Ordinary bounded work may proceed from exact profile configuration assurance plus deterministic artifact verification when post-spawn runtime proof is not part of the acceptance claim.
+Ordinary bounded execution may proceed from exact profile configuration plus deterministic artifact verification when post-spawn proof is not part of acceptance.
 
-## 6. Failure behavior
+## 5. Conflict behavior
+
+For child evidence:
 
 ```text
-incomplete expected agent_role/model/effort
--> invalid verifier input; fail closed
-
 configuration route unavailable
--> do not spawn the model-specific child
+-> do not cross-route
 
-complete matching native route
--> R1, or R2 when complete local corroboration also agrees
-
-only complete matching local route
--> L1; never claim native runtime proof
-
-partial observations and runtime proof optional
--> C1 + typed partial/not_observed states
-
-runtime observation required but native route missing/partial
+required native route incomplete
 -> return to main session
 
-required read-only but native sandbox missing
--> return to main session
+required read-only native sandbox missing/broader
+-> return to main session or quarantine
 
-broader required sandbox or any material conflict
--> X0 + quarantine
+route / identity / ancestry / permission conflict
+-> X0 + quarantine affected result
 ```
+
+For main-session evidence:
+
+```text
+complete native Sol route
+-> judgment coverage = covered
+
+complete native non-Sol route
+-> judgment coverage = uncovered
+
+missing / partial / local-only route
+-> judgment coverage = unknown
+
+native/local conflict
+-> judgment coverage = unknown; quarantine the route claim
+```
+
+A runtime-evidence result never upgrades model judgment into deterministic task evidence. It only establishes routing/runtime facts that were actually observed.
