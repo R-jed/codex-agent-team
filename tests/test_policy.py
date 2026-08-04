@@ -92,7 +92,7 @@ def test_only_shipped_runtime_verifier_is_referenced():
     assert not (SKILL_DIR / "scripts" / "verify-runtime.py").exists()
 
     policy_surface = [SKILL_DIR / "SKILL.md", *REF_DIR.glob("*.md")]
-    policy_surface += [ROOT / "docs" / "architecture.md", ROOT / "docs" / "native-subagent-runtime.md", ROOT / "docs" / "model-route-assurance.md"]
+    policy_surface += [ROOT / "docs" / "architecture.md", ROOT / "docs" / "native-subagent-runtime.md"]
     for path in policy_surface:
         text = path.read_text()
         assert "inspect-runtime.py" not in text
@@ -230,15 +230,14 @@ def test_parallelism_consent_writer_and_depth_invariants():
 
 
 def test_route_assurance_has_no_portable_mode():
+    skill = (SKILL_DIR / "SKILL.md").read_text()
     routing = (REF_DIR / "routing-policy.md").read_text()
     runtime = (REF_DIR / "runtime-assurance.md").read_text()
-    assurance = read("docs/model-route-assurance.md")
-    for text in [routing, runtime, assurance]:
+    for text in [routing, runtime]:
         assert "profile_locked" in text
         assert "native_explicit_validated" not in text
     assert "There is no Portable Mode" in routing
-    assert "## No Portable Mode" in assurance
-    assert "Portable Mode" in (SKILL_DIR / "SKILL.md").read_text()
+    assert "Portable Mode" in skill
 
 
 def test_readmes_are_concise_user_product_docs_not_release_handoffs():
@@ -291,7 +290,6 @@ def test_chinese_readme_avoids_em_dash_and_spacing_regressions():
 def test_architecture_matches_current_runtime_and_final_review_design():
     architecture = read("docs/architecture.md")
     runtime = read("docs/native-subagent-runtime.md")
-    assurance = read("docs/model-route-assurance.md")
     for phrase in [
         "smallest useful compute graph on the shortest safe critical path",
         "Completion-driven scheduling",
@@ -302,7 +300,6 @@ def test_architecture_matches_current_runtime_and_final_review_design():
         "route_evidence",
     ]:
         assert phrase in architecture
-    assert "No Portable Mode" in assurance
     assert "Completion-driven scheduling contract" in runtime
     assert "child-progress observability" in runtime.lower()
 
