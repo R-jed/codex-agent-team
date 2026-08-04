@@ -36,12 +36,25 @@ pinned official OpenAI Plugin validator: PASS
 managed profile install / --check / idempotent reinstall: PASS
 ```
 
-Public-identity migration implementation evidence before the final handoff/ledger bookkeeping:
+Public-identity migration implementation evidence:
 
 ```text
 PR: #36
 exact tested migration head: faf854cb9862bedf97a6789c7216163e54d6f104
 workflow: 30910901175
+pytest: 160 passed
+Ubuntu / Python 3.11: PASS
+Ubuntu / Python 3.12: PASS
+macOS / Python 3.11: PASS
+pinned official OpenAI Plugin validator against plugins/codex-delegate: PASS
+managed profile install / --check / idempotent reinstall: PASS
+```
+
+Final public-identity handoff/evidence closure validation before this ledger-only bookkeeping update:
+
+```text
+exact tested closure head: e2a1f5c0cd91cc602a0178f419259a7ddebdafb6
+workflow: 30911441660
 pytest: 160 passed
 Ubuntu / Python 3.11: PASS
 Ubuntu / Python 3.12: PASS
