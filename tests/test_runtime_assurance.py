@@ -1,8 +1,8 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-agent-team"
-SKILL = PLUGIN / "skills" / "codex-agent-team"
+PLUGIN = ROOT / "plugins" / "codex-delegate"
+SKILL = PLUGIN / "skills" / "codex-delegate"
 RUNTIME_REFERENCE = SKILL / "references" / "runtime-assurance.md"
 RUNTIME_VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
 LEGACY_INSPECTOR = SKILL / "scripts" / "inspect-runtime.py"
