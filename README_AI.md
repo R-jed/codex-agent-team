@@ -111,6 +111,12 @@ Never advise users to manually rename historical Agent files. If an old project-
 - Final Review completion verdicts are `ship`, `fix-first`, and `rethink`; `INSUFFICIENT_EVIDENCE` leaves the gate unresolved.
 - Any deliverable mutation after review invalidates the old final-review verdict.
 
+## Repository maintenance workflow
+
+When acting as a maintainer for this repository, do not create a branch or pull request by default for a clear, bounded, low-risk change that the repository owner has already authorized. Inspect the current `main`, preserve unrelated work, make the change directly on `main`, and verify the resulting repository state.
+
+Use a separate branch or pull request only when it provides a concrete benefit such as isolated experimental work, multiple independent writers, external review, a risky change that should not land immediately, or an explicit request from the repository owner. Do not leave temporary branches behind after their work has been integrated.
+
 ## Evidence and runtime claims
 
 Do not claim that configuration proves the model, effort, sandbox, ancestry, concurrency, or child-progress behavior actually observed at runtime. Exact profile matching is configuration assurance. Runtime facts require runtime evidence.
