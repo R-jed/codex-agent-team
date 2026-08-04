@@ -15,6 +15,21 @@ def test_handoff_is_finite_six_checkpoint_release_contract():
     assert "tag `v1.0.0`" in HANDOFF
 
 
+def test_handoff_requires_deterministic_execution_preflight_before_live_evidence():
+    for phrase in [
+        "## Deterministic execution preflight",
+        "python -m pytest tests/test_identity_cleanup.py -q",
+        "python -m pytest -q",
+        "complete pytest suite has no failures or errors",
+        "both required Plugin validator runs pass",
+        "tested SHA remains unchanged after validation",
+        "Do not carry forward a green result from an earlier SHA",
+        "LOCAL_VALIDATION_REPORT.md",
+    ]:
+        assert phrase in HANDOFF
+    assert HANDOFF.index("## Deterministic execution preflight") < HANDOFF.index("## Checkpoint 1:")
+
+
 def test_handoff_uses_only_current_roles_as_runtime_targets():
     for role in [
         "codex_delegate_reader",
