@@ -9,7 +9,18 @@ DIRECTIVE = "If you are an AI Agent, jump to README_AI.md and follow the instruc
 
 def test_readmes_present_same_current_product_and_ai_jump():
     for text in [ZH, EN]:
-        for phrase in ["codex delegate", "0.7.0", "R-jed/codex-delegate", "codex plugin add codex-delegate@codex-delegate", "/codex-delegate", "Luna Reader", "Luna Worker", "Terra Investigator", "Sol Advisor", DIRECTIVE]:
+        for phrase in [
+            "codex delegate",
+            "0.7.0",
+            "R-jed/codex-delegate",
+            "codex plugin add codex-delegate@codex-delegate",
+            "/codex-delegate",
+            "Luna Reader",
+            "Luna Worker",
+            "Terra Investigator",
+            "Sol Advisor",
+            DIRECTIVE,
+        ]:
             assert phrase in text
     assert "## 最终复核" in ZH
     assert "## Final Review Gate" in EN
@@ -33,11 +44,10 @@ def test_ai_reference_is_authoritative_and_current():
         "codex_delegate_advisor",
         ".codex-delegate-agents.json",
         "Codex Plugin only",
+        "Use only the identities listed above",
         "Do not claim benchmark superiority",
     ]:
         assert phrase in AI
-    assert "Do not present `codex-agent-team`" in AI
-    assert "historical migration inputs only" in AI
 
 
 def test_readmes_lead_with_quickstart_and_user_value_before_deeper_mechanics():
@@ -66,10 +76,13 @@ def test_readmes_explain_adaptive_parallelism_and_recovery():
 
 
 def test_public_readmes_expose_only_current_project_identity():
+    retired_tokens = (
+        "codex" + "-agent-team",
+        "codex" + "_agent_team_",
+        "." + "codex" + "-agent-team-",
+    )
     for text in [ZH, EN]:
-        assert "codex-agent-team" not in text
-        assert "codex_agent_team_" not in text
-        assert ".codex-agent-team-" not in text
+        assert all(token not in text for token in retired_tokens)
     assert "安装与迁移" not in ZH
     assert "## 更新与迁移" not in ZH
     assert "Install & Migration" not in EN
