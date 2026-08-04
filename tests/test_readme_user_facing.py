@@ -8,11 +8,11 @@ EN = (ROOT / "README_EN.md").read_text()
 def test_readmes_present_the_same_product_and_install_path():
     for text in [ZH, EN]:
         for phrase in [
-            "Codex Delegate",
+            "codex delegate",
             "0.6.0",
-            "codex plugin marketplace add R-jed/codex-agent-team --ref main",
-            "codex plugin marketplace upgrade codex-agent-team",
-            "codex plugin add codex-agent-team@codex-agent-team",
+            "codex plugin marketplace add R-jed/codex-delegate --ref main",
+            "codex plugin marketplace upgrade codex-delegate",
+            "codex plugin add codex-delegate@codex-delegate",
             "/codex-delegate",
             "Luna Reader",
             "Luna Worker",
@@ -128,10 +128,17 @@ def test_readmes_keep_local_recovery_and_risk_triggered_final_review():
 
 
 def test_readmes_keep_custom_agent_install_scope_user_facing():
-    assert "安装程序只管理 Codex Delegate 自己的四个配置文件" in ZH
-    assert "installer manages only the four Codex Delegate profiles" in EN
+    assert "安装程序只管理 codex delegate 自己的四个配置文件" in ZH
+    assert "installer manages only the four codex delegate profiles" in EN
     assert "不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置文件" in ZH
     assert "does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles" in EN
+
+
+def test_readmes_keep_legacy_id_only_as_migration_context():
+    for text in [ZH, EN]:
+        assert "codex-agent-team" in text
+        assert "codex plugin add codex-agent-team@codex-agent-team" not in text
+        assert "--sparse plugins/codex-agent-team" not in text
 
 
 def test_readme_visual_assets_remain_intentional_and_bounded():
