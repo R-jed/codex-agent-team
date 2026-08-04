@@ -5,7 +5,7 @@ This is the finite live-validation and v1.0.0 release checklist for codex delega
 ## Current static baseline candidate
 
 ```text
-parent main: f7de303cc37f10c64b33d5e452ee25fa8e4fd63c
+implementation baseline reviewed through: 68cc263bdfcbea40b56d6cbdc94fd776a7d0fd23
 product: codex delegate
 repository: R-jed/codex-delegate
 marketplace/plugin id: codex-delegate
@@ -21,6 +21,12 @@ release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 Old `codex_agent_team_*`, `codex-agent-team-*.toml`, and `.codex-agent-team-*.json` values are migration inputs only. A successful 0.7.0 migration must remove that project generation. Do not restore them as current fallback roles.
 
 Before each live checkpoint, fetch `origin/main`, record the exact tested SHA/runtime, and invalidate only evidence whose declared dependencies changed.
+
+## Repository maintenance workflow
+
+For clear, bounded, low-risk maintenance that the repository owner has already authorized, work directly on `main`. Do not create a branch or pull request merely as process ceremony. Inspect current `main`, preserve unrelated work, apply the change, and verify the resulting repository state.
+
+Use a separate branch or pull request only when there is a concrete need for isolation, multiple independent writers, external review, risky experimental work, or an explicit owner request. Remove temporary branches after their work is integrated. Do not accumulate merged documentation/refactor branches that must be cleaned up later.
 
 ## Stop line
 
