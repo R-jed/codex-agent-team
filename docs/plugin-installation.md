@@ -16,82 +16,113 @@ The Plugin manifest does not claim a native `agents` component. The four Agent t
 
 ## Fresh install
 
-For this repository-backed Git marketplace, use Codex CLI commands rather than manually editing `config.toml`, marketplace state, or installed-Plugin state.
+Use Codex CLI commands rather than manually editing `config.toml`, marketplace state, or installed-Plugin state.
 
-Register the marketplace with the two sparse paths required for marketplace discovery and Plugin installation:
+Register the repository-backed marketplace:
 
 ```bash
-codex plugin marketplace add R-jed/codex-agent-team --ref main \
+codex plugin marketplace add R-jed/codex-delegate --ref main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-agent-team
+  --sparse plugins/codex-delegate
 ```
 
-Then install the Plugin by its package id and configured marketplace name:
+Install the Plugin:
 
 ```bash
-codex plugin add codex-agent-team@codex-agent-team
+codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a **new Codex thread** after installation so the runtime can pick up the installed Skill surface, then use:
+Start a **new Codex thread** after installation, then use:
 
 ```text
 /codex-delegate
 ```
 
-The Codex desktop Plugins UI may be used as a user-interface alternative after the marketplace is registered. The CLI sequence above is the deterministic installation contract used by this project's release validation.
+The Codex desktop Plugins UI may be used after the marketplace is registered. The CLI sequence above remains the deterministic release-validation contract.
 
-The repository slug and Plugin package identifier remain `codex-agent-team` during the pre-v1 compatibility window. They are internal compatibility identifiers, not the user-facing product name.
+## Upgrade or reinstall
 
-## Upgrade or reinstall from the Git marketplace
-
-A configured Git marketplace is a local snapshot. A newer remote `main` does not by itself prove that the installed marketplace snapshot or Plugin content is current.
-
-For an existing Codex Delegate marketplace installation, refresh the configured marketplace first:
+A configured Git marketplace is a local snapshot. Refresh it before reinstalling the current Plugin bytes:
 
 ```bash
-codex plugin marketplace upgrade codex-agent-team
-```
-
-Then reinstall the Plugin from that refreshed marketplace:
-
-```bash
-codex plugin add codex-agent-team@codex-agent-team
+codex plugin marketplace upgrade codex-delegate
+codex plugin add codex-delegate@codex-delegate
 ```
 
 Start a **new Codex thread** before testing the updated Skill.
 
 During release validation, record the marketplace upgrade result, installed Plugin version, and fresh-thread discovery. Do not hand-edit marketplace files or `config.toml` to simulate an update.
 
-For local Plugin-development iteration where the semantic version is intentionally unchanged, follow the current OpenAI plugin-creator cachebuster/reinstall workflow. Release versions such as `0.5.1 -> 0.6.0` use the real version change and do not need an artificial cachebuster solely to represent that release.
+For behavior-preserving development where semantic version `0.6.0` remains unchanged, Checkpoint 6 verifies on the tested Codex build that `marketplace upgrade` followed by explicit `plugin add` refreshes installed bytes. If that behavior is not reliable, bump the patch version before RC rather than relying on stale-cache assumptions.
 
-## Official Plugin boundary
+## Public identity
 
-The repository follows the Codex Plugin bundle shape:
+The current public identity is:
+
+```text
+GitHub repository: R-jed/codex-delegate
+Marketplace id:    codex-delegate
+Plugin package id: codex-delegate
+Skill / command:   codex-delegate / /codex-delegate
+```
+
+The repository Plugin bundle is:
 
 ```text
 .agents/plugins/marketplace.json
-plugins/codex-agent-team/
+plugins/codex-delegate/
   .codex-plugin/plugin.json
+  assets/
   skills/
   scripts/
   agent-profiles/
 ```
 
-The Plugin root folder and `.codex-plugin/plugin.json` `name` are both `codex-agent-team`.
-
-The marketplace entry points to the nested Plugin through:
+The Plugin root folder, `.codex-plugin/plugin.json` `name`, marketplace name, and marketplace plugin entry are all `codex-delegate`. The marketplace source path is:
 
 ```text
-./plugins/codex-agent-team
+./plugins/codex-delegate
 ```
 
-and declares installation policy, authentication policy, and category metadata.
+Brand assets are packaged inside `plugins/codex-delegate/assets/` and declared through the supported Plugin `interface` fields so Codex can render the logo and composer icon from the installed archive.
 
-Only supported Plugin-manifest components are declared. Codex Delegate does **not** invent an unsupported `agents` manifest field. Custom Agent provisioning is an explicit post-install workflow over Codex's native custom-Agent configuration surface.
+## One-time migration from the legacy public id
+
+Older releases used the public repository/package/marketplace id `codex-agent-team`. Codex's current Git marketplace upgrade path requires the configured marketplace name to match the upgraded marketplace manifest name, so an existing `codex-agent-team` marketplace cannot be converted in place by `marketplace upgrade` after the manifest becomes `codex-delegate`.
+
+For a real legacy installation, remove the old public Plugin and marketplace registration first:
+
+```bash
+codex plugin remove codex-agent-team@codex-agent-team
+codex plugin marketplace remove codex-agent-team
+```
+
+Then register and install the current identity:
+
+```bash
+codex plugin marketplace add R-jed/codex-delegate --ref main \
+  --sparse .agents/plugins \
+  --sparse plugins/codex-delegate
+
+codex plugin add codex-delegate@codex-delegate
+```
+
+Start a **new Codex thread** and verify `/codex-delegate` discovery before making any custom-role claim.
+
+This public-ID migration deliberately does **not** rename the existing managed custom-Agent identities or ownership receipt:
+
+```text
+Agent role ids:      codex_agent_team_*
+profile filenames:   codex-agent-team-*.toml
+ownership manifest:  .codex-agent-team-agents.json
+legacy manifest:     .codex-agent-team-install.json
+```
+
+Those values are compatibility identifiers for already-managed files. Keeping them stable lets the new Plugin reuse and safely verify previous exact profile installations without manufacturing a second ownership generation. Do not rename those files manually.
 
 ## First-run custom Agent provisioning
 
-Required roles:
+Required roles remain:
 
 ```text
 codex_agent_team_reader        -> gpt-5.6-luna / max
@@ -100,7 +131,7 @@ codex_agent_team_investigator  -> gpt-5.6-terra / xhigh
 codex_agent_team_advisor       -> gpt-5.6-sol / high
 ```
 
-These names are compatibility identifiers. They do not change the `/codex-delegate` user entry point.
+These are internal compatibility identifiers. They do not change the `/codex-delegate` user entry point or current Plugin package id.
 
 The main Skill checks role readiness only after a responsibility has justified model-specific delegation.
 
@@ -119,11 +150,9 @@ Successful file installation is configuration evidence. It does not prove curren
 
 ## Version 0.6.0
 
-Version `0.6.0` keeps the v0.5.1 adaptive dependency scheduling, evidence reuse, Intervention Gate, Recovery Ledger, and the same four managed Agent profile bytes. It adds the risk-triggered Final Review Gate as a new acceptance layer for higher-risk deliverables.
+Version `0.6.0` retains adaptive dependency scheduling, evidence reuse, the Intervention Gate, Recovery Ledger, completion-driven scheduling policy, and the risk-triggered Final Review Gate. The public repository/marketplace/Plugin identity is now aligned with `codex-delegate`; the four managed Agent profile identities remain stable for compatibility.
 
 Sol remains selective globally. A semantic trigger can make a fresh `codex_agent_team_advisor` review mandatory for one candidate after main-session verification. The candidate is bound to a deterministic `review_artifact_id`; any deliverable mutation after review invalidates the old verdict.
-
-The completion lifecycle is:
 
 ```text
 main-session verification
@@ -132,35 +161,11 @@ main-session verification
 -> ship | fix-first | rethink
 ```
 
-The existing Advisor profile may also return `INSUFFICIENT_EVIDENCE` when a justified verdict requires missing evidence. That keeps the gate unresolved until the named evidence dependency is established and a new fresh review runs.
-
-`fix-first` requires a new correction, re-verification, a new artifact identity, and a new fresh review. `rethink` returns the affected architecture, contract, or invariant assumptions to the main session rather than becoming a local patch.
+`INSUFFICIENT_EVIDENCE` keeps the gate unresolved until the named evidence dependency is established and a new fresh review runs. `fix-first` requires correction, re-verification, a new artifact identity, and a new fresh review. `rethink` returns affected architecture, contract, or invariant assumptions to the main session.
 
 Final-review triggering is semantic rather than numeric. No fixed diff threshold, file threshold, retry threshold, model ladder, or mandatory Luna -> Terra -> Sol pipeline is introduced.
 
-The managed Agent profile bytes remain unchanged from v0.5.0 and v0.5.1. An exact existing profile generation therefore does not need replacement solely because the Plugin Skill moved to v0.6.0.
-
-## Migration from Codex Agent Team 0.3.x and Codex Delegate 0.4.x / 0.5.x
-
-For real installed upgrades, use the supported Git marketplace lifecycle:
-
-```bash
-codex plugin marketplace upgrade codex-agent-team
-codex plugin add codex-agent-team@codex-agent-team
-```
-
-Then start a new Codex thread and verify the installed Plugin version and `/codex-delegate` discovery before any custom-role claim.
-
-For migration safety, these identifiers remain unchanged during pre-v1:
-
-```text
-GitHub repository:     R-jed/codex-agent-team
-Plugin package id:     codex-agent-team
-Agent profile ids:     codex_agent_team_*
-ownership manifest:    .codex-agent-team-agents.json
-```
-
-Do not rename managed profile files or manifests manually. The v1 release process validates real upgrade/reinstall behavior before repository or package-id migration is considered.
+## Legacy managed-profile migration
 
 Older managed releases also used:
 
@@ -176,7 +181,7 @@ An old profile is removed only when its current bytes match authoritative previo
 The ownership epoch is explicit:
 
 - `.codex-agent-team-agents.json`, once present, is authoritative;
-- the older `.codex-agent-team-install.json` may seed ownership only before the companion manifest exists;
+- `.codex-agent-team-install.json` may seed ownership only before the companion manifest exists;
 - that seed is accepted only for the historical schema `1`, `mode = "profile"` shape;
 - unknown schemas/modes never grant legacy deletion authority;
 - after migration, stale standalone hashes do not authorize deletion of a legacy filename a user may later recreate.
@@ -200,24 +205,24 @@ Concurrent same-Codex-home multi-process behavior remains a live release gate. N
 
 ## Plugin validation before release
 
-Static repository tests are insufficient to claim current official Plugin compatibility or live Final Review Gate behavior.
-
 Each release candidate must:
 
-1. run the current OpenAI `plugin-creator/scripts/validate_plugin.py` against `plugins/codex-agent-team` and record the validator source revision/version;
-2. verify the marketplace entry points to `./plugins/codex-agent-team` and carries required policy/category metadata;
-3. perform a real Git marketplace add or upgrade as appropriate;
-4. run `codex plugin add codex-agent-team@codex-agent-team`;
+1. run the then-current OpenAI `plugin-creator/scripts/validate_plugin.py` against `plugins/codex-delegate` and record the validator source revision/version;
+2. verify the marketplace entry points to `./plugins/codex-delegate` and carries required policy/category metadata;
+3. perform a real fresh `R-jed/codex-delegate` marketplace install;
+4. run `codex plugin add codex-delegate@codex-delegate`;
 5. start a new thread and confirm `/codex-delegate` discovery;
-6. authorize first-run profile provisioning when needed and verify all four exact roles are discovered from the active Codex Agent directory;
-7. exercise the required Final Review Gate path on representative live workloads, including fresh Advisor routing, artifact handoff, verdict invalidation, `INSUFFICIENT_EVIDENCE`, and consent behavior;
-8. record the exact Codex build, Plugin version, validator revision, commands, and outcomes in `LOCAL_VALIDATION_REPORT.md`.
+6. exercise the one-time legacy public-ID migration from a representative `codex-agent-team` install;
+7. verify the legacy internal profile ids/filenames and ownership manifest remain safe and reusable across the public-ID migration;
+8. authorize first-run profile provisioning when needed and verify all four exact roles are discovered;
+9. exercise the required Final Review Gate path on representative live workloads;
+10. record the exact Codex build, Plugin version, validator revision, commands, and outcomes in `LOCAL_VALIDATION_REPORT.md`.
 
 CI also runs a pinned official OpenAI Plugin validator for deterministic regression protection. That pin is static evidence only; RC validation still reruns the then-current official validator.
 
 ## Failure behavior
 
-If marketplace registration/upgrade, Plugin installation, official validation, profile provisioning, exactness verification, or a required final-review dependency fails, stop and record the actual failure. Do not manually patch user config to make the supported path appear successful.
+If marketplace registration/upgrade, Plugin installation, public-ID migration, official validation, profile provisioning, exactness verification, or a required final-review dependency fails, stop and record the actual failure. Do not manually patch user config to make the supported path appear successful.
 
 If profile installation fails, the affected responsibility stays in the main session. Do not manually overwrite, rename, or cross-route a conflicting role.
 
