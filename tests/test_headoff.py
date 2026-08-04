@@ -168,26 +168,31 @@ def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
     assert "分支 · 项目对比分析" not in lines
 
 
-def test_validation_report_reflects_merged_v060_baseline_and_consolidation():
+def test_validation_report_reflects_current_accepted_static_chain():
     text = REPORT.read_text()
     for phrase in [
         "Plugin version: 0.6.0",
         "Accepted v0.6.0 feature merge: b043428223ba99ce77e2268c32cfa6a38daad3ed",
-        "workflow: 30879802677",
-        "pytest: 167 passed",
+        "Accepted engineering-consolidation merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f",
+        "Accepted completion-driven/policy-reduction merge: a086229a6fd8e64f502fc3574c0da931ffa8c929",
+        "Exact tested completion-driven head: 148a5ab599578b0a4f0aafaa09e5007633388143",
+        "Completion-driven workflow: 30890469536",
         "Accepted v0.6.0 static evidence",
         "Accepted engineering-consolidation static evidence",
-        "Accepted engineering-consolidation merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f",
-        "Exact tested consolidation head: ac5976d41e44a7ffddb3dad94686c2729c4b6687",
-        "Consolidation workflow: 30886554206",
+        "Accepted completion-driven / policy-reduction static evidence",
+        "pytest: 167 passed",
         "pytest: 157 passed",
-        "Accepted v0.5.1 historical static evidence",
-        "That live baseline predates v0.6.0",
+        "pytest: 158 passed",
+        "net: -681 lines",
+        "completion-driven",
+        "barrier_only",
+        "any_child_update",
+        "That live baseline predates v0.6.0 and the completion-driven refinement",
         "review_artifact_id",
         "contract_luna_final_review_gate",
         "HOLD FOR RELEASE / LIVE VALIDATION PENDING",
         "ARCHITECTURE FROZEN AT v0.6.0",
-        "ENGINEERING CONSOLIDATION COMPLETE",
+        "ENGINEERING CONSOLIDATION + POLICY REDUCTION COMPLETE",
     ]:
         assert phrase in text
     assert "Current engineering-consolidation candidate" not in text

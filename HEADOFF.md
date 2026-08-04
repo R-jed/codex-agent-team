@@ -2,7 +2,7 @@
 
 This is the authoritative finite live-validation and v1.0.0 release checklist for Codex Delegate.
 
-The v0.6.0 architecture cycle and repository-side engineering consolidation are closed. The remaining job is finite: validate the accepted behavior on a current real Codex runtime, fix only evidence-backed release blockers, run one fixed release-candidate closure pass, and release v1.0.0.
+The v0.6.0 architecture cycle and repository-side engineering consolidation/policy reduction are closed. The remaining job is finite: validate the accepted behavior on a current real Codex runtime, fix only evidence-backed release blockers, run one fixed release-candidate closure pass, and release v1.0.0.
 
 ## Current checkpoint
 
@@ -19,7 +19,7 @@ static posture: COMPLETE / ARCHITECTURE FROZEN AT v0.6.0
 release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 ```
 
-Accepted feature/consolidation evidence:
+Accepted static maintenance evidence:
 
 ```text
 PR #27 closure head: 3833e9d7c322a3feddc3cb8a7386e022a3bb8b1e
@@ -32,13 +32,21 @@ workflow: 30886554206
 pytest: 157 passed
 engineering-consolidation merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f
 
-both accepted trees:
+PR #30 exact tested head: 148a5ab599578b0a4f0aafaa09e5007633388143
+workflow: 30890469536
+pytest: 158 passed
+completion-driven/policy-reduction merge: a086229a6fd8e64f502fc3574c0da931ffa8c929
+PR #30 diff: +1234 / -1915 = net -681 lines
+
+accepted maintenance validation:
 Ubuntu / Python 3.11: PASS
 Ubuntu / Python 3.12: PASS
 macOS / Python 3.11: PASS
 pinned official OpenAI Plugin validator: PASS
 managed profile install / --check / idempotent reinstall: PASS
 ```
+
+PR #30 makes completion-driven ready-frontier refill an explicit scheduling policy and removes duplicated policy/documentation ownership. It does **not** prove that the current native Codex runtime exposes per-child completion/update events or non-polling wakeups. Checkpoint 3 owns that live proof.
 
 Before any live checkpoint, fetch `origin/main`, record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`, and invalidate only evidence whose declared dependencies changed.
 
@@ -74,6 +82,7 @@ The repository already contains and statically tests:
 - managed profile ownership/migration safeguards;
 - `policy-contract.json` as machine-readable stable constant source;
 - Dependency Ledger + ready frontier;
+- completion-driven ready-frontier scheduling policy;
 - Delegation Benefit + Contractability gates;
 - Shared Evidence State + dependency-aware invalidation;
 - Intervention Gate + Recovery Ledger;
@@ -84,7 +93,7 @@ The repository already contains and statically tests:
 - behavioral workload/result/scorer infrastructure;
 - pinned official OpenAI Plugin validator CI.
 
-Repository policy is intentionally thin: `SKILL.md` owns the orchestration loop, while each detailed boundary has one normative reference owner. No project daemon, persistent scheduler, thread pool, or rollout-file scraper is introduced.
+Repository policy is intentionally thin: `SKILL.md` owns the orchestration loop, while each detailed boundary has one normative reference owner. No project daemon, persistent scheduler, thread pool, event bus, or rollout-file scraper is introduced.
 
 # Pending live validation
 
