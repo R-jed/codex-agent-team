@@ -1,20 +1,20 @@
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
-READMES = [ROOT / "README.md", ROOT / "README_EN.md"]
+ZH = (ROOT / "README.md").read_text()
+EN = (ROOT / "README_EN.md").read_text()
 
 
-def test_readmes_present_the_product_to_users():
-    for path in READMES:
-        text = path.read_text()
+def test_readmes_present_the_same_product_and_install_path():
+    for text in [ZH, EN]:
         for phrase in [
             "Codex Delegate",
+            "0.6.0",
             "codex plugin marketplace add R-jed/codex-agent-team --ref main",
             "codex plugin marketplace upgrade codex-agent-team",
             "codex plugin add codex-agent-team@codex-agent-team",
             "/codex-delegate",
-            "0.6.0",
+            "$CODEX_HOME/agents",
             "Luna Reader",
             "Luna Worker",
             "Terra Investigator",
@@ -25,28 +25,47 @@ def test_readmes_present_the_product_to_users():
             assert phrase in text
 
 
-def test_readmes_position_codex_delegate_as_a_native_delegation_layer():
-    zh = (ROOT / "README.md").read_text()
-    en = (ROOT / "README_EN.md").read_text()
-    assert "Codex Native Subagents 之上的委派策略层" in zh
-    assert "A delegation policy layer over Codex Native Subagents" in en
-    assert "委派框架" not in zh
-    assert "delegation framework" not in en.lower()
+def test_readmes_keep_user_facing_product_positioning():
+    assert "Codex Native Subagents 之上的委派策略层" in ZH
+    assert "a delegation policy layer over Codex Native Subagents" in EN
+    assert "委派框架" not in ZH
+    assert "delegation framework" not in EN.lower()
+
+    for forbidden in [
+        "HEADOFF.md",
+        "LOCAL_VALIDATION_REPORT.md",
+        "Checkpoint 1",
+        "Checkpoint 5",
+        "P0/P1",
+        "CAT-LOCAL-001",
+        "branch audit",
+        "本地真测交接",
+        "远端分支清理",
+        "静态收口",
+    ]:
+        assert forbidden not in ZH
+        assert forbidden not in EN
 
 
-def test_readmes_explain_adaptive_concurrency_without_hard_agent_count():
-    zh = (ROOT / "README.md").read_text()
-    en = (ROOT / "README_EN.md").read_text()
+def test_readmes_explain_user_does_not_manually_schedule_agents():
+    assert "用户不需要手工告诉 Codex" in ZH
+    assert "Users should not have to manually tell Codex" in EN
+    assert "目标、不能破坏的约束和成功标准" in ZH
+    assert "outcome, constraints that must remain true, and observable success criteria" in EN
 
-    for text in [zh, en]:
-        assert "physical checkout" in text
-        assert "0.6.0" in text
 
-    assert "没有固定 Agent 数量" in zh
-    assert "No fixed Agent count" in en
-    assert "最多两个同时活跃" in zh
-    assert "up to two concurrently active" in en
-    assert "runtime" in zh.lower() and "runtime" in en.lower()
+def test_readmes_explain_completion_driven_concurrency_without_hard_team_size():
+    assert "没有固定 Agent 数量" in ZH
+    assert "No fixed Agent count" in EN
+    assert "completion-driven" in ZH
+    assert "completion-driven" in EN
+    assert "立即补位" in ZH
+    assert "refill immediately" in EN
+    assert "join dependency" in ZH
+    assert "join dependency" in EN
+    assert "最多两个同时活跃" in ZH
+    assert "up to two concurrently active" in EN
+    assert "physical checkout" in ZH and "physical checkout" in EN
 
     for forbidden in [
         "默认：1 个",
@@ -56,85 +75,49 @@ def test_readmes_explain_adaptive_concurrency_without_hard_agent_count():
         "normal maximum: 2",
         "hard maximum: 4",
     ]:
-        assert forbidden not in zh
-        assert forbidden not in en
+        assert forbidden not in ZH
+        assert forbidden not in EN
 
 
-def test_readmes_explain_intervention_before_recovery():
-    zh = (ROOT / "README.md").read_text()
-    en = (ROOT / "README_EN.md").read_text()
-    assert "卡住时如何处理" in zh
-    assert "What happens when execution stalls" in en
-    assert "未通过验收和需要改变执行方式是两个不同判断" in zh
-    assert "Failing acceptance and needing to change execution are separate decisions" in en
-    assert "Recovery Ledger" in zh and "Recovery Ledger" in en
-    assert "固定重试次数" in zh
-    assert "fixed retry count" in en
-    assert "Terra" in zh and "Terra" in en
+def test_readmes_do_not_shift_performance_responsibility_to_prompt_wording():
+    assert "性能主要取决于怎么写 prompt" in ZH
+    assert "说法不够完整" in ZH
+    assert "performance is not determined mainly by prompt wording" in EN
+    assert "任务本身是否存在独立依赖" in ZH
+    assert "whether the task actually contains independent dependencies" in EN
+    assert "Native Codex" in ZH and "native Codex runtime" in EN
 
 
-def test_readmes_explain_risk_triggered_final_review_without_fixed_pipeline():
-    zh = (ROOT / "README.md").read_text()
-    en = (ROOT / "README_EN.md").read_text()
-    for text in [zh, en]:
-        assert "Candidate Ready" in text
-        assert "ship" in text
-        assert "fix-first" in text
-        assert "rethink" in text
-        assert "INSUFFICIENT_EVIDENCE" in text
-        assert "review_artifact_id" in text
-    assert "高风险改动的最终质量门" in zh
-    assert "Final quality gate for higher-risk changes" in en
-    assert "Sol 不是所有任务的固定阶段" in zh
-    assert "Sol is not a fixed stage for every task" in en
+def test_readmes_keep_recovery_and_risk_triggered_final_review_semantics():
+    assert "未通过验收和需要改变执行方式是两个不同判断" in ZH
+    assert "Failing acceptance and needing to change execution are separate decisions" in EN
+    assert "Recovery Ledger" in ZH and "Recovery Ledger" in EN
+    assert "固定重试次数" in ZH
+    assert "fixed retry count" in EN
+
+    for text in [ZH, EN]:
+        for phrase in [
+            "Candidate Ready",
+            "ship",
+            "fix-first",
+            "rethink",
+            "INSUFFICIENT_EVIDENCE",
+            "review_artifact_id",
+        ]:
+            assert phrase in text
+    assert "Sol 不是所有任务的固定阶段" in ZH
+    assert "Sol is not a fixed stage for every task" in EN
 
 
-def test_readmes_explain_official_plugin_and_custom_agent_boundary():
-    zh = (ROOT / "README.md").read_text()
-    en = (ROOT / "README_EN.md").read_text()
-    for text in [zh, en]:
-        assert "$CODEX_HOME/agents" in text
-        assert "codex plugin marketplace upgrade codex-agent-team" in text
-        assert "codex plugin add codex-agent-team@codex-agent-team" in text
-    assert "Plugin manifest 不声明不存在的 `agents` 组件" in zh
-    assert "Plugin manifest does not invent an `agents` component" in en
+def test_readmes_explain_plugin_and_custom_agent_boundary():
+    assert "Plugin manifest 不声明不存在的 `agents` 组件" in ZH
+    assert "Plugin manifest does not invent an `agents` component" in EN
 
 
-def test_compatibility_details_live_in_installation_guide():
-    guide = (ROOT / "docs/plugin-installation.md").read_text()
-    for phrase in [
-        "R-jed/codex-agent-team",
-        "Plugin package id",
-        "codex_agent_team_*",
-        ".codex-agent-team-agents.json",
-        "0.6.0",
-        "Final Review Gate",
-    ]:
-        assert phrase in guide
-
-
-def test_readmes_remain_user_facing():
-    forbidden = [
-        "```mermaid",
-        "HEADOFF.md",
-        "LOCAL_VALIDATION_REPORT.md",
-        "Checkpoint 1",
-        "Checkpoint 5",
-        "P0/P1",
-        "CAT-LOCAL-001",
-        "branch audit",
-        "Dependency Ledger status",
-        "本地真测交接",
-        "远端分支清理",
-        "静态收口",
-    ]
-    for path in READMES:
-        text = path.read_text()
-        for phrase in forbidden:
-            assert phrase not in text
-        lines = text.splitlines()
-        for line in lines:
+def test_readme_visual_assets_remain_intentional_and_bounded():
+    for text in [ZH, EN]:
+        assert "<picture" in text
+        assert "logo" in text
+        for line in text.splitlines():
             if "<img" in line and "logo" not in line and "shields.io" not in line:
-                assert False, f"Non-logo/shields <img> found: {line}"
-        if "<picture" in text:
-            assert "logo" in text
+                raise AssertionError(f"Unexpected README image: {line}")

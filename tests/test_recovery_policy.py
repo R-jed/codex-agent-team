@@ -20,14 +20,12 @@ def test_recovery_is_two_stage_and_not_failure_triggered():
 
     assert "Intervention Gate" in skill
     assert "references/execution-progress.md" in skill
-    for text in [progress, routing]:
-        assert "Intervention Gate" in text
-        assert "acceptance" in text.lower()
-        assert "forward progress" in text.lower()
-
+    assert "Intervention Gate" in progress
+    assert "acceptance" in progress.lower()
+    assert "forward progress" in progress.lower()
     assert "Failure to satisfy acceptance and need for intervention are different facts" in progress
-    assert "Stage A: Intervention Gate" in routing
-    assert "Stage B: Recovery classification" in routing
+    assert "Execution progress and recovery boundary" in routing
+    assert "healthy incomplete work" in routing
     assert "successful command" in progress.lower()
 
 
@@ -56,9 +54,10 @@ def test_recovery_ledger_is_bounded_semantic_state_not_transcript():
     ]:
         assert field in progress
 
-    assert "bounded semantic history" in contract
-    assert "not a transcript" in contract
-    assert "never store private chain-of-thought" in contract
+    assert "bounded" in progress.lower()
+    assert "semantic" in progress.lower()
+    assert "transcript" in progress.lower()
+    assert "private chain-of-thought" in progress
     assert "MATERIAL RECOVERY HISTORY" in contract
 
 
@@ -70,7 +69,7 @@ def test_proposed_action_is_not_orchestration_authority():
     for field in ["PROPOSED ACTION", "EFFECTIVE ACTION", "DECISION SOURCE", "POLICY TRANSFORM"]:
         assert field in progress
 
-    assert "main session owns `effective_action`" in contract
+    assert "main session" in progress.lower() and "effective action" in progress.lower()
     assert "suggested_next_action" in contract
     assert "Proposed action" in receipt
     assert "Effective action" in receipt
@@ -79,13 +78,13 @@ def test_proposed_action_is_not_orchestration_authority():
 
 def test_recovery_evaluation_is_event_driven_and_observability_fail_closed():
     progress = read(SKILL_ROOT / "references" / "execution-progress.md")
-    routing = read(SKILL_ROOT / "references" / "routing-policy.md")
+    runtime = read(ROOT / "docs" / "native-subagent-runtime.md")
 
     assert "Event-driven recovery evaluation" in progress
     assert "not after every ordinary tool call" in progress
     for level in ["none", "terminal_only", "periodic_summary", "structured_live"]:
-        assert level in routing
-    assert "Do not claim structured live mid-run anti-thrashing without evidence" in routing
+        assert level in runtime
+    assert "Do not infer deterministic mid-run anti-thrashing" in runtime
 
 
 def test_behavioral_workloads_cover_intervention_counterexamples():

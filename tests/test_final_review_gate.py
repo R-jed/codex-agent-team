@@ -2,7 +2,6 @@ from pathlib import Path
 import json
 import tomllib
 
-
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
 SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-agent-team"
@@ -83,12 +82,13 @@ def test_rethink_invalidates_plan_instead_of_becoming_local_fix():
     assert "Do not downgrade `rethink` into a local bug-fix ticket" in gate
 
 
-def test_routing_policy_makes_sol_conditionally_mandatory_not_global():
+def test_routing_policy_makes_sol_selective_with_mandatory_high_risk_gate():
     routing = read(REFERENCES / "routing-policy.md")
-    assert "Sol is not a globally mandatory stage" in routing
-    assert "Final Review Gate" in routing
-    assert "fresh Sol `ship` verdict" in routing
-    assert "risk-triggered" in routing.lower()
+    gate = read(REFERENCES / "final-review-gate.md")
+    assert "Sol is not globally mandatory" in routing
+    assert "final-review-gate.md" in routing
+    assert "fresh Sol `ship` verdict" in gate
+    assert "semantic trigger" in gate.lower()
 
 
 def test_receipt_can_report_required_final_review_without_claiming_unobserved_runtime():

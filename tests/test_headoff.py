@@ -58,6 +58,24 @@ def test_handoff_runtime_evidence_uses_shipped_normalized_verifier():
     assert "verify-runtime.py" not in text
 
 
+def test_handoff_requires_completion_driven_frontier_refill_characterization():
+    text = HANDOFF.read_text()
+    for phrase in [
+        "Completion-driven frontier refill",
+        "A = slow independent dependency",
+        "B = fast independent dependency",
+        "C = depends only on B",
+        "start C before A finishes",
+        "barrier serialization",
+        "barrier_only",
+        "per_child_terminal",
+        "any_child_update",
+        "model-mediated polling",
+        "independent main-session work",
+    ]:
+        assert phrase in text
+
+
 def test_handoff_requires_intervention_recovery_and_observability_validation():
     text = HANDOFF.read_text()
     for phrase in [
