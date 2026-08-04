@@ -19,6 +19,8 @@ POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
 MANIFEST_NAME = ".codex-delegate-agents.json"
 MANIFEST_SCHEMA = 1
 MANAGED_BY = "codex-delegate"
+POLICY_SCHEMA = 2
+ROLE_KEYS = {"reader", "worker", "solver", "investigator", "advisor"}
 
 
 def fail(message: str) -> NoReturn:
@@ -38,11 +40,11 @@ def load_policy_contract() -> dict:
         payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         fail(f"Invalid codex delegate policy contract {POLICY_CONTRACT_PATH}: {exc}")
-    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+    if not isinstance(payload, dict) or payload.get("schema_version") != POLICY_SCHEMA:
         fail(f"Unsupported codex delegate policy contract: {POLICY_CONTRACT_PATH}")
     roles = payload.get("roles")
-    if not isinstance(roles, dict) or set(roles) != {"reader", "worker", "investigator", "advisor"}:
-        fail("Policy contract must define reader, worker, investigator, and advisor roles")
+    if not isinstance(roles, dict) or set(roles) != ROLE_KEYS:
+        fail("Policy contract must define reader, worker, solver, investigator, and advisor roles")
     required = {"profile_file", "agent_type", "model", "effort", "sandbox_intent"}
     seen_files: set[str] = set()
     seen_names: set[str] = set()
