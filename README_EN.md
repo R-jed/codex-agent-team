@@ -23,7 +23,15 @@ Codex Delegate turns an engineering task into the smallest useful set of verifia
 
 The current main session always owns user intent, scope, consequential decisions, scheduling, acceptance, and the final response. Luna, Terra, and Sol are selectable execution or judgment resources. There is no fixed model pipeline and no fixed Agent count.
 
-Current version: `0.6.0`, pre-v1.
+Current version: `0.6.0`, pre-v1. v0.6.0 is now merged into `main`; the risk-triggered Final Review Gate, deterministic artifact binding, consent/recovery integration, and behavioral metrics are part of the current mainline.
+
+## Project status
+
+The final v0.6.0 merge candidate passed Ubuntu / Python 3.11, Ubuntu / Python 3.12, macOS / Python 3.11, the pinned official OpenAI Plugin validator, and `167` pytest tests.
+
+The pre-v1 phase is still completing live validation on current Codex runtimes for exact Worker / Investigator / Advisor routing, the required Final Review Gate fresh-Sol and artifact lifecycle, same-checkout writer exclusion across independent main sessions, and the current Plugin validator plus real marketplace install/upgrade and installer-concurrency paths before release.
+
+Repository-CI evidence and still-pending runtime claims therefore remain explicitly separated; an unfinished live gate is not presented as behavior already proven across Codex runtime versions.
 
 ## Quick start
 
