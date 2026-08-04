@@ -28,13 +28,17 @@ def test_runtime_evidence_is_typed_and_main_coverage_is_conservative():
         assert phrase in runtime
 
 
-def test_runtime_verifier_supports_main_and_child_subjects():
+def test_runtime_verifier_supports_main_and_child_subjects_and_policy_reference():
     verifier = (PLUGIN / "scripts" / "runtime-evidence.py").read_text()
+    policy = (PLUGIN / "policy-contract.json").read_text()
     assert 'subject == "main_session"' in verifier
     assert 'subject == "child"' in verifier
-    assert 'SOL_MODEL_PREFIX = "gpt-5.6-sol"' in verifier
+    assert "JUDGMENT_REFERENCE_MODEL = load_judgment_reference_model()" in verifier
+    assert "main_coverage_reference_role" in verifier
+    assert '"main_coverage_reference_role": "solver"' in policy
     assert 'coverage = "unknown"' in verifier
     assert "quarantine_main_route_claim" in verifier
+    assert 'SOL_MODEL_PREFIX = "gpt-5.6-sol"' not in verifier
 
 
 def test_exact_project_roles_have_no_cross_role_fallback():
