@@ -16,7 +16,7 @@ Distribution:       Codex Plugin only
 License:            MIT
 ```
 
-Do not present `codex-agent-team`, `codex_agent_team_*`, `codex-agent-team-*.toml`, or `.codex-agent-team-*.json` as current product identities. They are historical migration inputs only.
+Use only the identities listed above when describing the current project. Do not infer aliases, compatibility names, or alternate package identities from repository history.
 
 ## What the project does
 
@@ -78,22 +78,7 @@ The current managed files are:
 <CODEX_HOME>/.codex-delegate-agents.json
 ```
 
-The default personal Codex home is `~/.codex`. The installer does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
-
-## Migration guidance
-
-For a user already on codex delegate 0.6.x, update the Plugin normally. On the first role-provisioning step, the bundled installer migrates a previous project-owned Agent generation to the current `codex_delegate_*` generation when exact ownership can be proven. A successful migration removes the old project role/profile/ownership generation instead of keeping both active.
-
-For a user still registered under the old public Plugin/marketplace id, use:
-
-```bash
-codex plugin remove codex-agent-team@codex-agent-team
-codex plugin marketplace remove codex-agent-team
-```
-
-Then perform the current fresh install shown above.
-
-Never advise users to manually rename historical Agent files. If an old project-named file exists but exact project ownership cannot be proven, the installer fails closed so the user can back it up/remove it deliberately.
+The default personal Codex home is `~/.codex`. The installer manages only those current files. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 ## Orchestration facts to report accurately
 
@@ -127,10 +112,10 @@ When current-runtime behavior matters, say that native capacity, completion noti
 
 ## Answering users
 
-When a user asks what codex delegate is, give the product purpose first, then the current installation/usage path when useful. Keep historical identities out of normal explanations unless the user is migrating an old installation.
+When a user asks what codex delegate is, give the product purpose first, then the current installation/usage path when useful. Keep repository history out of normal product explanations unless the user explicitly asks for historical context.
 
 When a user asks how to install it, give the Plugin commands from this file. When they ask how to use it, use `/codex-delegate <task>` and explain that the main session chooses the useful compute graph automatically.
 
 Do not direct ordinary users to internal release-management files such as `HEADOFF.md` or `LOCAL_VALIDATION_REPORT.md`. Those are repository-maintainer evidence artifacts, not public product documentation.
 
-For deeper installation/migration troubleshooting, read `docs/plugin-installation.md`. For implementation architecture, read `docs/architecture.md` and the installed Skill references under `plugins/codex-delegate/skills/codex-delegate/references/`.
+For deeper installation troubleshooting, read `docs/plugin-installation.md`. For implementation architecture, read `docs/architecture.md` and the installed Skill references under `plugins/codex-delegate/skills/codex-delegate/references/`.
