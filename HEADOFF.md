@@ -1,11 +1,10 @@
 # Codex Delegate Local Runtime Validation Handoff
 
-This is the finite live-validation and v1.0.0 release checklist for codex delegate. Architecture is frozen; current repository work is the 0.7.0 identity/migration closure plus AI-agent documentation. Do not reopen optional architecture tuning.
+This is the finite live-validation and v1.0.0 release checklist for codex delegate. Architecture and public identity are frozen. Current repository work is limited to validating the accepted current implementation on a real Codex runtime and fixing evidence-backed release blockers.
 
 ## Current static baseline candidate
 
 ```text
-implementation baseline reviewed through: 476fcb45363844e680521d6484a90a81ca1cfd24
 product: codex delegate
 repository: R-jed/codex-delegate
 marketplace/plugin id: codex-delegate
@@ -18,7 +17,7 @@ known open reproducible PROJECT P0/P1: none
 release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 ```
 
-Old `codex_agent_team_*`, `codex-agent-team-*.toml`, and `.codex-agent-team-*.json` values are migration inputs only. A successful 0.7.0 migration must remove that project generation. Do not restore them as current fallback roles.
+The current repository tree uses only the `codex-delegate` / `codex_delegate_*` project identity. Repository history is not part of the current runtime, installation, policy, documentation, or release contract.
 
 Before each live checkpoint, fetch `origin/main`, record the exact tested SHA/runtime, and invalidate only evidence whose declared dependencies changed.
 
@@ -128,31 +127,31 @@ Do not add a workspace lock before M3 establishes a reproducible project failure
 
 Any P0/P1 candidate requires immediate adversarial review before remediation is accepted.
 
-## Checkpoint 6: official Plugin install, 0.7.0 migration, installer concurrency
+## Checkpoint 6: official Plugin install and installer lifecycle
 
 For the selected RC:
 
 1. run the then-current official OpenAI Plugin validator and record its revision;
 2. perform real fresh install using `R-jed/codex-delegate` and `codex-delegate@codex-delegate`;
 3. start a new thread and confirm `/codex-delegate` discovery and version 0.7.0;
-4. authorize profile provisioning and prove only `codex_delegate_*` current roles are exposed;
-5. migrate a representative codex delegate 0.6.x profile/ownership generation and prove old project-named profile/manifest/role state is absent after success;
-6. test both recognized historical ownership receipts together: disjoint proven hashes must merge into one migration authority, while conflicting hashes for the same file must fail closed before mutation;
-7. test an unproven/user-modified old project-named profile and prove fail-closed, no overwrite/delete;
-8. test old public `codex-agent-team` Plugin/marketplace removal followed by current fresh install;
+4. authorize profile provisioning and prove only the four current `codex_delegate_*` project roles are exposed by the managed configuration;
+5. verify repeat install is idempotent and `--check` is strictly non-mutating;
+6. verify a previously project-managed current profile can update only when the current ownership receipt proves its exact prior bytes;
+7. verify a modified/unowned current filename fails closed rather than being overwritten;
+8. verify unrelated Agent profiles remain untouched;
 9. test same-Codex-home installer races:
 
 ```text
 I1 two installers target the same clean CODEX_HOME
 I2 one installer fails after mutation begins while a peer succeeds
-I3 different managed profile generations compete in one CODEX_HOME
+I3 two current-profile update attempts compete in one CODEX_HOME
 ```
 
 Only add inter-process serialization/CAS if a reproducible invariant failure establishes the need.
 
 ## Definition of Done for v1.0.0
 
-Release v1.0.0 when maintained CI and current official Plugin validation pass on a fixed RC, real install/update/migration pass, exact required role routing and permission behavior have no open P0/P1, contract/scope simulations pass, scheduling/recovery/resource/multi-session gates have no open P0/P1, required Final Review lifecycle passes, installer concurrency has no open P0/P1, and required product experiments are recorded without unsupported quality/cost claims.
+Release v1.0.0 when maintained CI and current official Plugin validation pass on a fixed RC, real fresh install/update/profile lifecycle validation passes, exact required role routing and permission behavior have no open P0/P1, contract/scope simulations pass, scheduling/recovery/resource/multi-session gates have no open P0/P1, required Final Review lifecycle passes, installer concurrency has no open P0/P1, and required product experiments are recorded without unsupported quality/cost claims.
 
 Then feature-freeze, run one fixed RC closure, tag `v1.0.0`, publish the GitHub Release, and move P2/P3 work post-v1.
 
