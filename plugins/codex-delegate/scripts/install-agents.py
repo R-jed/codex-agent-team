@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Provision codex delegate custom-Agent profiles with bounded legacy migration.
-
-The current runtime namespace is exclusively ``codex_delegate_*``. Historical
-``codex_agent_team_*`` files are accepted only as migration input and are removed
-only when previous project ownership is proven by exact hashes.
-"""
+"""Provision codex delegate custom-Agent profiles safely."""
 
 from __future__ import annotations
 
@@ -21,30 +16,9 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_SOURCE = ROOT / "agent-profiles"
 POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
-CURRENT_MANIFEST_NAME = ".codex-delegate-agents.json"
-CURRENT_MANIFEST_SCHEMA = 1
-CURRENT_MANAGED_BY = "codex-delegate"
-
-LEGACY_TEAM_MANIFEST_NAME = ".codex-agent-team-agents.json"
-LEGACY_FULL_MANIFEST_NAME = ".codex-agent-team-install.json"
-LEGACY_TEAM_PROFILE_FILES = (
-    "codex-agent-team-reader.toml",
-    "codex-agent-team-worker.toml",
-    "codex-agent-team-investigator.toml",
-    "codex-agent-team-advisor.toml",
-)
-LEGACY_TEAM_ROLE_NAMES = {
-    "codex_agent_team_reader",
-    "codex_agent_team_worker",
-    "codex_agent_team_investigator",
-    "codex_agent_team_advisor",
-}
-LEGACY_MODEL_PROFILE_FILES = (
-    "luna-explorer.toml",
-    "luna-worker.toml",
-    "terra-reviewer.toml",
-    "sol-judge.toml",
-)
+MANIFEST_NAME = ".codex-delegate-agents.json"
+MANIFEST_SCHEMA = 1
+MANAGED_BY = "codex-delegate"
 
 
 def fail(message: str) -> NoReturn:
@@ -108,7 +82,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_json(path: Path) -> dict | None:
+def load_manifest(path: Path) -> dict | None:
     if path.is_symlink():
         fail(f"Refusing symlinked install manifest: {path}")
     if not path.exists():
@@ -121,36 +95,8 @@ def load_json(path: Path) -> dict | None:
         fail(f"Invalid install manifest {path}: {exc}")
     if not isinstance(payload, dict) or not isinstance(payload.get("profile_hashes", {}), dict):
         fail(f"Invalid install manifest object: {path}")
-    return payload
-
-
-def load_current_manifest(path: Path) -> dict | None:
-    payload = load_json(path)
-    if payload is None:
-        return None
-    if payload.get("schema_version") != CURRENT_MANIFEST_SCHEMA or payload.get("managed_by") != CURRENT_MANAGED_BY:
-        fail(f"Unsupported current managed-profile manifest: {path}")
-    return payload
-
-
-def load_legacy_team_manifest(path: Path) -> dict | None:
-    payload = load_json(path)
-    if payload is None:
-        return None
-    if payload.get("schema_version") not in {1, 2}:
-        fail(f"Unsupported legacy codex-agent-team manifest: {path}")
-    return payload
-
-
-def load_legacy_full_manifest(path: Path) -> dict | None:
-    payload = load_json(path)
-    if payload is None:
-        return None
-    if payload.get("schema_version") != 1 or payload.get("mode") != "profile":
-        fail(
-            "Legacy .codex-agent-team-install.json is not a recognized profile-ownership manifest. "
-            "Back it up/remove it manually before codex delegate can establish a clean ownership generation."
-        )
+    if payload.get("schema_version") != MANIFEST_SCHEMA or payload.get("managed_by") != MANAGED_BY:
+        fail(f"Unsupported codex delegate managed-profile manifest: {path}")
     return payload
 
 
@@ -164,28 +110,10 @@ def manifest_hashes(manifest: dict | None) -> dict[str, str]:
     }
 
 
-def legacy_ownership_hashes(team_manifest: dict | None, full_manifest: dict | None) -> dict[str, str]:
-    merged: dict[str, str] = {}
-    for source_name, manifest in (
-        (LEGACY_TEAM_MANIFEST_NAME, team_manifest),
-        (LEGACY_FULL_MANIFEST_NAME, full_manifest),
-    ):
-        for filename, digest in manifest_hashes(manifest).items():
-            existing = merged.get(filename)
-            if existing is not None and existing != digest:
-                fail(
-                    "Conflicting legacy ownership hashes for "
-                    f"{filename!r} across historical manifests; refusing migration. "
-                    f"Conflict observed while reading {source_name}."
-                )
-            merged[filename] = digest
-    return merged
-
-
 def desired_manifest() -> dict:
     return {
-        "schema_version": CURRENT_MANIFEST_SCHEMA,
-        "managed_by": CURRENT_MANAGED_BY,
+        "schema_version": MANIFEST_SCHEMA,
+        "managed_by": MANAGED_BY,
         "profile_hashes": {
             filename: file_hash(PROFILE_SOURCE / filename) for filename in PROFILE_FILES
         },
@@ -238,11 +166,9 @@ def preflight_profiles(
     agents_dir: Path,
     *,
     check_only: bool,
-    current_hashes: dict[str, str],
-    legacy_hashes: dict[str, str],
-) -> tuple[set[str], set[str]]:
+    managed_hashes: dict[str, str],
+) -> set[str]:
     upgrades: set[str] = set()
-    removable_legacy: set[str] = set()
 
     for filename in PROFILE_FILES:
         source = PROFILE_SOURCE / filename
@@ -257,34 +183,13 @@ def preflight_profiles(
             fail(f"Agent profile destination is not a regular file: {target}")
         if target.read_bytes() == source.read_bytes():
             continue
-        if not check_only and current_hashes.get(filename) == file_hash(target):
+        if not check_only and managed_hashes.get(filename) == file_hash(target):
             upgrades.add(filename)
             continue
         fail(
             "Refusing to overwrite an Agent profile that differs from the current package "
             f"and is not proven unchanged from a previous codex delegate install: {target}"
         )
-
-    if not check_only:
-        for filename in LEGACY_TEAM_PROFILE_FILES:
-            target = agents_dir / filename
-            if not target.exists():
-                continue
-            if target.is_symlink() or not target.is_file():
-                fail(f"Legacy Agent profile is not a safe regular file: {target}")
-            if legacy_hashes.get(filename) != file_hash(target):
-                fail(
-                    "Legacy codex-agent-team profile exists but ownership cannot be proven. "
-                    f"Back it up/remove it manually before migration: {target}"
-                )
-            removable_legacy.add(filename)
-
-        for filename in LEGACY_MODEL_PROFILE_FILES:
-            target = agents_dir / filename
-            if target.is_symlink() or not target.is_file():
-                continue
-            if legacy_hashes.get(filename) == file_hash(target):
-                removable_legacy.add(filename)
 
     current_roles = {values[0] for values in EXPECTED_PROFILES.values()}
     if agents_dir.exists():
@@ -297,13 +202,8 @@ def preflight_profiles(
                     "Refusing to install because another Agent file uses the reserved current role name "
                     f"{existing_name!r}: {existing}"
                 )
-            if existing_name in LEGACY_TEAM_ROLE_NAMES and existing.name not in removable_legacy:
-                fail(
-                    "A legacy codex_agent_team_* role remains outside proven migration ownership. "
-                    f"Back it up/remove it manually before migration: {existing}"
-                )
 
-    return upgrades, removable_legacy
+    return upgrades
 
 
 def verify_profiles(agents_dir: Path) -> None:
@@ -312,21 +212,6 @@ def verify_profiles(agents_dir: Path) -> None:
         target = agents_dir / filename
         if target.is_symlink() or not target.is_file() or target.read_bytes() != source.read_bytes():
             fail(f"Installed Agent profile is missing, unsafe, or differs from shipped template: {target}")
-
-
-def verify_no_legacy_team_state(codex_home: Path, agents_dir: Path) -> None:
-    for manifest_name in (LEGACY_TEAM_MANIFEST_NAME, LEGACY_FULL_MANIFEST_NAME):
-        if (codex_home / manifest_name).exists():
-            fail(f"Legacy codex delegate ownership manifest still exists after migration: {codex_home / manifest_name}")
-    for filename in LEGACY_TEAM_PROFILE_FILES:
-        if (agents_dir / filename).exists():
-            fail(f"Legacy codex-agent-team profile still exists after migration: {agents_dir / filename}")
-    if agents_dir.exists():
-        for existing in agents_dir.glob("*.toml"):
-            if existing.is_symlink() or not existing.is_file():
-                continue
-            if parse_profile_name(existing) in LEGACY_TEAM_ROLE_NAMES:
-                fail(f"Legacy codex_agent_team_* role still exists after migration: {existing}")
 
 
 def stage_file(directory: Path, data: bytes) -> Path:
@@ -357,7 +242,6 @@ def backup_target(target: Path) -> Path:
 def apply_profile_changes(
     agents_dir: Path,
     upgrades: set[str],
-    removable_legacy: set[str],
     created: list[Path],
     backups: dict[Path, Path],
 ) -> None:
@@ -377,13 +261,13 @@ def apply_profile_changes(
             staged.unlink(missing_ok=True)
             raise
 
-    for filename in removable_legacy:
-        target = agents_dir / filename
-        if target.exists():
-            backups[target] = backup_target(target)
 
-
-def rollback(created: list[Path], backups: dict[Path, Path], manifest_path: Path, previous_manifest: bytes | None) -> list[str]:
+def rollback(
+    created: list[Path],
+    backups: dict[Path, Path],
+    manifest_path: Path,
+    previous_manifest: bytes | None,
+) -> list[str]:
     errors: list[str] = []
     for path in reversed(created):
         try:
@@ -416,29 +300,21 @@ def install(codex_home: Path, check_only: bool) -> None:
         fail(f"Refusing symlinked Codex home: {codex_home}")
     codex_home = codex_home.resolve()
     agents_dir = codex_home / "agents"
-    current_manifest_path = codex_home / CURRENT_MANIFEST_NAME
-    legacy_team_manifest_path = codex_home / LEGACY_TEAM_MANIFEST_NAME
-    legacy_full_manifest_path = codex_home / LEGACY_FULL_MANIFEST_NAME
+    manifest_path = codex_home / MANIFEST_NAME
 
     validate_sources()
     preflight_agents_dir(agents_dir, check_only=check_only)
-    current_manifest = load_current_manifest(current_manifest_path)
-    legacy_team_manifest = load_legacy_team_manifest(legacy_team_manifest_path)
-    legacy_full_manifest = load_legacy_full_manifest(legacy_full_manifest_path)
-    current_hashes = manifest_hashes(current_manifest)
-    legacy_hashes = legacy_ownership_hashes(legacy_team_manifest, legacy_full_manifest)
-    upgrades, removable_legacy = preflight_profiles(
+    manifest = load_manifest(manifest_path)
+    upgrades = preflight_profiles(
         agents_dir,
         check_only=check_only,
-        current_hashes=current_hashes,
-        legacy_hashes=legacy_hashes,
+        managed_hashes=manifest_hashes(manifest),
     )
 
     if check_only:
         verify_profiles(agents_dir)
-        if current_manifest != desired_manifest():
-            fail(f"Current managed-profile manifest is missing or stale: {current_manifest_path}")
-        verify_no_legacy_team_state(codex_home, agents_dir)
+        if manifest != desired_manifest():
+            fail(f"Current managed-profile manifest is missing or stale: {manifest_path}")
         print("CHECK PASSED: codex delegate managed Agent profiles and ownership state are exact.")
         return
 
@@ -448,34 +324,23 @@ def install(codex_home: Path, check_only: bool) -> None:
         and (agents_dir / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
         for filename in PROFILE_FILES
     )
-    if (
-        profiles_exact
-        and current_manifest == desired_manifest()
-        and not removable_legacy
-        and legacy_team_manifest is None
-        and legacy_full_manifest is None
-    ):
-        verify_no_legacy_team_state(codex_home, agents_dir)
+    if profiles_exact and manifest == desired_manifest():
         print("Managed Agent profiles already installed exactly; no changes made.")
         return
 
     codex_home.mkdir(parents=True, exist_ok=True)
     agents_dir.mkdir(parents=True, exist_ok=True)
-    previous_manifest = current_manifest_path.read_bytes() if current_manifest_path.is_file() else None
+    previous_manifest = manifest_path.read_bytes() if manifest_path.is_file() else None
     created: list[Path] = []
     backups: dict[Path, Path] = {}
 
     try:
-        apply_profile_changes(agents_dir, upgrades, removable_legacy, created, backups)
+        apply_profile_changes(agents_dir, upgrades, created, backups)
         verify_profiles(agents_dir)
-        write_manifest(current_manifest_path, desired_manifest())
-        for legacy_manifest_path in (legacy_team_manifest_path, legacy_full_manifest_path):
-            if legacy_manifest_path.exists():
-                backups[legacy_manifest_path] = backup_target(legacy_manifest_path)
+        write_manifest(manifest_path, desired_manifest())
         verify_profiles(agents_dir)
-        verify_no_legacy_team_state(codex_home, agents_dir)
     except BaseException as exc:
-        rollback_errors = rollback(created, backups, current_manifest_path, previous_manifest)
+        rollback_errors = rollback(created, backups, manifest_path, previous_manifest)
         if rollback_errors:
             fail(f"INSTALL FAILED: {exc}\nROLLBACK INCOMPLETE:\n- " + "\n- ".join(rollback_errors))
         raise
@@ -485,7 +350,7 @@ def install(codex_home: Path, check_only: bool) -> None:
 
     role_names = ", ".join(spec["agent_type"] for spec in ROLE_SPECS.values())
     print(f"Managed Agent profiles installed under: {agents_dir}")
-    print(f"Managed profile manifest: {current_manifest_path}")
+    print(f"Managed profile manifest: {manifest_path}")
     print(f"Verified roles: {role_names}")
     print(
         "Profile files are ready. Re-check the native spawn_agent role surface; "
