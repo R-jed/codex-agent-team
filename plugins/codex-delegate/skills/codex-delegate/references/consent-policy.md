@@ -1,141 +1,117 @@
 # Consent Policy
 
-## 1. Purpose
+Consent protects meaningful user boundaries without turning ordinary orchestration into repeated prompts. It governs resource expansion, not routing quality or team shape.
 
-Consent protects meaningful user boundaries without turning ordinary orchestration into repeated prompts.
+## 1. Baseline envelope
 
-The user should understand practical changes in scope, permission, external impact, concurrent fan-out, or material model cost.
-
-Consent is a resource boundary. It is not the scheduler and does not define the total number of Agents a task may ever use.
-
-## 2. Baseline resource envelope
-
-When the user explicitly invokes `/codex-delegate`, ordinary orchestration may proceed without another prompt while all of these remain true:
+Explicit `/codex-delegate` invocation authorizes ordinary bounded orchestration while all of these remain true:
 
 ```text
 up to 2 concurrently active justified child Agents
-at most 1 active writer per canonical workspace
+at most 1 active writing project Agent per canonical workspace
 no permission expansion
 no scope expansion
 no external side effect
-no material compute expansion beyond the task's ordinary bounded execution
+no material compute expansion beyond the requested task's ordinary execution
 ```
 
-The exact team shape is dynamic. Examples that may fit inside the baseline when justified:
+This is an authorization envelope, not a target. Zero children is normal.
+
+A justified Sol capability-uplift child can fit inside this baseline when Routing V4 establishes material judgment that the current main session does not already cover. This includes either:
 
 ```text
-Luna only
-Luna Reader + Luna Worker
-Luna + Terra delta investigation
-Luna + Sol selective review
-Terra + Luna
-Sol only
+Sol Advisor for one bounded judgment dependency
+Sol Solver for one bounded judgment-coupled implementation dependency
 ```
 
-Zero Agents is normal. One Agent is not a required default. Two Agents is not a goal.
+The first required fresh Sol Final Review pass can also fit after explicit invocation when it is the ordinary bounded completion dependency for the task.
 
-The baseline count applies to simultaneously active fan-out, not to the lifetime number of child calls. A later child may run after an earlier dependency completes when the new child satisfies a new ready dependency and does not create material compute expansion.
+Do not spend Sol merely because the baseline permits it. A Sol main session normally covers ordinary judgment itself, and routine bounded work does not need a Sol child.
 
-A single read-only Sol advisor may fit inside the explicit `/codex-delegate` baseline when it satisfies a distinct judgment or review dependency. This includes the first risk-triggered Final Review Gate pass when that gate is required by the current deliverable.
+## 2. Sequential calls still count as compute
 
-For implicit Skill invocation, ask before adding Sol unless the current user request already clearly authorizes stronger model review. A risk-triggered Final Review Gate does not silently expand implicit-call compute authorization.
+The two-child baseline limits simultaneous fan-out, not lifetime calls. Later children may run as new dependencies become ready.
 
-## 3. What does not require a new prompt
+However, do not evade consent by serializing an unexpectedly large sequence of expensive calls. Material compute expansion includes patterns such as:
 
-Do not ask again for actions already clearly authorized by the current request and baseline envelope.
+- repeated Sol Solver or Advisor cycles;
+- repeated expensive investigation;
+- many delegated retries for one unresolved dependency;
+- a large new batch of dependencies not implied by the user request.
+
+When the workflow materially exceeds the expected bounded shape, ask before continuing even if only one child is active at a time.
+
+## 3. Implicit invocation
+
+For implicit Skill use, do not silently add a Sol child unless the user's request already clearly authorizes the corresponding stronger judgment/review work.
+
+If material judgment requires Sol capability uplift and authorization is unclear, ask before starting Advisor or Solver. Routine Luna evidence/execution may proceed within the ordinary task authorization when all other boundaries are satisfied.
+
+A required Final Review state does not silently expand implicit-call compute authorization.
+
+## 4. What does not require a new prompt
+
+Do not re-ask for work already covered by the current request and baseline.
 
 Examples:
 
-- "Fix this bug and run tests" authorizes ordinary in-scope edits and verification.
-- "Review this branch carefully" can authorize one justified read-only Sol review when the Skill was explicitly invoked.
-- Two independent read-only branches may run concurrently when they satisfy different ready dependencies.
-- A Terra delta investigation does not require a separate prompt when it remains read-only, bounded, and replaces duplicated rework.
-- A third child may run later after prior children close when it satisfies a newly ready dependency and the overall compute shape remains ordinary for the requested task.
-- After explicit `/codex-delegate` invocation, one required fresh Sol Final Review Gate pass can proceed without another prompt when it remains the ordinary bounded completion dependency for the task.
+- a bounded Luna fix and its verification;
+- one evidence Reader for a large trace when delegation is useful;
+- one justified Sol judgment/solver dependency after explicit `/codex-delegate` invocation;
+- one narrow Terra technical investigation that replaces duplicated rework;
+- a second independent read-only child within the two-child concurrent envelope;
+- the first required fresh Final Review pass after explicit invocation;
+- a later child after an earlier child closes when the new dependency is ordinary and the overall compute shape remains bounded.
 
-## 4. What requires consent
+## 5. What requires consent
 
 Ask before a material boundary change.
 
 ### Permission
 
-Write access, privileged tools, workspace-external access, or stronger sandbox capability that the task did not already authorize.
+New write access, privileged tools, workspace-external access, or stronger sandbox capability not already authorized.
 
 ### Scope
 
-A local task requires changes to additional critical modules, public contracts, data migrations, or other responsibilities outside the agreed outcome.
+Work must expand into additional critical modules, public contracts, state transitions, or responsibilities outside the agreed outcome.
 
 ### External impact
 
-Publishing, sending, deployment, payment, account changes, destructive deletion, production changes, or similarly consequential actions remain with the main session and require clear authorization when not already granted.
+Publishing, sending, deployment, payment, account changes, destructive deletion, production changes, or equivalent consequential actions not already authorized.
 
 ### Larger simultaneous fan-out
 
-More than two concurrently active child Agents normally requires consent unless the user explicitly requested broad parallel work.
+More than two concurrently active children normally requires consent unless the user already requested broad parallel work.
 
-Before asking, the main session should identify the ready dependencies and explain why concurrent execution materially helps. Do not ask for abstract permission to "use more Agents" without a concrete scheduling reason.
-
-After approval, actual concurrency is bounded by justified ready dependencies, workspace safety, and native runtime capacity. Codex Delegate does not add another numerical hard ceiling.
+Explain the concrete ready dependencies and why concurrency helps. Do not ask abstractly for permission to "use more Agents".
 
 ### Material compute expansion
 
-Ask when execution would materially exceed the expected bounded resource shape even if it remains serial. Examples include repeated expensive investigation/review passes, many sequential delegated retries, or a large new batch of dependencies that was not implied by the user's request.
+Ask before a workflow turns into repeated expensive investigation, Solver, Advisor, or correction/re-review cycles beyond the ordinary bounded shape.
 
-Do not evade this gate by keeping only two Agents active at a time while silently creating an unexpectedly large sequence of child calls.
+A single `fix-first` correction plus fresh re-review may remain ordinary after explicit invocation. Repeated loops require renewed consent when they materially expand compute.
 
-A `fix-first` verdict invalidates the old final review and requires a new fresh review after correction. One bounded correction-and-re-review cycle may remain ordinary execution after explicit `/codex-delegate` invocation. Repeated Sol review cycles that materially expand compute cross this consent boundary; the Final Review Gate does not authorize unlimited reviewer retries.
-
-## 4A. Consent interaction with a required Final Review Gate
+## 6. Required Final Review and user choice
 
 Keep quality state separate from compute authorization.
 
-```text
-review_requirement = required
-```
+If `review_requirement = required` but the fresh Sol pass is outside the current consent envelope:
 
-means independent final review is part of Codex Delegate's quality policy for the candidate. It does not by itself prove that an otherwise-unapproved Sol call may be started.
+1. keep the candidate at Candidate Ready;
+2. state the semantic reason independent review is required;
+3. ask for the smallest additional consent;
+4. if approved, run the fresh review;
+5. if declined, report the review as incomplete.
 
-If the required Sol call is outside the current consent envelope:
+Do not rewrite `review_requirement` to save compute and do not fabricate `ship`.
 
-1. keep the candidate at **Candidate Ready**;
-2. explain why the semantic gate requires independent review and what additional Sol call is proposed;
-3. ask for the smallest consent needed for that review pass;
-4. if approved, run the fresh review normally;
-5. if declined, do not downgrade `review_requirement`, do not fabricate `ship`, and do not claim the Final Review Gate succeeded.
+## 7. How to ask
 
-When the user declines the additional review, the main session may hand off the verified candidate with an explicit receipt that independent final review was declined or remains incomplete. User choice controls compute use; it does not rewrite the historical fact that the configured quality gate was unsatisfied.
+Explain:
 
-## 5. How to ask
+1. what unresolved dependency remains;
+2. why the current main/children/evidence cannot satisfy it within the existing envelope;
+3. what additional compute, concurrency, permission, scope, or external effect is proposed;
+4. what smaller/slower alternative exists when one is meaningful.
 
-Use plain language and answer:
-
-1. What unresolved dependencies are ready?
-2. Why can existing evidence or current Agents not satisfy them cheaply enough?
-3. What new concurrency, scope, permission, external effect, or compute cost is being added?
-4. What safe slower or smaller alternative exists?
-
-Bad:
-
-```text
-Enable higher capability?
-```
-
-Better:
-
-```text
-Five independent read-only checks are ready and none depends on the others. Running them together would shorten the critical path, but it exceeds the normal two-child concurrent envelope. No files or external systems will be changed. I can run them concurrently if the runtime has capacity, or process them in smaller waves. Allow the larger fan-out?
-```
-
-For a required review outside the current envelope, be specific:
-
-```text
-The implementation and deterministic checks are complete, but this change crosses a public API boundary, so the Final Review Gate requires one fresh read-only Sol review before I can claim the quality gate passed. Allow that additional review pass?
-```
-
-## 6. One-time scope
-
-Consent applies only to the described expansion.
-
-Approval for one larger fan-out does not authorize unrelated later fan-out. Approval for one additional Sol pass does not authorize repeated Sol retries. Approval to broaden one module does not authorize unrelated modules. Approval to prepare an external action does not authorize executing it.
-
-When the approved fan-out has completed or its dependency frontier changes materially, return to the normal consent model.
+Consent applies only to the described expansion. Approval for one fan-out, Solver, review pass, or scope increase does not authorize unrelated later expansion.
