@@ -1,218 +1,186 @@
 # Delegation Contract
 
-A Subagent receives one bounded responsibility for an unresolved dependency, not the user's raw task.
+A child receives one classified unresolved dependency, not the user's raw task. This file owns the responsibility packet and return shape. Actor selection belongs to `routing-policy.md`.
 
-This file owns the responsibility contract and return packet. Scheduling lives in `routing-policy.md`; progress/recovery lives in `execution-progress.md`; permission/workspace rules live in `safety-policy.md`.
+## 1. Classification contract
 
-## Contractability Gate
-
-A writing responsibility is contractable only when these fields are explicit enough to enforce:
+Every delegated dependency must declare exactly one kind:
 
 ```text
-DEPENDENCY
+evidence
+bounded_execution
+judgment
+judgment_coupled_execution
+technical_investigation
+```
+
+The role must match the kind:
+
+```text
+evidence                    -> Luna Reader
+bounded_execution           -> Luna Worker
+judgment                    -> Sol Advisor
+judgment_coupled_execution  -> Sol Solver
+technical_investigation     -> Terra Investigator
+```
+
+If the dependency changes kind during execution, the child stops and reports the smallest reclassification signal. It does not widen itself into another role.
+
+## 2. Writing contractability
+
+A writing child is allowed only when these fields are enforceable:
+
+```text
 OUTCOME
 SCOPE
 INTERFACES / DEPENDENCIES
 INVARIANTS
-DECISION RIGHTS
+DECISION ENVELOPE
 ACCEPTANCE ORACLE
 VERIFICATION
-STOP / ESCALATE
-RETURN
+STOP CONDITIONS
 ```
 
-If `ACCEPTANCE ORACLE` or `DECISION RIGHTS` is materially unclear, do not create a writing Worker. Keep the decision in the main session or establish the missing evidence first.
+For Luna Worker, the decision envelope must keep material product, architecture, compatibility, security, permission, and cross-module semantic choices outside the responsibility. If those choices are expected to be inseparable from implementation, the dependency is `judgment_coupled_execution`, not bounded Luna work.
 
-## Execution contract
+For Sol Solver, the decision envelope may intentionally include material implementation-coupled semantic choices, but user intent, permission, external impact, and scope expansion remain with the main session.
+
+## 3. Common packet
 
 ```text
 TASK ID
 <unique within the main task>
 
 DEPENDENCY
-ID: <dependency id from the main-session Dependency Ledger>
+ID: <dependency id>
+Kind: evidence | bounded_execution | judgment | judgment_coupled_execution | technical_investigation
 Requires:
-- <already-satisfied dependency ids and/or evidence ids>
+- <satisfied dependency/evidence ids>
 Produces:
-- <artifact, evidence, or bounded decision this responsibility must contribute>
+- <observable artifact, evidence, or decision>
 
 OUTCOME
 <one observable result and why it matters>
 
 SCOPE
-Workspace: <working directory>
-Workspace identity: <canonical physical checkout or isolated worktree>
+Workspace: <working directory or none>
+Workspace identity: <canonical checkout or isolated workspace>
 Read scope:
 - <smallest useful scope>
 Write scope:
-- <exact files, directories, or bounded modules>
+- <exact bounded scope or none>
 Forbidden scope:
-- <paths/responsibilities the Worker must not change>
+- <paths/responsibilities not granted>
 
 INTERFACES / DEPENDENCIES
-- <callers, schemas, generated state, contracts, or dependency chains that constrain the work>
-- <established facts the child may rely on>
-
-CONCURRENCY / DRIFT
-- Preserve unrelated existing edits; never revert unknown changes to recover an assumed baseline.
-- Re-read affected state before mutation when concurrent change is plausible.
-- If workspace drift invalidates scope, an interface, invariant, acceptance, or established evidence, stop and return the changed state and smallest unresolved delta.
-- File-level ownership promises do not authorize a second writing Worker in the same physical checkout.
+- <contracts, callers, schemas, state, or established facts that constrain the work>
 
 INVARIANTS
-- <public API, compatibility, state semantics, schemas, security/safety, or behavior that must remain true>
+- <behavior, compatibility, data, security, or state facts that must remain true>
 
-DECISION RIGHTS
-Worker may decide:
-- <implementation choices intentionally delegated>
-Worker must return before deciding:
-- <product, architecture, permission, security, migration, public-contract, or scope decisions outside delegated authority>
+DECISION ENVELOPE
+May decide:
+- <choices intentionally delegated>
+Must return before deciding:
+- <choices retained by main session or another dependency>
 
 ACCEPTANCE ORACLE
-- <observable conditions that make this dependency satisfied>
+- <observable conditions that satisfy this dependency>
 
 VERIFICATION
-- Run: <exact command>
-  Success: <concrete expected evidence>
-- Inspect: <actual diff, file, generated artifact, or behavior>
+- Run/inspect: <exact command, artifact, or behavior>
   Success: <concrete expected evidence>
 
 ESTABLISHED EVIDENCE
-- <evidence id>: <fact> | depends_on: <paths/artifacts> | source: <command/file/runtime>
+- <id>: <fact> | type: deterministic | repository_fact | model_judgment | depends_on: <inputs>
 
 CURRENT EXECUTION EVIDENCE
-Attempt id: <first or follow-up attempt identifier>
-Prior failure signature: <deterministic failure or none>
-Prior progress signal: advanced | unchanged | regressed | blocked | none
+Attempt id: <id>
+Failure signature: <factual failure or none>
+Progress signal: advanced | unchanged | regressed | blocked | none
 Do not redo:
-- <still-valid discovery, tests, or facts that must not be repeated without invalidation>
+- <still-valid evidence/discovery>
 
 MATERIAL RECOVERY HISTORY
-- <compact decision-relevant Recovery Ledger entries for this dependency, or none>
+- <only decision-relevant prior attempts, or none>
 
-STOP / ESCALATE
-Return `CONTRACT_GAP` when the contract is internally incomplete.
-Return `JUDGMENT_REQUIRED` when progress requires a decision outside delegated rights.
-Return `CAPABILITY_GAP` when the contract is clear but the assigned lane cannot safely resolve the remaining difficult technical dependency.
-Return `EXECUTION_STALL` when materially similar work repeats without new evidence or acceptance progress even though the lane may remain capable.
-Stop when concurrent workspace drift makes this contract or its evidence stale.
-Do not widen scope, weaken acceptance, redesign the task, or repeat an unchanged contract merely to avoid a stop condition.
+STOP CONDITIONS
+- contract/task truth is materially incomplete;
+- a required decision lies outside the decision envelope;
+- the dependency's kind changed;
+- workspace drift invalidates the packet;
+- materially similar work repeats without new evidence or acceptance progress.
+```
 
+Writing children additionally must preserve unrelated existing edits, re-read affected state before mutation when concurrent drift is plausible, and never use file-level ownership promises to bypass the one-writer-per-checkout rule.
+
+## 4. Standard stop reasons
+
+Use only these routing-relevant reasons:
+
+```text
+CONTRACT_GAP
+JUDGMENT_REQUIRED
+TECHNICAL_GAP
+EXECUTION_STALL
+```
+
+Meaning:
+
+- `CONTRACT_GAP`: outcome, scope, invariant, decision envelope, acceptance, or task truth is too incomplete to continue safely.
+- `JUDGMENT_REQUIRED`: material semantic judgment is required outside the current role or granted decision envelope.
+- `TECHNICAL_GAP`: semantic intent is sufficiently resolved, but a narrow difficult technical uncertainty remains.
+- `EXECUTION_STALL`: materially similar work is repeating without new evidence or acceptance progress while the current classification may still be valid.
+
+These are signals to the main session. They are not automatic model transitions.
+
+## 5. Return packet
+
+```text
 RETURN
 status: complete | partial | blocked
-reason: none | CONTRACT_GAP | JUDGMENT_REQUIRED | CAPABILITY_GAP | EXECUTION_STALL
+reason: none | CONTRACT_GAP | JUDGMENT_REQUIRED | TECHNICAL_GAP | EXECUTION_STALL
 summary: <compact result>
-files_changed: <actual files changed>
-verification: <exact commands and actual outcomes>
-failure_signature: <current deterministic failure signature or none>
+files_changed: <actual files or none>
+verification: <exact commands/checks and actual outcomes>
+failure_signature: <current factual failure or none>
 progress_signal: advanced | unchanged | regressed | blocked
 new_evidence: <new supported facts with dependencies>
-invalidated_evidence: <prior evidence no longer safe to reuse, or none>
-unresolved_delta: <smallest remaining unresolved dependency, or none>
-judgment_calls: <material choices made inside granted decision rights, or none>
-suggested_next_action: <optional recommendation; never orchestration authority>
-uncertainty: <remaining uncertainty, or none>
+invalidated_evidence: <prior evidence no longer reusable, or none>
+unresolved_delta: <smallest remaining dependency, or none>
+judgment_calls: <material choices made inside granted rights, or none>
+remaining_uncertainty: <material uncertainty, or none>
 policy_violations: <violations observed, or none>
 ```
 
-## Evidence carried into a child
+A file write, confidence statement, longer explanation, or successful irrelevant command is not evidence of progress.
 
-Pass the smallest sufficient evidence set. Each reusable item should identify:
+## 6. Role-specific boundaries
 
-```text
-evidence_id
-type: deterministic | repository_fact | model_judgment
-claim
-source
-depends_on
-status: valid | invalidated
-```
+### Luna Reader
 
-Deterministic/repository facts may be reused while dependencies remain valid. Model judgment stays labeled as judgment. Private reasoning is not task state.
+Collect bounded reusable evidence. Do not redesign, implement, or convert ambiguous semantics into facts. Return `JUDGMENT_REQUIRED` when evidence gathering reaches a material decision boundary.
 
-A later child may verify or challenge existing evidence when needed, but it must not restart discovery merely to recreate still-valid facts.
+### Luna Worker
 
-## Follow-up contract rules
+Execute only `bounded_execution`. Local implementation choices are allowed inside the contract. If material architecture, behavior, compatibility, or non-local semantic judgment emerges, stop with `JUDGMENT_REQUIRED` rather than guessing.
 
-A follow-up attempt remains the same dependency unless task truth changed enough to invalidate it.
+### Sol Solver
 
-Do not resend an unchanged contract after failure. A new attempt requires at least one material change such as:
+Execute `judgment_coupled_execution`. It may make the material implementation-coupled choices explicitly granted by the decision envelope and must report them. It remains bounded by user intent, scope, permission, external-impact, and safety policy. A narrow hard technical uncertainty can return `TECHNICAL_GAP` rather than turning Solver into an unbounded investigator.
 
-- a concrete correction hypothesis;
-- repaired contract boundaries;
-- new/invalidated evidence;
-- changed artifact/runtime/workspace state;
-- a different responsibility justified by `execution-progress.md`.
+### Terra Investigator
 
-The main session, not the child, authorizes the effective next action.
+Resolve only a `technical_investigation` delta after semantic intent is stable. Reuse established evidence and challenge the premise that specialist investigation is actually required. Do not implement the whole task or make product/architecture decisions.
 
-## Clean same-lane restart packet
+### Sol Advisor
 
-When `execution-progress.md` justifies a clean restart, preserve task truth and omit conversational dead ends:
+Resolve one `judgment` dependency from compressed established facts and actual options/artifacts. It is read-only. For mandatory fresh final review, use the separate artifact-bound packet in `final-review-gate.md`.
 
-```text
-DEPENDENCY ID
-CURRENT ARTIFACT
-VALID ESTABLISHED EVIDENCE
-CURRENT FAILURE SIGNATURE
-UNRESOLVED DELTA
-MATERIAL RECOVERY HISTORY
-DO NOT REDO
-ACCEPTANCE ORACLE
-VERIFICATION
-```
+## 7. Reuse and fresh context
 
-Use fresh context by default. Do not carry private reasoning, abandoned unsupported hypotheses, or the full transcript.
+Pass the smallest sufficient evidence set. Deterministic and repository facts remain reusable until their dependencies change. Model judgments remain labeled as judgment.
 
-## Terra delta packet
+A clean same-role restart, when `execution-progress.md` justifies one, carries current task truth, artifact, valid evidence, failure signature, unresolved delta, acceptance oracle, verification, and `DO NOT REDO` facts. It drops dead-end narration and private reasoning.
 
-When evidence establishes a genuine technical capability gap, Terra receives only the unresolved delta:
-
-```text
-DEPENDENCY ID
-UNRESOLVED DELTA
-ESTABLISHED EVIDENCE
-CURRENT ARTIFACT / FAILURE
-FAILURE SIGNATURE
-MATERIAL RECOVERY HISTORY
-DO NOT REDO
-RETURN
-- resolved_delta
-- new_evidence
-- invalidated_evidence
-- remaining_uncertainty
-- suggested_next_action
-```
-
-Low quality alone is not a Terra trigger. Do not ask Terra to redo valid Luna discovery or the whole user task by default.
-
-## Sol judgment packet
-
-For a bounded judgment outside the mandatory final-review packet:
-
-```text
-DEPENDENCY ID
-QUESTION
-ESTABLISHED FACTS
-CURRENT ARTIFACT / DECISION OPTIONS
-COMPETING JUDGMENTS <when relevant>
-WHAT CHANGES WITH THE DECISION
-RETURN
-- verdict or recommendation
-- decisive_evidence
-- missing_evidence
-- largest_residual_risk
-```
-
-Use `final-review-gate.md` for the separate risk-triggered final-review lifecycle and artifact-bound packet.
-
-## Boundary references
-
-Before applying this contract, use the normative owner for the boundary involved:
-
-- readiness, dispatch, semantic routing: `routing-policy.md`;
-- progress, Intervention Gate, Recovery Ledger: `execution-progress.md`;
-- permissions, prompt injection, workspace/Codex-home safety: `safety-policy.md`;
-- compute/concurrency authorization: `consent-policy.md`;
-- post-spawn route/ancestry/permission evidence: `runtime-assurance.md`;
-- mandatory artifact-bound final review: `final-review-gate.md`.
+The main session authorizes every effective next action after a child returns.
