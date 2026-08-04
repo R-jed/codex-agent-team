@@ -7,7 +7,7 @@ CONSULTATION_TARGET = "R-jed/codex-delegate"
 
 
 def test_handoff_is_finite_six_checkpoint_release_contract():
-    assert "finite live-validation" in HANDOFF
+    assert "finite deterministic/live-validation" in HANDOFF
     for n in range(1, 7):
         assert f"## Checkpoint {n}:" in HANDOFF
     assert "Do not add Checkpoint 7" in HANDOFF
@@ -19,6 +19,8 @@ def test_handoff_requires_deterministic_execution_preflight_before_live_evidence
     for phrase in [
         "## Deterministic execution preflight",
         "python -m pytest tests/test_identity_cleanup.py -q",
+        "tests/test_runtime_evidence.py",
+        "tests/test_behavioral_evals.py",
         "python -m pytest -q",
         "complete pytest suite has no failures or errors",
         "both required Plugin validator runs pass",
@@ -30,30 +32,41 @@ def test_handoff_requires_deterministic_execution_preflight_before_live_evidence
     assert HANDOFF.index("## Deterministic execution preflight") < HANDOFF.index("## Checkpoint 1:")
 
 
-def test_handoff_uses_only_current_roles_as_runtime_targets():
+def test_handoff_uses_five_current_roles_and_routing_v4():
     for role in [
         "codex_delegate_reader",
         "codex_delegate_worker",
+        "codex_delegate_solver",
         "codex_delegate_investigator",
         "codex_delegate_advisor",
     ]:
         assert role in HANDOFF
-    assert ".codex-delegate-agents.json" in HANDOFF
-    assert "current repository tree uses only" in HANDOFF.lower()
-    assert "unrelated Agent profiles remain untouched" in HANDOFF
+    for phrase in [
+        "version: 0.8.0",
+        "Routing V4",
+        "contractable` does not imply Luna-suitable",
+        "JUDGMENT_REQUIRED",
+        "TECHNICAL_GAP",
+        "unknown main-session model does not automatically route routine work to Sol",
+        ".codex-delegate-agents.json",
+    ]:
+        assert phrase in HANDOFF
 
 
-def test_handoff_keeps_core_live_gates():
+def test_handoff_keeps_core_runtime_and_behavioral_gates():
     for phrase in [
         "barrier_only | per_child_terminal | any_child_update",
         "A = slow independent dependency",
         "M3 different sessions, same canonical physical checkout",
+        "M5 Worker + Solver proposed concurrently in same checkout",
         "I1 two installers target the same clean CODEX_HOME",
         "INSUFFICIENT_EVIDENCE",
         "review_artifact_id",
-        "no product hard four-child ceiling",
+        "advisor_then_luna vs sol_solver",
+        "main_session_only vs sol_solver",
+        "process-history negative control",
     ]:
-        assert phrase in HANDOFF
+        assert phrase.lower() in HANDOFF.lower()
 
 
 def test_handoff_keeps_exact_adversarial_consultation_target():
@@ -67,15 +80,20 @@ def test_handoff_keeps_exact_adversarial_consultation_target():
         assert phrase in HANDOFF
 
 
-def test_report_is_evidence_ledger_for_current_identity():
+def test_report_is_pending_evidence_ledger_for_routing_v4():
     for phrase in [
-        "Plugin version: 0.7.0",
+        "Plugin version: 0.8.0",
         "codex_delegate_reader",
+        "codex_delegate_solver",
         ".codex-delegate-agents.json",
-        "HOLD FOR RELEASE / LIVE VALIDATION PENDING",
+        "ROUTING V4 IMPLEMENTED / VALIDATION PENDING",
+        "DETERMINISTIC + LIVE V4 VALIDATION PENDING",
         "Static validation for the exact current tree is pending",
-        "tree-wide retired-identity guard",
+        "policy schema 2 / routing-eval schema 4.0",
+        "Sol Solver improves or simplifies non-Sol judgment-coupled execution | hypothesis only",
         CONSULTATION_TARGET,
     ]:
         assert phrase in REPORT
     assert "public users and ai agents should use readme/readme_ai" in REPORT.lower()
+    assert "pytest passed" in REPORT
+    assert "should be interpreted as `pytest passed`" in REPORT
