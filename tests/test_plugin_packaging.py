@@ -35,6 +35,21 @@ def test_plugin_manifest_packages_single_canonical_skill_tree():
     assert (PLUGIN_ROOT / "scripts" / "runtime-evidence.py").is_file()
 
 
+def test_plugin_manifest_exposes_marketplace_brand_assets():
+    payload = json.loads(PLUGIN.read_text())
+    interface = payload["interface"]
+    assert interface["brandColor"] == "#2563EB"
+    assert interface["composerIcon"] == "./assets/codex-delegate-composer-icon.svg"
+    assert interface["logo"] == "./assets/codex-delegate-logo.svg"
+    assert interface["logoDark"] == "./assets/codex-delegate-logo-dark.svg"
+    assert interface["screenshots"] == []
+    for field in ["composerIcon", "logo", "logoDark"]:
+        asset = PLUGIN_ROOT / interface[field].removeprefix("./")
+        assert asset.is_file()
+        assert asset.suffix == ".svg"
+        assert "<svg" in asset.read_text()
+
+
 def test_machine_readable_policy_contract_is_bundled_and_versioned():
     payload = json.loads(POLICY_CONTRACT.read_text())
     assert payload["schema_version"] == 1

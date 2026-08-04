@@ -28,6 +28,11 @@
       "Write"
     ],
     "websiteURL": "https://github.com/R-jed/codex-agent-team",
+    "brandColor": "#2563EB",
+    "composerIcon": "./assets/codex-delegate-composer-icon.svg",
+    "logo": "./assets/codex-delegate-logo.svg",
+    "logoDark": "./assets/codex-delegate-logo-dark.svg",
+    "screenshots": [],
     "defaultPrompt": [
       "Use /codex-delegate to solve this task with bounded, evidence-driven delegation.",
       "Use /codex-delegate to implement this change with verifiable contracts and evidence reuse.",
