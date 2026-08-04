@@ -1,10 +1,10 @@
 # Architecture
 
-Codex Delegate is a policy layer over Codex Native Subagents. It does not implement another Agent runtime, persistent DAG service, background scheduler, routing proxy, or model ladder.
+Codex Delegate is a policy layer over Codex Native Subagents. It does not implement another Agent runtime, persistent DAG service, background scheduler, thread pool, or routing proxy.
 
 The main session is always the task-level control plane. It owns user intent, scope, authorization, dependency state, integration, acceptance, and final response.
 
-Routing V4 targets the **smallest useful compute graph that preserves the required judgment quality and independent assurance**.
+Routing V4 targets the **smallest useful compute graph that preserves required judgment quality, workspace safety, and independent assurance**.
 
 ## First-principles control loop
 
@@ -14,14 +14,15 @@ Routing V4 targets the **smallest useful compute graph that preserves the requir
 3. classify each dependency
 4. account for main-session judgment coverage only when material judgment exists
 5. choose the smallest useful actor
-6. execute and collect inspectable evidence
-7. if unresolved, reclassify from new evidence instead of climbing a model ladder
-8. verify the integrated candidate
-9. add fresh independent Sol review only when the candidate's consequences require it
-10. main session accepts and reports
+6. transfer writer ownership cleanly when a child will mutate the checkout
+7. execute and collect inspectable evidence
+8. if unresolved, reclassify from new evidence instead of climbing a model ladder
+9. verify the integrated candidate
+10. add fresh independent Sol review only when the candidate's consequences require it
+11. main session accepts and reports
 ```
 
-Stable current role/classification/review constants live in `plugins/codex-delegate/policy-contract.json`. Detailed normative behavior lives in the installed Skill references.
+Stable role/classification/review constants live in `plugins/codex-delegate/policy-contract.json`. Detailed normative behavior lives in the installed Skill references.
 
 ## Dependency model
 
@@ -75,13 +76,13 @@ If implementation is expected to require material architecture, behavior, compat
 
 A material decision must be resolved before implementation can safely proceed.
 
-If the current main session already has trusted Sol judgment coverage, normal judgment stays in main. Otherwise a Sol Advisor supplies capability uplift.
+If the current main session already has trusted judgment coverage under the current policy reference, normal judgment stays in main. Otherwise a Sol Advisor supplies capability uplift.
 
 ### Judgment-coupled execution
 
 Implementation and material judgment cannot be safely separated up front.
 
-If the current main session is trusted Sol, main normally handles it directly. Otherwise a write-capable Sol Solver owns the bounded dependency.
+If the current main session already has trusted judgment coverage, main normally handles it directly. Otherwise a write-capable Sol Solver owns the bounded dependency.
 
 This avoids repeated Advisor -> Luna -> Advisor loops for work whose design evolves with implementation evidence.
 
@@ -97,17 +98,21 @@ Terra is not a generic stronger retry for weak Luna output.
 
 Authority never depends on model identity. Compute placement can.
 
-Trusted current-session model metadata is normalized through `plugins/codex-delegate/scripts/runtime-evidence.py`:
+`plugins/codex-delegate/policy-contract.json` declares `classification.main_coverage_reference_role`. The bundled runtime verifier derives the current reference model from that role, avoiding a second hard-coded model source.
+
+Trusted current-session metadata is normalized through `plugins/codex-delegate/scripts/runtime-evidence.py`:
 
 ```text
-covered   -> trusted GPT-5.6 Sol main
-uncovered -> trusted non-Sol main
-unknown   -> route not fully observed or conflicted
+covered   -> trusted main route matches the policy-owned judgment reference family
+uncovered -> trusted main route is outside that family
+unknown   -> route not fully observed or is conflicted
 ```
+
+The current reference role is Solver, currently GPT-5.6 Sol `high`.
 
 Routine bounded work does not need main-model inspection. Unknown coverage does not mean “always spawn Sol.” It matters only when material judgment is unresolved.
 
-A Sol main suppresses redundant capability-uplift Sol calls. It does not satisfy independent Final Review of its own candidate.
+Covered main judgment capability suppresses redundant capability-uplift Sol calls. It does not satisfy independent Final Review of the main session's own candidate.
 
 ## Current semantic roles
 
@@ -143,16 +148,21 @@ Explicit `/codex-delegate` use includes up to two concurrently active justified 
 
 ## Writer safety
 
-One canonical physical checkout has at most one active writing project Agent.
+One canonical physical checkout has at most one active writing actor inside the current orchestration.
 
-Current writers are:
+Writing actors are:
 
 ```text
+main session while mutating that checkout
 codex_delegate_worker
 codex_delegate_solver
 ```
 
-Multiple writing Agents require genuine filesystem isolation such as separate worktrees/workspaces/repositories. Intended disjoint file lists in one checkout are not sufficient.
+When Worker or Solver owns a writing dependency, the main session can continue read-only analysis and acceptance preparation in that checkout but waits for a clean ownership handoff before integration writes. When main is actively mutating a checkout, do not launch a child writer into it until that write responsibility reaches a clear boundary.
+
+Multiple concurrent writers require genuine filesystem isolation such as separate worktrees/workspaces/repositories. File-list promises are not sufficient isolation.
+
+This session-local invariant does not prove exclusion against another Codex session, editor, hook, or process. Cross-session coordination remains a live-runtime/product boundary; current contracts preserve unrelated edits and fail closed on material drift.
 
 ## Recovery through reclassification
 
@@ -167,7 +177,7 @@ bounded local defect
 
 material semantic choice emerged
 -> judgment / judgment_coupled_execution
--> main Sol / Advisor / Solver according to main coverage
+-> covered main / Advisor / Solver according to main coverage
 
 contract truth missing
 -> main repairs task state
@@ -209,7 +219,7 @@ Current mandatory trigger classes are user-requested review, public contract, pe
 
 Process history is not itself a trigger. Terra use, Solver use, recovery, or a large diff may reveal residual risk, but only the actual semantic consequence or verification gap makes review mandatory.
 
-Fresh independent review remains required when triggered even if the main session is Sol or Sol Solver implemented the candidate.
+Fresh independent review remains required when triggered even if the main session has covered judgment capability or Sol Solver implemented the candidate.
 
 ## Runtime evidence
 
@@ -220,7 +230,7 @@ main_session
 child
 ```
 
-Main-session mode derives conservative judgment coverage only from complete trusted native model/effort metadata.
+Main-session mode derives conservative judgment coverage only from complete trusted native model/effort metadata and the policy-owned reference model.
 
 Child mode keeps route, ancestry, and permission evidence typed separately. Configuration is never copied into observed fields.
 
@@ -228,7 +238,7 @@ Native capacity, wait semantics, child progress observability, and cross-session
 
 ## Safety and consent boundaries
 
-Safety owns permission, trust, delegation depth, writer isolation, and high-impact external actions.
+Safety owns permission, trust, delegation depth, writer ownership, and high-impact external actions.
 
 Consent owns material expansion in compute, concurrency, scope, permission, or external impact.
 
@@ -242,6 +252,6 @@ Current managed profiles are installed into Codex home separately from Plugin ma
 
 ## Evaluation boundary
 
-Static tests prove contracts and deterministic helpers. Live paired workloads test Routing V4 hypotheses, including bounded Luna quality, Sol Solver value, Sol-main redundancy avoidance, Terra technical-delta value, reclassification behavior, and consequence-driven Final Review.
+Static tests prove contracts and deterministic helpers. Live paired workloads test Routing V4 hypotheses, including bounded Luna quality, Sol Solver value, covered-main redundancy avoidance, Terra technical-delta value, reclassification behavior, writer ownership, and consequence-driven Final Review.
 
 No quality/cost superiority claim is valid until named live workloads on named runtime versions support it.
