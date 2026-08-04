@@ -147,8 +147,9 @@ def test_readmes_expose_plugin_only_single_command_path():
         assert "Codex Delegate" in text
         assert "docs/plugin-installation.md" in text
         assert "0.6.0" in text
-        assert "Final Review Gate" in text
         assert "codex-agent-team-setup" not in text
         assert "python scripts/install.py" not in text
     assert "Plugin" in zh
+    assert "## 最终复核" in zh
     assert "new Codex thread" in en
+    assert "## Final Review Gate" in en
