@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
 </p>
 
@@ -22,7 +22,7 @@ Codex Delegate 是 Codex Native Subagents 之上的委派策略层。它把开�
 
 主会话始终负责用户意图、任务范围、关键决策、调度、验收和最终回复。Luna、Terra 和 Sol 是可选择的执行与判断资源，没有固定流水线，也没有固定 Agent 数量。
 
-当前版本：`0.5.1`，pre-v1。
+当前版本：`0.6.0`，pre-v1。
 
 ## 快速开始
 
@@ -67,9 +67,29 @@ Codex Delegate 会先判断当前有哪些未完成依赖，以及哪些依赖�
 | Luna Reader | GPT-5.6 Luna `max` | 搜索、追踪、测试映射、证据收集 |
 | Luna Worker | GPT-5.6 Luna `max` | 实现、调试、测试、局部重构 |
 | Terra Investigator | GPT-5.6 Terra `xhigh` | 解决仍未完成的复杂技术依赖 |
-| Sol Advisor | GPT-5.6 Sol `high` | 高价值判断和选择性复核 |
+| Sol Advisor | GPT-5.6 Sol `high` | 高价值判断和风险触发的独立复核 |
 
 任务大小不会自动决定使用更强模型。清楚的大任务可以继续由 Luna 处理，小改动遇到关键架构、安全、迁移或公开接口判断时也可能使用 Sol。
+
+## 高风险改动的最终质量门
+
+Sol 不是所有任务的固定阶段。普通低风险改动仍然可以在主会话完成实际 diff 检查和确定性验证后结束。
+
+当最终交付物实质涉及 public contract、持久化状态、安全或授权边界、数据完整性、并发语义、migration、大范围影响，或者执行过程中发生了关键 Terra escalation、material recovery、重要 verification gap 时，Codex Delegate 会把 Final Review Gate 升级为 `required`。
+
+此时主会话的验收只会把任务推进到 `Candidate Ready`。完成还需要一个 fresh-context Sol Advisor 对最终实际 artifact 做独立复核。复核绑定确定性的 `review_artifact_id`，因此 review 之后如果交付物发生变化，旧 verdict 会失效。
+
+最终复核的完成性 verdict 是：
+
+```text
+ship       -> 当前 artifact 可以完成
+fix-first  -> 先修复，再验证，并启动新的 fresh review
+rethink    -> 当前架构、合同或关键假设需要重新处理
+```
+
+如果 Advisor 缺少作出可靠判断所需的证据，会返回 `INSUFFICIENT_EVIDENCE`。这表示质量门仍未满足，需要补齐具体证据后重新复核，不会被自动当作 `ship` 或 `fix-first`。
+
+Final Review Gate 按语义风险触发，不使用固定 diff 行数、文件数、重试次数或数值风险分数，也不会把 Luna、Terra、Sol 变成固定流水线。
 
 ## 没有固定 Agent 数量
 
@@ -117,7 +137,7 @@ Codex runtime 当前可用 child slots
 
 写入任务按 canonical workspace 管理。同一个 physical checkout 的规则是同时最多一个 Writing Worker。不同且真正隔离的 workspace 或 worktree 可以各自拥有 writer。
 
-当前 `0.5.1` 仍在完成跨独立主会话的同 checkout writer exclusion 实测。在 v1.0.0 前，如果你同时开多个独立 Codex 会话，避免让两个会话同时写同一个 physical checkout。
+当前 `0.6.0` 仍在完成跨独立主会话的同 checkout writer exclusion 和 Final Review Gate 的 live runtime 实测。在 v1.0.0 前，如果你同时开多个独立 Codex 会话，避免让两个会话同时写同一个 physical checkout。
 
 ## 首次运行
 
@@ -140,6 +160,7 @@ Plugin manifest 不声明不存在的 `agents` 组件。自定义 Agent provisio
 - 缺少精确项目 profile 时，对应责任会停回主会话，不会自动换成相似角色
 - Worker 必须保留用户或其他会话产生的无关修改，工作区变化使合同失效时会停止并交回主会话
 - Subagent 的完成报告和恢复建议属于执行声明，最终验收与有效动作依据实际文件、diff、测试、可复现证据和主会话 policy
+- 命中 required Final Review Gate 时，没有绑定到当前未变化 artifact 的 fresh Sol `ship` 就不能声称质量门通过
 - 发布、部署、支付、账号权限等高影响外部动作仍由主会话控制
 
 ## License
