@@ -105,9 +105,9 @@ codex_delegate_advisor       -> gpt-5.6-sol / high
 
 Model-specific delegation uses exact custom project profiles. There is no Portable Mode or built-in-role substitution.
 
-The Plugin bundles the profile templates. After explicit user approval, the managed installer provisions them into the active personal Codex-home `agents` directory.
+The Plugin bundles the profile templates. After explicit user approval, the managed installer provisions them into the active personal Codex-home `agents` directory and records exact project ownership in `.codex-delegate-agents.json`.
 
-Historical `codex_agent_team_*` roles and project-named files are one-way migration inputs only. A successful managed migration removes the proven old project generation instead of exposing two active generations.
+The installer manages only the current project profiles. Other Agent profiles remain user-owned and are not modified or removed.
 
 Profile matching establishes configuration assurance only. It does not prove what a child actually ran as.
 
