@@ -82,18 +82,37 @@ If deterministic verification is still failing in a way that blocks the acceptan
 
 A final-review verdict is valid only for the exact candidate Sol reviewed.
 
-Capture a deterministic `review_artifact_id` from the repository state that defines the deliverable. It must bind enough state to detect any relevant mutation after review, normally including:
+For a Git workspace, use the bundled read-only helper as the canonical v0.6 candidate identity mechanism. Resolve it relative to this Skill:
 
-```text
-base revision or equivalent starting identity
-head revision when applicable
-complete accumulated diff digest
-relevant untracked/generated artifact digests when they are part of the deliverable
+```bash
+skill_dir=<directory-containing-this-SKILL.md>
+artifact_helper="$skill_dir/../../scripts/review-artifact.py"
+python "$artifact_helper" --repo <workspace>
 ```
 
-The exact hashing mechanism may vary by repository, but the main session must be able to compare the reviewed candidate with the state being reported complete. A label, branch name, timestamp, model statement, or list of filenames alone is not an artifact identity.
+The helper emits JSON containing:
 
-If a reliable artifact identity cannot be established for a mandatory review, stop rather than claim that the final quality gate was satisfied.
+```text
+schema_version
+head
+tracked_diff_sha256
+untracked[]
+review_artifact_id
+```
+
+The identity binds current `HEAD`, the complete tracked working-tree diff against `HEAD`, and every non-ignored untracked file with its path, kind, and content digest. It is read-only and does not update the index, create a commit, or mutate the workspace.
+
+Pass the emitted `review_artifact_id` to the reviewer. Immediately before reporting a reviewed deliverable complete, run:
+
+```bash
+python "$artifact_helper" --repo <workspace> --verify '<review_artifact_id>'
+```
+
+A mismatch exits nonzero and invalidates the prior verdict.
+
+Ignored build/cache artifacts are deliberately excluded from the standard source-deliverable identity. If an ignored/generated artifact is itself part of the requested deliverable, bind it with an additional deterministic digest and include that identity in the review packet. If the complete deliverable cannot be bound reliably, stop rather than claim that the mandatory gate succeeded.
+
+For a non-Git workspace, use an equivalent deterministic identity that can detect every deliverable mutation. A label, branch name, timestamp, model statement, or list of filenames alone is not an artifact identity.
 
 Any deliverable mutation after a `ship` verdict invalidates that verdict. Re-run required deterministic verification, capture a new artifact identity, and obtain a new fresh review.
 
@@ -165,7 +184,7 @@ Established discovery may be reused to control cost. The reviewer may challenge 
 
 - the returned `REVIEWED_ARTIFACT_ID` equals the current candidate identity;
 - required route/isolation claims are supported by the runtime evidence actually available;
-- no deliverable mutation occurs after the review;
+- the post-review artifact verification still matches;
 - the main session still finds the acceptance oracle satisfied.
 
 Only then may a required-review task transition from Candidate Ready to complete.
