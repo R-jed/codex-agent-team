@@ -6,7 +6,7 @@ Emit a receipt when any of these are true:
 
 - the user explicitly invoked `/codex-delegate`;
 - at least one child Agent was created;
-- a contractability, consent, route, runtime-capacity, intervention, execution-recovery, or delta-escalation decision materially changed execution.
+- a contractability, consent, route, runtime-capacity, intervention, execution-recovery, delta-escalation, or Final Review Gate decision materially changed execution.
 
 For an implicit trivial task that stays in the main session, omit the receipt unless the user asks for orchestration details.
 
@@ -86,6 +86,20 @@ Reused evidence: E03 reproduction, E07 caller trace, E11 baseline tests
 Verification: 38 tests passed
 ```
 
+## Required Final Review Gate example
+
+```text
+Codex Delegate
+Review requirement: required
+Why: public_contract_change, terra_escalation
+Candidate verification: 64 tests passed
+Final Review Gate: fresh Sol / High reviewed artifact A17F...
+Verdict: ship
+Artifact unchanged after review: yes
+```
+
+Only show `Verdict: ship` as a completed mandatory gate when the reviewed artifact identity still matches the deliverable being reported complete. If a fix or other deliverable mutation happened after review, the old verdict is invalid and the receipt must reflect the new review state instead.
+
 ## Delta-escalation example
 
 ```text
@@ -107,6 +121,7 @@ Rules:
 - When a proposed action differs from the effective action, the effective action belongs to the main session after policy/runtime gates.
 - `model_judgment` is never displayed as deterministic evidence.
 - Do not claim child mid-run observability, runtime capacity, route, permission, or ancestry evidence that was not observed.
+- Do not claim a mandatory final review succeeded without a fresh Sol `ship` verdict bound to the unchanged current artifact.
 - Use `C1`, `L1`, `R1`, `R2`, or `X0` only when the deterministic verifier established the corresponding compact grade.
 - Keep detailed route diagnostics and Recovery Ledger internals out of the receipt unless they materially affected execution.
 - The receipt summarizes orchestration; it never replaces the normal completion report.
