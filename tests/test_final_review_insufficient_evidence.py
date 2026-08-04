@@ -3,8 +3,8 @@ import tomllib
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-agent-team"
-GATE = PLUGIN / "skills" / "codex-agent-team" / "references" / "final-review-gate.md"
+PLUGIN = ROOT / "plugins" / "codex-delegate"
+GATE = PLUGIN / "skills" / "codex-delegate" / "references" / "final-review-gate.md"
 ADVISOR = PLUGIN / "agent-profiles" / "codex-agent-team-advisor.toml"
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 
