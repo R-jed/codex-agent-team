@@ -24,8 +24,8 @@ def test_readmes_present_the_same_product_and_install_path():
 
 
 def test_readmes_are_release_copy_not_internal_release_notes():
-    assert "Codex Delegate 让 Codex 在复杂开发任务里更会分工" in ZH
-    assert "Codex Delegate helps Codex divide complex development work more effectively" in EN
+    assert "开 Subagent 很容易，难的是知道什么时候值得开" in ZH
+    assert "Starting a Subagent is easy. Knowing when one will actually help is harder" in EN
     assert "Codex Native Subagents" in ZH and "Codex Native Subagents" in EN
 
     for text in [ZH, EN]:
@@ -53,8 +53,8 @@ def test_readmes_are_release_copy_not_internal_release_notes():
 
 
 def test_readmes_explain_that_users_do_not_manually_orchestrate_agents():
-    assert "你不需要自己决定“这里开几个 Agent”或“这个问题该交给哪一个模型”" in ZH
-    assert "You should not have to decide how many Agents to start or which model should own each step" in EN
+    assert "你不需要手工设计并发计划" in ZH
+    assert "You do not need to design the concurrency plan yourself" in EN
     assert "目标、不能破坏的约束和完成标准" in ZH
     assert "outcome, the constraints that must remain true, and the completion criteria" in EN
 
@@ -81,8 +81,8 @@ def test_readmes_explain_adaptive_parallel_work_without_fixed_team_shape():
 
 
 def test_readmes_keep_local_recovery_and_risk_triggered_final_review():
-    assert "不会因为一次失败就机械地换更强模型或从头重跑" in ZH
-    assert "does not switch to a stronger model or restart the whole task just because one attempt fails" in EN
+    assert "一次失败不会自动触发更强模型，也不会让整个任务从头再来" in ZH
+    assert "One failed attempt does not automatically trigger a stronger model or restart the whole task" in EN
     assert "Sol 不是每个任务的固定最后一步" in ZH
     assert "Sol is not a mandatory final step for every task" in EN
 
