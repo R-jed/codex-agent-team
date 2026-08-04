@@ -1,360 +1,225 @@
 # Routing Policy
 
+This file owns dependency readiness, completion-driven dispatch, semantic role selection, and route availability. Consent, recovery, safety, and runtime-evidence semantics have separate normative owners.
+
 ## 1. Control model
 
-The current user-facing Codex session is the main session and owns the task-level dependency state and compute graph.
+The current user-facing Codex session is the main session and owns the task-level compute graph:
 
-It owns intent, scope, architecture, decision rights, scheduling, evidence state, recovery state, integration, acceptance, and the final answer. It does not need to be Sol.
+```text
+intent / scope / architecture / decision rights
+Dependency Ledger / scheduling
+Shared Evidence State / Recovery Ledger
+integration / acceptance / final answer
+```
 
-Models are compute lanes, not mandatory stages.
+Models are compute lanes, not authority levels or mandatory stages. The main session does not need to be Sol.
 
-## 2. No fixed pipeline and no fixed team size
+## 2. No fixed pipeline or team size
 
-Valid task graphs include:
+Valid graphs include:
 
 ```text
 main
 main -> Luna -> main
 main -> Luna -> Sol -> main
 main -> Terra -> Luna -> main
-main -> Luna -> Terra(delta) -> Luna -> main
+main -> Luna -> Terra(delta) -> Luna or main
 main -> Sol -> main
 ```
 
-`Luna -> Terra -> Sol` is never required merely because all three tiers exist.
+`Luna -> Terra -> Sol` is never required merely because those lanes exist.
 
-Every Agent call must satisfy a distinct unresolved dependency. If valid existing evidence already satisfies that dependency, do not create another Agent for it.
-
-Codex Delegate defines no product-level hard child count. Zero children is normal. The scheduler creates only the smallest useful wave from currently ready dependencies.
+Every Agent call must satisfy a distinct unresolved dependency. Zero children is normal. Codex Delegate has no product-level hard child count.
 
 ## 3. Dependency Ledger and ready frontier
 
-The main session tracks material task dependencies in a compact in-session ledger:
+Track material task dependencies as compact in-session state:
 
 ```text
 id
 outcome
 status: pending | ready | running | satisfied | blocked | invalidated
-requires: dependency ids and/or evidence ids
-produces: artifact, decision, or evidence
+requires
+produces
 write_intent
 workspace
 acceptance
 ```
 
-A dependency is ready only when all declared prerequisites are satisfied.
+A dependency is `ready` only when its prerequisites are satisfied and no valid evidence already satisfies it.
 
-Scheduling rules:
+Rules:
 
-- never run two children for the same dependency at the same time;
+- one dependency has at most one active owner;
 - never rerun a satisfied dependency unless changed inputs invalidate it;
-- recompute readiness after evidence, artifact, user, or runtime changes;
-- combine ready work into one child when that is cheaper and does not sacrifice context isolation, independent judgment, or critical-path progress;
-- split work only when each packet has a distinct dependency and independent acceptance value.
+- invalidation propagates through declared dependencies rather than reopening the whole task by default;
+- combine ready work when one responsibility can satisfy it more cheaply without losing useful isolation or critical-path progress;
+- split work only when each packet has distinct acceptance value;
+- recompute the ready frontier after every material user, evidence, artifact, dependency, workspace, route, permission, or runtime-capacity event.
 
-The ledger is logical task state. The project does not add a persistent DAG service, background scheduler, or second Agent runtime.
+The ledger is logical task state. Codex Delegate does not add a persistent DAG service, background scheduler, thread pool, or second Agent runtime.
 
-## 4. Delegation Benefit Gate
+## 4. Delegation gates
 
-A child requires at least one concrete benefit:
+A ready dependency is dispatchable only when:
 
-- context isolation;
-- useful parallelism across different ready dependencies;
-- specialized execution or investigation capability;
-- independent high-value judgment.
+1. delegation has concrete benefit: context isolation, useful parallelism, specialized capability, or independent high-value judgment;
+2. a writing responsibility passes `delegation-contract.md`;
+3. `safety-policy.md`, `consent-policy.md`, exact route availability, and native capacity allow it.
 
-Task length, file count, lower price, spare concurrency, or generic desire for caution are insufficient by themselves.
+Task length, file count, lower price, free slots, or a generic desire for caution do not justify an Agent by themselves.
 
-## 5. Contractability Gate
+## 5. Completion-driven dispatch
 
-Before a writing Worker is spawned, `delegation-contract.md` must define an enforceable dependency, outcome, scope, interfaces/dependencies, invariants, decision rights, acceptance oracle, verification, and stop/escalation conditions.
+The scheduling policy is **completion-driven around the ready frontier**, not wave/barrier driven by default.
 
-Missing acceptance or decision boundaries return the responsibility to the main session.
+At every scheduling point:
 
-## 6. Adaptive resource principle
+```text
+1. recompute currently ready dependencies
+2. choose the smallest useful set that fits current safe capacity
+3. dispatch those responsibilities
+4. keep independent main-session work moving when it does not duplicate or conflict
+5. react to each child completion/material update as soon as the runtime exposes it
+6. inspect and merge that result, update dependency/evidence state, and close completed child
+7. recompute the frontier immediately
+8. if safe capacity is free and useful work is newly ready, dispatch it without waiting for unrelated children
+```
 
-The orchestration policy separates scheduling from consent and runtime capacity.
+Example:
 
-### Scheduling
+```text
+A = slow independent dependency
+B = fast independent dependency
+C = depends only on B
 
-The scheduler asks how many distinct ready dependencies can add value now. It does not start from a default Agent count.
+spawn A + B
+B completes
+-> collect B
+-> C becomes ready
+-> start C while A is still running, when native capacity and safety allow
+```
+
+Do **not** wait for A merely because A and B were launched in the same scheduling wave.
+
+A barrier wait is justified only when:
+
+- a real join dependency requires all relevant active results before any useful next work can begin; or
+- the tested native runtime exposes only a coarser waiting/completion surface.
+
+If the runtime cannot expose individual completion/update events, record that runtime limitation and degrade to the available surface. Do not claim event-driven runtime behavior that was not observed.
+
+Avoid model-mediated busy polling. When the runtime offers a blocking/event-like wait, mailbox/update notification, or equivalent native mechanism, prefer that to repeated status-only model turns. The exact available wait surface is a version-scoped runtime fact and must be characterized during live validation.
+
+## 6. Resource scopes
+
+Scheduling, consent, native capacity, and workspace safety are different constraints.
 
 ### Consent
 
-Explicit `/codex-delegate` invocation includes a baseline of up to two concurrently active justified child Agents. More than two simultaneously active children normally requires consent unless broad parallel work was already authorized.
+Explicit `/codex-delegate` use includes the baseline in `consent-policy.md`: up to two concurrently active justified children without another prompt. This is a consent envelope, not a team-size target or lifetime child limit.
 
-This is a consent boundary, not a total child lifetime limit and not an orchestration target. Serial delegation can continue when new dependencies become ready, but repeated serial calls that materially expand expected compute also require consent.
+Larger simultaneous fan-out requires consent when that policy says so. After authorization, there is no second product numerical ceiling.
 
-### Runtime capacity
+### Native capacity
 
-Native Codex decides how many child threads can actually run. If ready work exceeds available slots, queue or serialize the excess work. Do not invent a product ceiling from one runtime build, and do not cross-route a responsibility merely to fill an available slot.
+Codex runtime decides how many child threads can actually be active. If useful ready work exceeds slots, keep the excess pending and refill capacity as children complete.
 
-### Workspace safety
+Do not convert one observed runtime capacity into a permanent product constant and do not cross-route merely to fill a slot.
 
-At most one active writing Worker may target one canonical shared workspace. Multiple writers require runtime-backed isolated workspaces, worktrees, or independent repositories.
+### Workspace
 
-Delegation depth remains 1.
+At most one active writing Worker may target one canonical physical checkout. Multiple writers require genuinely isolated runtime-backed worktrees/workspaces/repositories.
 
-## 6A. Concurrency scopes
+Disjoint intended file lists inside one checkout do not prove write isolation.
 
-Treat concurrent state in three separate scopes:
+### Codex home
 
-```text
-main-session scope
-- Dependency Ledger
-- ready frontier
-- consent state
-- active child set
-- Recovery Ledger
-- no product-level hard child count
+Managed custom-Agent profiles are shared configuration. Mixed concurrent managed-profile generations are unsupported for v1; an exact-route mismatch fails closed instead of cross-routing or silently rewriting shared state.
 
-workspace scope
-- identified by the canonical physical checkout or runtime-backed isolated worktree
-- at most one active writing Worker per canonical workspace
-- independent workspaces may have independent writers when runtime isolation is real
+Delegation depth remains one.
 
-Codex-home scope
-- custom-Agent profiles and the managed ownership manifest are shared configuration
-- one installed Codex Delegate managed profile generation is visible to sessions using that Codex home
-- mixed concurrent profile generations are unsupported for v1.0.0; an exact-route mismatch stops the affected delegation rather than cross-routing
-```
+## 7. Semantic roles
 
-Repository identity alone is not the writer lock domain. Two runtime-backed isolated worktrees may be independent workspaces even when they belong to the same repository. Two sessions pointing at the same physical checkout are the same workspace even when their task scopes or intended file sets differ.
+Role identity is separate from model identity. Exact current constants live in `../../policy-contract.json`.
 
-File-level ownership promises are insufficient to justify multiple writing Workers in one physical checkout. Shared generated state, lockfiles, formatters, git metadata, tests, or dependency chains may couple nominally disjoint files.
-
-Current policy defines the invariant. Release validation must determine whether the native runtime already enforces cross-session writer exclusivity. Do not add a project lock or global scheduler until a reproducible live failure demonstrates that the invariant is otherwise unenforceable.
-
-## 7. Semantic roles and route policy
-
-Role identity is separate from model identity.
-
-| Semantic responsibility | Agent type | Current route | Default permission | Purpose |
+| Responsibility | Agent type | Current route | Default intent | Use |
 | --- | --- | --- | --- | --- |
-| reader | `codex_agent_team_reader` | GPT-5.6 Luna `max` | read-only | bounded search, tracing, mapping, evidence collection |
-| worker | `codex_agent_team_worker` | GPT-5.6 Luna `max` | workspace-write | contractable implementation, debugging, tests |
-| investigator | `codex_agent_team_investigator` | GPT-5.6 Terra `xhigh` | read-only | unresolved complex technical delta |
-| advisor | `codex_agent_team_advisor` | GPT-5.6 Sol `high` | read-only | judgment, selective review, and risk-triggered final review |
+| reader | `codex_agent_team_reader` | GPT-5.6 Luna `max` | read-only | bounded search, tracing, mapping, evidence |
+| worker | `codex_agent_team_worker` | GPT-5.6 Luna `max` | workspace-write | contractable implementation/debugging/tests |
+| investigator | `codex_agent_team_investigator` | GPT-5.6 Terra `xhigh` | read-only | unresolved difficult technical delta |
+| advisor | `codex_agent_team_advisor` | GPT-5.6 Sol `high` | read-only | consequential judgment and review |
 
-Luna Max is intentionally fixed for the current execution baseline. Terra and Sol routes remain policy hypotheses to validate with representative workloads.
+Changing a future model route must not require renaming the semantic role.
 
-Changing a route in the future must not require renaming the semantic role.
+## 8. Route by responsibility
 
-## 8. Initial routing by responsibility
+Route first by responsibility, decision boundary, and demonstrated capability. Cost is only a tie-breaker between equally suitable safe lanes.
 
-Route first by responsibility, decision boundary, and demonstrated capability. Use cost only as a tie-breaker between equally suitable safe lanes. Do not require a lower-tier failure when the dependency itself clearly needs technical investigation or consequential judgment.
+### Reader / Worker
 
-### Luna execution
+Use Luna Reader for bounded reusable evidence and Luna Worker for contractable implementation.
 
-Use Luna Reader for bounded evidence gathering and Luna Worker for contractable writing work.
+Worker authority comes from the Delegation Contract, not task difficulty.
 
-Luna owns execution choices explicitly granted in the Delegation Contract. It does not receive broader decision authority merely because the task is difficult.
-
-### Terra investigation
+### Investigator
 
 Terra is not a mandatory reviewer and not a generic second implementation attempt.
 
-Use it when a clear task exposes a difficult technical dependency whose resolution requires materially more technical investigation or synthesis than the Luna contract can safely carry.
+Use it only when a clear contract and execution evidence establish a genuinely difficult unresolved technical dependency. Pass the unresolved delta, valid evidence, current artifact/failure, material recovery facts, and explicit `DO NOT REDO` items.
 
-Terra receives the unresolved delta, relevant valid evidence, current artifact or failure, material recovery history, and explicit `DO NOT REDO` items. By default Terra remains read-only.
+Low quality alone is not a Terra trigger.
 
-### Sol judgment and review
+### Advisor
 
-Sol is the high-value judgment resource.
+Sol handles bounded consequential judgment or independent review when that adds value. It should consume compressed established facts and one review/decision question rather than repeat still-valid discovery.
 
-Use it when:
+Sol is not globally mandatory. `final-review-gate.md` may make a fresh Advisor `ship` verdict mandatory for one high-risk deliverable.
 
-- a product, architecture, security, migration, data-integrity, or public-contract decision materially changes the task;
-- competing judgments remain consequential after deterministic evidence is established;
-- an implementation has clear acceptance criteria but the actual diff merits a stronger independent review;
-- the user explicitly requests stronger review.
+## 9. Execution progress and recovery boundary
 
-Sol receives compressed facts and one decision/review question in fresh context by default. It should not repeat repository discovery or deterministic tests already established unless their evidence is invalid, contradictory, or insufficient.
-
-Sol is not a globally mandatory stage. Outside the Final Review Gate, final Sol review remains selective. When `final-review-gate.md` marks a deliverable `required`, a fresh Sol `ship` verdict becomes a mandatory completion dependency for that candidate.
-
-## 8A. Risk-triggered Final Review Gate
-
-The Final Review Gate is a post-verification acceptance boundary, not a model ladder and not another recovery stage.
-
-Evaluate it after the main session has inspected the actual accumulated change set and rerun deterministic verification required by the acceptance oracle. Use semantic triggers from `final-review-gate.md`, including material public-contract, persistence, security, authorization, data-integrity, concurrency, migration, wide-blast-radius, Terra-escalation, material-recovery, verification-gap, and explicit-user-review conditions.
-
-Do not derive the decision from a numeric risk score, file count, diff size, retry count, or model confidence.
-
-When review is required:
-
-- main-session acceptance creates only Candidate Ready;
-- bind the candidate to a deterministic `review_artifact_id`;
-- spawn `codex_agent_team_advisor` with `fork_turns: none`;
-- require `ship | fix-first | rethink` for the supplied artifact identity;
-- any deliverable mutation invalidates the prior verdict;
-- `fix-first` returns bounded correction dependencies to normal scheduling and requires fresh re-verification plus a new fresh review;
-- `rethink` invalidates affected architecture/contract assumptions instead of becoming a local patch;
-- completion requires the current artifact to match the artifact that received `ship`.
-
-The gate can make Sol mandatory for one deliverable without making Sol globally mandatory for every task. This preserves the adaptive compute graph while adding an independent quality barrier where consequence justifies it.
-
-## 9. Evidence-guided intervention and recovery
-
-Use `execution-progress.md` before repeating, restarting, or escalating an execution responsibility.
-
-A model saying it made progress is not a progress signal. Prefer deterministic verification, repository facts, artifact state, and a materially narrowed unresolved delta. A successful command also does not prove progress if acceptance and useful evidence remain unchanged.
-
-### Stage A: Intervention Gate
-
-Acceptance failure and need for intervention are separate facts.
-
-Ask whether the current responsibility still shows evidence-supported forward progress inside a valid contract and safe runtime boundary.
-
-If yes, continue the same responsibility. A still-failing verification can coexist with healthy progress when new evidence narrows the root cause or unresolved delta.
-
-If no, or a contract, capability, judgment, consent, permission, workspace, route, or runtime boundary blocks safe continuation, enter recovery classification.
-
-### Stage B: Recovery classification
+Routing does not decide retry/restart/escalation from failure alone. Use `execution-progress.md`.
 
 ```text
-mechanical defect -> focused Luna correction with a new correction hypothesis
-contract gap -> main session repairs contract
-execution stall/context pollution -> fresh same-lane packet with valid evidence + Recovery Ledger + DO NOT REDO
-capability gap -> Terra receives unresolved technical delta
-judgment gap -> main session or Sol
+healthy incomplete work -> continue current responsibility
+mechanical defect       -> focused Luna correction
+contract gap            -> main repairs contract
+stall/context pollution -> clean same-lane restart
+capability gap          -> Terra receives unresolved delta
+judgment gap            -> main or justified Sol
 ```
 
-Do not impose a universal retry count. Do not resend an unchanged contract. Repeated same-failure work with no new evidence is a stall signal.
+There is no universal retry count or numerical stall threshold.
 
-If evidence already shows a capability gap, escalate the delta instead of repeatedly restarting the same execution lane.
+## 10. Evidence reuse
 
-A clean same-lane restart preserves current artifacts, valid established evidence, material Recovery Ledger entries, the failure signature, acceptance oracle, and unresolved delta. It drops private reasoning and dead-end narration.
+Use the Shared Evidence State carried by `delegation-contract.md` and execution policy.
 
-## 10. Recovery Ledger and decision provenance
+Deterministic/repository facts remain reusable while their declared dependencies are valid. Model judgments remain challengeable. A changed input invalidates only affected evidence.
 
-The main session keeps a bounded semantic history for material attempts on each unresolved dependency:
+Completion-driven dispatch uses these updates to unlock new dependencies immediately rather than waiting for an unrelated scheduling wave to finish.
 
-```text
-attempt_id
-lane
-correction_hypothesis
-failure_signature
-progress_signal
-new_evidence_ids
-unresolved_delta
-recovery_action
-decision_source
-```
+## 11. Runtime route assurance
 
-This ledger detects repeated or oscillating recovery paths across fresh contexts without preserving a transcript or private reasoning.
+Model-specific lanes use exact custom project profiles. There is no Portable Mode, built-in-role substitution, or hidden model ladder.
 
-When a child, Investigator, or Advisor proposes a next action, keep it separate from the action that the main session actually authorizes:
-
-```text
-proposed_action
-effective_action
-decision_source
-policy_transform
-```
-
-The main session owns the effective action. Consent, workspace ownership, exact-route availability, permission boundaries, runtime constraints, and user decisions may reject or transform a model proposal.
-
-`decision_source` is one of:
-
-```text
-deterministic_evidence
-main_session_judgment
-user_decision
-runtime_constraint
-model_judgment
-```
-
-A model proposal remains `model_judgment` even when accepted.
-
-More disruptive interventions require stronger qualitative evidence. Do not turn this principle into numeric retry counts or probability thresholds.
-
-## 11. Event-driven recovery evaluation and child observability
-
-Recovery evaluation itself consumes attention and context. Re-evaluate on material events:
-
-- child return;
-- material acceptance or failure-signature change;
-- evidence establishment, contradiction, or invalidation;
-- dependency blocking/readiness change;
-- user outcome/scope/authorization change;
-- material workspace ownership, route, permission, or runtime-capacity change.
-
-Do not re-run recovery classification after every ordinary tool call simply to mimic a proxy router.
-
-Child progress before return is a runtime fact, not an architectural assumption. Characterize the tested native surface only from facts actually exposed, for example:
-
-```text
-none
-terminal_only
-periodic_summary
-structured_live
-```
-
-If the runtime does not expose structured mid-run child progress, Codex Delegate remains dependency-level or return-level for recovery. Do not claim structured live mid-run anti-thrashing without evidence.
-
-## 12. Shared Evidence State
-
-Evidence is reused across nodes while its dependencies remain valid.
-
-Treat these categories differently:
-
-- **deterministic**: command/test/compiler/build/hash output;
-- **repository_fact**: file/symbol/call-path/interface facts;
-- **model_judgment**: hypotheses, recommendations, interpretations.
-
-Deterministic and repository facts may be cached with dependencies. Model judgments remain challengeable hypotheses.
-
-A change invalidates only evidence that depends on the changed input. Do not rerun a full scan because one unrelated file changed.
-
-Changes made by the user or another independent session are ordinary dependency changes. Reconcile the current artifact and invalidate affected evidence before continuing delegated work.
-
-## 13. Useful parallelism
-
-Parallel execution is useful when concurrent outputs satisfy different ready dependencies.
-
-Examples:
-
-- several independent read-only Luna branches map separate subsystems after broad fan-out has been authorized when needed;
-- the main session prepares acceptance/risk checks while Luna implements;
-- a long deterministic test command runs while independent read-only analysis progresses;
-- independent projects or runtime-backed isolated worktrees may each have one writing Worker without creating a machine-wide writer bottleneck.
-
-Do not launch Luna, Terra, and Sol over the same question simply to maximize concurrency.
-
-Do not treat disjoint intended file lists as proof that two writers are safe in the same physical checkout.
-
-When runtime slots are saturated, leave remaining ready dependencies pending. Slot pressure is not a reason for duplicate inference or lower-quality role substitution.
-
-## 14. Profile route assurance
-
-The supported Plugin path uses only project custom-Agent profiles for model-specific lanes.
-
-Before a model-specific child is spawned, require live role guidance to expose the exact semantic role with its expected locked route. Record:
+Before spawn, profile matching provides only configuration assurance:
 
 ```text
 route_assurance = profile_locked
 ```
 
-This is configuration assurance only.
+When post-spawn route identity, ancestry, permission, capacity, wait semantics, or review independence is material, use `runtime-assurance.md` and the bundled normalized verifier:
 
-There is no Portable Mode, built-in-role substitution, hidden model ladder, or inheritance-based exact route.
+```text
+skill_dir/../../scripts/runtime-evidence.py
+```
 
-If the required project profile is unavailable or conflicting, keep the responsibility in the main session and report the limitation.
+Do not use or reference removed rollout-coupled project inspectors. Missing runtime observations remain missing.
 
-The profiles are Codex-home scoped shared configuration. A session whose expected profile generation no longer matches the installed exact route must fail closed for that lane. It must not silently reinstall, downgrade, or cross-route merely to keep a concurrent older/newer project session working.
+## 12. Completion and lifecycle
 
-## 15. Runtime Evidence Gate
+A completed child should be inspected and closed promptly once its result is no longer needed as an active thread. This allows native capacity to recover and prevents a finished thread from acting as an accidental slot barrier.
 
-Runtime observation is demand-driven. Ordinary bounded execution does not require rollout inspection merely because it is available.
-
-Use runtime evidence when:
-
-- safety depends on effective host-enforced read-only isolation;
-- route or parent-thread identity is material to the acceptance claim;
-- a claimed independent model review must be proven;
-- configured and observed facts conflict;
-- native capacity, child-progress observability, or lifecycle behavior is being characterized for release validation;
-- the user explicitly requests runtime proof.
-
-Use `runtime-assurance.md` and `scripts/verify-runtime.py`.
+Do not close/interrupt a running child solely to create artificial throughput. If the runtime's close/wait behavior itself blocks or leaks capacity, record it as version-scoped runtime evidence and handle it in release validation rather than hiding it with policy claims.
