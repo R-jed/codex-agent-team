@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Create or verify a deterministic identity for the current Git deliverable.
 
-The identity binds the current HEAD, the complete tracked working-tree diff against
-HEAD (or the repository's empty tree before the first commit), and every non-ignored
-untracked file. It intentionally does not hash ignored build/cache artifacts because
-they are not normally part of a source deliverable.
+For a repository with HEAD, the identity binds HEAD plus the complete tracked
+working-tree diff against HEAD. Before the first commit, it binds a canonical snapshot
+of every index-tracked path at its current working-tree content. In both cases it also
+binds every non-ignored untracked file.
 
-This helper is read-only. It does not update the index, create commits, or mutate the
-working tree.
+Ignored build/cache artifacts are intentionally excluded because they are not normally
+part of a source deliverable. This helper is read-only: it does not update the index,
+write Git objects, create commits, or mutate the working tree.
 """
 
 from __future__ import annotations
@@ -48,10 +49,9 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def git(repo: Path, *args: str, input_bytes: bytes | None = None) -> bytes:
+def git(repo: Path, *args: str) -> bytes:
     result = subprocess.run(
         ["git", "-C", os.fspath(repo), *args],
-        input=input_bytes,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
@@ -64,6 +64,16 @@ def git(repo: Path, *args: str, input_bytes: bytes | None = None) -> bytes:
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def canonical_digest(value: object) -> str:
+    encoded = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("ascii")
+    return sha256(encoded)
 
 
 def repository_root(repo: Path) -> Path:
@@ -99,19 +109,71 @@ def head_identity(root: Path) -> str:
     fail(f"could not resolve HEAD: {detail or f'exit {result.returncode}'}")
 
 
-def empty_tree_identity(root: Path) -> str:
-    raw = git(root, "hash-object", "-t", "tree", "--stdin", input_bytes=b"").strip()
+def digest_worktree_path(root: Path, raw_path: bytes, *, allow_missing: bool) -> dict[str, str]:
+    relative = os.fsdecode(raw_path)
+    path = root / relative
     try:
-        value = raw.decode("ascii", errors="strict")
-    except UnicodeDecodeError as exc:
-        fail(f"Git returned a non-ASCII empty-tree identity: {exc}")
-    if not value:
-        fail("Git returned an empty empty-tree identity")
-    return value
+        info = path.lstat()
+    except FileNotFoundError:
+        if allow_missing:
+            return {
+                "path": relative,
+                "kind": "missing",
+                "mode": "000000",
+                "sha256": sha256(b""),
+            }
+        fail(f"untracked path disappeared while hashing: {relative!r}")
+    except OSError as exc:
+        fail(f"could not stat path {relative!r}: {exc}")
+
+    if stat.S_ISREG(info.st_mode):
+        kind = "file"
+        git_mode = "100755" if info.st_mode & 0o111 else "100644"
+        try:
+            digest = sha256(path.read_bytes())
+        except OSError as exc:
+            fail(f"could not read file {relative!r}: {exc}")
+    elif stat.S_ISLNK(info.st_mode):
+        kind = "symlink"
+        git_mode = "120000"
+        try:
+            target = os.readlink(path)
+        except OSError as exc:
+            fail(f"could not read symlink {relative!r}: {exc}")
+        digest = sha256(os.fsencode(target))
+    else:
+        fail(f"unsupported worktree file type for review artifact: {relative!r}")
+
+    return {
+        "path": relative,
+        "kind": kind,
+        "mode": git_mode,
+        "sha256": digest,
+    }
+
+
+def unborn_tracked_digest(root: Path) -> str:
+    raw = git(root, "ls-files", "-z")
+    paths = sorted(item for item in raw.split(b"\0") if item)
+    snapshot = [
+        digest_worktree_path(root, raw_path, allow_missing=True)
+        for raw_path in paths
+    ]
+    return canonical_digest(snapshot)
 
 
 def tracked_diff_digest(root: Path, head: str) -> str:
-    common = (
+    if head == "UNBORN":
+        return unborn_tracked_digest(root)
+
+    # Override core.filemode so executable-bit changes remain part of the artifact even
+    # on hosts that normally ignore them. Disable configurable diff transforms and
+    # rename presentation so the same candidate is hashed from repository bytes rather
+    # than user diff preferences.
+    diff = git(
+        root,
+        "-c",
+        "core.filemode=true",
         "diff",
         "--binary",
         "--full-index",
@@ -122,59 +184,24 @@ def tracked_diff_digest(root: Path, head: str) -> str:
         "--ignore-submodules=none",
         "--src-prefix=a/",
         "--dst-prefix=b/",
+        "HEAD",
+        "--",
     )
-    base = empty_tree_identity(root) if head == "UNBORN" else "HEAD"
-    # `git diff <tree>` compares the current tracked working-tree content with the
-    # named tree, so staged + unstaged edits are both bound without making staging
-    # arrangement itself part of the deliverable identity.
-    diff = git(root, *common, base, "--")
     return sha256(diff)
 
 
 def untracked_paths(root: Path) -> list[bytes]:
     raw = git(root, "ls-files", "--others", "--exclude-standard", "-z")
-    paths = [item for item in raw.split(b"\0") if item]
-    return sorted(paths)
-
-
-def digest_untracked(root: Path, raw_path: bytes) -> dict[str, str]:
-    relative = os.fsdecode(raw_path)
-    path = root / relative
-    try:
-        info = path.lstat()
-    except OSError as exc:
-        fail(f"could not stat untracked path {relative!r}: {exc}")
-
-    if stat.S_ISREG(info.st_mode):
-        kind = "file"
-        git_mode = "100755" if info.st_mode & 0o111 else "100644"
-        try:
-            digest = sha256(path.read_bytes())
-        except OSError as exc:
-            fail(f"could not read untracked file {relative!r}: {exc}")
-    elif stat.S_ISLNK(info.st_mode):
-        kind = "symlink"
-        git_mode = "120000"
-        try:
-            target = os.readlink(path)
-        except OSError as exc:
-            fail(f"could not read untracked symlink {relative!r}: {exc}")
-        digest = sha256(os.fsencode(target))
-    else:
-        fail(f"unsupported untracked file type for review artifact: {relative!r}")
-
-    return {
-        "path": os.fsdecode(raw_path),
-        "kind": kind,
-        "mode": git_mode,
-        "sha256": digest,
-    }
+    return sorted(item for item in raw.split(b"\0") if item)
 
 
 def build_receipt_once(root: Path) -> dict:
     head = head_identity(root)
     diff_sha = tracked_diff_digest(root, head)
-    untracked = [digest_untracked(root, path) for path in untracked_paths(root)]
+    untracked = [
+        digest_worktree_path(root, path, allow_missing=False)
+        for path in untracked_paths(root)
+    ]
 
     canonical_state = {
         "schema_version": SCHEMA_VERSION,
@@ -182,16 +209,9 @@ def build_receipt_once(root: Path) -> dict:
         "tracked_diff_sha256": diff_sha,
         "untracked": untracked,
     }
-    canonical_bytes = json.dumps(
-        canonical_state,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-    ).encode("ascii")
-
     return {
         **canonical_state,
-        "review_artifact_id": f"sha256:{sha256(canonical_bytes)}",
+        "review_artifact_id": f"sha256:{canonical_digest(canonical_state)}",
     }
 
 
