@@ -90,11 +90,9 @@ Current policy defines one-writer safety across independent sessions, but curren
 
 ## 6. Shared Codex-home state
 
-The four current semantic Agent profiles and `.codex-delegate-agents.json` are Codex-home scoped shared configuration. Current role names are `codex_delegate_reader`, `codex_delegate_worker`, `codex_delegate_investigator`, and `codex_delegate_advisor`.
+The four semantic Agent profiles and `.codex-delegate-agents.json` are Codex-home scoped shared configuration. Current role names are `codex_delegate_reader`, `codex_delegate_worker`, `codex_delegate_investigator`, and `codex_delegate_advisor`.
 
-Historical `codex_agent_team_*` roles, `codex-agent-team-*.toml` profiles, and `.codex-agent-team-*.json` receipts are migration inputs only. A successful managed migration removes the proven old project generation rather than retaining a fallback compatibility layer.
-
-Mixed concurrent managed-profile generations are unsupported for v1.0.0. If a session expects a route that no longer matches the installed exact profile, the affected delegation fails closed rather than substituting another role or model.
+The installer manages only those current project profiles and the current ownership receipt. Other Agent profiles are user-owned and must remain untouched. A session that cannot resolve an exact current role fails closed instead of substituting another role or model.
 
 Do not claim the installer is multi-process transactional merely because one process has staging and rollback. Concurrent same-Codex-home installation remains a live release-validation gate. Add inter-process locking only after a reproducible failure demonstrates that it is needed.
 
@@ -106,7 +104,7 @@ A stronger model does not automatically receive broader decision rights.
 - Terra Investigator resolves one bounded technical delta.
 - Sol Advisor answers one bounded judgment/review dependency.
 
-If progress requires a product, architecture, permission, security, migration, public-contract, or scope decision outside the child's contract, return the decision to the main session or an explicitly justified Sol judgment path.
+If progress requires a product, architecture, permission, security, public-contract, or scope decision outside the child's contract, return the decision to the main session or an explicitly justified Sol judgment path.
 
 Model escalation never silently expands authority.
 
