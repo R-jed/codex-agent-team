@@ -150,7 +150,7 @@ def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
     assert "分支 · 项目对比分析" not in lines
 
 
-def test_validation_report_reflects_merged_v060_baseline_and_provenance():
+def test_validation_report_reflects_merged_v060_baseline_and_consolidation():
     text = REPORT.read_text()
     for phrase in [
         "Plugin version: 0.6.0",
@@ -158,14 +158,19 @@ def test_validation_report_reflects_merged_v060_baseline_and_provenance():
         "workflow: 30879802677",
         "pytest: 167 passed",
         "Accepted v0.6.0 static evidence",
+        "Accepted engineering-consolidation static evidence",
+        "Accepted engineering-consolidation merge: 6ae52d47f6416087f4a7c7e314bef6d0204a129f",
+        "Exact tested consolidation head: ac5976d41e44a7ffddb3dad94686c2729c4b6687",
+        "Consolidation workflow: 30886554206",
+        "pytest: 157 passed",
         "Accepted v0.5.1 historical static evidence",
         "That live baseline predates v0.6.0",
         "review_artifact_id",
         "contract_luna_final_review_gate",
         "HOLD FOR RELEASE / LIVE VALIDATION PENDING",
         "ARCHITECTURE FROZEN AT v0.6.0",
-        "Current engineering-consolidation candidate",
+        "ENGINEERING CONSOLIDATION COMPLETE",
     ]:
         assert phrase in text
+    assert "Current engineering-consolidation candidate" not in text
     assert "Current feature PR: #27" not in text
-    assert "final documentation/version closure must also pass CI before PR #27 is merged" not in text.lower()
