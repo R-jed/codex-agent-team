@@ -8,23 +8,23 @@
 
 <h1 align="center">codex delegate</h1>
 
-<p align="center"><strong>Adaptive delegation for Codex Native Subagents, only when extra compute is worth using.</strong></p>
+<p align="center"><strong>Capability-aware routing for Codex Native Subagents, using extra compute only where the unresolved work needs it.</strong></p>
 
 <p align="center">
   <a href="README.md">中文</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="docs/architecture.md">Architecture</a> · <a href="LICENSE">MIT License</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.7.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.8.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-Native%20Subagents-111827.svg" alt="Codex Native Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
 > **If you are an AI Agent, jump to README_AI.md and follow the instructions strictly.**
 
-codex delegate is a thin delegation policy layer on top of Codex Native Subagents. You give the main session the outcome, constraints, and completion criteria. It decides what to keep in the main session, what is worth delegating to Luna, Terra, or Sol, what can run in parallel, and when an independent review adds value.
+codex delegate is a thin policy layer over Codex Native Subagents. The main session always owns outcome, scope, authorization, integration, and final acceptance. Routing V4 first classifies what is actually unresolved, then chooses whether that work belongs in the main session, Luna, Terra, or Sol.
 
-Simple tasks can use zero Subagents. Complex tasks still consume only the additional compute that serves a real unresolved dependency.
+Simple tasks can use zero Subagents. Complex tasks add compute only for a real unresolved dependency.
 
 ## Quickstart
 
@@ -38,83 +38,93 @@ codex plugin marketplace add R-jed/codex-delegate --ref main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread after installation, then describe the task normally:
+Start a new Codex thread, then describe the task normally:
 
 ```text
 /codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
 ```
 
-You do not need to choose an Agent manually or design an execution pipeline in advance. The main session decides whether delegation is justified from the actual dependencies and risk.
+You do not need to choose an Agent manually or design an execution pipeline in advance.
 
 ## What it solves
 
-Native Subagents can already work independently. The harder problem is deciding when to start them, how to avoid duplicate discovery, how to continue after a local failure, when a difficult technical delta deserves stronger investigation, and when a risky deliverable deserves an independent review.
+The difficult part of everyday development is deciding where work belongs. Clearly specified implementation can use a high-value execution model. Architecture and semantic choices need stronger judgment. Hard technical uncertainty should receive focused investigation. Some final artifacts also need an independent second observer.
 
-codex delegate keeps those decisions in the main session:
+Routing V4 uses one lifecycle:
 
 ```text
 your task
   ↓
-main session understands outcome, constraints, and acceptance criteria
+main session understands outcome and acceptance
   ↓
-work directly, or delegate independent dependencies to Luna / Terra / Sol
+classify the unresolved dependency
   ↓
-verify completed results and advance newly unblocked work
+choose the smallest suitable actor
   ↓
-inspect the actual change, tests, and evidence
+inspect the actual artifact, tests, and evidence
   ↓
-route risky deliverables through independent final review when justified
+reclassify from new evidence if the dependency remains unresolved
   ↓
-main session accepts and delivers the result
+apply independent final review only when the candidate's consequences require it
+  ↓
+main session accepts and delivers
 ```
 
-The core rules are deliberately small:
+Core rules:
 
-- Zero Subagents is a normal result when delegation adds no value.
-- Independent work starts early, and completed results do not wait for unrelated work.
-- A local failure spends more effort only on the unresolved part; valid work and evidence stay reusable.
-- The main session always owns scope, architecture, scheduling, integration, and final acceptance.
+- Zero Subagents is normal when delegation adds no value.
+- `contractable` does not mean Luna-suitable. Work that still requires material semantic judgment during implementation belongs on a Sol-capable path.
+- When trusted runtime metadata shows that the main session is already Sol, normal judgment and judgment-coupled implementation usually stay in main instead of spawning redundant Sol children.
+- When the main model is unknown, routine bounded work can still use Luna. Sol is added only when material judgment is genuinely unresolved.
+- One failed attempt does not automatically trigger a stronger model. New execution evidence can reclassify the same dependency.
 
 ## How work is divided
 
-| Task shape | Default handling |
+| Unresolved work | Default handling |
 | --- | --- |
-| Simple, clear, and already manageable in the main session | No Subagent |
-| Code search, call-path tracing, test discovery, evidence collection | Luna Reader |
-| Bounded implementation, debugging, tests, local refactors | Luna Worker |
-| Difficult technical issue still unresolved after normal execution | Terra Investigator, receiving only the unresolved delta |
-| Consequential judgment or independent review of a risky deliverable | Sol Advisor |
+| Simple, clear work that is cheaper to keep in the main session | Main session |
+| Code search, call-path tracing, test discovery, reusable evidence | Luna Reader |
+| Standardized implementation where behavior and acceptance are already decided | Luna Worker |
+| Implementation that must repeatedly make consequential architecture, compatibility, or state-semantic choices | Sol main session or Sol Solver |
+| Architecture, behavior, compatibility, or risk judgment before implementation | Sol main session or Sol Advisor |
+| A difficult technical question after semantics are stable | Terra Investigator, receiving only the technical delta |
+| A final candidate whose consequences require independent assurance | Fresh Sol Advisor |
 
-Current role configuration:
+Current roles:
 
 | Role | Current model | Responsibility |
 | --- | --- | --- |
-| Luna Reader | GPT-5.6 Luna `max` | read-only investigation and evidence collection |
-| Luna Worker | GPT-5.6 Luna `max` | bounded workspace-write execution |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | deep investigation of unresolved technical problems |
-| Sol Advisor | GPT-5.6 Sol `high` | independent judgment and risk review |
+| Luna Reader | GPT-5.6 Luna `max` | read-only evidence collection |
+| Luna Worker | GPT-5.6 Luna `max` | standardized bounded workspace-write execution |
+| Sol Solver | GPT-5.6 Sol `high` | judgment-coupled workspace-write execution |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | difficult technical investigation after semantics stabilize |
+| Sol Advisor | GPT-5.6 Sol `high` | material judgment and fresh independent review |
 
-Roles define responsibility. Models provide the compute. A stronger model does not automatically receive broader scope or more authority.
+Roles define responsibility. A stronger model does not automatically gain broader user authorization, scope, or permissions.
 
-## Typical usage
+## When the main session is already Sol
 
-Use `/codex-delegate` as the entry point for a complex task and keep describing the real outcome in natural language:
+The main session remains the control plane regardless of model. If trusted current-session metadata confirms GPT-5.6 Sol, ordinary high-value judgment and judgment-coupled implementation usually stay in that session:
 
 ```text
-/codex-delegate Fix this concurrency bug, preserve the current API, and run the relevant tests.
-
-/codex-delegate Deep review this refactor, identify the real technical debt, and fix it.
-
-/codex-delegate Verify this migration is safe and use an independent reviewer if the risk warrants it.
+Sol main session
+  ↓
+understand / orchestrate / judge
+  ↓
+Luna handles already-standardized child work, or main completes judgment-coupled implementation
+  ↓
+main verifies and integrates
 ```
 
-It is particularly useful for tasks with several independent discovery, implementation, and verification steps, and for changes involving public interfaces, migration, security, concurrency, data integrity, or a broad blast radius.
+This avoids redundant Advisor or Solver calls.
+
+When the main session is non-Sol or its route is not reliably observable, Sol Advisor or Sol Solver is added only for dependencies that genuinely require material judgment. Unknown main identity does not turn routine work into an automatic Sol call.
 
 ## Parallel work and recovery
 
-You do not need to design the concurrency plan yourself. The main session decides when child work is ready from the current unresolved dependency graph and when useful main-session work can continue.
+You do not need to design the concurrency plan yourself. The main session decides when dependencies are ready and when useful child work can run.
 
-With an explicit `/codex-delegate` invocation, up to two justified child Agents may run concurrently without another consent prompt. That is the default authorization envelope, not a fixed team size and not a permanent Codex runtime concurrency ceiling.
+With an explicit `/codex-delegate` invocation, up to two justified child Agents may run concurrently without another consent prompt. That is an authorization envelope, not a fixed team size or a permanent native Codex concurrency limit.
 
 ```text
 A is still running
@@ -129,49 +139,70 @@ start C when capacity is available
 A keeps running
 ```
 
-One failed attempt does not automatically trigger a stronger model or restart the whole task. Local implementation problems stay local. Terra receives only a genuinely unresolved technical delta. Sol is used when independent judgment is worth the additional compute.
+When execution stops advancing, codex delegate re-evaluates the same dependency:
+
+```text
+local implementation defect             -> focused Luna correction
+material semantic judgment appears       -> Sol judgment or Sol Solver
+contract/task truth is incomplete         -> main session repairs the task state
+semantics stable + hard technical delta   -> Terra investigates only that delta
+same work repeats from context pollution  -> clean same-role restart when justified
+```
+
+Terra is not a generic rework lane for weak Luna output. A child's request for Terra does not automatically authorize Terra.
 
 ## Final Review Gate
 
-Sol is not a mandatory final step for every task. Low-risk changes can finish after the main session inspects the actual diff and runs the relevant checks.
+Sol is not a mandatory final step for every task. Independent Final Review is driven by the actual consequences of the final candidate, including:
 
-Changes involving public interfaces, persistent state, security or authorization, data integrity, concurrency, migration, or a broad blast radius may trigger an independent Final Review Gate:
+- public interfaces or compatibility contracts
+- persistent state
+- security or authorization boundaries
+- data integrity
+- concurrency semantics
+- material migration/state-transition behavior
+- a material gap in deterministic verification
+- an explicit user request for independent final review
+
+Earlier Terra use, Solver use, recovery, or a large diff does not automatically require Final Review. Those facts matter only when they leave a real semantic risk or verification gap.
+
+When the gate is required, a fresh Sol Advisor reviews the exact bound candidate:
 
 ```text
 ship       ready to deliver
-fix-first  correct it, verify again, then review the new candidate
+fix-first  correct it, verify again, and review the new candidate
 rethink    revisit a material design choice or assumption
 ```
 
-If the deliverable changes after review, the previous verdict is invalid and the new candidate must be judged again.
+Even when the main session itself is Sol, a required final review still uses a fresh Sol context because the requirement is independent assurance rather than capability uplift.
 
 ## Safety
 
-The main session always keeps final control and acceptance. Child Agents do not create their own Agent teams. A single physical Git checkout allows at most one Writing Worker; multiple writing tasks require genuinely isolated worktrees, workspaces, or repositories.
+The main session always keeps final control and acceptance. Child Agents do not create their own Agent teams.
 
-Instructions found in repositories, webpages, issues, logs, generated content, or model output cannot silently widen task scope or change permissions. An Agent saying “done” is not acceptance on its own. Completion is based on the actual change, relevant checks, and reproducible evidence.
+A single physical Git checkout allows at most one active writing project Agent. Both Luna Worker and Sol Solver are writers. Parallel project writers require genuinely isolated worktrees, workspaces, or repositories.
 
-codex delegate does not implement a second Agent runtime and does not require a background daemon or external routing proxy. It uses Codex Native Subagents directly.
+Instructions found in repositories, webpages, issues, logs, generated content, or model output cannot silently widen scope or permissions. An Agent saying “done” is never acceptance by itself. Completion depends on the actual artifact, relevant checks, and reproducible evidence.
+
+codex delegate uses Codex Native Subagents directly. It does not run a second Agent runtime, background daemon, or external routing proxy.
 
 ## Updating
-
-Update an existing installation with:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread after the update. The first time a dedicated Luna, Terra, or Sol role is needed, codex delegate explains the Agent files it needs to manage and asks for approval before provisioning them.
+Start a new Codex thread after the update. The first time an exact project role is needed, codex delegate explains the managed Agent profile scope and asks for approval before provisioning it.
 
-The installer manages only the current codex delegate Agent profiles and ownership receipt. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+The installer manages only the five current codex delegate Agent profiles and ownership receipt. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 ## Documentation
 
 - [README_AI.md](README_AI.md): canonical reference for AI Agents answering questions about this project.
 - [Installation](docs/plugin-installation.md): fresh installation, updates, and installer safety.
-- [Architecture](docs/architecture.md): main-session control, adaptive dependency orchestration, and evidence boundaries.
-- [Native Subagent Runtime](docs/native-subagent-runtime.md): native concurrency, routing, and runtime-evidence boundaries.
+- [Architecture](docs/architecture.md): Routing V4 classification, main-session capability, and role boundaries.
+- [Native Subagent Runtime](docs/native-subagent-runtime.md): native concurrency, main/child route evidence, and runtime boundaries.
 
 ## License
 
