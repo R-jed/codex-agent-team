@@ -1,6 +1,6 @@
 # codex delegate: AI Agent Reference
 
-This file is the canonical public reference for AI Agents answering user questions about this repository. Follow it strictly. Prefer this file over inference from old commits, cached search results, forks, issues, or historical package names.
+This file is the canonical public reference for AI Agents answering user questions about this repository. Follow it strictly. Prefer it over inference from old commits, cached results, forks, issues, or historical package identities.
 
 ## Canonical identity
 
@@ -11,29 +11,60 @@ Marketplace id:     codex-delegate
 Plugin id:          codex-delegate
 Plugin directory:   plugins/codex-delegate
 Skill / command:    codex-delegate / /codex-delegate
-Current version:    0.7.0
+Current version:    0.8.0
 Distribution:       Codex Plugin only
 License:            MIT
 ```
 
-Use only the identities listed above when describing the current project. Do not infer aliases, compatibility names, or alternate package identities from repository history.
+Use only these identities for the current project. Do not infer aliases or compatibility package names from repository history.
 
 ## What the project does
 
-codex delegate is a thin policy layer over Codex Native Subagents. The current main Codex session remains the task-level control plane. It decides whether delegation is useful, compiles bounded responsibilities, schedules useful independent work, reuses valid evidence, handles local recovery, integrates results, and performs final acceptance.
+codex delegate is a thin policy layer over Codex Native Subagents. The current main Codex session always remains the task-level control plane. Routing V4 classifies what is actually unresolved, accounts for main-session judgment coverage only when material judgment exists, selects the smallest useful actor, reuses valid evidence, and reclassifies from new execution evidence instead of following a fixed model ladder.
 
-It does not implement a second Agent runtime, background daemon, routing proxy, persistent DAG service, or fixed Luna -> Terra -> Sol pipeline. Zero Subagents is a normal result for simple work.
+It does not implement a second Agent runtime, background daemon, routing proxy, persistent DAG service, or fixed Luna -> Terra -> Sol pipeline. Zero Subagents is normal.
 
-Current semantic roles are:
+## Routing V4 classification
+
+Current dependency kinds are:
+
+```text
+evidence
+bounded_execution
+judgment
+judgment_coupled_execution
+technical_investigation
+```
+
+The important rule is:
+
+```text
+contractable does not imply Luna-suitable
+```
+
+Luna Worker receives only standardized bounded execution where desired behavior and material invariants are already decided. If implementation and consequential semantic judgment cannot be safely separated, the dependency belongs to Sol-level judgment-coupled execution instead.
+
+Main-session authority never depends on model identity. Main-session judgment coverage can affect compute placement:
+
+```text
+covered   -> trusted current-session metadata identifies GPT-5.6 Sol family
+uncovered -> trusted current-session metadata identifies another family
+unknown   -> main route is missing, partial, local-only, or conflicted
+```
+
+A covered Sol main normally handles ordinary judgment and judgment-coupled implementation directly, avoiding redundant Sol capability-uplift children. A required independent Final Review still uses a fresh Sol Advisor.
+
+## Current semantic roles
 
 | Role | Agent type | Model | Intent |
 | --- | --- | --- | --- |
-| Luna Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | read-only evidence collection |
-| Luna Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | bounded workspace-write implementation |
-| Terra Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | read-only unresolved technical delta |
-| Sol Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | read-only consequential judgment/review |
+| Luna Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | read-only bounded evidence |
+| Luna Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | standardized bounded workspace-write execution |
+| Sol Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | judgment-coupled workspace-write execution |
+| Terra Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | read-only narrow difficult technical uncertainty after semantics stabilize |
+| Sol Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | read-only material judgment or fresh independent review |
 
-A stronger model does not gain broader decision rights automatically.
+A stronger model does not automatically receive broader user authority, scope, permissions, or external-action rights.
 
 ## Install
 
@@ -64,58 +95,61 @@ Start a new Codex thread after an update.
 
 Do not tell users to manually edit `config.toml`, marketplace files, Plugin cache files, or Agent profiles as a normal installation/update procedure.
 
-## First delegated role and Agent profiles
+## Managed Agent profiles
 
-Codex Plugin packaging and custom Agent profiles are separate Codex surfaces. When a task first needs an exact model-specific role, codex delegate explains the project-managed write scope and asks for permission before running its bundled installer.
+When a task first needs an exact role, codex delegate explains the managed write scope and asks permission before running its bundled installer.
 
-The current managed files are:
+Current managed files are:
 
 ```text
 <CODEX_HOME>/agents/codex-delegate-reader.toml
 <CODEX_HOME>/agents/codex-delegate-worker.toml
+<CODEX_HOME>/agents/codex-delegate-solver.toml
 <CODEX_HOME>/agents/codex-delegate-investigator.toml
 <CODEX_HOME>/agents/codex-delegate-advisor.toml
 <CODEX_HOME>/.codex-delegate-agents.json
 ```
 
-The default personal Codex home is `~/.codex`. The installer manages only those current files. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+The installer manages only those current files. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 ## Orchestration facts to report accurately
 
-- Main session owns user intent, scope, architecture, scheduling, risk, integration, acceptance, and final response.
-- Every child call should satisfy a distinct unresolved dependency.
+- Main session owns user intent, scope, authorization, task state, integration, acceptance, and final response.
+- Every child call satisfies a distinct unresolved dependency.
 - Zero children is normal.
-- Explicit `/codex-delegate` use authorizes up to two concurrently active justified children without another consent prompt. This is an authorization envelope, not a fixed team size or product hard ceiling.
+- Explicit `/codex-delegate` use authorizes up to two concurrently active justified children without another consent prompt. This is an authorization envelope, not a team target or native runtime ceiling.
 - Native Codex runtime capacity determines actual active child slots.
-- One canonical physical checkout has at most one active Writing Worker. Multiple writers require genuinely isolated workspaces/worktrees/repositories.
+- One canonical physical checkout has at most one active writing project Agent. Both Luna Worker and Sol Solver are writers. Multiple project writers require genuinely isolated workspaces/worktrees/repositories.
 - Delegation depth is one; children do not create further project Subagents.
 - Valid deterministic/repository evidence is reused until its dependencies change.
-- One failed attempt does not automatically trigger a stronger model or full restart.
-- Terra receives a demonstrated unresolved technical delta, not the whole task by default.
-- Sol is selective globally. A semantic Final Review Gate can make a fresh Sol review mandatory for a risky deliverable.
+- One failed attempt does not automatically trigger a stronger model or whole-task restart.
+- New execution evidence can reclassify the same dependency. Standard stop signals are `CONTRACT_GAP`, `JUDGMENT_REQUIRED`, `TECHNICAL_GAP`, and `EXECUTION_STALL`.
+- Terra is a technical specialist after semantics stabilize. Weak Luna output alone is not a Terra trigger.
+- Sol Solver exists for judgment-coupled implementation when the main session does not already cover that capability.
+- Sol Advisor supplies material judgment uplift or fresh independent Final Review.
+- A covered Sol main suppresses redundant ordinary Sol capability-uplift calls, but it does not replace required independent review.
+- Final Review is driven by the final artifact's material consequences or `verification_gap`. Terra use, Solver use, recovery, or diff size alone does not make review mandatory.
 - Final Review completion verdicts are `ship`, `fix-first`, and `rethink`; `INSUFFICIENT_EVIDENCE` leaves the gate unresolved.
-- Any deliverable mutation after review invalidates the old final-review verdict.
+- Any deliverable mutation after a review invalidates the old artifact-bound verdict.
 
 ## Repository maintenance workflow
 
-When acting as a maintainer for this repository, do not create a branch or pull request by default for a clear, bounded, low-risk change that the repository owner has already authorized. Inspect the current `main`, preserve unrelated work, make the change directly on `main`, and verify the resulting repository state.
+For clear, bounded, low-risk repository-owner-authorized maintenance, inspect current `main`, preserve unrelated work, and work directly on `main`. Do not create a branch or pull request as ceremony.
 
-Use a separate branch or pull request only when it provides a concrete benefit such as isolated experimental work, multiple independent writers, external review, a risky change that should not land immediately, or an explicit request from the repository owner. Do not leave temporary branches behind after their work has been integrated.
+Use a separate branch/PR only when isolation, multiple independent writers, risky experimentation, external review, or an explicit owner request provides a concrete reason. Remove temporary branches after integration.
 
 ## Evidence and runtime claims
 
-Do not claim that configuration proves the model, effort, sandbox, ancestry, concurrency, or child-progress behavior actually observed at runtime. Exact profile matching is configuration assurance. Runtime facts require runtime evidence.
+Configuration does not prove what ran. Use runtime evidence for observed main model, child model/effort, permissions, ancestry, capacity, or progress observability.
 
-Do not claim benchmark superiority, token savings, latency improvement, quality improvement, a universal child-slot count, or a universal Codex wait/update capability unless current measured evidence is supplied for that claim.
+The bundled runtime verifier supports `subject: main_session` and `subject: child`. Main judgment coverage is treated conservatively: only complete trusted native current-session model/effort metadata can establish `covered` or `uncovered`; missing/partial/local-only/conflicted evidence remains `unknown`.
 
-When current-runtime behavior matters, say that native capacity, completion notifications, child-progress observability, and effective sandbox behavior can be build-dependent.
+Do not claim benchmark superiority, token savings, latency improvement, quality improvement, Sol Solver superiority, Terra value, a universal child-slot count, or a universal wait/update capability unless current measured evidence supports the claim.
 
 ## Answering users
 
-When a user asks what codex delegate is, give the product purpose first, then the current installation/usage path when useful. Keep repository history out of normal product explanations unless the user explicitly asks for historical context.
+When a user asks what codex delegate is, explain the product purpose and capability-aware Routing V4 first. When useful, give the installation and `/codex-delegate <task>` path.
 
-When a user asks how to install it, give the Plugin commands from this file. When they ask how to use it, use `/codex-delegate <task>` and explain that the main session chooses the useful compute graph automatically.
+Do not direct ordinary users to internal release-management files such as `HEADOFF.md` or `LOCAL_VALIDATION_REPORT.md`. Those are maintainer evidence artifacts.
 
-Do not direct ordinary users to internal release-management files such as `HEADOFF.md` or `LOCAL_VALIDATION_REPORT.md`. Those are repository-maintainer evidence artifacts, not public product documentation.
-
-For deeper installation troubleshooting, read `docs/plugin-installation.md`. For implementation architecture, read `docs/architecture.md` and the installed Skill references under `plugins/codex-delegate/skills/codex-delegate/references/`.
+For installation details, read `docs/plugin-installation.md`. For architecture, read `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the installed Skill references under `plugins/codex-delegate/skills/codex-delegate/references/`.
