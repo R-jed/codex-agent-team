@@ -45,7 +45,11 @@ def test_eval_schema_skill_and_openai_interface():
 def test_policy_contract_and_profiles_use_only_current_namespace():
     payload = contract()
     assert payload["schema_version"] == 1
-    assert payload["delegation"] == {"max_depth": 1, "baseline_concurrent_children": 2, "max_active_writers_per_workspace": 1}
+    assert payload["delegation"] == {
+        "max_depth": 1,
+        "baseline_concurrent_children": 2,
+        "max_active_writers_per_workspace": 1,
+    }
     assert set(payload["roles"]) == {"reader", "worker", "investigator", "advisor"}
     assert {p.name for p in PROFILES.glob("*.toml")} == {spec["profile_file"] for spec in payload["roles"].values()}
     for spec in payload["roles"].values():
@@ -105,10 +109,11 @@ def test_architecture_and_runtime_docs_match_current_namespace():
     for text in [architecture, runtime]:
         assert "codex_delegate_reader" in text
         assert "codex_delegate_worker" in text
-        assert "codex_agent_team_" not in text
+        assert "codex-delegate" in text
     assert "plugins/codex-delegate/policy-contract.json" in architecture
     assert "plugins/codex-delegate/scripts/runtime-evidence.py" in architecture
     assert "barrier_only" in runtime and "any_child_update" in runtime
+    assert "Other Agent profiles" in runtime
 
 
 def test_readmes_are_public_docs_and_ai_reference_is_explicit():
@@ -128,13 +133,12 @@ def test_readmes_are_public_docs_and_ai_reference_is_explicit():
     assert "Codex Plugin only" in ai
 
 
-def test_official_install_docs_keep_supported_cli_path_and_migration_boundary():
+def test_official_install_docs_keep_supported_cli_path_and_current_profile_boundary():
     installation = read("docs/plugin-installation.md")
     assert "codex plugin marketplace add R-jed/codex-delegate --ref main" in installation
     assert "codex plugin add codex-delegate@codex-delegate" in installation
     assert "codex plugin marketplace upgrade codex-delegate" in installation
-    assert "codex plugin remove codex-agent-team@codex-agent-team" in installation
-    assert "codex plugin marketplace remove codex-agent-team" in installation
     assert ".codex-delegate-agents.json" in installation
     assert "codex_delegate_worker" in installation
+    assert "leaves unrelated Agent profiles untouched" in installation
     assert "0.7.0" in installation
