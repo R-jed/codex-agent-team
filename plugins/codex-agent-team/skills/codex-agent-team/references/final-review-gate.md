@@ -12,7 +12,7 @@ Track a compact task-level state for deliverable mutations:
 review_requirement: not_required | required
 review_reasons: <semantic reason codes>
 review_artifact_id: <bound candidate identity or none>
-review_verdict: none | ship | fix-first | rethink
+review_verdict: none | ship | fix-first | rethink | insufficient_evidence
 ```
 
 The main session owns this state. A child may surface facts that trigger review, but it cannot waive or satisfy the gate itself.
@@ -100,7 +100,7 @@ untracked[]
 review_artifact_id
 ```
 
-The identity binds current `HEAD`, the complete tracked working-tree diff against `HEAD`, and every non-ignored untracked file with its path, kind, and content digest. It is read-only and does not update the index, create a commit, or mutate the workspace.
+For a repository with `HEAD`, the tracked digest binds the complete tracked working-tree diff against `HEAD`. Before the first commit, it binds a canonical snapshot of every index-tracked path at its current working-tree content, so staged-then-unstaged edits remain visible without writing an empty-tree object. Non-ignored untracked files are bound with path, kind, Git-relevant mode, and content or symlink-target digest.
 
 Pass the emitted `review_artifact_id` to the reviewer. Immediately before reporting a reviewed deliverable complete, run:
 
@@ -166,13 +166,15 @@ Inspect the actual repository state and complete accumulated diff for this candi
 Challenge correctness, completeness, regression risk, scope discipline, interface preservation,
 test adequacy, and the stated review reasons. Do not implement fixes. Remain read-only.
 
-RETURN EXACTLY
+RETURN ON A REVIEWABLE CANDIDATE
 VERDICT: ship | fix-first | rethink
 REVIEWED_ARTIFACT_ID: <the supplied candidate identity>
 DECISIVE_EVIDENCE: <facts that determine the verdict>
 FINDINGS: <precise required fixes or none>
 RESIDUAL_RISK: <largest remaining material risk or none>
 ```
+
+The existing Advisor profile has a higher-level fail-closed rule: when the packet lacks evidence needed for a justified conclusion, it may return `INSUFFICIENT_EVIDENCE` and identify the missing dependency. Treat that as an unresolved gate state, not as a fourth completion verdict and not as `fix-first`.
 
 Established discovery may be reused to control cost. The reviewer may challenge stale or insufficient evidence, but it should not repeat repository discovery merely to recreate still-valid facts. Inspection of the actual final artifact is never replaced by evidence reuse.
 
@@ -201,13 +203,28 @@ The old verdict is invalid after any fix. The main session must not repair the c
 
 Do not downgrade `rethink` into a local bug-fix ticket merely to preserve the existing implementation.
 
+### `INSUFFICIENT_EVIDENCE`
+
+`INSUFFICIENT_EVIDENCE` is a fail-closed reviewer outcome from the existing Advisor role, not a successful final verdict.
+
+When it occurs:
+
+1. keep `review_requirement = required` and `review_verdict = insufficient_evidence`;
+2. record the exact missing evidence dependency returned by the reviewer;
+3. gather only that missing evidence or repair the review packet without changing the candidate when possible;
+4. if the candidate changes, rerun affected deterministic verification and capture a new artifact id;
+5. launch a new fresh Sol review;
+6. do not report the Final Review Gate satisfied until the current artifact receives `ship`.
+
+Do not silently map missing evidence to `fix-first`, because the implementation may be correct and the problem may be only an incomplete review oracle.
+
 ## 7. Relationship to recovery
 
 The Final Review Gate runs after implementation recovery has produced a Candidate Ready artifact. It is not another retry mechanism.
 
 Recovery history may itself trigger mandatory review when it materially changed the solution. Pass only compact decision-relevant facts into the review packet. Do not pass private reasoning or a transcript.
 
-If review finds a bounded defect, `fix-first` returns work to normal dependency scheduling. If it exposes an invalid premise, `rethink` returns control to architecture/contract work.
+If review finds a bounded defect, `fix-first` returns work to normal dependency scheduling. If it exposes an invalid premise, `rethink` returns control to architecture/contract work. If it lacks evidence, `INSUFFICIENT_EVIDENCE` creates an evidence dependency rather than an implementation retry.
 
 ## 8. Completion invariant
 
@@ -221,4 +238,4 @@ main-session acceptance
 = task completion
 ```
 
-Without all four, report the task as incomplete or blocked. Do not describe a selective Sol consultation, an earlier review of a different artifact, or the main session's own judgment as satisfying the mandatory final quality gate.
+Without all four, report the task as incomplete or blocked. Do not describe a selective Sol consultation, an earlier review of a different artifact, `INSUFFICIENT_EVIDENCE`, or the main session's own judgment as satisfying the mandatory final quality gate.
