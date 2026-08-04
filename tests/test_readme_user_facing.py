@@ -65,13 +65,15 @@ def test_readmes_explain_adaptive_parallelism_and_recovery():
     assert "Sol is not a mandatory final step for every task" in EN
 
 
-def test_legacy_public_id_is_migration_context_only_in_public_readmes():
+def test_public_readmes_expose_only_current_project_identity():
     for text in [ZH, EN]:
-        assert "codex-agent-team" in text
-        assert "codex plugin add codex-agent-team@codex-agent-team" not in text
-        assert "--sparse plugins/codex-agent-team" not in text
+        assert "codex-agent-team" not in text
         assert "codex_agent_team_" not in text
         assert ".codex-agent-team-" not in text
+    assert "安装与迁移" not in ZH
+    assert "## 更新与迁移" not in ZH
+    assert "Install & Migration" not in EN
+    assert "## Updating and migration" not in EN
 
 
 def test_visual_assets_remain_bounded():
