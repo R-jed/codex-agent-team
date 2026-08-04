@@ -18,8 +18,8 @@ Stable role/classification/review constants live in `../../policy-contract.json`
 5. Luna Worker receives only standardized bounded execution whose material behavior decisions are already made.
 6. Sol Solver receives judgment-coupled implementation only when material judgment cannot be safely separated and the main session does not already cover that capability.
 7. Terra receives only a narrow difficult technical uncertainty after semantic intent is stable.
-8. Sol Advisor provides material judgment uplift or fresh independent final review. A Sol main session suppresses redundant capability-uplift Sol calls but never substitutes for required independent review.
-9. One canonical physical checkout has at most one active writing project Agent. Delegation depth remains one.
+8. Sol Advisor provides material judgment uplift or fresh independent final review. A covered main session suppresses redundant capability-uplift Sol calls but never substitutes for required independent review.
+9. One canonical physical checkout has at most one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share that writer domain. Delegation depth remains one.
 10. Child reports are claims. Acceptance uses actual artifact state plus deterministic/reproducible evidence.
 11. Failure does not imply escalation. New evidence reclassifies the same dependency when its nature changed.
 12. Valid deterministic/repository evidence is reused until its dependencies change.
@@ -91,11 +91,13 @@ If material semantic discretion is expected during implementation, do not disgui
 
 When trusted current-session metadata exposes the main model and material judgment is unresolved, normalize it through `references/runtime-assurance.md` / `../../scripts/runtime-evidence.py`.
 
+The coverage reference role/model comes from `../../policy-contract.json`; the verifier does not maintain a second hard-coded route identity.
+
 Routing V4 uses:
 
 ```text
-covered   -> current main is trusted as GPT-5.6 Sol family for normal judgment placement
-uncovered -> trusted current main is outside that family
+covered   -> current main matches the trusted policy-owned judgment reference
+uncovered -> trusted current main is outside that reference family
 unknown   -> route not observed completely or is conflicted
 ```
 
@@ -114,8 +116,8 @@ Classification maps to role, subject to delegation benefit:
 ```text
 evidence                    -> main or codex_delegate_reader
 bounded_execution           -> main or codex_delegate_worker
-judgment                    -> Sol main, or codex_delegate_advisor when coverage is uncovered/unknown
-judgment_coupled_execution  -> Sol main, or codex_delegate_solver when coverage is uncovered/unknown
+judgment                    -> covered main, or codex_delegate_advisor when coverage is uncovered/unknown
+judgment_coupled_execution  -> covered main, or codex_delegate_solver when coverage is uncovered/unknown
 technical_investigation     -> main or codex_delegate_investigator
 ```
 
@@ -165,7 +167,7 @@ Scheduling is completion-driven. Process a child's exposed completion/update as 
 
 A barrier is used only for a real join dependency or when the tested native runtime exposes no finer completion surface.
 
-At most one active writing project Agent may target one canonical checkout. Both Worker and Solver count as writers.
+One canonical checkout has one writing actor at a time inside this orchestration. If Worker or Solver owns a writing dependency, the main session may continue read-only work in that checkout but must wait for a clear ownership handoff before making integration writes there. Concurrent writes require genuinely isolated workspaces.
 
 ## 7. Verify and reclassify instead of escalating
 
@@ -197,7 +199,7 @@ bounded local defect, semantics unchanged
 
 material semantic choice emerged
 -> judgment or judgment_coupled_execution
--> main Sol / Advisor / Solver according to main coverage
+-> covered main / Advisor / Solver according to main coverage
 
 narrow difficult technical uncertainty remains after semantics stabilize
 -> technical_investigation
@@ -211,7 +213,7 @@ Do not translate a failed Luna attempt directly into Terra or Sol. Reclassificat
 
 ## 8. Apply boundary policies where relevant
 
-- `references/safety-policy.md`: permission, trust, writer isolation, external impact, delegation depth
+- `references/safety-policy.md`: permission, trust, writer ownership, external impact, delegation depth
 - `references/consent-policy.md`: material compute/fan-out/scope/permission expansion
 - `references/runtime-assurance.md`: main-session coverage plus child route/ancestry/permission evidence
 
