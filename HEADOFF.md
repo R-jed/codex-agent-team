@@ -2,7 +2,7 @@
 
 This is the authoritative local-validation and finite v1.0.0 release checklist for **Codex Delegate**.
 
-The architecture cycle is closed. v0.6.0 is the accepted static baseline. v0.5.1 remains historical evidence whose still-valid observations may be carried forward only when their dependencies are unchanged. The remaining job is finite: complete Checkpoints 1-6, fix only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
+The architecture cycle is closed. v0.6.0 is the accepted static baseline on `main`. v0.5.1 remains historical evidence whose still-valid observations may be carried forward only when their dependencies are unchanged. The remaining job is finite: complete Checkpoints 1-6, fix only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
 
 Do not reopen model routing, fan-out architecture, recovery architecture, Final Review Gate architecture, installer locking, or Plugin packaging without reproducible evidence from a mandatory live gate.
 
@@ -11,7 +11,8 @@ Do not reopen model routing, fan-out architecture, recovery architecture, Final 
 Accepted v0.6.0 static product baseline:
 
 ```text
-feature PR: #27
+feature merge: b043428223ba99ce77e2268c32cfa6a38daad3ed
+source PR: #27
 product: Codex Delegate
 version: 0.6.0
 architecture: Adaptive Dependency Orchestration + evidence-gated recovery + risk-triggered Final Review Gate
@@ -20,20 +21,21 @@ static posture: COMPLETE / ARCHITECTURE FROZEN
 release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 ```
 
-Accepted v0.6.0 feature-candidate static verification before the final documentation closure:
+Accepted v0.6.0 static verification for the final PR closure tree that was squash-merged into `main`:
 
 ```text
-PR #27 validated head: 6e5083e8fee26d92e63526413f620c566b4bf8f9
-PR #27 workflow: 30876233050
+PR #27 final closure head: 3833e9d7c322a3feddc3cb8a7386e022a3bb8b1e
+PR #27 merge-candidate workflow: 30879802677
+squash merge on main: b043428223ba99ce77e2268c32cfa6a38daad3ed
 Ubuntu Python 3.11: PASS
 Ubuntu Python 3.12: PASS
 macOS Python 3.11: PASS
-pytest: 164 passed
+pytest: 167 passed
 pinned official OpenAI Plugin validator: PASS
 managed profile install / --check / idempotent reinstall: PASS
 ```
 
-The exact final PR #27 closure head must also remain green before merge. A later documentation-only closure commit does not convert old static evidence into live runtime evidence.
+PR #27 was squash-merged into `main` as `b043428223ba99ce77e2268c32cfa6a38daad3ed`. The successful workflow above validated the final closure tree in the PR merge context against the then-current `main` before the squash merge. Post-merge README and HEADOFF reconciliation changes documentation/evidence wording only; they do not convert static CI into live runtime proof. Before Checkpoint 1, fetch the actual current `origin/main` and record that tested SHA in `LOCAL_VALIDATION_REPORT.md`.
 
 Historical v0.5.1 accepted static verification remains recorded for provenance:
 
@@ -181,7 +183,7 @@ Do not change these rules merely to make a live test pass:
 - [x] Plugin manifest does not claim an unsupported custom-Agent component.
 - [x] Managed personal profiles target `$CODEX_HOME/agents` only after explicit user approval.
 - [x] Compatibility repository/package/profile identifiers remain unchanged pre-v1.
-- [x] Pinned official OpenAI `plugin-creator/scripts/validate_plugin.py` validation passes on the v0.6.0 feature candidate.
+- [x] Pinned official OpenAI `plugin-creator/scripts/validate_plugin.py` validation passes on the final v0.6.0 PR closure tree merged as `b043428223ba99ce77e2268c32cfa6a38daad3ed`.
 - [x] Current upstream PluginStore source indicates complete Plugin-tree recursive copy with symlink rejection; this is upstream source evidence, not local runtime proof.
 
 ## D. Historical live evidence
@@ -196,6 +198,7 @@ Do not change these rules merely to make a live test pass:
 
 ## E. Final Review Gate static closure
 
+- [x] PR #27 is squash-merged to `main` as `b043428223ba99ce77e2268c32cfa6a38daad3ed`.
 - [x] Sol remains non-mandatory globally and selective outside a required gate.
 - [x] Mandatory semantic trigger taxonomy is explicit and non-numeric.
 - [x] Required review separates `Candidate Ready` from task completion.
