@@ -14,11 +14,13 @@ def test_readmes_present_the_product_to_users():
             "codex plugin marketplace upgrade codex-agent-team",
             "codex plugin add codex-agent-team@codex-agent-team",
             "/codex-delegate",
-            "0.5.1",
+            "0.6.0",
             "Luna Reader",
             "Luna Worker",
             "Terra Investigator",
             "Sol Advisor",
+            "Final Review Gate",
+            "review_artifact_id",
         ]:
             assert phrase in text
 
@@ -38,7 +40,7 @@ def test_readmes_explain_adaptive_concurrency_without_hard_agent_count():
 
     for text in [zh, en]:
         assert "physical checkout" in text
-        assert "0.5.1" in text
+        assert "0.6.0" in text
 
     assert "没有固定 Agent 数量" in zh
     assert "No fixed Agent count" in en
@@ -71,6 +73,22 @@ def test_readmes_explain_intervention_before_recovery():
     assert "Terra" in zh and "Terra" in en
 
 
+def test_readmes_explain_risk_triggered_final_review_without_fixed_pipeline():
+    zh = (ROOT / "README.md").read_text()
+    en = (ROOT / "README_EN.md").read_text()
+    for text in [zh, en]:
+        assert "Candidate Ready" in text
+        assert "ship" in text
+        assert "fix-first" in text
+        assert "rethink" in text
+        assert "INSUFFICIENT_EVIDENCE" in text
+        assert "review_artifact_id" in text
+    assert "高风险改动的最终质量门" in zh
+    assert "Final quality gate for higher-risk changes" in en
+    assert "Sol 不是所有任务的固定阶段" in zh
+    assert "Sol is not a fixed stage for every task" in en
+
+
 def test_readmes_explain_official_plugin_and_custom_agent_boundary():
     zh = (ROOT / "README.md").read_text()
     en = (ROOT / "README_EN.md").read_text()
@@ -89,7 +107,8 @@ def test_compatibility_details_live_in_installation_guide():
         "Plugin package id",
         "codex_agent_team_*",
         ".codex-agent-team-agents.json",
-        "0.5.1",
+        "0.6.0",
+        "Final Review Gate",
     ]:
         assert phrase in guide
 
