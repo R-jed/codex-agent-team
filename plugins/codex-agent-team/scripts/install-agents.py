@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Provision Codex Agent Team managed custom-agent profiles safely.
+"""Provision Codex Delegate managed custom-Agent profiles safely.
 
-The Plugin uses semantic, namespaced role names so routing policy can change models
-without changing the responsibility contract. Older model-named profiles are removed
-only when their exact bytes are proven to belong to a previous managed install.
+Stable role/profile/model/effort/sandbox constants come from ``policy-contract.json``.
+Ownership, migration, exactness, staging, and rollback behavior remain installer-local.
+Older model-named profiles are removed only when their exact bytes are proven to belong
+to a previous managed install.
 """
 
 from __future__ import annotations
@@ -20,28 +21,13 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_SOURCE = ROOT / "agent-profiles"
-PROFILE_FILES = (
-    "codex-agent-team-reader.toml",
-    "codex-agent-team-worker.toml",
-    "codex-agent-team-investigator.toml",
-    "codex-agent-team-advisor.toml",
-)
+POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
 LEGACY_PROFILE_FILES = (
     "luna-explorer.toml",
     "luna-worker.toml",
     "terra-reviewer.toml",
     "sol-judge.toml",
 )
-EXPECTED_PROFILES = {
-    "codex-agent-team-reader.toml": ("codex_agent_team_reader", "gpt-5.6-luna", "max"),
-    "codex-agent-team-worker.toml": ("codex_agent_team_worker", "gpt-5.6-luna", "max"),
-    "codex-agent-team-investigator.toml": (
-        "codex_agent_team_investigator",
-        "gpt-5.6-terra",
-        "xhigh",
-    ),
-    "codex-agent-team-advisor.toml": ("codex_agent_team_advisor", "gpt-5.6-sol", "high"),
-}
 MANIFEST_NAME = ".codex-agent-team-agents.json"
 FULL_MANIFEST_NAME = ".codex-agent-team-install.json"
 MANIFEST_SCHEMA = 2
@@ -49,9 +35,55 @@ LEGACY_FULL_MANIFEST_SCHEMA = 1
 LEGACY_FULL_MANIFEST_MODE = "profile"
 
 
+def fail(message: str) -> NoReturn:
+    raise SystemExit(message)
+
+
+def load_policy_contract() -> dict:
+    try:
+        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        fail(f"Invalid Codex Delegate policy contract {POLICY_CONTRACT_PATH}: {exc}")
+    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+        fail(f"Unsupported Codex Delegate policy contract: {POLICY_CONTRACT_PATH}")
+    roles = payload.get("roles")
+    if not isinstance(roles, dict) or set(roles) != {"reader", "worker", "investigator", "advisor"}:
+        fail("Policy contract must define reader, worker, investigator, and advisor roles")
+    required = {"profile_file", "agent_type", "model", "effort", "sandbox_intent"}
+    seen_files: set[str] = set()
+    seen_names: set[str] = set()
+    for role, spec in roles.items():
+        if not isinstance(spec, dict) or not required <= set(spec):
+            fail(f"Policy contract role {role!r} is incomplete")
+        values = {key: spec.get(key) for key in required}
+        if not all(isinstance(value, str) and value.strip() for value in values.values()):
+            fail(f"Policy contract role {role!r} contains an empty/non-string constant")
+        if spec["profile_file"] in seen_files:
+            fail(f"Duplicate profile_file in policy contract: {spec['profile_file']}")
+        if spec["agent_type"] in seen_names:
+            fail(f"Duplicate agent_type in policy contract: {spec['agent_type']}")
+        seen_files.add(spec["profile_file"])
+        seen_names.add(spec["agent_type"])
+    return payload
+
+
+POLICY_CONTRACT = load_policy_contract()
+ROLE_SPECS = POLICY_CONTRACT["roles"]
+PROFILE_FILES = tuple(spec["profile_file"] for spec in ROLE_SPECS.values())
+EXPECTED_PROFILES = {
+    spec["profile_file"]: (
+        spec["agent_type"],
+        spec["model"],
+        spec["effort"],
+        spec["sandbox_intent"],
+    )
+    for spec in ROLE_SPECS.values()
+}
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Provision Codex Agent Team managed custom-agent profiles."
+        description="Provision Codex Delegate managed custom-agent profiles."
     )
     parser.add_argument(
         "--codex-home",
@@ -65,10 +97,6 @@ def parse_args() -> argparse.Namespace:
         help="Verify all current managed Agent profiles exactly; make no changes.",
     )
     return parser.parse_args()
-
-
-def fail(message: str) -> NoReturn:
-    raise SystemExit(message)
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -124,6 +152,7 @@ def validate_sources() -> None:
             str(data.get("name", "")).strip(),
             str(data.get("model", "")).strip(),
             str(data.get("model_reasoning_effort", "")).strip(),
+            str(data.get("sandbox_mode", "")).strip(),
         )
         if actual != expected:
             fail(f"Agent profile {filename} pins {actual!r}; expected {expected!r}")
@@ -159,13 +188,7 @@ def manifest_profile_hashes(manifest: dict | None) -> dict[str, str]:
 
 
 def legacy_full_manifest_profile_hashes(manifest: dict | None) -> dict[str, str]:
-    """Return legacy standalone ownership only for the one historical manifest shape.
-
-    The old standalone installer wrote schema 1 manifests in ``profile`` mode. A
-    different schema/mode under the same filename is not accepted as deletion
-    authority for legacy Agent profiles. It may belong to a future or unrelated
-    installer, so migration fails closed by simply declining that ownership seed.
-    """
+    """Return legacy standalone ownership only for the historical schema-1 profile shape."""
     if manifest is None:
         return {}
     if manifest.get("schema_version") != LEGACY_FULL_MANIFEST_SCHEMA:
@@ -178,13 +201,10 @@ def legacy_full_manifest_profile_hashes(manifest: dict | None) -> dict[str, str]
 def managed_ownership_hashes(
     companion_manifest: dict | None, full_manifest: dict | None
 ) -> dict[str, str]:
-    """Return the one authoritative ownership epoch for this install.
+    """Return the authoritative ownership epoch for this install.
 
     Once the companion manifest exists it is authoritative. The older standalone
-    manifest is used only as a one-time migration seed before the companion manifest
-    has ever been written, and only when it matches the historical schema-1 profile
-    install shape. This prevents stale or unrelated legacy hashes from granting
-    deletion authority over files a user may intentionally recreate later.
+    manifest is only a one-time migration seed before the companion manifest exists.
     """
     if companion_manifest is not None:
         return manifest_profile_hashes(companion_manifest)
@@ -404,12 +424,10 @@ def install(codex_home: Path, check_only: bool) -> None:
         for backup in backups.values():
             backup.unlink(missing_ok=True)
 
+    role_names = ", ".join(spec["agent_type"] for spec in ROLE_SPECS.values())
     print(f"Managed Agent profiles installed under: {agents_dir}")
     print(f"Managed profile manifest: {manifest_path}")
-    print(
-        "Verified roles: codex_agent_team_reader, codex_agent_team_worker, "
-        "codex_agent_team_investigator, codex_agent_team_advisor"
-    )
+    print(f"Verified roles: {role_names}")
     print(
         "Profile files are ready. Re-check the native spawn_agent role surface; "
         "start a fresh Codex task only if the current task still cannot discover these roles."

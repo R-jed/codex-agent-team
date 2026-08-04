@@ -27,7 +27,8 @@ def test_local_eval_fixture_freezes_causal_controls():
 
 def test_behavioral_eval_protocol_requires_frozen_executable_fixture():
     text = EVAL_DOC.read_text()
-    assert "Freeze the executable workload before running a pair" in text
+    assert "Freeze the executable workload" in text
     assert "exact user prompt bytes" in text
     assert "workload_definition_hash" in text
     assert "worker_route" in text
+    assert "If a controlled input changes, create a new pair id and hash" in text

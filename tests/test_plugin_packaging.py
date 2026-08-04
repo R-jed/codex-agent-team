@@ -10,6 +10,7 @@ PLUGIN = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 MAIN_SKILL = PLUGIN_ROOT / "skills" / "codex-agent-team"
 INSTALL_DOC = ROOT / "docs" / "plugin-installation.md"
+POLICY_CONTRACT = PLUGIN_ROOT / "policy-contract.json"
 
 
 def test_plugin_manifest_packages_single_canonical_skill_tree():
@@ -28,8 +29,20 @@ def test_plugin_manifest_packages_single_canonical_skill_tree():
     assert "final review" in payload["description"].lower()
     assert MAIN_SKILL.is_dir()
     assert sorted(path.name for path in (PLUGIN_ROOT / "skills").iterdir() if path.is_dir()) == ["codex-agent-team"]
+    assert POLICY_CONTRACT.is_file()
     assert (PLUGIN_ROOT / "scripts" / "install-agents.py").is_file()
     assert (PLUGIN_ROOT / "scripts" / "review-artifact.py").is_file()
+    assert (PLUGIN_ROOT / "scripts" / "runtime-evidence.py").is_file()
+
+
+def test_machine_readable_policy_contract_is_bundled_and_versioned():
+    payload = json.loads(POLICY_CONTRACT.read_text())
+    assert payload["schema_version"] == 1
+    assert set(payload["roles"]) == {"reader", "worker", "investigator", "advisor"}
+    assert payload["delegation"]["max_depth"] == 1
+    assert payload["delegation"]["baseline_concurrent_children"] == 2
+    assert payload["delegation"]["max_active_writers_per_workspace"] == 1
+    assert payload["final_review"]["completion_verdicts"] == ["ship", "fix-first", "rethink"]
 
 
 def test_plugin_manifest_default_prompts_are_bounded_and_use_canonical_entrypoint():
@@ -58,12 +71,7 @@ def test_plugin_manifest_urls_are_https_and_unsupported_components_are_absent():
 
 
 def test_plugin_packages_only_current_semantic_profiles():
-    expected = {
-        "codex-agent-team-reader.toml",
-        "codex-agent-team-worker.toml",
-        "codex-agent-team-investigator.toml",
-        "codex-agent-team-advisor.toml",
-    }
+    expected = {spec["profile_file"] for spec in json.loads(POLICY_CONTRACT.read_text())["roles"].values()}
     assert {path.name for path in (PLUGIN_ROOT / "agent-profiles").glob("*.toml")} == expected
 
 
@@ -94,6 +102,7 @@ def test_main_skill_owns_first_run_profile_setup_and_receipts():
     assert "references/orchestration-receipt.md" in text
     assert "references/execution-progress.md" in text
     assert "references/final-review-gate.md" in text
+    assert "runtime-evidence.py" in text
     receipt = (MAIN_SKILL / "references" / "orchestration-receipt.md").read_text()
     assert "Codex Delegate: Main session only" in receipt
     assert "Adaptive parallel example" in receipt

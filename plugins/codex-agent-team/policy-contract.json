@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "delegation": {
+    "max_depth": 1,
+    "baseline_concurrent_children": 2,
+    "max_active_writers_per_workspace": 1
+  },
+  "roles": {
+    "reader": {
+      "profile_file": "codex-agent-team-reader.toml",
+      "agent_type": "codex_agent_team_reader",
+      "model": "gpt-5.6-luna",
+      "effort": "max",
+      "sandbox_intent": "read-only"
+    },
+    "worker": {
+      "profile_file": "codex-agent-team-worker.toml",
+      "agent_type": "codex_agent_team_worker",
+      "model": "gpt-5.6-luna",
+      "effort": "max",
+      "sandbox_intent": "workspace-write"
+    },
+    "investigator": {
+      "profile_file": "codex-agent-team-investigator.toml",
+      "agent_type": "codex_agent_team_investigator",
+      "model": "gpt-5.6-terra",
+      "effort": "xhigh",
+      "sandbox_intent": "read-only"
+    },
+    "advisor": {
+      "profile_file": "codex-agent-team-advisor.toml",
+      "agent_type": "codex_agent_team_advisor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "sandbox_intent": "read-only"
+    }
+  },
+  "final_review": {
+    "trigger_codes": [
+      "user_requested",
+      "public_contract_change",
+      "persistent_state_change",
+      "security_boundary",
+      "authorization_boundary",
+      "data_integrity",
+      "concurrency_semantics",
+      "migration",
+      "wide_blast_radius",
+      "terra_escalation",
+      "material_recovery",
+      "verification_gap"
+    ],
+    "completion_verdicts": [
+      "ship",
+      "fix-first",
+      "rethink"
+    ],
+    "unresolved_verdict": "insufficient_evidence"
+  }
+}

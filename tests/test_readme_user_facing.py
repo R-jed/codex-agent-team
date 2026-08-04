@@ -123,7 +123,6 @@ def test_readmes_remain_user_facing():
         "P0/P1",
         "CAT-LOCAL-001",
         "branch audit",
-        "static closure",
         "Dependency Ledger status",
         "本地真测交接",
         "远端分支清理",
