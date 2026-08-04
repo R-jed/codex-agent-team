@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """Validate and summarize recorded paired Codex Delegate live runs.
 
-The scorer never executes Codex and never invents missing telemetry. Declared primary
-comparisons and experimental controls are checked pair-by-pair before descriptive
-aggregate statistics are reported, so different workload or environment mixes cannot
-masquerade as a controlled comparison.
+The scorer validates controlled pairs before computing candidate-minus-baseline deltas.
+Metric definitions are declarative so adding telemetry does not require independent
+field lists for deltas, summaries, and CLI rendering.
 """
 
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import statistics
 import sys
-from typing import Any, NoReturn
+from typing import Any, Literal, NoReturn
 
 import jsonschema
 
@@ -30,37 +30,78 @@ PAIR_CONTROL_FIELDS = (
     "acceptance_rubric_id",
 )
 
-DELTA_FIELDS = (
+
+@dataclass(frozen=True)
+class Metric:
+    field: str
+    summary_key: str
+    aggregate: Literal["mean", "sum"]
+    delta: bool = True
+
+
+METRICS = (
+    Metric("acceptance_score", "mean_acceptance_score", "mean"),
+    Metric("agent_count", "mean_agent_count", "mean"),
+    Metric("peak_active_children", "mean_peak_active_children", "mean"),
+    Metric("ready_dependencies", "mean_ready_dependencies", "mean"),
+    Metric("runtime_slot_waits", "runtime_slot_waits", "sum"),
+    Metric("scope_violations", "scope_violations", "sum"),
+    Metric("wrong_edits", "wrong_edits", "sum"),
+    Metric("regressions", "regressions", "sum"),
+    Metric("correction_turns", "mean_correction_turns", "mean"),
+    Metric("execution_stall_events", "execution_stall_events", "sum"),
+    Metric("clean_same_lane_restarts", "clean_same_lane_restarts", "sum"),
+    Metric("unjustified_retry_calls", "unjustified_retry_calls", "sum"),
+    Metric("same_failure_without_new_evidence", "same_failure_without_new_evidence", "sum"),
+    Metric("main_session_correction_tokens", "mean_main_session_correction_tokens", "mean"),
+    Metric("main_session_correction_ms", "mean_main_session_correction_ms", "mean"),
+    Metric("review_findings", "review_findings", "sum"),
+    Metric("review_false_positives", "review_false_positives", "sum"),
+    Metric("final_review_attempts", "final_review_attempts", "sum"),
+    Metric("review_artifact_verify_failures", "review_artifact_verify_failures", "sum"),
+    Metric("post_review_mutations", "post_review_mutations", "sum"),
+    Metric("consent_prompts", "consent_prompts", "sum"),
+    Metric("input_tokens", "mean_input_tokens", "mean"),
+    Metric("output_tokens", "mean_output_tokens", "mean"),
+    Metric("reasoning_tokens", "mean_reasoning_tokens", "mean"),
+    Metric("latency_ms", "mean_latency_ms", "mean"),
+    Metric("evidence_established", "evidence_established", "sum"),
+    Metric("evidence_invalidated", "evidence_invalidated", "sum"),
+    Metric("unjustified_repeated_commands", "unjustified_repeated_commands", "sum"),
+    Metric("unjustified_repeated_discovery", "unjustified_repeated_discovery", "sum"),
+    Metric("duplicate_dependency_calls", "duplicate_dependency_calls", "sum"),
+)
+
+DELTA_FIELDS = tuple(metric.field for metric in METRICS if metric.delta)
+METRIC_BY_FIELD = {metric.field: metric for metric in METRICS}
+
+COMPARISON_CLI_FIELDS = (
     "acceptance_score",
-    "agent_count",
-    "peak_active_children",
-    "ready_dependencies",
-    "runtime_slot_waits",
-    "scope_violations",
-    "wrong_edits",
-    "regressions",
     "correction_turns",
-    "execution_stall_events",
-    "clean_same_lane_restarts",
-    "unjustified_retry_calls",
-    "same_failure_without_new_evidence",
     "main_session_correction_tokens",
-    "main_session_correction_ms",
+    "input_tokens",
+    "reasoning_tokens",
+    "latency_ms",
+    "unjustified_retry_calls",
     "review_findings",
     "review_false_positives",
     "final_review_attempts",
     "review_artifact_verify_failures",
     "post_review_mutations",
-    "consent_prompts",
-    "input_tokens",
-    "output_tokens",
-    "reasoning_tokens",
-    "latency_ms",
-    "evidence_established",
-    "evidence_invalidated",
     "unjustified_repeated_commands",
     "unjustified_repeated_discovery",
     "duplicate_dependency_calls",
+)
+
+MODE_MEAN_CLI_KEYS = (
+    "mean_peak_active_children",
+    "mean_ready_dependencies",
+    "mean_acceptance_score",
+    "mean_correction_turns",
+    "mean_main_session_correction_tokens",
+    "mean_input_tokens",
+    "mean_reasoning_tokens",
+    "mean_latency_ms",
 )
 
 
@@ -81,14 +122,16 @@ def number_or_none(value: Any) -> float | int | None:
     return None
 
 
-def mean_present(runs: list[dict[str, Any]], field: str) -> float | None:
-    values = [value for run in runs if (value := number_or_none(run.get(field))) is not None]
-    return statistics.fmean(values) if values else None
-
-
 def mean_values(values: list[float | int | None]) -> float | None:
     present = [value for value in values if value is not None]
     return statistics.fmean(present) if present else None
+
+
+def metric_summary(runs: list[dict[str, Any]], metric: Metric) -> float | int | None:
+    values = [number_or_none(run.get(metric.field)) for run in runs]
+    if metric.aggregate == "mean":
+        return mean_values(values)
+    return sum(value for value in values if value is not None)
 
 
 def workload_specs(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -99,7 +142,11 @@ def declared_primary_modes(spec: dict[str, Any]) -> list[str] | None:
     comparison = spec.get("expected", {}).get("primary_comparison")
     if comparison is None:
         return None
-    if not isinstance(comparison, list) or len(comparison) != 2 or not all(isinstance(item, str) for item in comparison):
+    if (
+        not isinstance(comparison, list)
+        or len(comparison) != 2
+        or not all(isinstance(item, str) for item in comparison)
+    ):
         fail(f"workload {spec['id']!r} has invalid primary_comparison metadata")
     return comparison
 
@@ -120,13 +167,13 @@ def validate_pairs(
         }
         if len(keys) != 1:
             fail(f"pair {pair_id!r} mixes workload, revision, or repeat index")
+
         modes = [run["mode"] for run in pair_runs]
         if len(modes) != len(set(modes)):
             fail(f"pair {pair_id!r} contains duplicate modes")
 
         for field in PAIR_CONTROL_FIELDS:
-            values = {run[field] for run in pair_runs}
-            if len(values) != 1:
+            if len({run[field] for run in pair_runs}) != 1:
                 fail(f"pair {pair_id!r} mixes controlled field {field!r}")
 
         worker_routes = {
@@ -148,7 +195,15 @@ def validate_pairs(
 
 
 def mode_summary(runs: list[dict[str, Any]]) -> dict[str, Any]:
-    final_review_attempts = sum(run.get("final_review_attempts", 0) for run in runs)
+    summary: dict[str, Any] = {
+        "runs": len(runs),
+        "success_rate": sum(bool(run["success"]) for run in runs) / len(runs),
+        "policy_violations": sum(len(run.get("policy_violations", [])) for run in runs),
+    }
+    for metric in METRICS:
+        summary[metric.summary_key] = metric_summary(runs, metric)
+
+    final_review_attempts = int(summary["final_review_attempts"] or 0)
     review_material_catches = sum(run.get("review_caught_material_issue") is True for run in runs)
     required_review_runs = sum(run.get("final_review_requirement") == "required" for run in runs)
     satisfied_review_runs = sum(run.get("final_review_gate_satisfied") is True for run in runs)
@@ -157,49 +212,20 @@ def mode_summary(runs: list[dict[str, Any]]) -> dict[str, Any]:
         and run.get("final_review_gate_satisfied") is not True
         for run in runs
     )
-
-    return {
-        "runs": len(runs),
-        "success_rate": sum(bool(run["success"]) for run in runs) / len(runs),
-        "mean_acceptance_score": mean_present(runs, "acceptance_score"),
-        "mean_agent_count": statistics.fmean(run["agent_count"] for run in runs),
-        "mean_peak_active_children": mean_present(runs, "peak_active_children"),
-        "mean_ready_dependencies": mean_present(runs, "ready_dependencies"),
-        "runtime_slot_waits": sum(run.get("runtime_slot_waits", 0) for run in runs),
-        "policy_violations": sum(len(run.get("policy_violations", [])) for run in runs),
-        "scope_violations": sum(run.get("scope_violations", 0) for run in runs),
-        "wrong_edits": sum(run.get("wrong_edits", 0) for run in runs),
-        "regressions": sum(run.get("regressions", 0) for run in runs),
-        "mean_correction_turns": mean_present(runs, "correction_turns"),
-        "execution_stall_events": sum(run.get("execution_stall_events", 0) for run in runs),
-        "clean_same_lane_restarts": sum(run.get("clean_same_lane_restarts", 0) for run in runs),
-        "unjustified_retry_calls": sum(run.get("unjustified_retry_calls", 0) for run in runs),
-        "same_failure_without_new_evidence": sum(run.get("same_failure_without_new_evidence", 0) for run in runs),
-        "mean_main_session_correction_tokens": mean_present(runs, "main_session_correction_tokens"),
-        "mean_main_session_correction_ms": mean_present(runs, "main_session_correction_ms"),
-        "mean_input_tokens": mean_present(runs, "input_tokens"),
-        "mean_output_tokens": mean_present(runs, "output_tokens"),
-        "mean_reasoning_tokens": mean_present(runs, "reasoning_tokens"),
-        "mean_latency_ms": mean_present(runs, "latency_ms"),
-        "review_material_catches": review_material_catches,
-        "review_false_positives": sum(run.get("review_false_positives", 0) for run in runs),
-        "final_review_required_runs": required_review_runs,
-        "final_review_satisfied_runs": satisfied_review_runs,
-        "final_review_unsatisfied_required_runs": unsatisfied_required_review_runs,
-        "final_review_attempts": final_review_attempts,
-        "final_review_yield": (
-            review_material_catches / final_review_attempts
-            if final_review_attempts > 0
-            else None
-        ),
-        "review_artifact_verify_failures": sum(
-            run.get("review_artifact_verify_failures", 0) for run in runs
-        ),
-        "post_review_mutations": sum(run.get("post_review_mutations", 0) for run in runs),
-        "unjustified_repeated_commands": sum(run.get("unjustified_repeated_commands", 0) for run in runs),
-        "unjustified_repeated_discovery": sum(run.get("unjustified_repeated_discovery", 0) for run in runs),
-        "duplicate_dependency_calls": sum(run.get("duplicate_dependency_calls", 0) for run in runs),
-    }
+    summary.update(
+        {
+            "review_material_catches": review_material_catches,
+            "final_review_required_runs": required_review_runs,
+            "final_review_satisfied_runs": satisfied_review_runs,
+            "final_review_unsatisfied_required_runs": unsatisfied_required_review_runs,
+            "final_review_yield": (
+                review_material_catches / final_review_attempts
+                if final_review_attempts > 0
+                else None
+            ),
+        }
+    )
+    return summary
 
 
 def delta(baseline: dict[str, Any], candidate: dict[str, Any], field: str) -> float | int | None:
@@ -242,21 +268,7 @@ def aggregate_comparisons(items: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def main() -> None:
-    args = parse_args()
-    try:
-        payload = json.loads(args.result.read_text(encoding="utf-8"))
-        schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-        workloads = json.loads(WORKLOADS.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-        fail(str(exc))
-
-    jsonschema.Draft202012Validator(schema).validate(payload)
-    specs = workload_specs(workloads)
-    unknown = sorted({run["workload_id"] for run in payload["runs"]} - set(specs))
-    if unknown:
-        fail(f"unknown workload ids: {', '.join(unknown)}")
-
+def build_summary(payload: dict[str, Any], specs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     pairs = validate_pairs(payload["runs"], specs)
     by_mode: dict[str, list[dict[str, Any]]] = {}
     by_workload_mode: dict[str, dict[str, list[dict[str, Any]]]] = {}
@@ -288,32 +300,32 @@ def main() -> None:
             "comparison": comparison,
         }
         if comparison is not None:
-            key = (
-                f"{first['workload_id']}:"
-                f"{comparison['baseline_mode']}->{comparison['candidate_mode']}"
-            )
+            key = f"{first['workload_id']}:{comparison['baseline_mode']}->{comparison['candidate_mode']}"
             comparison_groups.setdefault(key, []).append(comparison)
 
-    for key, items in sorted(comparison_groups.items()):
-        summary["comparisons"][key] = aggregate_comparisons(items)
-
-    for workload_id, mode_runs in sorted(by_workload_mode.items()):
-        summary["workloads"][workload_id] = {
+    summary["comparisons"] = {
+        key: aggregate_comparisons(items)
+        for key, items in sorted(comparison_groups.items())
+    }
+    summary["workloads"] = {
+        workload_id: {
             mode: mode_summary(runs)
             for mode, runs in sorted(mode_runs.items())
         }
+        for workload_id, mode_runs in sorted(by_workload_mode.items())
+    }
+    summary["modes"] = {
+        mode: mode_summary(runs)
+        for mode, runs in sorted(by_mode.items())
+    }
+    return summary
 
-    for mode, runs in sorted(by_mode.items()):
-        summary["modes"][mode] = mode_summary(runs)
 
-    if args.json:
-        json.dump(summary, sys.stdout, indent=2, sort_keys=True)
-        sys.stdout.write("\n")
-        return
-
-    print(f"Runtime: {payload['runtime']['codex_version']} ({payload['runtime']['date']})")
-    if payload["runtime"].get("observed_child_capacity") is not None:
-        print(f"Observed child capacity: {payload['runtime']['observed_child_capacity']}")
+def print_human(summary: dict[str, Any]) -> None:
+    runtime = summary["runtime"]
+    print(f"Runtime: {runtime['codex_version']} ({runtime['date']})")
+    if runtime.get("observed_child_capacity") is not None:
+        print(f"Observed child capacity: {runtime['observed_child_capacity']}")
     print(f"Pairs: {summary['pair_count']}")
 
     if summary["comparisons"]:
@@ -322,23 +334,7 @@ def main() -> None:
             print(f"  {key}")
             print(f"    pairs: {stats['pair_count']}")
             print(f"    mean_success_delta: {stats['mean_success_delta']:.3f}")
-            for field in [
-                "acceptance_score",
-                "correction_turns",
-                "main_session_correction_tokens",
-                "input_tokens",
-                "reasoning_tokens",
-                "latency_ms",
-                "unjustified_retry_calls",
-                "review_findings",
-                "review_false_positives",
-                "final_review_attempts",
-                "review_artifact_verify_failures",
-                "post_review_mutations",
-                "unjustified_repeated_commands",
-                "unjustified_repeated_discovery",
-                "duplicate_dependency_calls",
-            ]:
+            for field in COMPARISON_CLI_FIELDS:
                 value = stats["mean_metric_deltas"][field]
                 print(f"    delta_{field}: {'not_recorded' if value is None else round(value, 2)}")
 
@@ -347,33 +343,52 @@ def main() -> None:
         print(f"\n{mode}")
         print(f"  runs: {stats['runs']}")
         print(f"  success_rate: {stats['success_rate']:.3f}")
-        print(f"  mean_agent_count: {stats['mean_agent_count']:.2f}")
-        for field in [
-            "mean_peak_active_children",
-            "mean_ready_dependencies",
-            "mean_acceptance_score",
-            "mean_correction_turns",
-            "mean_main_session_correction_tokens",
-            "mean_input_tokens",
-            "mean_reasoning_tokens",
-            "mean_latency_ms",
-        ]:
+        mean_agent_count = stats["mean_agent_count"]
+        print(f"  mean_agent_count: {'not_recorded' if mean_agent_count is None else f'{mean_agent_count:.2f}'}")
+        for field in MODE_MEAN_CLI_KEYS:
             value = stats[field]
             print(f"  {field}: {'not_recorded' if value is None else round(value, 2)}")
-        print(f"  runtime_slot_waits: {stats['runtime_slot_waits']}")
-        print(f"  execution_stall_events: {stats['execution_stall_events']}")
-        print(f"  clean_same_lane_restarts: {stats['clean_same_lane_restarts']}")
-        print(f"  unjustified_retry_calls: {stats['unjustified_retry_calls']}")
-        print(f"  final_review_required_runs: {stats['final_review_required_runs']}")
-        print(f"  final_review_satisfied_runs: {stats['final_review_satisfied_runs']}")
-        print(f"  final_review_unsatisfied_required_runs: {stats['final_review_unsatisfied_required_runs']}")
-        print(f"  final_review_attempts: {stats['final_review_attempts']}")
+        for field in [
+            "runtime_slot_waits",
+            "execution_stall_events",
+            "clean_same_lane_restarts",
+            "unjustified_retry_calls",
+            "final_review_required_runs",
+            "final_review_satisfied_runs",
+            "final_review_unsatisfied_required_runs",
+            "final_review_attempts",
+            "review_artifact_verify_failures",
+            "post_review_mutations",
+        ]:
+            print(f"  {field}: {stats[field]}")
+        review_yield = stats["final_review_yield"]
         print(
             "  final_review_yield: "
-            + ("not_recorded" if stats["final_review_yield"] is None else f"{stats['final_review_yield']:.3f}")
+            + ("not_recorded" if review_yield is None else f"{review_yield:.3f}")
         )
-        print(f"  review_artifact_verify_failures: {stats['review_artifact_verify_failures']}")
-        print(f"  post_review_mutations: {stats['post_review_mutations']}")
+
+
+def main() -> None:
+    args = parse_args()
+    try:
+        payload = json.loads(args.result.read_text(encoding="utf-8"))
+        schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+        workloads = json.loads(WORKLOADS.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        fail(str(exc))
+
+    jsonschema.Draft202012Validator(schema).validate(payload)
+    specs = workload_specs(workloads)
+    unknown = sorted({run["workload_id"] for run in payload["runs"]} - set(specs))
+    if unknown:
+        fail(f"unknown workload ids: {', '.join(unknown)}")
+
+    summary = build_summary(payload, specs)
+    if args.json:
+        json.dump(summary, sys.stdout, indent=2, sort_keys=True)
+        sys.stdout.write("\n")
+    else:
+        print_human(summary)
 
 
 if __name__ == "__main__":
