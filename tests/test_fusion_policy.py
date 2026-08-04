@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-agent-team"
-SKILL = PLUGIN / "skills" / "codex-agent-team"
+PLUGIN = ROOT / "plugins" / "codex-delegate"
+SKILL = PLUGIN / "skills" / "codex-delegate"
 RUNTIME_VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
 
 

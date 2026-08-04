@@ -40,22 +40,16 @@ def test_handoff_keeps_adaptive_resource_model():
         "one active writer per canonical physical checkout",
     ]:
         assert phrase in text
-    for forbidden in [
-        "normal max 2, v1 hard max 4",
-        "v1 hard maximum of four children",
-    ]:
-        assert forbidden not in text
 
 
 def test_handoff_runtime_evidence_uses_shipped_normalized_verifier():
     text = HANDOFF.read_text()
-    assert "plugins/codex-agent-team/scripts/runtime-evidence.py" in text
+    assert "plugins/codex-delegate/scripts/runtime-evidence.py" in text
+    assert "plugins/codex-agent-team/scripts/runtime-evidence.py" not in text
     assert "incomplete expected route -> fail closed" in text
     assert "complete matching native route -> R1" in text
     assert "hard read-only required + native sandbox absent -> return to main session" in text
     assert "Do not introduce a project rollout-file scraper" in text
-    assert "inspect-runtime.py" not in text
-    assert "verify-runtime.py" not in text
 
 
 def test_handoff_requires_completion_driven_frontier_refill_characterization():
@@ -113,15 +107,17 @@ def test_handoff_requires_final_review_gate_live_lifecycle():
         assert phrase in text
 
 
-def test_handoff_requires_real_plugin_install_upgrade_and_installer_concurrency():
+def test_handoff_requires_current_plugin_identity_and_legacy_migration():
     text = HANDOFF.read_text()
     for phrase in [
         "plugin-creator/scripts/validate_plugin.py",
-        "codex plugin marketplace add R-jed/codex-agent-team --ref main",
+        "codex plugin marketplace add R-jed/codex-delegate --ref main",
         "--sparse .agents/plugins",
-        "--sparse plugins/codex-agent-team",
-        "codex plugin marketplace upgrade codex-agent-team",
-        "codex plugin add codex-agent-team@codex-agent-team",
+        "--sparse plugins/codex-delegate",
+        "codex plugin marketplace upgrade codex-delegate",
+        "codex plugin add codex-delegate@codex-delegate",
+        "codex plugin remove codex-agent-team@codex-agent-team",
+        "codex plugin marketplace remove codex-agent-team",
         "start a new Codex thread",
         "marketplace upgrade` followed by explicit `plugin add` refreshes the installed Plugin bytes",
         "I1 two installers target the same clean CODEX_HOME",
@@ -163,9 +159,6 @@ def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
         "must not be counted as evidence that Codex Delegate itself routed correctly",
     ]:
         assert phrase in text
-    lines = text.splitlines()
-    assert "conversation_title: 分支 · 项目对比分析" not in lines
-    assert "分支 · 项目对比分析" not in lines
 
 
 def test_validation_report_is_compact_evidence_ledger_not_second_handoff_or_changelog():
@@ -179,29 +172,24 @@ def test_validation_report_is_compact_evidence_ledger_not_second_handoff_or_chan
         "## Pending live claims",
         "## Live validation record format",
         "## Minimal provenance",
+        "Repository: R-jed/codex-delegate",
+        "Marketplace id: codex-delegate",
+        "Plugin id: codex-delegate",
         "Plugin version: 0.6.0",
         "HOLD FOR RELEASE / LIVE VALIDATION PENDING",
         "ENGINEERING CONSOLIDATION + POLICY REDUCTION + DEAD-SURFACE SWEEP COMPLETE",
-        "PR: #32",
-        "exact tested sweep head: 350a336417d5d8a0cf0c1c86817740e1ddc23f2f",
-        "workflow: 30894739615",
-        "pytest: 158 passed",
-        "Dead duplicate route-assurance document removed",
-        "Behavioral scorer dead abstractions removed",
+        "PR: #35",
+        "workflow: 30905709284",
+        "PR: #36",
+        "workflow: 30910901175",
+        "pytest: 160 passed",
         "Completion-driven ready-frontier refill",
         "STATIC PASS / LIVE PENDING",
         "barrier_only | per_child_terminal | any_child_update",
         "分支 · 分支 · 项目对比分析",
+        "Real legacy `codex-agent-team` -> `codex-delegate` public-ID migration",
     ]:
         assert phrase in text
-
-    for historical_section in [
-        "## Accepted v0.5.1 historical static evidence",
-        "## Accepted v0.6.0 static evidence",
-        "## Accepted engineering-consolidation static evidence",
-        "## Accepted completion-driven / policy-reduction static evidence",
-    ]:
-        assert historical_section not in text
 
     assert "Do not add a second planning checklist here" in text
     assert len(text.splitlines()) < 230

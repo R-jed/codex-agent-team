@@ -1,13 +1,13 @@
 {
-  "name": "codex-agent-team",
+  "name": "codex-delegate",
   "version": "0.6.0",
   "description": "Codex Delegate builds the smallest useful dependency-driven compute graph, reuses established evidence, adapts execution through an intervention gate, and applies risk-triggered independent final review without fixed Agent counts or model ladders.",
   "author": {
     "name": "R-jed",
     "url": "https://github.com/R-jed"
   },
-  "homepage": "https://github.com/R-jed/codex-agent-team#readme",
-  "repository": "https://github.com/R-jed/codex-agent-team",
+  "homepage": "https://github.com/R-jed/codex-delegate#readme",
+  "repository": "https://github.com/R-jed/codex-delegate",
   "license": "MIT",
   "keywords": [
     "codex",
@@ -27,7 +27,7 @@
       "Read",
       "Write"
     ],
-    "websiteURL": "https://github.com/R-jed/codex-agent-team",
+    "websiteURL": "https://github.com/R-jed/codex-delegate",
     "brandColor": "#2563EB",
     "composerIcon": "./assets/codex-delegate-composer-icon.svg",
     "logo": "./assets/codex-delegate-logo.svg",

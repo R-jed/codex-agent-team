@@ -2,11 +2,11 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
-    <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
+    <img alt="codex delegate" src="docs/logo-dark.svg" width="128">
   </picture>
 </p>
 
-<h1 align="center">Codex Delegate</h1>
+<h1 align="center">codex delegate</h1>
 
 <p align="center">
   <a href="README_EN.md">English</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
@@ -19,15 +19,15 @@
 
 启动 Subagent 很容易，难的是判断什么时候值得用。
 
-Codex Delegate 为 Codex 主会话提供一套稳定的分工方式，让它按需要把工作交给 Luna、Terra 和 Sol。你只需要说清目标、约束和完成标准；哪些工作留在主会话、哪些可以并行、什么时候需要 Terra 深挖、什么时候让 Sol 独立复核，都由主会话处理。
+codex delegate 为 Codex 主会话提供一套稳定的分工方式，让它按需要把工作交给 Luna、Terra 和 Sol。你只需要说清目标、约束和完成标准；哪些工作留在主会话、哪些可以并行、什么时候需要 Terra 深挖、什么时候让 Sol 独立复核，都由主会话处理。
 
 它直接使用 Codex 原生 Subagents，不替换 Codex，也不要求固定的 Agent 队伍。简单任务可以完全不用 Subagent，复杂任务也不会机械地把所有模型都叫出来。
 
-## 为什么用 Codex Delegate
+## 为什么用 codex delegate
 
 使用 Subagents 时，真正麻烦的通常是协调：两个 Agent 重复查同一份资料，可以并行的工作被排成串行，一个局部失败把整段实现带回起点，高风险改动最后却没有独立复核。
 
-Codex Delegate 把这些判断留在主会话：
+codex delegate 把这些判断留在主会话：
 
 - 只有委派确实有价值时才启动 Subagent；
 - 独立工作尽早并行，先完成的结果先处理，不等无关任务；
@@ -52,16 +52,16 @@ Codex Delegate 把这些判断留在主会话：
 
 ## 安装
 
-Codex Delegate 通过 Codex 原生 Plugin 系统分发。
+codex delegate 通过 Codex 原生 Plugin 系统分发。
 
 首次安装：
 
 ```bash
-codex plugin marketplace add R-jed/codex-agent-team --ref main \
+codex plugin marketplace add R-jed/codex-delegate --ref main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-agent-team
+  --sparse plugins/codex-delegate
 
-codex plugin add codex-agent-team@codex-agent-team
+codex plugin add codex-delegate@codex-delegate
 ```
 
 安装完成后启动一个新的 Codex 会话，然后直接使用：
@@ -73,13 +73,15 @@ codex plugin add codex-agent-team@codex-agent-team
 更新已有安装：
 
 ```bash
-codex plugin marketplace upgrade codex-agent-team
-codex plugin add codex-agent-team@codex-agent-team
+codex plugin marketplace upgrade codex-delegate
+codex plugin add codex-delegate@codex-delegate
 ```
 
 更新后同样启动一个新的 Codex 会话。
 
-第一次需要 Luna、Terra 或 Sol 的专用角色时，Codex Delegate 会先说明需要添加的 Agent 配置文件，并在得到授权后完成配置。安装程序只管理 Codex Delegate 自己的四个配置文件，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置文件。
+如果你安装过旧的 `codex-agent-team` 包，请先按[安装指南](docs/plugin-installation.md)完成一次公开 ID 迁移。
+
+第一次需要 Luna、Terra 或 Sol 的专用角色时，codex delegate 会先说明需要添加的 Agent 配置文件，并在得到授权后完成配置。安装程序只管理 codex delegate 自己的四个配置文件，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置文件。
 
 完整安装、迁移和故障处理见 [安装指南](docs/plugin-installation.md)。
 
@@ -131,7 +133,7 @@ A 继续运行
 
 Sol 并非每个任务的固定最后一步。普通低风险修改在主会话检查实际改动并完成必要测试后即可结束。
 
-当改动涉及公共接口、持久化状态、安全或授权、数据完整性、并发、迁移，或者影响范围明显较大时，Codex Delegate 可以要求一次独立的 Sol 复核。
+当改动涉及公共接口、持久化状态、安全或授权、数据完整性、并发、迁移，或者影响范围明显较大时，codex delegate 可以要求一次独立的 Sol 复核。
 
 Sol 针对当前候选结果给出三种结论：
 
@@ -149,7 +151,7 @@ rethink    关键设计或假设需要重新考虑
 
 仓库、网页、问题单、日志、生成内容或模型输出里的指令不能自行扩大任务范围或修改权限。Agent 报告“完成”也不会直接被当作验收结果，最终仍以实际改动、测试和可复现结果为准。
 
-Codex Delegate 不实现第二套 Agent 运行时，也不需要额外的后台服务或路由代理。它直接使用 Codex 原生 Subagents，把重点放在更合理地分工、并行、恢复和复核。
+codex delegate 不实现第二套 Agent 运行时，也不需要额外的后台服务或路由代理。它直接使用 Codex 原生 Subagents，把重点放在更合理地分工、并行、恢复和复核。
 
 ## 许可证
 

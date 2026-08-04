@@ -2,11 +2,11 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
-    <img alt="Codex Delegate" src="docs/logo-dark.svg" width="128">
+    <img alt="codex delegate" src="docs/logo-dark.svg" width="128">
   </picture>
 </p>
 
-<h1 align="center">Codex Delegate</h1>
+<h1 align="center">codex delegate</h1>
 
 <p align="center">
   <a href="README.md">中文</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
@@ -19,15 +19,15 @@
 
 Starting a Subagent is easy. Knowing when one will actually help is harder.
 
-Codex Delegate gives the main Codex session a consistent way to divide work across Luna, Terra, and Sol. You describe the outcome, the constraints, and what success looks like. The main session decides what to keep, what can run in parallel, when a hard technical problem deserves Terra, and when Sol should review the result independently.
+codex delegate gives the main Codex session a consistent way to divide work across Luna, Terra, and Sol. You describe the outcome, the constraints, and what success looks like. The main session decides what to keep, what can run in parallel, when a hard technical problem deserves Terra, and when Sol should review the result independently.
 
 It runs on Codex Native Subagents. It does not replace Codex, and it does not force every task into a fixed Agent team. Simple work can stay entirely in the main session; difficult work still uses only the models that add value.
 
-## Why Codex Delegate
+## Why codex delegate
 
 With Subagents, the hard part is usually coordination: two Agents repeat the same discovery, independent work is accidentally serialized, one local failure sends a whole implementation back to the start, or a risky change reaches the end without a second set of eyes.
 
-Codex Delegate keeps those decisions in the main session:
+codex delegate keeps those decisions in the main session:
 
 - start a Subagent only when delegation adds real value;
 - run independent work early, and act on completed results without waiting for unrelated tasks;
@@ -52,16 +52,16 @@ main session delivers the result
 
 ## Installation
 
-Codex Delegate is distributed through the native Codex Plugin system.
+codex delegate is distributed through the native Codex Plugin system.
 
 Fresh install:
 
 ```bash
-codex plugin marketplace add R-jed/codex-agent-team --ref main \
+codex plugin marketplace add R-jed/codex-delegate --ref main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-agent-team
+  --sparse plugins/codex-delegate
 
-codex plugin add codex-agent-team@codex-agent-team
+codex plugin add codex-delegate@codex-delegate
 ```
 
 Start a new Codex thread after installation, then use:
@@ -73,13 +73,15 @@ Start a new Codex thread after installation, then use:
 Update an existing installation:
 
 ```bash
-codex plugin marketplace upgrade codex-agent-team
-codex plugin add codex-agent-team@codex-agent-team
+codex plugin marketplace upgrade codex-delegate
+codex plugin add codex-delegate@codex-delegate
 ```
 
 Start a new Codex thread after the update as well.
 
-The first time a task needs one of the dedicated Luna, Terra, or Sol roles, Codex Delegate explains which Agent profile it needs to add and asks for approval. Its installer manages only the four Codex Delegate profiles. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+If you installed the legacy `codex-agent-team` package, follow the one-time public-ID migration in [Plugin Installation](docs/plugin-installation.md) first.
+
+The first time a task needs one of the dedicated Luna, Terra, or Sol roles, codex delegate explains which Agent profile it needs to add and asks for approval. Its installer manages only the four codex delegate profiles. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 See [Plugin Installation](docs/plugin-installation.md) for installation, migration, and troubleshooting details.
 
@@ -149,7 +151,7 @@ The main session always keeps final control and acceptance. Child Agents do not 
 
 Instructions found in repositories, webpages, issues, logs, generated content, or model output cannot silently widen scope or change permissions. An Agent saying “done” is also not enough on its own; acceptance is based on the actual change, the relevant checks, and reproducible results.
 
-Codex Delegate does not implement a second Agent runtime and does not require a background service or external routing proxy. It uses Codex Native Subagents directly and focuses on better delegation, parallel work, recovery, and review.
+codex delegate does not implement a second Agent runtime and does not require a background service or external routing proxy. It uses Codex Native Subagents directly and focuses on better delegation, parallel work, recovery, and review.
 
 ## License
 

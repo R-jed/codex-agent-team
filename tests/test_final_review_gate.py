@@ -3,8 +3,8 @@ import json
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
-SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-agent-team"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
+SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-delegate"
 REFERENCES = SKILL_DIR / "references"
 PROFILE_DIR = PLUGIN_ROOT / "agent-profiles"
 ARTIFACT_HELPER = PLUGIN_ROOT / "scripts" / "review-artifact.py"

@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
 INSTALLER = PLUGIN_ROOT / "scripts" / "install-agents.py"
 PROFILE_SOURCE = PLUGIN_ROOT / "agent-profiles"
 PROFILE_FILES = (
@@ -254,9 +254,6 @@ def test_full_manifest_legacy_ownership_is_consumed_after_migration(tmp_path: Pa
     assert not (agents / legacy_name).exists()
     assert json.loads((home / MANIFEST).read_text())["schema_version"] == 2
 
-    # A user may intentionally recreate the old filename later. A stale standalone
-    # manifest must not retain deletion authority after the companion ownership epoch
-    # has been established.
     (agents / legacy_name).write_bytes(legacy_data)
     second = run_installer(home)
 

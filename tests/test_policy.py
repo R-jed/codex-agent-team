@@ -7,8 +7,8 @@ import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
-SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-agent-team"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
+SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-delegate"
 REF_DIR = SKILL_DIR / "references"
 PROFILE_DIR = PLUGIN_ROOT / "agent-profiles"
 POLICY_CONTRACT = PLUGIN_ROOT / "policy-contract.json"
@@ -259,6 +259,7 @@ def test_readmes_are_release_ready_user_product_docs():
         assert "intervention gate" not in lower
         assert "recovery ledger" not in lower
         assert "review_artifact_id" not in lower
+        assert "codex delegate" in lower
 
     assert "Codex 原生 Subagents" in zh
     assert "## 最终复核" in zh
@@ -266,7 +267,7 @@ def test_readmes_are_release_ready_user_product_docs():
     assert "## Final Review Gate" in en
 
     for heading in [
-        "## 为什么用 Codex Delegate",
+        "## 为什么用 codex delegate",
         "## 安装",
         "## 模型分工",
         "## 并行工作",
@@ -277,7 +278,7 @@ def test_readmes_are_release_ready_user_product_docs():
         assert heading in zh
 
     for heading in [
-        "## Why Codex Delegate",
+        "## Why codex delegate",
         "## Installation",
         "## Models and roles",
         "## Parallel work",
@@ -338,4 +339,5 @@ def test_official_runtime_and_plugin_references_are_documented():
     assert "scripts/validate_plugin.py" in refs
     assert "~/.codex/agents" in installation
     assert "active Codex-home `agents` directory" in installation
-    assert "codex plugin add codex-agent-team@codex-agent-team" in installation
+    assert "codex plugin add codex-delegate@codex-delegate" in installation
+    assert "codex plugin remove codex-agent-team@codex-agent-team" in installation

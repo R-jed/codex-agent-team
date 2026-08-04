@@ -6,7 +6,7 @@ from pathlib import Path
 import jsonschema
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_ROOT = ROOT / "plugins" / "codex-agent-team" / "skills" / "codex-agent-team"
+SKILL_ROOT = ROOT / "plugins" / "codex-delegate" / "skills" / "codex-delegate"
 
 
 def read(path: Path) -> str:

@@ -2,8 +2,8 @@ from pathlib import Path
 import json
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-agent-team"
-SKILL_ROOT = PLUGIN / "skills" / "codex-agent-team"
+PLUGIN = ROOT / "plugins" / "codex-delegate"
+SKILL_ROOT = PLUGIN / "skills" / "codex-delegate"
 SKILL = SKILL_ROOT / "SKILL.md"
 ROUTING = SKILL_ROOT / "references" / "routing-policy.md"
 CONSENT = SKILL_ROOT / "references" / "consent-policy.md"

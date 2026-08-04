@@ -5,9 +5,9 @@ ROOT = Path(__file__).resolve().parents[1]
 REFERENCES = (
     ROOT
     / "plugins"
-    / "codex-agent-team"
+    / "codex-delegate"
     / "skills"
-    / "codex-agent-team"
+    / "codex-delegate"
     / "references"
 )
 
