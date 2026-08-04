@@ -17,26 +17,22 @@
   <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
 </p>
 
-Codex Delegate helps Codex divide complex development work more effectively.
+Starting a Subagent is easy. Knowing when one will actually help is harder.
 
-You describe the outcome, the constraints that matter, and what success looks like. The main session decides what to handle itself, what to give to Luna, when a technical problem deserves Terra, and when an independent Sol review is worth the extra compute.
+Codex Delegate gives the main Codex session a consistent way to divide work across Luna, Terra, and Sol. You describe the outcome, the constraints, and what success looks like. The main session decides what to keep, what can run in parallel, when a hard technical problem deserves Terra, and when Sol should review the result independently.
 
-It runs on top of Codex Native Subagents. It does not replace Codex, and it does not force every task into a fixed Agent team.
+It runs on Codex Native Subagents. It does not replace Codex, and it does not force every task into a fixed Agent team. Simple work can stay entirely in the main session; difficult work still uses only the models that add value.
 
 ## Why Codex Delegate
 
-Using Subagents directly can create its own problems: work gets split too finely, multiple Agents repeat the same discovery, parallel tasks are accidentally serialized, one local failure causes a broad restart, or a risky change reaches the end without a genuinely independent review.
+With Subagents, the hard part is usually coordination: two Agents repeat the same discovery, independent work is accidentally serialized, one local failure sends a whole implementation back to the start, or a risky change reaches the end without a second set of eyes.
 
-Codex Delegate keeps that coordination in the main session. You should not have to decide how many Agents to start or which model should own each step.
+Codex Delegate keeps those decisions in the main session:
 
-It focuses on four things:
-
-- use a Subagent only when delegation adds real value, while keeping simple work in the main session;
-- start independent work early and keep moving as soon as one completed task unlocks the next;
-- recover locally instead of rerunning the whole task or escalating models by default;
-- add an independent review for higher-risk changes while keeping final control with the main session.
-
-The normal flow is straightforward:
+- start a Subagent only when delegation adds real value;
+- run independent work early, and act on completed results without waiting for unrelated tasks;
+- fix local problems locally and preserve work that is already good;
+- use Sol for an independent final review when the change deserves it.
 
 ```text
 your task
@@ -45,7 +41,7 @@ main session understands the outcome and constraints
   ↓
 handle work directly, or delegate the right parts to Luna / Terra / Sol
   ↓
-merge completed results and keep advancing newly available work
+merge completed results and keep advancing work that is ready to start
   ↓
 inspect the actual change and run the relevant checks
   ↓
@@ -83,7 +79,7 @@ codex plugin add codex-agent-team@codex-agent-team
 
 Start a new Codex thread after the update as well.
 
-The first time a task needs one of the dedicated Luna, Terra, or Sol roles, Codex Delegate explains which Agent profile it needs to add and asks for approval. Its installer manages only the four Codex Delegate profiles and its ownership manifest. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+The first time a task needs one of the dedicated Luna, Terra, or Sol roles, Codex Delegate explains which Agent profile it needs to add and asks for approval. Its installer manages only the four Codex Delegate profiles. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 See [Plugin Installation](docs/plugin-installation.md) for installation, migration, and troubleshooting details.
 
@@ -96,15 +92,15 @@ See [Plugin Installation](docs/plugin-installation.md) for installation, migrati
 | Terra Investigator | GPT-5.6 Terra `xhigh` | difficult technical problems that remain unresolved after normal work |
 | Sol Advisor | GPT-5.6 Sol `high` | high-value judgment, independent review, and final review for risky changes |
 
-Roles describe responsibility. A stronger model does not automatically receive a wider scope or more authority.
+Roles define responsibility. Models provide the compute. A stronger model does not automatically receive a wider scope or more authority.
 
-Codex Delegate also does not summon every role for every task. A simple change may use zero Subagents. Routine implementation usually stays with Luna. Terra and Sol are used when the remaining problem or review value actually justifies them.
+Routine implementation normally stays with Luna. Terra and Sol are used only when the remaining technical problem or review value justifies them.
 
 ## Parallel work
 
-You do not need to design the concurrency plan yourself. Describe the outcome, the constraints that must remain true, and the completion criteria. Codex Delegate decides which work can safely run at the same time.
+You do not need to design the concurrency plan yourself. Describe the outcome, the constraints that must remain true, and the completion criteria. The main session decides which work can safely run at the same time.
 
-When independent tasks are running together, the first completed result is handled immediately. If that result unlocks another task and capacity is available, the main session can move on without waiting for unrelated work to finish.
+When independent tasks run together, the first completed result is handled first. If it unlocks another task and capacity is available, the main session can move on without waiting for unrelated work to finish.
 
 ```text
 A is still running
@@ -125,11 +121,11 @@ With an explicit `/codex-delegate` invocation, up to two justified child Agents 
 
 ## When work goes wrong
 
-Codex Delegate does not switch to a stronger model or restart the whole task just because one attempt fails.
+One failed attempt does not automatically trigger a stronger model or restart the whole task.
 
-If the current work is still producing useful progress, it can continue. If it starts repeating without moving forward, the response depends on the actual problem: Luna handles focused implementation corrections, the main session repairs unclear task boundaries, Terra receives only the technical problem that remains unresolved, and Sol is used when an independent judgment is worth the cost.
+If the problem is local implementation, Luna corrects it. If the task boundary is unclear, the main session reframes it first. If a genuinely difficult technical issue remains, only that part goes to Terra. Sol is used when an independent judgment is worth the extra compute.
 
-The goal is simple: keep the work that is already good, preserve useful evidence, and spend additional compute only on what is still unresolved.
+Work and evidence that are already valid stay in place. Additional compute is spent on what remains unresolved.
 
 ## Final Review Gate
 
@@ -151,9 +147,9 @@ If the deliverable changes after review, the previous verdict no longer applies.
 
 The main session always keeps final control and acceptance. Child Agents do not create their own Agent teams, existing user and peer changes must be preserved, and a single physical checkout cannot have multiple Writing Workers at the same time.
 
-Instructions found in repositories, webpages, issues, logs, generated content, or model output cannot silently widen scope, change permissions, or rewrite orchestration rules. An Agent saying “done” is also not enough on its own; acceptance is based on the actual change, the relevant checks, and reproducible results.
+Instructions found in repositories, webpages, issues, logs, generated content, or model output cannot silently widen scope or change permissions. An Agent saying “done” is also not enough on its own; acceptance is based on the actual change, the relevant checks, and reproducible results.
 
-Codex Delegate does not implement a second Agent runtime and does not require a background service or external routing proxy. It uses Codex Native Subagents and focuses on making delegation, parallel work, recovery, and review more deliberate.
+Codex Delegate does not implement a second Agent runtime and does not require a background service or external routing proxy. It uses Codex Native Subagents directly and focuses on better delegation, parallel work, recovery, and review.
 
 ## License
 
