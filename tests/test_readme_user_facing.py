@@ -14,57 +14,58 @@ def test_readmes_present_the_same_product_and_install_path():
             "codex plugin marketplace upgrade codex-agent-team",
             "codex plugin add codex-agent-team@codex-agent-team",
             "/codex-delegate",
-            "$CODEX_HOME/agents",
             "Luna Reader",
             "Luna Worker",
             "Terra Investigator",
             "Sol Advisor",
             "Final Review Gate",
-            "review_artifact_id",
         ]:
             assert phrase in text
 
 
-def test_readmes_keep_user_facing_product_positioning():
-    assert "Codex Native Subagents 之上的委派策略层" in ZH
-    assert "a delegation policy layer over Codex Native Subagents" in EN
-    assert "委派框架" not in ZH
-    assert "delegation framework" not in EN.lower()
+def test_readmes_are_release_copy_not_internal_release_notes():
+    assert "Codex Delegate 让 Codex 在复杂开发任务里更会分工" in ZH
+    assert "Codex Delegate helps Codex divide complex development work more effectively" in EN
+    assert "Codex Native Subagents" in ZH and "Codex Native Subagents" in EN
 
-    for forbidden in [
-        "HEADOFF.md",
-        "LOCAL_VALIDATION_REPORT.md",
-        "Checkpoint 1",
-        "Checkpoint 5",
-        "P0/P1",
-        "CAT-LOCAL-001",
-        "branch audit",
-        "本地真测交接",
-        "远端分支清理",
-        "静态收口",
-    ]:
-        assert forbidden not in ZH
-        assert forbidden not in EN
+    for text in [ZH, EN]:
+        lower = text.lower()
+        for forbidden in [
+            "HEADOFF.md",
+            "LOCAL_VALIDATION_REPORT.md",
+            "Checkpoint 1",
+            "Checkpoint 5",
+            "P0/P1",
+            "CAT-LOCAL-001",
+            "status-pre--v1",
+            "review_artifact_id",
+        ]:
+            assert forbidden not in text
+        for forbidden in [
+            "pre-v1",
+            "release validation",
+            "live pending",
+            "ready frontier",
+            "intervention gate",
+            "recovery ledger",
+        ]:
+            assert forbidden not in lower
 
 
-def test_readmes_explain_user_does_not_manually_schedule_agents():
-    assert "用户不需要手工告诉 Codex" in ZH
-    assert "Users should not have to manually tell Codex" in EN
-    assert "目标、不能破坏的约束和成功标准" in ZH
-    assert "outcome, constraints that must remain true, and observable success criteria" in EN
+def test_readmes_explain_that_users_do_not_manually_orchestrate_agents():
+    assert "你不需要自己决定“这里开几个 Agent”或“这个问题该交给哪一个模型”" in ZH
+    assert "You should not have to decide how many Agents to start or which model should own each step" in EN
+    assert "目标、不能破坏的约束和完成标准" in ZH
+    assert "outcome, the constraints that must remain true, and the completion criteria" in EN
 
 
-def test_readmes_explain_completion_driven_concurrency_without_hard_team_size():
-    assert "没有固定 Agent 数量" in ZH
-    assert "No fixed Agent count" in EN
-    assert "completion-driven" in ZH
-    assert "completion-driven" in EN
-    assert "立即补位" in ZH
-    assert "refill immediately" in EN
-    assert "join dependency" in ZH
-    assert "join dependency" in EN
-    assert "最多两个同时活跃" in ZH
-    assert "up to two concurrently active" in EN
+def test_readmes_explain_adaptive_parallel_work_without_fixed_team_shape():
+    assert "不要求固定的 Agent 队伍" in ZH
+    assert "does not force every task into a fixed Agent team" in EN
+    assert "B 解锁了 C" in ZH
+    assert "B unlocks C" in EN
+    assert "最多两个有明确理由的 child" in ZH
+    assert "up to two justified child Agents" in EN
     assert "physical checkout" in ZH and "physical checkout" in EN
 
     for forbidden in [
@@ -79,39 +80,22 @@ def test_readmes_explain_completion_driven_concurrency_without_hard_team_size():
         assert forbidden not in EN
 
 
-def test_readmes_do_not_shift_performance_responsibility_to_prompt_wording():
-    assert "性能主要取决于怎么写 prompt" in ZH
-    assert "说法不够完整" in ZH
-    assert "performance is not determined mainly by prompt wording" in EN
-    assert "任务本身是否存在独立依赖" in ZH
-    assert "whether the task actually contains independent dependencies" in EN
-    assert "Native Codex" in ZH and "native Codex runtime" in EN
-
-
-def test_readmes_keep_recovery_and_risk_triggered_final_review_semantics():
-    assert "未通过验收和需要改变执行方式是两个不同判断" in ZH
-    assert "Failing acceptance and needing to change execution are separate decisions" in EN
-    assert "Recovery Ledger" in ZH and "Recovery Ledger" in EN
-    assert "固定重试次数" in ZH
-    assert "fixed retry count" in EN
+def test_readmes_keep_local_recovery_and_risk_triggered_final_review():
+    assert "不会因为一次失败就机械地换更强模型或从头重跑" in ZH
+    assert "does not switch to a stronger model or restart the whole task just because one attempt fails" in EN
+    assert "Sol 不是每个任务的固定最后一步" in ZH
+    assert "Sol is not a mandatory final step for every task" in EN
 
     for text in [ZH, EN]:
-        for phrase in [
-            "Candidate Ready",
-            "ship",
-            "fix-first",
-            "rethink",
-            "INSUFFICIENT_EVIDENCE",
-            "review_artifact_id",
-        ]:
+        for phrase in ["ship", "fix-first", "rethink"]:
             assert phrase in text
-    assert "Sol 不是所有任务的固定阶段" in ZH
-    assert "Sol is not a fixed stage for every task" in EN
 
 
-def test_readmes_explain_plugin_and_custom_agent_boundary():
-    assert "Plugin manifest 不声明不存在的 `agents` 组件" in ZH
-    assert "Plugin manifest does not invent an `agents` component" in EN
+def test_readmes_keep_custom_agent_install_scope_user_facing():
+    assert "Installer 只管理 Codex Delegate 自己的四个 profile" in ZH
+    assert "installer manages only the four Codex Delegate profiles" in EN
+    assert "不修改凭据、MCP、仓库、`config.toml` 或其他 Agent profile" in ZH
+    assert "does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles" in EN
 
 
 def test_readme_visual_assets_remain_intentional_and_bounded():
