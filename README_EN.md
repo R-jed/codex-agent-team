@@ -131,7 +131,7 @@ If the current work is still producing useful progress, it can continue. If it s
 
 The goal is simple: keep the work that is already good, preserve useful evidence, and spend additional compute only on what is still unresolved.
 
-## Final Review
+## Final Review Gate
 
 Sol is not a mandatory final step for every task. Low-risk local changes can finish after the main session inspects the actual diff and runs the relevant checks.
 
