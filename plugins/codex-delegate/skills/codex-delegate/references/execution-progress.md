@@ -1,151 +1,117 @@
 # Execution Progress Policy
 
-Codex Delegate adapts execution from observable task progress. A model's narration about progress is not enough to justify another attempt, a stronger lane, or acceptance.
+This file owns only execution evidence, progress semantics, stall detection, and the facts required for reclassification. `routing-policy.md` owns the effective next actor.
 
-This policy separates four things:
+## 1. Evidence before narration
 
-```text
-execution evidence
--> structured progress signals
--> intervention gate
--> recovery classification and effective action
-```
-
-Do not collapse them into one model judgment.
-
-## 1. What counts as execution evidence
-
-Prefer evidence that another actor can inspect independently:
+Prefer facts another actor can inspect:
 
 - deterministic verification output;
 - compiler, type-checker, test, build, formatter, or static-analysis results;
-- repository facts tied to files, symbols, call paths, interfaces, or diffs;
-- actual changed-file and artifact state;
-- runtime facts when they are materially observable;
+- repository facts tied to files, symbols, interfaces, or diffs;
+- actual changed artifact state;
+- runtime facts when exposed;
 - acceptance-oracle checks;
-- evidence that materially narrows an unresolved dependency.
+- evidence that narrows the unresolved dependency.
 
-A child may summarize this evidence, but its summary is still a claim until the main session can inspect the underlying artifact or result.
+A child summary is a claim until the main session can inspect the underlying artifact or evidence.
 
-## 2. What does not count as progress by itself
-
-Do not treat these as progress without supporting evidence:
+These do not establish progress by themselves:
 
 - confidence language;
-- longer reasoning or a more detailed explanation;
+- more reasoning or explanation;
 - a file write;
-- a successful command that does not improve acceptance, establish useful new evidence, or narrow the unresolved delta;
-- a different patch that fails the same acceptance check in the same way;
-- repeating the same command with the same outcome and no invalidation reason;
-- rediscovering a repository fact already present in valid Shared Evidence State;
-- another model agreeing with the previous model.
+- an irrelevant successful command;
+- a different patch with the same failing acceptance result;
+- repeated discovery already present in valid evidence;
+- another model agreeing.
 
-A write or successful tool call followed by the same failing verification can be motion without progress.
+## 2. Compact progress record
 
-## 3. Responsibility progress record
-
-For a delegated execution responsibility, keep only compact facts needed for the next decision:
+For each material attempt keep:
 
 ```text
 DEPENDENCY ID
 ATTEMPT ID
+CURRENT KIND
 CURRENT ARTIFACT
 ACCEPTANCE STATE
 FAILURE SIGNATURE
-NEW EVIDENCE
-INVALIDATED EVIDENCE
+NEW / INVALIDATED EVIDENCE
 UNRESOLVED DELTA
-PROGRESS SIGNAL
+PROGRESS SIGNAL: advanced | unchanged | regressed | blocked
 ```
 
-`FAILURE SIGNATURE` should be factual when possible, for example a failing test id, compiler error class, invariant breach, or deterministic verification outcome.
-
-`PROGRESS SIGNAL` is one of:
-
-```text
-advanced
-unchanged
-regressed
-blocked
-```
-
-`advanced` means the dependency moved materially toward acceptance, for example the acceptance state improved, the unresolved delta shrank, or genuinely new evidence removed uncertainty. A command succeeding by itself does not establish `advanced`.
+`advanced` requires material movement toward satisfaction, such as a smaller unresolved delta, improved acceptance state, or genuinely new evidence that removes uncertainty.
 
 Do not use private chain-of-thought as task state.
 
-## 4. Structured execution signals
+## 3. Intervention question
 
-When available from actual artifacts or runtime output, record compact observations such as:
+Before changing context or actor, ask:
 
 ```text
-verification_failures
-same_failure_repeat
-rewrite_verify_cycles
-oscillation_signal
-repeated_discovery
-unresolved_delta_trend
-scope_churn
+Is this dependency still making evidence-supported forward progress
+inside a valid classification, contract, and safe runtime boundary?
 ```
 
-These are observations, not automatic routing rules. Codex Delegate does not encode fixed values such as "three repeats means Terra" or "four cycles means restart".
+If yes, continue. A still-failing test can coexist with healthy progress.
 
-Signals are useful only when their underlying evidence is available to the main session. Do not fabricate mid-run telemetry that the current Codex runtime does not expose.
+If no, stop ordinary continuation and re-evaluate the dependency with the current evidence.
 
-## 5. Intervention Gate
+Do not intervene because an attempt is merely incomplete, a child sounds uncertain, a stronger model exists, or one test failed once.
 
-Failure to satisfy acceptance and need for intervention are different facts.
+## 4. Reclassification signals
 
-Before changing lane, restarting context, or escalating judgment, ask:
+The child may return:
 
 ```text
-Does the current responsibility still show evidence-supported forward progress
-inside a valid contract and safe runtime boundary?
+CONTRACT_GAP
+JUDGMENT_REQUIRED
+TECHNICAL_GAP
+EXECUTION_STALL
 ```
 
-If **yes**, continue the current responsibility. A still-failing test can coexist with healthy progress when new evidence is narrowing the root cause or the unresolved delta is materially shrinking.
+The main session validates the evidence behind the signal and reruns the dependency classifier in `routing-policy.md`.
 
-If **no**, or the responsibility is blocked by a contract, capability, judgment, permission, workspace, or runtime boundary, enter recovery classification.
+Typical interpretations:
 
-Do not intervene merely because an attempt has not completed yet, because a child sounds uncertain, or because a stronger model is available.
+- `CONTRACT_GAP`: repair task truth, scope, invariants, decision envelope, acceptance, or verification in the main session.
+- `JUDGMENT_REQUIRED`: determine whether the same dependency is now `judgment` or `judgment_coupled_execution`.
+- `TECHNICAL_GAP`: classify as `technical_investigation` only when semantic intent is already stable and the remaining delta is narrow and technically difficult.
+- `EXECUTION_STALL`: confirm whether the classification is still correct before considering a clean same-role restart.
 
-## 6. Deterministic stall signals
+A child's proposed classification is not orchestration authority.
 
-A stall is evidence that another unchanged attempt is unlikely to add value. Signals include:
+## 5. Stall evidence
 
-- the same failure signature persists while no new evidence narrows the cause;
-- write, verify, fail cycles repeat without improving the acceptance state;
-- two competing artifact directions alternate while verification does not improve;
-- the same repository discovery or deterministic command is repeated without an invalidation reason;
-- the unresolved delta does not become smaller across materially similar attempts;
-- scope churn grows while the accepted dependency remains unchanged.
+Stall means another materially unchanged attempt is unlikely to add value. Signals include:
 
-These are signals, not fixed numerical thresholds. Codex Delegate does not define a universal retry count. The main session judges whether the evidence shows genuine new information or repeated motion without progress.
+- the same factual failure signature persists without new evidence;
+- write/verify/fail cycles repeat without improving acceptance;
+- implementation directions oscillate while verification does not improve;
+- the same repository discovery or deterministic command is repeated without invalidation;
+- the unresolved delta does not shrink;
+- scope churn grows while the dependency remains unchanged.
 
-## 7. Recovery classification
+These are qualitative evidence signals, not numerical thresholds. Codex Delegate has no universal retry count.
 
-Only after the Intervention Gate says intervention is justified should the main session classify the reason.
+## 6. Clean same-role restart
 
-### Mechanical defect
+A clean restart is justified only when:
 
-Use a focused Luna correction when the contract is still valid and the evidence identifies a concrete local correction path.
+1. the dependency classification remains valid;
+2. the assigned role still appears capable;
+3. evidence indicates context pollution or repetition rather than a semantic/technical reclassification;
+4. the new packet differs materially from the failed attempt by carrying corrected evidence, a correction hypothesis, or a cleaner current state.
 
-The next attempt must have a distinct correction hypothesis or changed evidence. Never resend an unchanged contract simply because the previous result failed.
-
-### Contract gap
-
-Return to the main session. Repair outcome, scope, interfaces, decision rights, acceptance, or verification before further writing.
-
-### Execution stall or context pollution
-
-Use a fresh same-lane packet when the lane still appears capable but accumulated context is producing unproductive repetition.
-
-The clean restart packet carries:
+Preserve:
 
 ```text
-DEPENDENCY
+DEPENDENCY KIND
 CURRENT ARTIFACT
 VALID ESTABLISHED EVIDENCE
-CURRENT FAILURE SIGNATURE
+FAILURE SIGNATURE
 UNRESOLVED DELTA
 MATERIAL RECOVERY HISTORY
 DO NOT REDO
@@ -153,58 +119,38 @@ ACCEPTANCE ORACLE
 VERIFICATION
 ```
 
-It does not carry dead-end narration, private reasoning, or a full transcript.
+Drop dead-end narration and private reasoning. A clean restart is still the same dependency and does not authorize a second concurrent owner.
 
-Use `fork_turns=none` for this fresh packet unless a specific user decision cannot be safely repacked.
+## 7. Recovery Ledger
 
-### Capability gap
-
-If the contract is clear and evidence shows the assigned execution lane cannot safely resolve the technical dependency, do not keep restarting the same lane. Send only the unresolved technical delta to Terra with valid evidence, the current artifact, and explicit `DO NOT REDO` items.
-
-Capability takes precedence over retry when the evidence already supports that classification.
-
-### Judgment gap
-
-Keep the decision in the main session or use Sol when a bounded consequential judgment benefits from independent review. Do not turn a product or architecture decision into repeated implementation attempts.
-
-## 8. Recovery Ledger
-
-The main session maintains a bounded semantic history for the current dependency so a fresh context cannot accidentally revisit an earlier dead end.
-
-Record only material attempts:
+Keep only material attempt facts needed to prevent semantic cycles:
 
 ```text
 ATTEMPT ID
-LANE
+ROLE
+DEPENDENCY KIND
 CORRECTION HYPOTHESIS
 FAILURE SIGNATURE
 PROGRESS SIGNAL
 NEW EVIDENCE IDS
 UNRESOLVED DELTA
-RECOVERY ACTION
+EFFECTIVE ACTION
 DECISION SOURCE
 ```
 
-The Recovery Ledger is not a transcript and does not contain private reasoning. Keep only entries that remain decision-relevant; compact older entries when their detailed form no longer helps detect repetition, oscillation, or invalidated hypotheses.
+Use it to detect a return to an earlier failed hypothesis when the relevant evidence has not changed.
 
-Use it to detect semantic cycles such as `hypothesis A -> hypothesis B -> hypothesis A` even when a clean restart removed conversational history.
+## 8. Decision provenance
 
-A clean restart is still the same dependency. Only one execution lane owns that dependency at a time.
-
-## 9. Proposed action, effective action, and decision provenance
-
-A child, Investigator, or Advisor may suggest a next action. That suggestion is not orchestration authority.
-
-When recovery materially changes execution, distinguish:
+When a child proposes a next action, separate proposal from the main session's effective action:
 
 ```text
 PROPOSED ACTION
 EFFECTIVE ACTION
 DECISION SOURCE
-POLICY TRANSFORM
 ```
 
-`DECISION SOURCE` is one of:
+`DECISION SOURCE` may be:
 
 ```text
 deterministic_evidence
@@ -214,94 +160,24 @@ runtime_constraint
 model_judgment
 ```
 
-Examples:
+Model judgment never becomes deterministic evidence by agreement or repetition.
 
-- Terra may be proposed, but the effective action remains Luna because no capability gap is established.
-- A model may propose continuing, but the effective action is stop because another writer already owns the canonical workspace.
-- A clean restart may be selected from deterministic stall evidence even when the child did not request one.
+## 9. Event-driven evaluation
 
-Record `POLICY TRANSFORM` only when a policy or runtime boundary changes the proposed action. Do not present model judgment as deterministic evidence.
+Re-evaluate progress on material events:
 
-## 10. Evidence burden scales with intervention impact
+- a child returns or exposes a material update;
+- acceptance verification changes;
+- the failure signature changes;
+- evidence is established, contradicted, or invalidated;
+- a dependency becomes blocked or ready;
+- workspace/runtime state materially changes;
+- the user changes outcome, scope, or authorization.
 
-More disruptive interventions require stronger evidence.
+Do not spend model turns busy-polling for progress the native runtime does not expose.
 
-Use this ordering as a qualitative principle, not a numeric scoring formula:
+## 10. Acceptance
 
-```text
-focused local correction
-< clean same-lane restart
-< capability-lane escalation
-< consequential independent judgment
-< user/external-boundary escalation
-```
+The main session marks a dependency satisfied only when its declared acceptance oracle is met or the user explicitly changes that oracle.
 
-A low-cost reversible correction can proceed from a concrete local hypothesis. A context reset requires stall or pollution evidence. Terra requires evidence of a technical capability gap. Sol requires a consequential judgment dependency. User escalation is reserved for a real authorization or decision boundary.
-
-Do not convert this principle into hard retry counts or fixed probability thresholds.
-
-## 11. Event-driven recovery evaluation
-
-Recovery evaluation itself has cost. Re-evaluate when a material event occurs, not after every ordinary tool call.
-
-Typical events are:
-
-- a child returns;
-- acceptance verification materially changes;
-- the failure signature materially changes;
-- relevant evidence is established, contradicted, or invalidated;
-- a dependency becomes blocked or newly ready;
-- the user changes outcome, scope, or authorization;
-- workspace ownership or runtime capacity changes materially.
-
-If the native runtime exposes structured child progress before return, record that capability and use only facts actually exposed. If it does not, recovery remains dependency-level or return-level. Do not claim structured live mid-run intervention without runtime evidence.
-
-## 12. Clean restart semantics
-
-A clean restart preserves task truth and drops conversational dead ends.
-
-Preserve:
-
-- the user-authorized outcome;
-- current artifacts and actual diff;
-- still-valid deterministic and repository evidence;
-- acceptance criteria;
-- unresolved dependency;
-- current failure signature;
-- material Recovery Ledger entries;
-- explicit constraints and `DO NOT REDO` facts.
-
-Do not propagate:
-
-- private reasoning;
-- self-reported confidence;
-- abandoned hypotheses that have no remaining evidence value;
-- repeated narrative explaining failed approaches.
-
-A clean restart is not a new dependency. It is a recovery mechanism for the same dependency, so only one execution lane should own it at a time.
-
-## 13. Budget, consent, and safety stay outside model judgment
-
-A child or reviewer does not decide whether it may exceed user-authorized fan-out, permissions, scope, or external impact.
-
-Before any recovery or escalation:
-
-1. apply current consent boundaries;
-2. preserve workspace write safety;
-3. verify exact role availability when a model-specific lane is required;
-4. respect runtime slot availability;
-5. stop when an external or permission boundary is not authorized.
-
-Do not spend additional compute asking a model whether an already exhausted policy boundary should be ignored.
-
-## 14. Fresh judgment at commitment boundaries
-
-When a Sol decision or review is justified, use a fresh packet containing compressed established facts and the actual artifact or decision options. Fresh context is valuable because it reduces conversational anchoring.
-
-Fresh context does not make the review independent evidence by itself. Sol judgment remains `model_judgment` until supported by deterministic or repository facts where applicable.
-
-## 15. Acceptance
-
-The main session accepts a dependency only when its declared acceptance oracle is satisfied or the user explicitly changes that oracle.
-
-Do not weaken acceptance criteria because a lane repeatedly fails them. Repeated failure is evidence for intervention and recovery classification, not permission to redefine success.
+Repeated failure is evidence for reclassification or recovery. It is never permission to weaken success criteria.
