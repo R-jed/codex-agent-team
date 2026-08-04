@@ -3,9 +3,11 @@ import tomllib
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_DIR = ROOT / "plugins" / "codex-agent-team" / "skills" / "codex-agent-team"
+PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
+SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-agent-team"
 REFERENCES = SKILL_DIR / "references"
-PROFILE_DIR = ROOT / "plugins" / "codex-agent-team" / "agent-profiles"
+PROFILE_DIR = PLUGIN_ROOT / "agent-profiles"
+ARTIFACT_HELPER = PLUGIN_ROOT / "scripts" / "review-artifact.py"
 
 
 def read(path: Path) -> str:
@@ -54,11 +56,14 @@ def test_mandatory_review_reuses_existing_fresh_sol_route():
     assert advisor["sandbox_mode"] == "read-only"
 
 
-def test_review_verdict_is_bound_to_exact_artifact():
+def test_review_verdict_is_bound_to_exact_artifact_with_bundled_helper():
     gate = read(REFERENCES / "final-review-gate.md")
+    assert ARTIFACT_HELPER.is_file()
     for phrase in [
         "review_artifact_id",
-        "complete accumulated diff digest",
+        "review-artifact.py",
+        "tracked_diff_sha256",
+        "--verify '<review_artifact_id>'",
         "Any deliverable mutation after a `ship` verdict invalidates that verdict",
         "REVIEWED_ARTIFACT_ID",
         "reviewed artifact unchanged",
