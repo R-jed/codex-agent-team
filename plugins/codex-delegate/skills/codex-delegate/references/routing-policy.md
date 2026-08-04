@@ -146,10 +146,10 @@ Role identity is separate from model identity. Exact current constants live in `
 
 | Responsibility | Agent type | Current route | Default intent | Use |
 | --- | --- | --- | --- | --- |
-| reader | `codex_agent_team_reader` | GPT-5.6 Luna `max` | read-only | bounded search, tracing, mapping, evidence |
-| worker | `codex_agent_team_worker` | GPT-5.6 Luna `max` | workspace-write | contractable implementation/debugging/tests |
-| investigator | `codex_agent_team_investigator` | GPT-5.6 Terra `xhigh` | read-only | unresolved difficult technical delta |
-| advisor | `codex_agent_team_advisor` | GPT-5.6 Sol `high` | read-only | consequential judgment and review |
+| reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | read-only | bounded search, tracing, mapping, evidence |
+| worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | workspace-write | contractable implementation/debugging/tests |
+| investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | read-only | unresolved difficult technical delta |
+| advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | read-only | consequential judgment and review |
 
 Changing a future model route must not require renaming the semantic role.
 

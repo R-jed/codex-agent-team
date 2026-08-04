@@ -1,4 +1,4 @@
-name = "codex_agent_team_advisor"
+name = "codex_delegate_advisor"
 description = "Read-only Sol lane for high-value judgment and selective review over compressed evidence."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"

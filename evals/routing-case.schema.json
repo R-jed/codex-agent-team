@@ -14,9 +14,7 @@
         "required": ["id", "category", "input", "expected"],
         "properties": {
           "id": {"type": "string", "minLength": 1},
-          "category": {
-            "enum": ["delegation", "contractability", "routing", "escalation", "consent", "safety", "lifecycle", "progress"]
-          },
+          "category": {"enum": ["delegation", "contractability", "routing", "escalation", "consent", "safety", "lifecycle", "progress"]},
           "input": {"type": "object"},
           "expected": {
             "type": "object",
@@ -36,7 +34,7 @@
                     "write_intent": {"type": "boolean"},
                     "workspace": {"type": "string"},
                     "fork_turns": {"type": "string", "pattern": "^(none|[1-9][0-9]*)$"},
-                    "agent_type": {"enum": ["codex_agent_team_reader", "codex_agent_team_worker", "codex_agent_team_investigator", "codex_agent_team_advisor"]},
+                    "agent_type": {"enum": ["codex_delegate_reader", "codex_delegate_worker", "codex_delegate_investigator", "codex_delegate_advisor"]},
                     "route_assurance": {"const": "profile_locked"},
                     "unresolved_delta_only": {"type": "boolean"},
                     "clean_restart": {"type": "boolean"}
@@ -44,10 +42,7 @@
                   "additionalProperties": true
                 }
               },
-              "failure_class": {
-                "type": ["string", "null"],
-                "enum": [null, "mechanical_defect", "contract_gap", "execution_stall", "capability_gap", "judgment_gap"]
-              },
+              "failure_class": {"type": ["string", "null"], "enum": [null, "mechanical_defect", "contract_gap", "execution_stall", "capability_gap", "judgment_gap"]},
               "progress_signal": {"type": ["string", "null"], "enum": [null, "advanced", "unchanged", "regressed", "blocked"]},
               "consent_reason": {"type": ["string", "null"]},
               "main_reason": {"type": ["string", "null"]},

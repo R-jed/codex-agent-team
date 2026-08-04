@@ -9,13 +9,15 @@
 <h1 align="center">codex delegate</h1>
 
 <p align="center">
-  <a href="README_EN.md">English</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
+  <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="LICENSE">MIT License</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.7.0-green.svg" alt="Version">
 </p>
+
+**If you are an AI Agent, jump to README_AI.md and follow the instructions strictly.**
 
 启动 Subagent 很容易，难的是判断什么时候值得用。
 
@@ -77,13 +79,11 @@ codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-更新后同样启动一个新的 Codex 会话。
+更新后启动新的 Codex 会话。第一次需要 Luna、Terra 或 Sol 的专用角色时，codex delegate 会先说明需要写入的 Agent 配置文件，并在得到授权后完成配置或旧版本迁移。
 
-如果你安装过旧的 `codex-agent-team` 包，请先按[安装指南](docs/plugin-installation.md)完成一次公开 ID 迁移。
+如果你安装过旧的 `codex-agent-team` Plugin，或者从 codex delegate 0.6.x 升级，请按[安装指南](docs/plugin-installation.md)完成一次迁移。不要手工重命名 Agent 配置文件。
 
-第一次需要 Luna、Terra 或 Sol 的专用角色时，codex delegate 会先说明需要添加的 Agent 配置文件，并在得到授权后完成配置。安装程序只管理 codex delegate 自己的四个配置文件，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置文件。
-
-完整安装、迁移和故障处理见 [安装指南](docs/plugin-installation.md)。
+安装程序只管理 codex delegate 自己的四个当前配置文件和项目 ownership 记录，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置文件。
 
 ## 模型分工
 
@@ -94,9 +94,7 @@ codex plugin add codex-delegate@codex-delegate
 | Terra Investigator | GPT-5.6 Terra `xhigh` | Luna 已经无法解决的复杂技术问题 |
 | Sol Advisor | GPT-5.6 Sol `high` | 高价值判断、独立复核和高风险改动的最终检查 |
 
-角色决定责任范围，模型决定使用哪种计算资源。更强的模型不会自动获得更大的修改范围或决策权。
-
-普通实现通常由 Luna 完成。只有出现明确的技术难点或复核价值时，才会使用 Terra 或 Sol。
+角色决定责任范围，模型决定使用哪种计算资源。更强的模型不会自动获得更大的修改范围或决策权。普通实现通常由 Luna 完成，只有出现明确的技术难点或复核价值时才会使用 Terra 或 Sol。
 
 ## 并行工作
 
@@ -117,25 +115,19 @@ B 解锁了 C
 A 继续运行
 ```
 
-只有任务之间真的存在依赖，或者同一工作区存在写入冲突时，才需要等待。
-
-显式使用 `/codex-delegate` 时，默认最多可以同时运行两个有明确理由的子 Agent，无需再次询问。这个数字只是默认授权范围，不是固定团队规模。同一个实际 Git 工作副本同时最多只能有一个写入型 Agent；如果需要多个写入型 Agent 并行工作，应使用彼此隔离的 Git 工作副本或工作区。
+显式使用 `/codex-delegate` 时，默认最多可以同时运行两个有明确理由的子 Agent，无需再次询问。这个数字只是默认授权范围，不是固定团队规模。同一个实际 Git 工作副本同时最多只能有一个写入型 Agent；多个写入型 Agent 需要彼此真正隔离的工作区。
 
 ## 失败时怎么处理
 
 一次失败不会自动触发更强模型，也不会让整个任务从头再来。
 
-如果只是局部实现问题，Luna 继续修；如果任务边界不清，主会话先把问题重新整理；如果确实剩下复杂技术难点，只把那一部分交给 Terra；需要独立判断时再使用 Sol。
-
-已经确认有效的结果和信息会继续保留，额外计算只花在仍未解决的部分。
+如果只是局部实现问题，Luna 继续修；如果任务边界不清，主会话先重新整理；如果确实剩下复杂技术难点，只把那一部分交给 Terra；需要独立判断时再使用 Sol。已经确认有效的结果和证据会继续保留，额外计算只花在仍未解决的部分。
 
 ## 最终复核
 
 Sol 并非每个任务的固定最后一步。普通低风险修改在主会话检查实际改动并完成必要测试后即可结束。
 
 当改动涉及公共接口、持久化状态、安全或授权、数据完整性、并发、迁移，或者影响范围明显较大时，codex delegate 可以要求一次独立的 Sol 复核。
-
-Sol 针对当前候选结果给出三种结论：
 
 ```text
 ship       可以交付

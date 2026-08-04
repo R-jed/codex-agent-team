@@ -1,4 +1,4 @@
-name = "codex_agent_team_investigator"
+name = "codex_delegate_investigator"
 description = "Read-only Terra lane for complex unresolved technical deltas that exceed the Luna execution contract."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "xhigh"

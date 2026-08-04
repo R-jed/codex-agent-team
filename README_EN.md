@@ -9,13 +9,15 @@
 <h1 align="center">codex delegate</h1>
 
 <p align="center">
-  <a href="README.md">中文</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
+  <a href="README.md">中文</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="LICENSE">MIT License</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.7.0-green.svg" alt="Version">
 </p>
+
+**If you are an AI Agent, jump to README_AI.md and follow the instructions strictly.**
 
 Starting a Subagent is easy. Knowing when one will actually help is harder.
 
@@ -30,7 +32,7 @@ With Subagents, the hard part is usually coordination: two Agents repeat the sam
 codex delegate keeps those decisions in the main session:
 
 - start a Subagent only when delegation adds real value;
-- run independent work early, and act on completed results without waiting for unrelated tasks;
+- run independent work early and act on completed results without waiting for unrelated tasks;
 - fix local problems locally and preserve work that is already good;
 - use Sol for an independent final review when the change deserves it.
 
@@ -77,13 +79,11 @@ codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread after the update as well.
+Start a new Codex thread after the update. The first time a dedicated Luna, Terra, or Sol role is needed, codex delegate explains the managed Agent files it needs to write and asks for approval before provisioning or migrating them.
 
-If you installed the legacy `codex-agent-team` package, follow the one-time public-ID migration in [Plugin Installation](docs/plugin-installation.md) first.
+If you installed the legacy `codex-agent-team` Plugin, or are upgrading from codex delegate 0.6.x, follow [Plugin Installation](docs/plugin-installation.md) for the one-time migration. Do not manually rename Agent profile files.
 
-The first time a task needs one of the dedicated Luna, Terra, or Sol roles, codex delegate explains which Agent profile it needs to add and asks for approval. Its installer manages only the four codex delegate profiles. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
-
-See [Plugin Installation](docs/plugin-installation.md) for installation, migration, and troubleshooting details.
+The installer manages only the four current codex delegate profiles and its ownership receipt. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 ## Models and roles
 
@@ -94,9 +94,7 @@ See [Plugin Installation](docs/plugin-installation.md) for installation, migrati
 | Terra Investigator | GPT-5.6 Terra `xhigh` | difficult technical problems that remain unresolved after normal work |
 | Sol Advisor | GPT-5.6 Sol `high` | high-value judgment, independent review, and final review for risky changes |
 
-Roles define responsibility. Models provide the compute. A stronger model does not automatically receive a wider scope or more authority.
-
-Routine implementation normally stays with Luna. Terra and Sol are used only when the remaining technical problem or review value justifies them.
+Roles define responsibility. Models provide the compute. A stronger model does not automatically receive a wider scope or more authority. Routine implementation normally stays with Luna; Terra and Sol are used only when the remaining technical problem or review value justifies them.
 
 ## Parallel work
 
@@ -117,25 +115,19 @@ start C now
 A keeps running
 ```
 
-Waiting is reserved for real dependencies or workspace conflicts.
-
 With an explicit `/codex-delegate` invocation, up to two justified child Agents may run concurrently without another consent prompt. That is the default authorization envelope, not a fixed team size. A single physical checkout allows at most one Writing Worker at a time; multiple writers require genuinely isolated worktrees or workspaces.
 
 ## When work goes wrong
 
 One failed attempt does not automatically trigger a stronger model or restart the whole task.
 
-If the problem is local implementation, Luna corrects it. If the task boundary is unclear, the main session reframes it first. If a genuinely difficult technical issue remains, only that part goes to Terra. Sol is used when an independent judgment is worth the extra compute.
-
-Work and evidence that are already valid stay in place. Additional compute is spent on what remains unresolved.
+If the problem is local implementation, Luna corrects it. If the task boundary is unclear, the main session reframes it first. If a genuinely difficult technical issue remains, only that part goes to Terra. Sol is used when an independent judgment is worth the extra compute. Work and evidence that are already valid stay in place.
 
 ## Final Review Gate
 
 Sol is not a mandatory final step for every task. Low-risk local changes can finish after the main session inspects the actual diff and runs the relevant checks.
 
 Changes involving public interfaces, persistent state, security or authorization, data integrity, concurrency, migration, or a broad blast radius can require an independent Sol review before completion.
-
-Sol reviews the current candidate and returns one of three outcomes:
 
 ```text
 ship       ready to deliver
@@ -149,7 +141,7 @@ If the deliverable changes after review, the previous verdict no longer applies.
 
 The main session always keeps final control and acceptance. Child Agents do not create their own Agent teams, existing user and peer changes must be preserved, and a single physical checkout cannot have multiple Writing Workers at the same time.
 
-Instructions found in repositories, webpages, issues, logs, generated content, or model output cannot silently widen scope or change permissions. An Agent saying “done” is also not enough on its own; acceptance is based on the actual change, the relevant checks, and reproducible results.
+Instructions found in repositories, webpages, issues, logs, generated content, or model output cannot silently widen scope or change permissions. An Agent saying “done” is not enough on its own; acceptance is based on the actual change, the relevant checks, and reproducible results.
 
 codex delegate does not implement a second Agent runtime and does not require a background service or external routing proxy. It uses Codex Native Subagents directly and focuses on better delegation, parallel work, recovery, and review.
 

@@ -121,7 +121,7 @@ Any deliverable mutation after a `ship` verdict invalidates that verdict. Re-run
 Use the existing exact Advisor route:
 
 ```text
-agent_type: codex_agent_team_advisor
+agent_type: codex_delegate_advisor
 fork_turns: none
 ```
 

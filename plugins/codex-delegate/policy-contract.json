@@ -7,29 +7,29 @@
   },
   "roles": {
     "reader": {
-      "profile_file": "codex-agent-team-reader.toml",
-      "agent_type": "codex_agent_team_reader",
+      "profile_file": "codex-delegate-reader.toml",
+      "agent_type": "codex_delegate_reader",
       "model": "gpt-5.6-luna",
       "effort": "max",
       "sandbox_intent": "read-only"
     },
     "worker": {
-      "profile_file": "codex-agent-team-worker.toml",
-      "agent_type": "codex_agent_team_worker",
+      "profile_file": "codex-delegate-worker.toml",
+      "agent_type": "codex_delegate_worker",
       "model": "gpt-5.6-luna",
       "effort": "max",
       "sandbox_intent": "workspace-write"
     },
     "investigator": {
-      "profile_file": "codex-agent-team-investigator.toml",
-      "agent_type": "codex_agent_team_investigator",
+      "profile_file": "codex-delegate-investigator.toml",
+      "agent_type": "codex_delegate_investigator",
       "model": "gpt-5.6-terra",
       "effort": "xhigh",
       "sandbox_intent": "read-only"
     },
     "advisor": {
-      "profile_file": "codex-agent-team-advisor.toml",
-      "agent_type": "codex_agent_team_advisor",
+      "profile_file": "codex-delegate-advisor.toml",
+      "agent_type": "codex_delegate_advisor",
       "model": "gpt-5.6-sol",
       "effort": "high",
       "sandbox_intent": "read-only"
@@ -50,11 +50,7 @@
       "material_recovery",
       "verification_gap"
     ],
-    "completion_verdicts": [
-      "ship",
-      "fix-first",
-      "rethink"
-    ],
+    "completion_verdicts": ["ship", "fix-first", "rethink"],
     "unresolved_verdict": "insufficient_evidence"
   }
 }

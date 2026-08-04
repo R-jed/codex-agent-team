@@ -95,7 +95,7 @@ python "$installer" --check
 
 Then inspect native role discovery again. If installation is exact but the current task still cannot discover the role, ask the user to start a fresh Codex task and invoke `/codex-delegate` again.
 
-The installer may manage only the project profiles, `.codex-agent-team-agents.json`, and proven project-owned legacy profile migration. It does not authorize changes to credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+The installer may manage only the four current project profiles, `.codex-delegate-agents.json`, and bounded migration of proven project-owned historical profiles/receipts. Historical `codex_agent_team_*` identities are migration inputs only and are removed after a successful managed migration. It does not authorize changes to credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 Mixed concurrent managed-profile generations are unsupported for v1. An exact-route mismatch stops that delegation instead of cross-routing or silently rewriting shared configuration.
 
@@ -204,7 +204,7 @@ If review is `required`:
 
 1. enter **Candidate Ready**;
 2. bind the current deliverable to `review_artifact_id`;
-3. spawn exactly `codex_agent_team_advisor` with fresh context (`fork_turns: none`);
+3. spawn exactly `codex_delegate_advisor` with fresh context (`fork_turns: none`);
 4. accept completion only on `ship` for the supplied unchanged artifact;
 5. route `fix-first` corrections back through normal dependency scheduling, then re-verify and re-review a new artifact;
 6. treat `rethink` as invalidated architecture/contract assumptions;

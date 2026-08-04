@@ -72,7 +72,7 @@ Input shape:
 ```json
 {
   "expected": {
-    "agent_role": "codex_agent_team_worker",
+    "agent_role": "codex_delegate_worker",
     "model": "gpt-5.6-luna",
     "effort": "max",
     "thread_id": "optional expected child id",

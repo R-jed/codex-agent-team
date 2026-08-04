@@ -90,7 +90,9 @@ Current policy defines one-writer safety across independent sessions, but curren
 
 ## 6. Shared Codex-home state
 
-The four semantic Agent profiles and `.codex-agent-team-agents.json` are Codex-home scoped shared configuration.
+The four current semantic Agent profiles and `.codex-delegate-agents.json` are Codex-home scoped shared configuration. Current role names are `codex_delegate_reader`, `codex_delegate_worker`, `codex_delegate_investigator`, and `codex_delegate_advisor`.
+
+Historical `codex_agent_team_*` roles, `codex-agent-team-*.toml` profiles, and `.codex-agent-team-*.json` receipts are migration inputs only. A successful managed migration removes the proven old project generation rather than retaining a fallback compatibility layer.
 
 Mixed concurrent managed-profile generations are unsupported for v1.0.0. If a session expects a route that no longer matches the installed exact profile, the affected delegation fails closed rather than substituting another role or model.
 

@@ -97,15 +97,17 @@ An observed capacity of 4, 6, or another number proves only the tested build/env
 Current roles are configured as:
 
 ```text
-codex_agent_team_reader        -> gpt-5.6-luna / max
-codex_agent_team_worker        -> gpt-5.6-luna / max
-codex_agent_team_investigator  -> gpt-5.6-terra / xhigh
-codex_agent_team_advisor       -> gpt-5.6-sol / high
+codex_delegate_reader        -> gpt-5.6-luna / max
+codex_delegate_worker        -> gpt-5.6-luna / max
+codex_delegate_investigator  -> gpt-5.6-terra / xhigh
+codex_delegate_advisor       -> gpt-5.6-sol / high
 ```
 
 Model-specific delegation uses exact custom project profiles. There is no Portable Mode or built-in-role substitution.
 
 The Plugin bundles the profile templates. After explicit user approval, the managed installer provisions them into the active personal Codex-home `agents` directory.
+
+Historical `codex_agent_team_*` roles and project-named files are one-way migration inputs only. A successful managed migration removes the proven old project generation instead of exposing two active generations.
 
 Profile matching establishes configuration assurance only. It does not prove what a child actually ran as.
 
@@ -121,7 +123,7 @@ permission_evidence
 
 The bundled normalized verifier requires complete evidence for complete claims. Partial observations remain partial. A configured read-only sandbox is not proof of host enforcement.
 
-See `model-route-assurance.md` and installed `references/runtime-assurance.md`.
+See the installed `references/runtime-assurance.md`.
 
 ## Child progress observability
 

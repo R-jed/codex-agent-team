@@ -21,7 +21,7 @@ The design target is the **smallest useful compute graph on the shortest safe cr
 9. main session accepts and reports the actual deliverable
 ```
 
-Detailed policy lives in the installed Skill references. Stable route/resource/final-review constants live in `plugins/codex-agent-team/policy-contract.json`.
+Detailed policy lives in the installed Skill references. Stable route/resource/final-review constants live in `plugins/codex-delegate/policy-contract.json`.
 
 ## Dependency state
 
@@ -105,10 +105,10 @@ Role identity stays separate from model identity. Current bindings come from `po
 
 | Responsibility | Agent type | Current route | Intent |
 | --- | --- | --- | --- |
-| Reader | `codex_agent_team_reader` | GPT-5.6 Luna `max` | reusable evidence |
-| Worker | `codex_agent_team_worker` | GPT-5.6 Luna `max` | bounded implementation |
-| Investigator | `codex_agent_team_investigator` | GPT-5.6 Terra `xhigh` | unresolved difficult technical delta |
-| Advisor | `codex_agent_team_advisor` | GPT-5.6 Sol `high` | consequential judgment/review |
+| Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | reusable evidence |
+| Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | bounded implementation |
+| Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | unresolved difficult technical delta |
+| Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | consequential judgment/review |
 
 There is no required `Luna -> Terra -> Sol` pipeline.
 
@@ -162,7 +162,7 @@ ancestry_evidence
 permission_evidence
 ```
 
-The bundled `plugins/codex-agent-team/scripts/runtime-evidence.py` reconciles normalized expected/native/local metadata. It does not scrape rollout internals or copy configured values into observed fields.
+The bundled `plugins/codex-delegate/scripts/runtime-evidence.py` reconciles normalized expected/native/local metadata. It does not scrape rollout internals or copy configured values into observed fields.
 
 Native capacity, completion/update semantics, child progress observability, and lifecycle behavior are also runtime facts. Do not turn one build's behavior into a permanent product constant.
 
@@ -183,6 +183,8 @@ Core invariants are:
 Codex Plugin is the supported distribution path and `/codex-delegate` is the user entry point.
 
 Custom Agent profiles are a separate Codex configuration surface. The Plugin bundles templates and a managed installer; it does not invent an unsupported `agents` manifest component.
+
+Current profiles and runtime roles use the `codex-delegate` / `codex_delegate_*` namespace. Historical `codex-agent-team` / `codex_agent_team_*` values are one-way migration inputs only and are not fallback runtime identities.
 
 ## Evaluation boundary
 

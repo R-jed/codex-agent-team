@@ -7,26 +7,28 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
-INSTALLER = PLUGIN_ROOT / "scripts" / "install-agents.py"
-PROFILE_SOURCE = PLUGIN_ROOT / "agent-profiles"
-PROFILE_FILES = (
+PLUGIN = ROOT / "plugins" / "codex-delegate"
+INSTALLER = PLUGIN / "scripts" / "install-agents.py"
+PROFILE_SOURCE = PLUGIN / "agent-profiles"
+CURRENT_FILES = (
+    "codex-delegate-reader.toml",
+    "codex-delegate-worker.toml",
+    "codex-delegate-investigator.toml",
+    "codex-delegate-advisor.toml",
+)
+LEGACY_TEAM_FILES = (
     "codex-agent-team-reader.toml",
     "codex-agent-team-worker.toml",
     "codex-agent-team-investigator.toml",
     "codex-agent-team-advisor.toml",
 )
-LEGACY_PROFILE_FILES = (
-    "luna-explorer.toml",
-    "luna-worker.toml",
-    "terra-reviewer.toml",
-    "sol-judge.toml",
-)
-MANIFEST = ".codex-agent-team-agents.json"
-FULL_MANIFEST = ".codex-agent-team-install.json"
+LEGACY_MODEL_FILES = ("luna-explorer.toml", "luna-worker.toml", "terra-reviewer.toml", "sol-judge.toml")
+CURRENT_MANIFEST = ".codex-delegate-agents.json"
+LEGACY_TEAM_MANIFEST = ".codex-agent-team-agents.json"
+LEGACY_FULL_MANIFEST = ".codex-agent-team-install.json"
 
 
-def run_installer(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
+def run(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(INSTALLER), "--codex-home", str(home), *extra],
         cwd=ROOT,
@@ -36,247 +38,177 @@ def run_installer(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def installed_state(root: Path) -> dict[str, tuple[int, bytes]]:
-    if not root.exists():
-        return {}
-    return {
-        path.relative_to(root).as_posix(): (path.stat().st_mtime_ns, path.read_bytes())
-        for path in root.rglob("*")
-        if path.is_file()
-    }
-
-
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def test_companion_installer_installs_only_current_agent_profiles(tmp_path: Path):
+def state(root: Path) -> dict[str, bytes]:
+    if not root.exists():
+        return {}
+    return {path.relative_to(root).as_posix(): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+
+
+def test_fresh_install_creates_only_current_generation(tmp_path: Path):
     home = tmp_path / "codex-home"
-    result = run_installer(home)
+    result = run(home)
     assert result.returncode == 0, result.stderr
-    assert not (home / "skills").exists()
-    for filename in PROFILE_FILES:
+    assert {p.name for p in (home / "agents").glob("*.toml")} == set(CURRENT_FILES)
+    for filename in CURRENT_FILES:
         assert (home / "agents" / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
-    manifest = json.loads((home / MANIFEST).read_text())
-    assert manifest["schema_version"] == 2
-    assert set(manifest["profile_hashes"]) == set(PROFILE_FILES)
+    manifest = json.loads((home / CURRENT_MANIFEST).read_text())
+    assert manifest["schema_version"] == 1
+    assert manifest["managed_by"] == "codex-delegate"
+    assert set(manifest["profile_hashes"]) == set(CURRENT_FILES)
+    assert not (home / LEGACY_TEAM_MANIFEST).exists()
+    assert not (home / LEGACY_FULL_MANIFEST).exists()
 
 
 def test_symlinked_codex_home_is_rejected_without_writing_target(tmp_path: Path):
-    real_home = tmp_path / "real-home"
-    real_home.mkdir()
-    link_home = tmp_path / "link-home"
-    link_home.symlink_to(real_home, target_is_directory=True)
-    before = installed_state(real_home)
-
-    result = run_installer(link_home)
-
+    real = tmp_path / "real"
+    real.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(real, target_is_directory=True)
+    before = state(real)
+    result = run(link)
     assert result.returncode != 0
     assert "Refusing symlinked Codex home" in result.stderr
-    assert installed_state(real_home) == before
-    assert list(real_home.iterdir()) == []
+    assert state(real) == before
 
 
-def test_companion_check_is_non_mutating(tmp_path: Path):
+def test_check_is_non_mutating_and_repeat_install_is_noop(tmp_path: Path):
     home = tmp_path / "codex-home"
-    assert run_installer(home).returncode == 0
-    before = installed_state(home)
-    check = run_installer(home, "--check")
-    after = installed_state(home)
+    assert run(home).returncode == 0
+    before = state(home)
+    check = run(home, "--check")
     assert check.returncode == 0, check.stderr
     assert "CHECK PASSED" in check.stdout
-    assert before == after
+    assert state(home) == before
+    repeat = run(home)
+    assert repeat.returncode == 0, repeat.stderr
+    assert "no changes made" in repeat.stdout
+    assert state(home) == before
 
 
-def test_repeat_companion_install_is_true_no_op(tmp_path: Path):
+def test_modified_current_profile_is_not_overwritten_without_current_ownership(tmp_path: Path):
     home = tmp_path / "codex-home"
-    first = run_installer(home)
-    assert first.returncode == 0, first.stderr
-    before = installed_state(home)
-    second = run_installer(home)
-    after = installed_state(home)
-    assert second.returncode == 0, second.stderr
-    assert "no changes made" in second.stdout
-    assert before == after
-
-
-def test_user_modified_current_profile_is_never_overwritten(tmp_path: Path):
-    home = tmp_path / "codex-home"
-    assert run_installer(home).returncode == 0
-    profile = home / "agents" / "codex-agent-team-worker.toml"
+    assert run(home).returncode == 0
+    profile = home / "agents" / "codex-delegate-worker.toml"
     profile.write_bytes(profile.read_bytes() + b"\n# user change\n")
+    manifest = home / CURRENT_MANIFEST
+    manifest.unlink()
     before = profile.read_bytes()
-    result = run_installer(home)
+    result = run(home)
     assert result.returncode != 0
     assert "not proven unchanged" in result.stderr
     assert profile.read_bytes() == before
 
 
-def test_previous_current_managed_profile_can_upgrade(tmp_path: Path):
+def test_previous_current_profile_can_upgrade_with_exact_current_manifest(tmp_path: Path):
     home = tmp_path / "codex-home"
-    assert run_installer(home).returncode == 0
-    profile = home / "agents" / "codex-agent-team-worker.toml"
-    old = profile.read_bytes() + b"\n# simulated previous package\n"
-    profile.write_bytes(old)
-    manifest_path = home / MANIFEST
+    assert run(home).returncode == 0
+    profile = home / "agents" / "codex-delegate-worker.toml"
+    previous = profile.read_bytes() + b"\n# previous managed generation\n"
+    profile.write_bytes(previous)
+    manifest_path = home / CURRENT_MANIFEST
     manifest = json.loads(manifest_path.read_text())
-    manifest["profile_hashes"]["codex-agent-team-worker.toml"] = sha(old)
+    manifest["profile_hashes"][profile.name] = sha(previous)
     manifest_path.write_text(json.dumps(manifest))
-    result = run_installer(home)
+    result = run(home)
     assert result.returncode == 0, result.stderr
-    assert profile.read_bytes() == (PROFILE_SOURCE / "codex-agent-team-worker.toml").read_bytes()
+    assert profile.read_bytes() == (PROFILE_SOURCE / profile.name).read_bytes()
 
 
-def test_managed_legacy_profiles_are_removed_during_semantic_migration(tmp_path: Path):
+def test_proven_06_team_generation_migrates_and_is_removed(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
     agents.mkdir(parents=True)
-    legacy_hashes: dict[str, str] = {}
-    for filename in LEGACY_PROFILE_FILES:
-        data = f"# legacy managed {filename}\n".encode()
+    hashes = {}
+    for filename in LEGACY_TEAM_FILES:
+        data = f'name = "{filename.removeprefix("codex-agent-team-").removesuffix(".toml")}"\n# managed 0.6\n'.encode()
         (agents / filename).write_bytes(data)
-        legacy_hashes[filename] = sha(data)
-    (home / MANIFEST).write_text(json.dumps({"schema_version": 1, "profile_hashes": legacy_hashes}))
+        hashes[filename] = sha(data)
+    (home / LEGACY_TEAM_MANIFEST).write_text(json.dumps({"schema_version": 2, "profile_hashes": hashes}))
 
-    result = run_installer(home)
+    result = run(home)
 
     assert result.returncode == 0, result.stderr
-    assert all(not (agents / filename).exists() for filename in LEGACY_PROFILE_FILES)
-    assert all((agents / filename).is_file() for filename in PROFILE_FILES)
-    manifest = json.loads((home / MANIFEST).read_text())
-    assert manifest["schema_version"] == 2
-    assert set(manifest["profile_hashes"]) == set(PROFILE_FILES)
+    assert all(not (agents / filename).exists() for filename in LEGACY_TEAM_FILES)
+    assert all((agents / filename).is_file() for filename in CURRENT_FILES)
+    assert not (home / LEGACY_TEAM_MANIFEST).exists()
+    assert (home / CURRENT_MANIFEST).is_file()
+    assert run(home, "--check").returncode == 0
 
 
-def test_unproven_legacy_profile_is_left_untouched(tmp_path: Path):
+def test_unproven_old_team_profile_fails_closed_and_is_untouched(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
     agents.mkdir(parents=True)
-    legacy = agents / "luna-worker.toml"
-    legacy.write_text('name = "luna_worker"\n# user-owned legacy file\n')
-    before = legacy.read_bytes()
-
-    result = run_installer(home)
-
-    assert result.returncode == 0, result.stderr
-    assert legacy.read_bytes() == before
-    assert (agents / "codex-agent-team-worker.toml").is_file()
+    old = agents / "codex-agent-team-worker.toml"
+    old.write_text('name = "codex_agent_team_worker"\n# user modified\n')
+    before = state(home)
+    result = run(home)
+    assert result.returncode != 0
+    assert "ownership cannot be proven" in result.stderr
+    assert state(home) == before
 
 
-def test_full_installer_manifest_can_seed_legacy_ownership(tmp_path: Path):
+def test_legacy_team_role_in_unowned_filename_fails_closed(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
     agents.mkdir(parents=True)
-    old_hashes: dict[str, str] = {}
-    for filename in LEGACY_PROFILE_FILES:
-        data = f"# old standalone {filename}\n".encode()
+    foreign = agents / "my-worker.toml"
+    foreign.write_text('name = "codex_agent_team_worker"\nmodel = "gpt-5.6-luna"\n')
+    before = foreign.read_bytes()
+    result = run(home)
+    assert result.returncode != 0
+    assert "legacy codex_agent_team_* role remains" in result.stderr
+    assert foreign.read_bytes() == before
+
+
+def test_recognized_full_manifest_can_migrate_proven_model_named_files(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    hashes = {}
+    for filename in LEGACY_MODEL_FILES:
+        data = f"# previous project-owned {filename}\n".encode()
         (agents / filename).write_bytes(data)
-        old_hashes[filename] = sha(data)
-    (home / FULL_MANIFEST).write_text(
-        json.dumps({"schema_version": 1, "mode": "profile", "skill_hash": "placeholder", "profile_hashes": old_hashes})
+        hashes[filename] = sha(data)
+    (home / LEGACY_FULL_MANIFEST).write_text(
+        json.dumps({"schema_version": 1, "mode": "profile", "profile_hashes": hashes})
     )
-
-    result = run_installer(home)
-
+    result = run(home)
     assert result.returncode == 0, result.stderr
-    assert all(not (agents / filename).exists() for filename in LEGACY_PROFILE_FILES)
-    assert (home / MANIFEST).is_file()
+    assert all(not (agents / filename).exists() for filename in LEGACY_MODEL_FILES)
+    assert not (home / LEGACY_FULL_MANIFEST).exists()
+    assert (home / CURRENT_MANIFEST).exists()
 
 
-def test_unrecognized_full_manifest_schema_cannot_seed_legacy_deletion(tmp_path: Path):
+def test_unrecognized_full_manifest_fails_closed_without_mutation(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    home.mkdir()
+    (home / LEGACY_FULL_MANIFEST).write_text(json.dumps({"schema_version": 999, "profile_hashes": {}}))
+    before = state(home)
+    result = run(home)
+    assert result.returncode != 0
+    assert "not a recognized profile-ownership manifest" in result.stderr
+    assert state(home) == before
+
+
+def test_exact_current_profiles_can_be_adopted(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
     agents.mkdir(parents=True)
-    legacy = agents / "luna-worker.toml"
-    legacy_data = b"# user data that happens to match a supplied hash\n"
-    legacy.write_bytes(legacy_data)
-    (home / FULL_MANIFEST).write_text(
-        json.dumps(
-            {
-                "schema_version": 999,
-                "mode": "profile",
-                "profile_hashes": {legacy.name: sha(legacy_data)},
-            }
-        )
-    )
-
-    result = run_installer(home)
-
-    assert result.returncode == 0, result.stderr
-    assert legacy.read_bytes() == legacy_data
-    assert (agents / "codex-agent-team-worker.toml").is_file()
-
-
-def test_non_profile_full_manifest_cannot_seed_legacy_deletion(tmp_path: Path):
-    home = tmp_path / "codex-home"
-    agents = home / "agents"
-    agents.mkdir(parents=True)
-    legacy = agents / "luna-worker.toml"
-    legacy_data = b"# legacy filename under a non-profile manifest\n"
-    legacy.write_bytes(legacy_data)
-    (home / FULL_MANIFEST).write_text(
-        json.dumps(
-            {
-                "schema_version": 1,
-                "mode": "skill_only",
-                "profile_hashes": {legacy.name: sha(legacy_data)},
-            }
-        )
-    )
-
-    result = run_installer(home)
-
-    assert result.returncode == 0, result.stderr
-    assert legacy.read_bytes() == legacy_data
-    assert (agents / "codex-agent-team-worker.toml").is_file()
-
-
-def test_full_manifest_legacy_ownership_is_consumed_after_migration(tmp_path: Path):
-    home = tmp_path / "codex-home"
-    agents = home / "agents"
-    agents.mkdir(parents=True)
-    legacy_name = "luna-worker.toml"
-    legacy_data = b"# old standalone luna-worker.toml\n"
-    (agents / legacy_name).write_bytes(legacy_data)
-    (home / FULL_MANIFEST).write_text(
-        json.dumps(
-            {
-                "schema_version": 1,
-                "mode": "profile",
-                "skill_hash": "placeholder",
-                "profile_hashes": {legacy_name: sha(legacy_data)},
-            }
-        )
-    )
-
-    first = run_installer(home)
-    assert first.returncode == 0, first.stderr
-    assert not (agents / legacy_name).exists()
-    assert json.loads((home / MANIFEST).read_text())["schema_version"] == 2
-
-    (agents / legacy_name).write_bytes(legacy_data)
-    second = run_installer(home)
-
-    assert second.returncode == 0, second.stderr
-    assert (agents / legacy_name).read_bytes() == legacy_data
-    assert "no changes made" in second.stdout
-
-
-def test_exact_current_profiles_can_be_adopted_without_overwrite(tmp_path: Path):
-    home = tmp_path / "codex-home"
-    agents = home / "agents"
-    agents.mkdir(parents=True)
-    for filename in PROFILE_FILES:
+    for filename in CURRENT_FILES:
         (agents / filename).write_bytes((PROFILE_SOURCE / filename).read_bytes())
-    before = {filename: (agents / filename).read_bytes() for filename in PROFILE_FILES}
-    result = run_installer(home)
+    result = run(home)
     assert result.returncode == 0, result.stderr
-    assert (home / MANIFEST).is_file()
-    assert all((agents / filename).read_bytes() == before[filename] for filename in PROFILE_FILES)
+    assert (home / CURRENT_MANIFEST).exists()
+    assert run(home, "--check").returncode == 0
 
 
-def test_check_missing_profiles_does_not_create_codex_home(tmp_path: Path):
-    home = tmp_path / "missing-home"
-    result = run_installer(home, "--check")
+def test_check_missing_home_does_not_create_it(tmp_path: Path):
+    home = tmp_path / "missing"
+    result = run(home, "--check")
     assert result.returncode != 0
     assert not home.exists()
