@@ -34,9 +34,9 @@ Repository inspection through GitHub confirmed:
 - when both recognized historical ownership receipts exist, disjoint proven hashes are merged for migration, while conflicting hashes for the same file fail closed before mutation;
 - `docs/plugin-installation.md` documents the same one-way migration boundary and explicitly states that 0.7.0 removes the active compatibility layer;
 - there are no open pull requests;
-- four historical work branches remain, and each compares as `ahead_by: 0` against `main`, so none contains work missing from `main`.
+- remote branch cleanup is complete and `main` is the only remaining branch.
 
-The connected GitHub surface used for this review does not expose branch-ref deletion, so branch deletion itself remains a repository-hygiene action outside this evidence update. No branch was created for this maintenance pass. Clear, bounded owner-authorized maintenance is now documented to land directly on `main` by default.
+No branch was created for this maintenance pass. Clear, bounded owner-authorized maintenance is documented to land directly on `main` by default.
 
 This review is repository fact only. It does not substitute for deterministic test execution, official Plugin validation, or the live Codex checkpoints below.
 
@@ -102,4 +102,4 @@ For completion/concurrency also record child ids, start/completion times, wait s
 
 ## Adversarial consultation
 
-Use `/gpt56-sol-pro-consult` with exact target conversation `分支 · 分支 · 项目对比分析`. Exact-title unique-match is fail-closed. Consultation is model judgment only and never runtime/install evidence.
+Use `/gpt56-sol-pro-consult` with exact target conversation `R-jed/codex-delegate`. Exact-title unique-match is fail-closed. Consultation is model judgment only and never runtime/install evidence.
