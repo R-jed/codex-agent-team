@@ -13,7 +13,8 @@
       "judgment_coupled_execution",
       "technical_investigation"
     ],
-    "main_judgment_coverage": ["covered", "uncovered", "unknown"]
+    "main_judgment_coverage": ["covered", "uncovered", "unknown"],
+    "main_coverage_reference_role": "solver"
   },
   "roles": {
     "reader": {
