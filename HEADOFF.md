@@ -5,7 +5,7 @@ This is the finite live-validation and v1.0.0 release checklist for codex delega
 ## Current static baseline candidate
 
 ```text
-implementation baseline reviewed through: 68cc263bdfcbea40b56d6cbdc94fd776a7d0fd23
+implementation baseline reviewed through: 476fcb45363844e680521d6484a90a81ca1cfd24
 product: codex delegate
 repository: R-jed/codex-delegate
 marketplace/plugin id: codex-delegate
@@ -137,9 +137,10 @@ For the selected RC:
 3. start a new thread and confirm `/codex-delegate` discovery and version 0.7.0;
 4. authorize profile provisioning and prove only `codex_delegate_*` current roles are exposed;
 5. migrate a representative codex delegate 0.6.x profile/ownership generation and prove old project-named profile/manifest/role state is absent after success;
-6. test an unproven/user-modified old project-named profile and prove fail-closed, no overwrite/delete;
-7. test old public `codex-agent-team` Plugin/marketplace removal followed by current fresh install;
-8. test same-Codex-home installer races:
+6. test both recognized historical ownership receipts together: disjoint proven hashes must merge into one migration authority, while conflicting hashes for the same file must fail closed before mutation;
+7. test an unproven/user-modified old project-named profile and prove fail-closed, no overwrite/delete;
+8. test old public `codex-agent-team` Plugin/marketplace removal followed by current fresh install;
+9. test same-Codex-home installer races:
 
 ```text
 I1 two installers target the same clean CODEX_HOME
