@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Codex Delegate live behavioral result",
+  "title": "Codex Delegate Routing V4 live behavioral result",
   "type": "object",
   "required": ["schema_version", "suite", "runtime", "runs"],
   "properties": {
-    "schema_version": {"const": "3.0"},
+    "schema_version": {"const": "4.0"},
     "suite": {"const": "codex-delegate-live-behavior"},
     "runtime": {
       "type": "object",
@@ -33,7 +33,9 @@
           "repo_revision",
           "workload_definition_hash",
           "main_session_route",
-          "worker_route",
+          "main_judgment_coverage",
+          "dependency_kind",
+          "execution_route",
           "permissions_fingerprint",
           "tool_surface_fingerprint",
           "acceptance_rubric_id",
@@ -48,11 +50,12 @@
             "enum": [
               "main_session_only",
               "raw_prompt_luna",
-              "contract_luna",
-              "contract_luna_selective_sol",
-              "contract_luna_final_review_gate",
-              "contract_delta_terra",
-              "adaptive_orchestration",
+              "bounded_luna",
+              "advisor_then_luna",
+              "sol_solver",
+              "terra_delta",
+              "adaptive_routing_v4",
+              "adaptive_routing_v4_final_review",
               "external_baseline"
             ]
           },
@@ -61,7 +64,11 @@
           "repo_revision": {"type": "string", "minLength": 1},
           "workload_definition_hash": {"type": "string", "minLength": 1},
           "main_session_route": {"type": "string", "minLength": 1},
-          "worker_route": {"type": ["string", "null"]},
+          "main_judgment_coverage": {"enum": ["covered", "uncovered", "unknown"]},
+          "dependency_kind": {
+            "enum": ["evidence", "bounded_execution", "judgment", "judgment_coupled_execution", "technical_investigation", "mixed"]
+          },
+          "execution_route": {"type": ["string", "null"]},
           "permissions_fingerprint": {"type": "string", "minLength": 1},
           "tool_surface_fingerprint": {"type": "string", "minLength": 1},
           "acceptance_rubric_id": {"type": "string", "minLength": 1},
@@ -73,51 +80,33 @@
           "ready_dependencies": {"type": ["integer", "null"], "minimum": 0},
           "dependency_ids": {"type": "array", "items": {"type": "string"}},
           "runtime_slot_waits": {"type": "integer", "minimum": 0},
-          "roles": {"type": "array", "items": {"type": "string"}},
+          "roles": {"type": "array", "items": {"enum": ["reader", "worker", "solver", "investigator", "advisor"]}},
           "route_evidence_grade": {"type": ["string", "null"]},
           "policy_violations": {"type": "array", "items": {"type": "string"}},
           "scope_violations": {"type": "integer", "minimum": 0},
           "wrong_edits": {"type": "integer", "minimum": 0},
           "regressions": {"type": "integer", "minimum": 0},
+          "material_judgment_violations": {"type": "integer", "minimum": 0},
           "correction_turns": {"type": "integer", "minimum": 0},
+          "reclassification_events": {"type": "integer", "minimum": 0},
           "execution_stall_events": {"type": "integer", "minimum": 0},
           "clean_same_lane_restarts": {"type": "integer", "minimum": 0},
           "unjustified_retry_calls": {"type": "integer", "minimum": 0},
           "same_failure_without_new_evidence": {"type": "integer", "minimum": 0},
-          "intervention_gate_evaluations": {"type": "integer", "minimum": 0},
-          "interventions_taken": {"type": "integer", "minimum": 0},
-          "recovery_ledger_entries": {"type": "integer", "minimum": 0},
-          "attempt_cycle_detected": {"type": ["boolean", "null"]},
-          "proposed_recovery_action": {"type": ["string", "null"]},
-          "effective_recovery_action": {"type": ["string", "null"]},
-          "recovery_decision_source": {
-            "type": ["string", "null"],
-            "enum": [null, "deterministic_evidence", "main_session_judgment", "user_decision", "runtime_constraint", "model_judgment"]
-          },
-          "policy_transform": {"type": ["string", "null"]},
-          "child_progress_observability": {
-            "type": ["string", "null"],
-            "enum": [null, "none", "terminal_only", "periodic_summary", "structured_live"]
-          },
+          "judgment_uplift_calls": {"type": "integer", "minimum": 0},
+          "solver_calls": {"type": "integer", "minimum": 0},
+          "advisor_calls": {"type": "integer", "minimum": 0},
+          "terra_calls": {"type": "integer", "minimum": 0},
+          "redundant_sol_calls": {"type": "integer", "minimum": 0},
           "main_session_correction_tokens": {"type": ["integer", "null"], "minimum": 0},
           "main_session_correction_ms": {"type": ["integer", "null"], "minimum": 0},
           "review_findings": {"type": "integer", "minimum": 0},
           "review_caught_material_issue": {"type": ["boolean", "null"]},
           "review_false_positives": {"type": "integer", "minimum": 0},
-          "final_review_requirement": {
-            "type": ["string", "null"],
-            "enum": [null, "not_required", "required"]
-          },
-          "final_review_trigger_reasons": {
-            "type": "array",
-            "items": {"type": "string", "minLength": 1},
-            "uniqueItems": true
-          },
+          "final_review_requirement": {"type": ["string", "null"], "enum": [null, "not_required", "required"]},
+          "final_review_trigger_reasons": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
           "final_review_attempts": {"type": "integer", "minimum": 0},
-          "final_review_verdict": {
-            "type": ["string", "null"],
-            "enum": [null, "ship", "fix-first", "rethink", "insufficient_evidence", "incomplete", "declined"]
-          },
+          "final_review_verdict": {"type": ["string", "null"], "enum": [null, "ship", "fix-first", "rethink", "insufficient_evidence", "incomplete", "declined"]},
           "final_review_gate_satisfied": {"type": ["boolean", "null"]},
           "review_artifact_verify_failures": {"type": "integer", "minimum": 0},
           "post_review_mutations": {"type": "integer", "minimum": 0},
@@ -133,28 +122,6 @@
           "duplicate_dependency_calls": {"type": "integer", "minimum": 0},
           "notes": {"type": ["string", "null"]}
         },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "mode": {
-                  "enum": [
-                    "raw_prompt_luna",
-                    "contract_luna",
-                    "contract_luna_selective_sol",
-                    "contract_luna_final_review_gate"
-                  ]
-                }
-              },
-              "required": ["mode"]
-            },
-            "then": {
-              "properties": {
-                "worker_route": {"type": "string", "minLength": 1}
-              }
-            }
-          }
-        ],
         "additionalProperties": true
       }
     }
