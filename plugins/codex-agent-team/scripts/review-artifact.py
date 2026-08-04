@@ -83,16 +83,39 @@ def head_identity(root: Path) -> str:
         if not value:
             fail("Git returned an empty HEAD identity")
         return value
-    return "UNBORN"
+
+    symbolic = subprocess.run(
+        ["git", "-C", os.fspath(root), "symbolic-ref", "-q", "HEAD"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if symbolic.returncode == 0 and symbolic.stdout.strip():
+        return "UNBORN"
+
+    detail = result.stderr.decode(errors="replace").strip()
+    fail(f"could not resolve HEAD: {detail or f'exit {result.returncode}'}")
 
 
 def tracked_diff_digest(root: Path, head: str) -> str:
+    common = (
+        "diff",
+        "--binary",
+        "--full-index",
+        "--no-color",
+        "--no-ext-diff",
+        "--no-textconv",
+        "--no-renames",
+        "--ignore-submodules=none",
+        "--src-prefix=a/",
+        "--dst-prefix=b/",
+    )
     if head == "UNBORN":
         # In an unborn repository every staged tracked file is part of the candidate.
-        diff = git(root, "diff", "--binary", "--no-ext-diff", "--cached", "--")
+        diff = git(root, *common, "--cached", "--")
     else:
         # `git diff HEAD` binds both staged and unstaged tracked changes.
-        diff = git(root, "diff", "--binary", "--no-ext-diff", "HEAD", "--")
+        diff = git(root, *common, "HEAD", "--")
     return sha256(diff)
 
 
@@ -110,15 +133,16 @@ def digest_untracked(root: Path, raw_path: bytes) -> dict[str, str]:
     except OSError as exc:
         fail(f"could not stat untracked path {relative!r}: {exc}")
 
-    mode = stat.S_IFMT(info.st_mode)
-    if stat.S_ISREG(mode):
+    if stat.S_ISREG(info.st_mode):
         kind = "file"
+        git_mode = "100755" if info.st_mode & 0o111 else "100644"
         try:
             digest = sha256(path.read_bytes())
         except OSError as exc:
             fail(f"could not read untracked file {relative!r}: {exc}")
-    elif stat.S_ISLNK(mode):
+    elif stat.S_ISLNK(info.st_mode):
         kind = "symlink"
+        git_mode = "120000"
         try:
             target = os.readlink(path)
         except OSError as exc:
@@ -130,12 +154,12 @@ def digest_untracked(root: Path, raw_path: bytes) -> dict[str, str]:
     return {
         "path": os.fsdecode(raw_path),
         "kind": kind,
+        "mode": git_mode,
         "sha256": digest,
     }
 
 
-def build_receipt(repo: Path) -> dict:
-    root = repository_root(repo.expanduser().resolve())
+def build_receipt_once(root: Path) -> dict:
     head = head_identity(root)
     diff_sha = tracked_diff_digest(root, head)
     untracked = [digest_untracked(root, path) for path in untracked_paths(root)]
@@ -150,13 +174,26 @@ def build_receipt(repo: Path) -> dict:
         canonical_state,
         sort_keys=True,
         separators=(",", ":"),
-        ensure_ascii=False,
-    ).encode("utf-8")
+        ensure_ascii=True,
+    ).encode("ascii")
 
     return {
         **canonical_state,
         "review_artifact_id": f"sha256:{sha256(canonical_bytes)}",
     }
+
+
+def build_receipt(repo: Path) -> dict:
+    root = repository_root(repo.expanduser().resolve())
+    first = build_receipt_once(root)
+    second = build_receipt_once(root)
+    if first != second:
+        fail("workspace changed while review artifact identity was being captured; retry from a quiescent state")
+    return second
+
+
+def emit(receipt: dict) -> None:
+    print(json.dumps(receipt, indent=2, sort_keys=True, ensure_ascii=True))
 
 
 def main() -> None:
@@ -165,13 +202,13 @@ def main() -> None:
     current = receipt["review_artifact_id"]
 
     if args.verify is not None and current != args.verify:
-        print(json.dumps(receipt, indent=2, sort_keys=True, ensure_ascii=False))
+        emit(receipt)
         fail(
             f"review artifact changed: expected {args.verify}, current {current}",
             code=2,
         )
 
-    print(json.dumps(receipt, indent=2, sort_keys=True, ensure_ascii=False))
+    emit(receipt)
 
 
 if __name__ == "__main__":
