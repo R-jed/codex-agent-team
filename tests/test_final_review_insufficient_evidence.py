@@ -19,7 +19,7 @@ def test_gate_keeps_insufficient_evidence_unresolved():
     gate = GATE.read_text()
     assert "INSUFFICIENT_EVIDENCE" in gate
     assert "unresolved" in gate.lower()
-    assert "not `fix-first`" in gate
+    assert "not as `fix-first`" in gate
     assert "current artifact receives `ship`" in gate
 
 

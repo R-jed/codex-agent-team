@@ -38,7 +38,15 @@ def test_current_advisor_route_matches_policy_and_is_fresh():
 
 def test_review_lifecycle_remains_fail_closed_and_artifact_bound():
     gate = (REFS / "final-review-gate.md").read_text()
-    for phrase in ["review_artifact_id", "review-artifact.py", "ship", "fix-first", "rethink", "INSUFFICIENT_EVIDENCE", "Any deliverable mutation invalidates the old verdict"]:
+    for phrase in [
+        "review_artifact_id",
+        "review-artifact.py",
+        "ship",
+        "fix-first",
+        "rethink",
+        "INSUFFICIENT_EVIDENCE",
+        "Any deliverable mutation after a `ship` verdict invalidates that verdict",
+    ]:
         assert phrase in gate
     assert contract()["final_review"]["completion_verdicts"] == ["ship", "fix-first", "rethink"]
     assert contract()["final_review"]["unresolved_verdict"] == "insufficient_evidence"
