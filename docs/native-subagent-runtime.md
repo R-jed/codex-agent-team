@@ -13,26 +13,30 @@ The project does not create a second Agent runtime, persistent scheduler, custom
 | expose some capacity/wait/update surface | use available capacity without inventing a product hard ceiling |
 | close/interrupt/inspect threads when supported | process completed work promptly and recover slots |
 | custom Agent configuration | require exact semantic project roles |
-| tool/sandbox behavior | add one-writer and runtime-evidence safety rules |
+| tool/sandbox behavior | add current-session writer ownership and runtime-evidence safety rules |
 | child output/progress | treat reports as claims until artifacts/evidence are checked |
 
 ## Main-session model evidence
 
 Routing V4 distinguishes authority from judgment capability.
 
-The main session always remains the control plane. When material judgment is unresolved, trusted current-session metadata may establish whether ordinary Sol-level judgment capability is already present:
+The main session always remains the control plane. `policy-contract.json` declares `classification.main_coverage_reference_role`, and the runtime verifier derives the current judgment reference model from that role rather than maintaining another hard-coded model identity.
+
+When material judgment is unresolved, trusted current-session metadata may establish:
 
 ```text
-covered   -> complete native metadata identifies GPT-5.6 Sol family
+covered   -> complete native metadata matches the policy-owned judgment reference family
 uncovered -> complete native metadata identifies another model family
 unknown   -> metadata is missing, partial, local-only, or conflicted
 ```
+
+The current reference role is Solver, currently GPT-5.6 Sol `high`.
 
 Use `plugins/codex-delegate/scripts/runtime-evidence.py` with `subject: main_session` to normalize that evidence.
 
 Do not infer the main model from child profiles, repository files, cached state, or another Agent's statement. Do not ask for or inspect main-route metadata merely for routine bounded work. Unknown coverage is a conservative routing state, not a reason to always spawn Sol.
 
-A `covered` Sol main session suppresses redundant capability-uplift Sol calls for normal judgment and judgment-coupled execution. It does not satisfy a required fresh independent Final Review of the integrated candidate.
+Covered main judgment capability suppresses redundant capability-uplift Sol calls for normal judgment and judgment-coupled execution. It does not satisfy a required fresh independent Final Review of the integrated candidate.
 
 ## Completion-driven scheduling contract
 
@@ -87,9 +91,9 @@ Avoid model-mediated busy polling. Prefer native blocking wait/update mechanisms
 
 ## Main-session work while children run
 
-When the native surface allows it, the main session may continue independent work while children run, such as preparing acceptance checks, integrating another completed dependency, or resolving a separate judgment it already covers.
+When the native surface allows it, the main session may continue independent work while children run, such as preparing acceptance checks, integrating a completed read-only dependency, or resolving a separate judgment it already covers.
 
-It must not duplicate a child's owned dependency or create conflicting writes merely to appear busy.
+It must not duplicate a child's owned dependency. If Worker or Solver owns a writing dependency in the same canonical checkout, main-session work in that checkout remains read-only until a clear writer-ownership handoff occurs. Main may write concurrently only in a genuinely isolated workspace.
 
 ## Adaptive capacity
 
@@ -184,14 +188,17 @@ main session -> child
 child -> no further project delegation
 ```
 
-One canonical physical checkout has at most one active writing **project Agent**. Current writing roles are:
+One canonical physical checkout has at most one active writing actor inside the current orchestration:
 
 ```text
+main session while mutating the checkout
 codex_delegate_worker
 codex_delegate_solver
 ```
 
-Multiple project writers require genuine filesystem isolation such as runtime-backed worktrees/workspaces or independent repositories.
+A child writer and the main session do not concurrently mutate the same checkout. Transfer writer ownership at a clear dependency boundary. Multiple simultaneous writers require genuine filesystem isolation such as runtime-backed worktrees/workspaces or independent repositories.
+
+This session-local policy cannot exclude another Codex session, editor, hook, or process. External drift remains an observed runtime/workspace condition and writing responsibilities fail closed when it invalidates their contract.
 
 Read-only children may fan out across independent dependencies when consent and native capacity allow.
 
@@ -203,6 +210,6 @@ Do not assume close/wait operations are instantaneous or nonblocking. If a teste
 
 ## User-facing takeaway
 
-Codex Delegate controls **what unresolved responsibility should run where** and **when newly available capacity should be used**. Native Codex controls **how the main session and child threads actually execute and which route/completion/progress signals exist**.
+Codex Delegate controls **what unresolved responsibility should run where**, **who owns writes in a checkout**, and **when newly available capacity should be used**. Native Codex controls **how the main session and child threads actually execute and which route/completion/progress signals exist**.
 
 That distinction is why routing quality cannot be reduced to model prestige, cheaper tokens, or more Agent slots alone.
