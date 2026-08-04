@@ -1,82 +1,77 @@
-# Live behavioral evaluation protocol
+# Live Behavioral Evaluation Protocol
 
-Static tests prove repository contracts, packaging, profile lifecycle, schemas, and deterministic tooling. They do not prove task quality, model value, native capacity, or Final Review Gate yield on a real Codex runtime.
+Static tests prove repository contracts, packaging, profile lifecycle, schemas, and deterministic tooling. They do not prove model quality, cost, native runtime behavior, or the value of a routing choice.
 
-Behavioral evaluation therefore uses controlled live runs over frozen workloads.
+Routing V4 therefore uses paired live workloads to test the architecture's hypotheses rather than assuming Luna, Terra, or Sol superiority.
 
 ## Primary product questions
 
-The live suite answers four distinct questions:
+The live suite asks:
 
-1. Does compiling a bounded Delegation Contract improve execution versus giving the same prompt directly to Luna?
-2. Does adaptive dependency scheduling reduce duplicate work without reducing correctness?
-3. Does Terra delta escalation reduce rework when a real capability gap exists?
-4. Does optional or mandatory Fresh Sol review catch material issues at acceptable false-positive/cost levels?
+1. Does restricting Luna to genuinely bounded execution reduce correction work versus giving Luna the raw task?
+2. For judgment-coupled implementation on a non-Sol main, does Sol Solver outperform an Advisor -> Luna handoff in total quality/correction cost?
+3. When the main session is already Sol, does keeping normal judgment-coupled work in main avoid redundant Sol calls without reducing outcome quality?
+4. When the main route is unknown, does Routing V4 avoid buying Sol for routine bounded work while still protecting material judgment?
+5. Does evidence-driven reclassification prevent weak Luna execution from becoming blind Luna retry or false Terra escalation?
+6. Does Terra delta investigation add value only for real difficult technical uncertainty after semantics stabilize?
+7. Does consequence-driven Final Review catch material issues while avoiding decorative review caused only by process history?
 
-These questions must not be collapsed into one global “better mode” score.
+These questions remain separate. Do not collapse them into one global mode score.
 
 ## Comparison modes
 
-Schema `3.0` currently recognizes:
+Schema `4.0` recognizes:
 
 ```text
 main_session_only
 raw_prompt_luna
-contract_luna
-contract_luna_selective_sol
-contract_luna_final_review_gate
-contract_delta_terra
-adaptive_orchestration
+bounded_luna
+advisor_then_luna
+sol_solver
+terra_delta
+adaptive_routing_v4
+adaptive_routing_v4_final_review
 external_baseline
 ```
 
-`contract_luna_selective_sol` measures optional review. `contract_luna_final_review_gate` measures the mandatory risk-triggered acceptance path. Keep those populations separate.
+The mode is the experimental strategy. `execution_route` records the actual primary execution route and may differ across paired strategies by design.
 
-## Freeze the executable workload
+## Freeze controlled inputs
 
-Before the first run in a pair, freeze and record:
+Before the first run in a pair, freeze:
 
 ```text
 exact user prompt bytes
 repository + base revision
-required setup / starting state
-acceptance rubric + rubric id
+setup / starting state
+acceptance rubric + id
 allowed verification commands
 main-session route
-Worker route when applicable
+main_judgment_coverage
 permissions / approval posture
-available tool surface
+tool surface
 Codex runtime version
 ```
 
-Hash that frozen definition into `workload_definition_hash`. If a controlled input changes, create a new pair id and hash.
-
-The registry in `evals/behavioral-workloads.json` defines experiment shapes. It does not claim benchmark results.
-
-## Pairing rules
+Hash the frozen definition into `workload_definition_hash`. If a controlled input changes, create a new pair id/hash.
 
 Paired runs must keep these controls identical:
 
 ```text
-workload_id / frozen workload definition
-repo_revision
-repeat_index
 workload_definition_hash
 main_session_route
-worker_route when applicable
+main_judgment_coverage
 permissions_fingerprint
 tool_surface_fingerprint
 acceptance_rubric_id
-runtime conditions
+repo_revision / repeat_index
 ```
 
-The scorer rejects mixed controls, duplicate modes, mixed Worker routes, and pairs that do not match the workload's declared `primary_comparison`.
-
-Do not compare repository-wide mode averages across different workload mixes. Global mode aggregates are descriptive only.
+Do not require the same `execution_route` across a pair. The whole purpose of several Routing V4 experiments is to compare different execution placements under the same task and main-session conditions.
 
 ## Core metrics
 
-Record when available:
+Record only telemetry actually available.
 
 ### Outcome
 
@@ -86,32 +81,37 @@ acceptance_score
 scope_violations
 wrong_edits
 regressions
+material_judgment_violations
 ```
 
-### Resource use
+### Routing / correction
 
 ```text
 agent_count
 peak_active_children
-ready_dependencies
-runtime_slot_waits
-input_tokens
-output_tokens
-reasoning_tokens
-latency_ms
-consent_prompts
-```
-
-### Recovery / correction
-
-```text
+reclassification_events
 correction_turns
 execution_stall_events
 clean_same_lane_restarts
 unjustified_retry_calls
 same_failure_without_new_evidence
+judgment_uplift_calls
+solver_calls
+advisor_calls
+terra_calls
+redundant_sol_calls
+```
+
+### Resource use
+
+```text
+input_tokens
+output_tokens
+reasoning_tokens
+latency_ms
 main_session_correction_tokens
 main_session_correction_ms
+consent_prompts
 ```
 
 ### Evidence efficiency
@@ -124,7 +124,7 @@ unjustified_repeated_discovery
 duplicate_dependency_calls
 ```
 
-### Review
+### Independent review
 
 ```text
 review_findings
@@ -139,134 +139,129 @@ review_artifact_verify_failures
 post_review_mutations
 ```
 
-Missing telemetry remains `null` where permitted. Never estimate unavailable token, latency, runtime, or route data.
+Missing telemetry stays `null` where allowed. Never estimate unavailable tokens, route facts, latency, or runtime observability.
 
-## Contract experiment
+## Experiment A: bounded Luna
 
 Primary comparison:
 
 ```text
 raw_prompt_luna
 vs
-contract_luna
+bounded_luna
 ```
 
-Use the same Luna route and frozen task. Measure correctness, scope discipline, correction work, evidence reuse, tokens/latency when exposed, and repeated commands/discovery.
+Use the same Luna route and frozen task. The candidate must be a true `bounded_execution` dependency whose material behavior decisions are already resolved.
 
-The hypothesis is that a bounded contract improves execution quality or correction cost. Do not assume the result.
+Measure correctness, scope discipline, judgment violations, correction work, repeated discovery, and total resource use.
 
-## Adaptive scheduling experiment
+## Experiment B: judgment-coupled implementation on non-Sol main
 
-Use at least five genuinely independent read-only dependencies.
+Primary comparison:
 
 ```text
-A: broad fan-out not authorized
--> normal consent boundary applies
-
-B: broad fan-out explicitly authorized
--> no Codex Delegate hard child ceiling; native capacity determines the wave and excess work queues
+advisor_then_luna
+vs
+sol_solver
 ```
 
-Record ready dependencies, peak children, observed child capacity, slot waits, duplicate dependency calls, and consent prompts.
+Use a workload where implementation repeatedly exposes consequential semantic choices that cannot be safely decided once up front.
 
-One runtime observation does not establish a universal Codex capacity limit.
+The test asks whether a write-capable Sol dependency avoids repeated handoff/review loops. Do not assume Solver wins; measure outcome quality, correction turns, tokens, latency, and judgment violations.
 
-## Intervention / clean-restart experiment
+## Experiment C: Sol main capability reuse
 
-Create a bounded responsibility where the same deterministic failure can persist across materially similar attempts.
-
-Compare an unchanged retry/context-accumulation baseline with evidence-guided recovery.
-
-Valid evidence-guided outcomes include:
+On the same judgment-coupled workload with trusted Sol main-session coverage compare:
 
 ```text
-focused correction
-clean same-lane restart
-Terra delta escalation
-main-session contract repair or judgment
+main_session_only
+vs
+sol_solver
 ```
 
-Measure repeated commands/discovery, unchanged retries, acceptance quality, and main-session correction cost. Do not encode a universal retry-count threshold.
+The hypothesis is that an extra Sol child is redundant when it exists only for capability uplift. Record `redundant_sol_calls` and total compute alongside acceptance quality.
 
-## Terra delta experiment
+This experiment does not apply to independent Final Review, which intentionally requires a second fresh context.
 
-Use Terra only when the workload exposes a concrete technical capability gap.
+## Experiment D: unknown main route
+
+For routine bounded work with `main_judgment_coverage = unknown`, compare bounded Luna against an unnecessary Sol Solver strategy.
+
+The purpose is to verify that unknown main identity does not automatically become “always buy Sol.”
+
+Separately exercise a material judgment workload under unknown coverage to ensure Routing V4 still requests Sol capability when the dependency genuinely requires it.
+
+## Experiment E: reclassification
+
+Create a task that begins as valid bounded execution and later exposes material semantic uncertainty.
+
+Compare continuing the original Luna responsibility with `adaptive_routing_v4`, which must preserve current evidence and reclassify the same dependency rather than restart the whole task.
+
+Measure wrong edits, correction turns, repeated work, and whether the unresolved delta narrows.
+
+## Experiment F: Terra technical delta
+
+Only use a workload where desired semantics are already fixed and evidence isolates a difficult technical question.
+
+Compare a broad stronger restart baseline with:
+
+```text
+Terra receives only the technical delta
++ current artifact
++ valid evidence
++ factual failure signature
++ DO NOT REDO facts
+```
+
+Measure duplicate work, correction cost, and final correctness.
+
+Also test a false technical-gap case where semantics are unresolved; Routing V4 must return to judgment rather than send the ambiguity to Terra.
+
+## Experiment G: consequence-driven Final Review
+
+Use two populations.
+
+### Required review
+
+Exercise semantic triggers such as public contract, security, authorization, concurrency, persistent state, data integrity, material migration, explicit user request, or verification gap.
+
+Record the full artifact-bound lifecycle:
+
+```text
+Candidate Ready
+-> review_artifact_id
+-> fresh Sol Advisor
+-> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
+```
+
+### Process-history negative control
+
+Use a candidate where Terra/Solver/recovery happened but no semantic trigger or material verification gap remains.
 
 Compare:
 
 ```text
-whole-task restart with stronger investigation
+adaptive_routing_v4
 vs
-Terra receives unresolved delta + valid evidence + current artifact + failure signature + DO NOT REDO
+adaptive_routing_v4_final_review
 ```
 
-Measure duplicate work, correction cost, latency/tokens when available, and final correctness.
-
-## Optional Sol experiment
-
-Use `contract_luna_selective_sol` for consequential diffs where deterministic verification is already strong but independent judgment may add value.
-
-Compare with Luna-only/contract execution on the same frozen workload. Measure material catches, false positives, correction work, latency/tokens, and acceptance.
-
-Fresh context is a design choice to reduce anchoring. It is not evidence that Sol is automatically correct or independent.
-
-## Mandatory Final Review Gate experiment
-
-Use `contract_luna_final_review_gate` only when a semantic trigger makes independent review part of completion.
-
-Record the full lifecycle:
-
-```text
-main-session verification
--> final_review_requirement = required
--> Candidate Ready
--> review_artifact_id
--> fresh Advisor review
--> ship | fix-first | rethink
-```
-
-Also test:
-
-```text
-INSUFFICIENT_EVIDENCE
--> gate remains unresolved
-
-fix-first
--> correction + re-verification + new artifact id + new fresh review
-
-rethink
--> invalidate affected architecture/contract assumptions
-
-post-review deliverable mutation
--> artifact verification fails and old ship no longer satisfies the gate
-
-implicit invocation + declined required Sol call
--> Candidate Ready remains, gate_satisfied = false
-```
-
-Measure review attempts, material catches, false positives, artifact verification failures, post-review mutations, and gate satisfaction.
-
-A useful review-yield metric is:
-
-```text
-material review catches / final review attempts
-```
-
-Interpret it only with workload mix and false positives. A high yield from intentionally adversarial workloads is not a production-rate claim.
+This measures the cost and false-positive risk of decorative review. Process history must not be treated as a trigger by itself.
 
 ## Main-session correction cost
 
-Model price alone is not workflow cost. Track:
+Workflow cost is:
 
 ```text
-Worker compute
-+ main-session planning
+execution compute
++ main-session planning/integration
 + deterministic verification
-+ correction/recovery work
-+ optional investigation/review
++ correction/reclassification work
++ specialist investigation
++ independent review when justified
 ```
 
-This is why `main_session_correction_tokens` and `main_session_correction_ms` remain first-class metrics.
+Model price alone is not workflow cost.
 
 ## Scoring
 
@@ -274,12 +269,10 @@ This is why `main_session_correction_tokens` and `main_session_correction_ms` re
 python scripts/score-behavioral-evals.py path/to/result.json
 ```
 
-The scorer validates schema and controlled pairing first. Paired candidate-minus-baseline deltas are the primary comparison output. Workload/mode summaries are descriptive inventory.
-
-The scorer must never manufacture missing telemetry.
+The scorer validates schema and controlled pairing first. Primary candidate-minus-baseline deltas are produced only for each workload's declared pair. Cross-workload mode aggregates are descriptive inventory and must not be treated as a controlled comparison.
 
 ## Release evidence rule
 
-Do not claim that Codex Delegate reduces cost, improves correctness, prevents rework, increases safe concurrency, or makes review more valuable unless named live workloads on named runtime versions support that claim.
+Do not claim that Routing V4 improves quality, reduces cost, prevents rework, makes Sol Solver superior, makes Terra beneficial, or improves review efficiency until named live workloads on named runtime versions support that claim.
 
-Luna Max remains the v1 execution baseline. Terra XHigh and Sol High remain role-route hypotheses whose value must be demonstrated on representative workloads.
+The architecture defines where each role is allowed to operate. Behavioral evidence determines whether those routing hypotheses deliver user value in practice.
