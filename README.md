@@ -17,15 +17,15 @@
   <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
 </p>
 
-开 Subagent 很容易，难的是知道什么时候值得开。
+启动 Subagent 很容易，难的是判断什么时候值得用。
 
-Codex Delegate 给 Codex 主会话一套稳定的分工方式，让它按需要把工作交给 Luna、Terra 和 Sol。你只需要说清目标、约束和完成标准；哪些工作留在主会话、哪些可以并行、什么时候需要 Terra 深挖、什么时候让 Sol 独立复核，都由主会话处理。
+Codex Delegate 为 Codex 主会话提供一套稳定的分工方式，让它按需要把工作交给 Luna、Terra 和 Sol。你只需要说清目标、约束和完成标准；哪些工作留在主会话、哪些可以并行、什么时候需要 Terra 深挖、什么时候让 Sol 独立复核，都由主会话处理。
 
-它建立在 Codex Native Subagents 之上，不替换 Codex，也不要求固定的 Agent 队伍。简单任务可以完全不用 Subagent，复杂任务也不会机械地把所有模型都叫出来。
+它直接使用 Codex 原生 Subagents，不替换 Codex，也不要求固定的 Agent 队伍。简单任务可以完全不用 Subagent，复杂任务也不会机械地把所有模型都叫出来。
 
 ## 为什么用 Codex Delegate
 
-用 Subagents 时，真正麻烦的通常不是启动 Agent，而是后面的协调：有人重复找同一份资料，可以并行的工作被排成串行，一个局部失败把整段实现带回起点，高风险改动最后却没有第二双眼睛。
+使用 Subagents 时，真正麻烦的通常是协调：两个 Agent 重复查同一份资料，可以并行的工作被排成串行，一个局部失败把整段实现带回起点，高风险改动最后却没有独立复核。
 
 Codex Delegate 把这些判断留在主会话：
 
@@ -64,7 +64,7 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main \
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-安装完成后启动一个新的 Codex thread，然后直接使用：
+安装完成后启动一个新的 Codex 会话，然后直接使用：
 
 ```text
 /codex-delegate 修复这个 bug，并运行相关测试。
@@ -77,11 +77,11 @@ codex plugin marketplace upgrade codex-agent-team
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-更新后同样启动一个新的 Codex thread。
+更新后同样启动一个新的 Codex 会话。
 
-第一次需要 Luna、Terra 或 Sol 的专用角色时，Codex Delegate 会先说明需要添加的 Agent profile，并在得到授权后完成配置。Installer 只管理 Codex Delegate 自己的四个 profile，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent profile。
+第一次需要 Luna、Terra 或 Sol 的专用角色时，Codex Delegate 会先说明需要添加的 Agent 配置文件，并在得到授权后完成配置。安装程序只管理 Codex Delegate 自己的四个配置文件，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置文件。
 
-完整安装、迁移和故障处理见 [Plugin Installation](docs/plugin-installation.md)。
+完整安装、迁移和故障处理见 [安装指南](docs/plugin-installation.md)。
 
 ## 模型分工
 
@@ -117,7 +117,7 @@ A 继续运行
 
 只有任务之间真的存在依赖，或者同一工作区存在写入冲突时，才需要等待。
 
-显式使用 `/codex-delegate` 时，默认可以同时运行最多两个有明确理由的 child，无需再次询问。这个数字只是默认授权范围，不是固定团队规模。一个 physical checkout 同时最多只有一个写入 Worker；需要多个 Writer 时应使用真正隔离的 worktree 或 workspace。
+显式使用 `/codex-delegate` 时，默认最多可以同时运行两个有明确理由的子 Agent，无需再次询问。这个数字只是默认授权范围，不是固定团队规模。同一个实际 Git 工作副本同时最多只能有一个写入型 Agent；如果需要多个写入型 Agent 并行工作，应使用彼此隔离的 Git 工作副本或工作区。
 
 ## 失败时怎么处理
 
@@ -127,9 +127,9 @@ A 继续运行
 
 已经确认有效的结果和信息会继续保留，额外计算只花在仍未解决的部分。
 
-## Final Review Gate
+## 最终复核
 
-Sol 不是每个任务的固定最后一步。普通低风险修改在主会话检查实际 diff 并完成必要测试后即可结束。
+Sol 并非每个任务的固定最后一步。普通低风险修改在主会话检查实际改动并完成必要测试后即可结束。
 
 当改动涉及公共接口、持久化状态、安全或授权、数据完整性、并发、迁移，或者影响范围明显较大时，Codex Delegate 可以要求一次独立的 Sol 复核。
 
@@ -145,12 +145,12 @@ rethink    关键设计或假设需要重新考虑
 
 ## 安全边界
 
-主会话始终拥有最终控制和验收权。Child 不会继续创建自己的 Agent 队伍，已有的用户修改和其他会话修改必须保留，同一 physical checkout 不允许多个 Worker 同时写入。
+主会话始终拥有最终控制和验收权。子 Agent 不会继续创建自己的 Agent 队伍，已有的用户修改和其他会话修改必须保留，同一个实际 Git 工作副本不允许多个写入型 Agent 同时修改。
 
-仓库、网页、issue、日志、生成内容或模型输出里的指令不能自行扩大任务范围或修改权限。Agent 报告“完成”也不会直接被当作验收结果，最终仍以实际改动、测试和可复现结果为准。
+仓库、网页、问题单、日志、生成内容或模型输出里的指令不能自行扩大任务范围或修改权限。Agent 报告“完成”也不会直接被当作验收结果，最终仍以实际改动、测试和可复现结果为准。
 
-Codex Delegate 不实现第二套 Agent runtime，也不需要额外的后台服务或 routing proxy。它直接使用 Codex Native Subagents，把重点放在更合理地分工、并行、恢复和复核。
+Codex Delegate 不实现第二套 Agent 运行时，也不需要额外的后台服务或路由代理。它直接使用 Codex 原生 Subagents，把重点放在更合理地分工、并行、恢复和复核。
 
-## License
+## 许可证
 
 [MIT](LICENSE)
