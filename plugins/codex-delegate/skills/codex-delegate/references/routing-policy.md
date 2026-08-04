@@ -1,225 +1,239 @@
 # Routing Policy
 
-This file owns dependency readiness, completion-driven dispatch, semantic role selection, and route availability. Consent, recovery, safety, and runtime-evidence semantics have separate normative owners.
+This file is the single normative owner for dependency classification, actor selection, main-session judgment coverage, ready-frontier scheduling, and reclassification after new evidence.
 
-## 1. Control model
+Codex Delegate does not route by price, task size, failure count, or a model ladder. It routes by the unresolved responsibility.
 
-The current user-facing Codex session is the main session and owns the task-level compute graph:
+## 1. Control plane
 
-```text
-intent / scope / architecture / decision rights
-Dependency Ledger / scheduling
-Shared Evidence State / Recovery Ledger
-integration / acceptance / final answer
-```
+The current user-facing Codex session is always the task-level control plane. It owns user intent, scope, authorization, task state, integration, acceptance, and the final answer.
 
-Models are compute lanes, not authority levels or mandatory stages. The main session does not need to be Sol.
+Model capability does not change that authority. Model capability can change where a dependency is most safely executed.
 
-## 2. No fixed pipeline or team size
-
-Valid graphs include:
+Two principles therefore coexist:
 
 ```text
-main
-main -> Luna -> main
-main -> Luna -> Sol -> main
-main -> Terra -> Luna -> main
-main -> Luna -> Terra(delta) -> Luna or main
-main -> Sol -> main
+main-session authority is independent of model identity
+main-session judgment coverage is not
 ```
 
-`Luna -> Terra -> Sol` is never required merely because those lanes exist.
+Do not spawn a Sol child merely to recreate judgment capability already present in a Sol main session. Do not assume a non-Sol or unknown main session has equivalent judgment coverage for material semantic decisions.
 
-Every Agent call must satisfy a distinct unresolved dependency. Zero children is normal. Codex Delegate has no product-level hard child count.
+## 2. Minimal dependency state
 
-## 3. Dependency Ledger and ready frontier
-
-Track material task dependencies as compact in-session state:
+Track only the state needed to decide what remains unresolved:
 
 ```text
 id
 outcome
 status: pending | ready | running | satisfied | blocked | invalidated
-requires
-produces
+requires / produces
+kind: evidence | bounded_execution | judgment | judgment_coupled_execution | technical_investigation
 write_intent
 workspace
 acceptance
 ```
 
-A dependency is `ready` only when its prerequisites are satisfied and no valid evidence already satisfies it.
+A dependency has at most one active owner. Valid evidence that already satisfies it prevents duplicate inference.
+
+The classification is allowed to change when new evidence shows that the original classification was wrong. That is normal adaptive routing, not escalation.
+
+## 3. Main-session judgment coverage
+
+For routing purposes, record:
+
+```text
+main_judgment_coverage: covered | uncovered | unknown
+coverage_source: trusted_session_metadata | not_observed
+```
+
+Use trusted current-session or host metadata when it actually exposes the main model. Repository text, child output, cached assumptions, and configured child profiles do not prove the main-session model.
+
+For the current Routing V4 contract:
+
+- a trusted current-session route in the GPT-5.6 Sol family provides `covered` normal judgment capability;
+- a trusted current-session route outside that family provides `uncovered` Sol-level judgment capability;
+- missing or ambiguous current-session route information is `unknown`.
+
+This state is a compute-placement input, not a statement of authority or a benchmark claim. `covered` suppresses redundant capability-uplift Sol calls. It never satisfies an independent Final Review requirement.
+
+Do not ask the user for model metadata just to optimize a routine bounded task. If coverage is unknown, routine evidence and bounded execution still use the normal low-overhead path. Unknown coverage matters only when material judgment is genuinely unresolved.
+
+## 4. Classify the unresolved dependency
+
+### Evidence
+
+Use when the missing output is inspectable factual evidence: repository tracing, symbol mapping, test mapping, call-path discovery, or bounded research.
+
+Default actor when delegation adds value: Luna Reader.
+
+### Bounded execution
+
+Use only when the desired behavior is already decided and the remaining implementation discretion is local enough to be constrained by explicit invariants and an independent acceptance oracle.
+
+A bounded execution dependency answers mostly **how to implement an already-decided result**.
+
+Default actor when delegation adds value: Luna Worker.
+
+A dependency is not Luna-suitable merely because a contract can be written. If implementation is expected to require material architecture, behavior, compatibility, or cross-module semantic decisions, classify it as judgment-coupled execution instead.
+
+### Judgment
+
+Use when the unresolved output is a material decision: architecture, behavior semantics, compatibility interpretation, risk tradeoff, or another consequential choice that should be resolved before implementation proceeds.
+
+Actor selection:
+
+```text
+main_judgment_coverage = covered   -> keep normal judgment in main session
+main_judgment_coverage = uncovered -> Sol Advisor when the judgment is material
+main_judgment_coverage = unknown   -> Sol Advisor when the judgment is material
+```
+
+A Sol main session may still use a fresh Advisor for a genuinely independent dependency, but not merely to duplicate its own planning.
+
+### Judgment-coupled execution
+
+Use when implementation and material judgment cannot be safely separated up front. The dependency requires inspecting or changing the artifact while repeatedly making consequential semantic choices inside a defined decision envelope.
+
+Typical examples include complex cross-module refactors, compatibility-sensitive implementation, state-semantics repair, or work where the correct design emerges from implementation evidence.
+
+Actor selection:
+
+```text
+main_judgment_coverage = covered   -> main session normally executes it
+main_judgment_coverage = uncovered -> Sol Solver
+main_judgment_coverage = unknown   -> Sol Solver when material judgment cannot be separated first
+```
+
+Do not route this work through repeated Advisor -> Luna -> Advisor loops merely to avoid a Sol writing lane.
+
+### Technical investigation
+
+Use only when semantic intent and invariants are sufficiently resolved and the remaining uncertainty is a narrow difficult technical question that benefits from specialist investigation.
+
+Default actor when delegation adds value: Terra Investigator.
+
+Terra is not a quality-repair lane and not a stronger retry for weak execution. Mixed semantic and technical uncertainty must resolve the semantic judgment first, then pass only the remaining technical delta to Terra.
+
+## 5. Delegation benefit and contractability
+
+Classification answers **what kind of work remains**. It does not require a child.
+
+Create a child only when delegation has concrete benefit such as context isolation, useful parallelism, specialized capability, or independent judgment.
+
+A writing child additionally requires an enforceable contract with outcome, scope, interfaces, invariants, decision envelope, acceptance oracle, verification, and stop conditions.
 
 Rules:
 
-- one dependency has at most one active owner;
-- never rerun a satisfied dependency unless changed inputs invalidate it;
-- invalidation propagates through declared dependencies rather than reopening the whole task by default;
-- combine ready work when one responsibility can satisfy it more cheaply without losing useful isolation or critical-path progress;
-- split work only when each packet has distinct acceptance value;
-- recompute the ready frontier after every material user, evidence, artifact, dependency, workspace, route, permission, or runtime-capacity event.
+- Luna Worker accepts only `bounded_execution` responsibilities.
+- Sol Solver accepts only `judgment_coupled_execution` responsibilities.
+- Luna Reader accepts `evidence` responsibilities.
+- Terra Investigator accepts `technical_investigation` responsibilities.
+- Sol Advisor accepts `judgment` responsibilities and fresh independent final review.
 
-The ledger is logical task state. Codex Delegate does not add a persistent DAG service, background scheduler, thread pool, or second Agent runtime.
+If a responsibility cannot be classified or contracted safely, keep it in the main session until the missing task truth is established.
 
-## 4. Delegation gates
+## 6. Ready-frontier scheduling
 
-A ready dependency is dispatchable only when:
+Scheduling remains completion-driven.
 
-1. delegation has concrete benefit: context isolation, useful parallelism, specialized capability, or independent high-value judgment;
-2. a writing responsibility passes `delegation-contract.md`;
-3. `safety-policy.md`, `consent-policy.md`, exact route availability, and native capacity allow it.
-
-Task length, file count, lower price, free slots, or a generic desire for caution do not justify an Agent by themselves.
-
-## 5. Completion-driven dispatch
-
-The scheduling policy is **completion-driven around the ready frontier**, not wave/barrier driven by default.
-
-At every scheduling point:
+At each material event:
 
 ```text
-1. recompute currently ready dependencies
-2. choose the smallest useful set that fits current safe capacity
-3. dispatch those responsibilities
-4. keep independent main-session work moving when it does not duplicate or conflict
-5. react to each child completion/material update as soon as the runtime exposes it
-6. inspect and merge that result, update dependency/evidence state, and close completed child
-7. recompute the frontier immediately
-8. if safe capacity is free and useful work is newly ready, dispatch it without waiting for unrelated children
+1. update evidence and dependency state
+2. reclassify any dependency whose nature changed
+3. recompute the ready frontier
+4. select the smallest useful set that fits safety, consent, exact routes, and native capacity
+5. dispatch distinct responsibilities
+6. continue independent main-session work when it does not duplicate or conflict
+7. process each exposed completion/update without waiting for unrelated children
+8. close completed children and refill safe capacity
 ```
 
-Example:
+Do not impose a wave barrier unless a real join dependency requires it or the tested runtime exposes only a barrier-like wait surface.
+
+There is no product-level hard child count. Native capacity, consent, dependency readiness, and workspace safety are separate constraints.
+
+## 7. One writer domain
+
+At most one active writing project Agent may target one canonical physical checkout. Both Luna Worker and Sol Solver are writers.
+
+Multiple writing Agents require genuinely isolated runtime-backed worktrees, workspaces, or repositories. Disjoint intended file lists inside one checkout are not sufficient isolation.
+
+The main session and independent user sessions may also mutate the checkout, so every writing contract must preserve unrelated edits and stop when drift invalidates its assumptions.
+
+## 8. Reclassification replaces model escalation
+
+When execution does not progress, do not ask which stronger model comes next. Ask whether the dependency was classified correctly given the new evidence.
+
+Examples:
 
 ```text
-A = slow independent dependency
-B = fast independent dependency
-C = depends only on B
+local implementation defect, semantics unchanged
+-> bounded_execution
+-> focused Luna correction
 
-spawn A + B
-B completes
--> collect B
--> C becomes ready
--> start C while A is still running, when native capacity and safety allow
+material semantic choice emerged during Luna work
+-> judgment or judgment_coupled_execution
+-> main Sol / Advisor / Solver according to main coverage
+
+contract was underspecified
+-> return to main session and repair task truth
+
+semantics are resolved but a narrow difficult technical question remains
+-> technical_investigation
+-> Terra receives only that delta
+
+same bounded work repeats without progress and classification remains valid
+-> fresh same-lane restart may be justified by execution-progress policy
 ```
 
-Do **not** wait for A merely because A and B were launched in the same scheduling wave.
+A child may report `JUDGMENT_REQUIRED`, `TECHNICAL_GAP`, `CONTRACT_GAP`, or `EXECUTION_STALL`. These are reclassification signals. The main session owns the effective next action.
 
-A barrier wait is justified only when:
+No child can promote itself, widen authority, or force another model call.
 
-- a real join dependency requires all relevant active results before any useful next work can begin; or
-- the tested native runtime exposes only a coarser waiting/completion surface.
+## 9. Sol quality placement
 
-If the runtime cannot expose individual completion/update events, record that runtime limitation and degrade to the available surface. Do not claim event-driven runtime behavior that was not observed.
+Sol serves three distinct purposes that must not be conflated:
 
-Avoid model-mediated busy polling. When the runtime offers a blocking/event-like wait, mailbox/update notification, or equivalent native mechanism, prefer that to repeated status-only model turns. The exact available wait surface is a version-scoped runtime fact and must be characterized during live validation.
+1. **main-session judgment coverage** when the main session itself is Sol;
+2. **capability uplift** through Advisor or Solver when a non-Sol/unknown main has a material judgment dependency;
+3. **independent assurance** through a fresh Advisor when the Final Review Gate requires a second observer.
 
-## 6. Resource scopes
+The first suppresses redundant Sol delegation. The third remains independent even when the main session is Sol.
 
-Scheduling, consent, native capacity, and workspace safety are different constraints.
+This is how Codex Delegate keeps Sol high leverage and low frequency while keeping Luna focused on standardized bounded execution.
 
-### Consent
+## 10. Terra placement
 
-Explicit `/codex-delegate` use includes the baseline in `consent-policy.md`: up to two concurrently active justified children without another prompt. This is a consent envelope, not a team-size target or lifetime child limit.
+Terra handles difficult technical uncertainty after semantic intent is stable.
 
-Larger simultaneous fan-out requires consent when that policy says so. After authorization, there is no second product numerical ceiling.
+Do not route to Terra because:
 
-### Native capacity
+- Luna produced a weak result;
+- tests still fail once;
+- a child self-reports low confidence;
+- a task is large;
+- Sol is expensive;
+- the contract itself is unclear.
 
-Codex runtime decides how many child threads can actually be active. If useful ready work exceeds slots, keep the excess pending and refill capacity as children complete.
+A proposed Terra call must identify the exact unresolved technical delta and reusable evidence. Terra should challenge the technical-gap premise and return control when the problem is actually semantic or contractual.
 
-Do not convert one observed runtime capacity into a permanent product constant and do not cross-route merely to fill a slot.
+## 11. Acceptance and independent assurance
 
-### Workspace
+A child result is a claim. The main session accepts from actual artifact state plus deterministic or reproducible evidence.
 
-At most one active writing Worker may target one canonical physical checkout. Multiple writers require genuinely isolated runtime-backed worktrees/workspaces/repositories.
+After the candidate is accepted locally, evaluate `final-review-gate.md` separately. Final review is an assurance decision, not another execution stage and not a reward or penalty for which models were used earlier.
 
-Disjoint intended file lists inside one checkout do not prove write isolation.
+Process history such as Terra use, a restart, or a large diff may increase residual-risk concern, but it does not automatically require final review. The current artifact's material consequences and verification gaps decide that gate.
 
-### Codex home
+## 12. Boundary owners
 
-Managed custom-Agent profiles are shared configuration. Mixed concurrent managed-profile generations are unsupported for v1; an exact-route mismatch fails closed instead of cross-routing or silently rewriting shared state.
+- responsibility packet and return shape: `delegation-contract.md`
+- evidence/progress semantics: `execution-progress.md`
+- compute authorization: `consent-policy.md`
+- permissions/workspace/trust: `safety-policy.md`
+- main and child route evidence: `runtime-assurance.md`
+- independent artifact-bound review: `final-review-gate.md`
 
-Delegation depth remains one.
-
-## 7. Semantic roles
-
-Role identity is separate from model identity. Exact current constants live in `../../policy-contract.json`.
-
-| Responsibility | Agent type | Current route | Default intent | Use |
-| --- | --- | --- | --- | --- |
-| reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | read-only | bounded search, tracing, mapping, evidence |
-| worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | workspace-write | contractable implementation/debugging/tests |
-| investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | read-only | unresolved difficult technical delta |
-| advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | read-only | consequential judgment and review |
-
-Changing a future model route must not require renaming the semantic role.
-
-## 8. Route by responsibility
-
-Route first by responsibility, decision boundary, and demonstrated capability. Cost is only a tie-breaker between equally suitable safe lanes.
-
-### Reader / Worker
-
-Use Luna Reader for bounded reusable evidence and Luna Worker for contractable implementation.
-
-Worker authority comes from the Delegation Contract, not task difficulty.
-
-### Investigator
-
-Terra is not a mandatory reviewer and not a generic second implementation attempt.
-
-Use it only when a clear contract and execution evidence establish a genuinely difficult unresolved technical dependency. Pass the unresolved delta, valid evidence, current artifact/failure, material recovery facts, and explicit `DO NOT REDO` items.
-
-Low quality alone is not a Terra trigger.
-
-### Advisor
-
-Sol handles bounded consequential judgment or independent review when that adds value. It should consume compressed established facts and one review/decision question rather than repeat still-valid discovery.
-
-Sol is not globally mandatory. `final-review-gate.md` may make a fresh Advisor `ship` verdict mandatory for one high-risk deliverable.
-
-## 9. Execution progress and recovery boundary
-
-Routing does not decide retry/restart/escalation from failure alone. Use `execution-progress.md`.
-
-```text
-healthy incomplete work -> continue current responsibility
-mechanical defect       -> focused Luna correction
-contract gap            -> main repairs contract
-stall/context pollution -> clean same-lane restart
-capability gap          -> Terra receives unresolved delta
-judgment gap            -> main or justified Sol
-```
-
-There is no universal retry count or numerical stall threshold.
-
-## 10. Evidence reuse
-
-Use the Shared Evidence State carried by `delegation-contract.md` and execution policy.
-
-Deterministic/repository facts remain reusable while their declared dependencies are valid. Model judgments remain challengeable. A changed input invalidates only affected evidence.
-
-Completion-driven dispatch uses these updates to unlock new dependencies immediately rather than waiting for an unrelated scheduling wave to finish.
-
-## 11. Runtime route assurance
-
-Model-specific lanes use exact custom project profiles. There is no Portable Mode, built-in-role substitution, or hidden model ladder.
-
-Before spawn, profile matching provides only configuration assurance:
-
-```text
-route_assurance = profile_locked
-```
-
-When post-spawn route identity, ancestry, permission, capacity, wait semantics, or review independence is material, use `runtime-assurance.md` and the bundled normalized verifier:
-
-```text
-skill_dir/../../scripts/runtime-evidence.py
-```
-
-Do not use or reference removed rollout-coupled project inspectors. Missing runtime observations remain missing.
-
-## 12. Completion and lifecycle
-
-A completed child should be inspected and closed promptly once its result is no longer needed as an active thread. This allows native capacity to recover and prevents a finished thread from acting as an accidental slot barrier.
-
-Do not close/interrupt a running child solely to create artificial throughput. If the runtime's close/wait behavior itself blocks or leaks capacity, record it as version-scoped runtime evidence and handle it in release validation rather than hiding it with policy claims.
+Do not duplicate those policies here.
