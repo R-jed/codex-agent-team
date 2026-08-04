@@ -2,37 +2,49 @@
 
 This is the authoritative local-validation and finite v1.0.0 release checklist for **Codex Delegate**.
 
-The architecture cycle is closed. v0.5.1 is the accepted static baseline. The remaining job is finite: complete Checkpoints 1-6, fix only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
+The architecture cycle is closed. v0.6.0 is the accepted static baseline. v0.5.1 remains historical evidence whose still-valid observations may be carried forward only when their dependencies are unchanged. The remaining job is finite: complete Checkpoints 1-6, fix only release-blocking defects, run one fixed release-candidate closure pass, then publish v1.0.0.
 
-Do not reopen model routing, fan-out architecture, recovery architecture, installer locking, or Plugin packaging without reproducible evidence from a mandatory live gate.
+Do not reopen model routing, fan-out architecture, recovery architecture, Final Review Gate architecture, installer locking, or Plugin packaging without reproducible evidence from a mandatory live gate.
 
 ## Current checkpoint
 
-Accepted v0.5.1 static product baseline:
+Accepted v0.6.0 static product baseline:
 
 ```text
-feature merge: 9adf8edd303be22506744d569e6552b8fdbc7574
+feature PR: #27
 product: Codex Delegate
-version: 0.5.1
-architecture: Adaptive Dependency Orchestration + evidence-gated recovery
+version: 0.6.0
+architecture: Adaptive Dependency Orchestration + evidence-gated recovery + risk-triggered Final Review Gate
 known open reproducible PROJECT P0/P1: none
-release posture: HOLD FOR RELEASE / VALIDATION INCOMPLETE
+static posture: COMPLETE / ARCHITECTURE FROZEN
+release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 ```
 
-Accepted static verification:
+Accepted v0.6.0 feature-candidate static verification before the final documentation closure:
 
 ```text
-PR #24 final feature head: 7dadef8065f46bdb90accd38a3ffccfb75b23a51
-PR #24 workflow: 30823406796
-post-merge main-equivalent verification: PR #25
-PR #25 base main content: 09d75f6fb3c829556d92e614e61d0a0c78bb5dc2
-PR #25 workflow: 30824385799
+PR #27 validated head: 6e5083e8fee26d92e63526413f620c566b4bf8f9
+PR #27 workflow: 30876233050
 Ubuntu Python 3.11: PASS
 Ubuntu Python 3.12: PASS
 macOS Python 3.11: PASS
-pytest: 131 passed
+pytest: 164 passed
 pinned official OpenAI Plugin validator: PASS
 managed profile install / --check / idempotent reinstall: PASS
+```
+
+The exact final PR #27 closure head must also remain green before merge. A later documentation-only closure commit does not convert old static evidence into live runtime evidence.
+
+Historical v0.5.1 accepted static verification remains recorded for provenance:
+
+```text
+v0.5.1 feature merge: 9adf8edd303be22506744d569e6552b8fdbc7574
+PR #24 final feature head: 7dadef8065f46bdb90accd38a3ffccfb75b23a51
+PR #24 workflow: 30823406796
+post-merge main-equivalent verification: PR #25
+PR #25 workflow: 30824385799
+pytest: 131 passed
+pinned official OpenAI Plugin validator: PASS
 ```
 
 PR #25 contained the then-current `main` content plus one inert CI marker and was closed without merge. Its purpose was to verify the post-merge HEADOFF/validation reconciliation without changing product behavior.
@@ -56,13 +68,15 @@ Codex runtime: 0.146.0
 platform: Apple Silicon macOS 27.0
 ```
 
+That live baseline predates v0.6.0 Final Review Gate behavior. Do not use it as proof of fresh final-review routing, artifact handoff, verdict invalidation, or consent behavior.
+
 Before every live checkpoint, fetch `origin/main`, record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`, and invalidate only evidence whose declared dependencies changed.
 
-## v0.5.1 control model
+## v0.6.0 control model
 
 ```text
 main session owns user intent, dependency state, scheduling, evidence, recovery, integration, acceptance
-no model is a mandatory stage
+no model is a globally mandatory stage
 no fixed Agent count and no product-level hard child ceiling
 Dependency Ledger -> ready frontier -> smallest useful scheduling wave
 explicit /codex-delegate -> up to 2 concurrently active justified children without another prompt
@@ -71,7 +85,13 @@ actual concurrency -> ready dependencies + workspace safety + exact routes + nat
 native slot shortage -> queue/serialize ready work
 Luna Max -> bounded execution
 Terra XHigh -> unresolved complex technical delta
-Sol High -> selective fresh-context judgment/review
+Sol High -> selective judgment plus risk-triggered fresh final review
+Final Review Gate not_required -> normal main-session acceptance may complete
+Final Review Gate required -> main-session acceptance creates Candidate Ready only
+required gate completion -> fresh Sol ship + unchanged review_artifact_id
+fix-first -> correction + re-verification + new artifact + new fresh review
+rethink -> invalidate affected architecture/contract assumptions
+INSUFFICIENT_EVIDENCE -> gate unresolved; establish missing evidence and run a new fresh review
 one active writing Worker per canonical workspace
 delegation depth = 1
 acceptance failure != automatic intervention
@@ -83,11 +103,20 @@ child mid-run observability -> runtime fact, never assumed
 
 Routing is responsibility-first. Decision boundary and demonstrated capability determine the lane; cost may only break ties between equally suitable safe lanes. Do not require a lower-tier failure when the dependency itself clearly needs Terra investigation or Sol judgment.
 
+The Final Review Gate is semantic, not numeric. It may become required for material public-contract, persistent-state, security, authorization, data-integrity, concurrency, migration, wide-blast-radius, Terra-escalation, material-recovery, verification-gap, or explicit-user-review conditions. It does not create a universal Luna -> Terra -> Sol pipeline.
+
 ## Stop line
 
 Do not change these rules merely to make a live test pass:
 
 - no mandatory Luna -> Terra -> Sol pipeline;
+- no universal Sol review stage for low-risk work;
+- no required Final Review Gate silently downgraded because review is expensive or inconvenient;
+- no required-review completion without a fresh Sol `ship` bound to the unchanged current artifact;
+- no old `ship` retained after any deliverable mutation;
+- no `fix-first` completion without correction, re-verification, new artifact identity, and new fresh review;
+- no `rethink` converted into a local patch merely to preserve the existing plan;
+- no `INSUFFICIENT_EVIDENCE` converted into `ship` or `fix-first`;
 - no fixed team size, default child target, or product hard child ceiling;
 - no machine-wide Agent cap inferred from one runtime build;
 - no larger simultaneous fan-out without consent unless already authorized;
@@ -114,7 +143,7 @@ Do not change these rules merely to make a live test pass:
 - no invented `agents` Plugin-manifest component;
 - no manual `config.toml` or marketplace edits used to rescue the supported install path;
 - no repository/package-id migration before real install/upgrade behavior is characterized;
-- no performance, quality, cost, capacity, recovery, or observability claim without measured workloads and runtime versions.
+- no performance, quality, cost, capacity, recovery, review-yield, or observability claim without measured workloads and runtime versions.
 
 # Completed repository work
 
@@ -152,7 +181,7 @@ Do not change these rules merely to make a live test pass:
 - [x] Plugin manifest does not claim an unsupported custom-Agent component.
 - [x] Managed personal profiles target `$CODEX_HOME/agents` only after explicit user approval.
 - [x] Compatibility repository/package/profile identifiers remain unchanged pre-v1.
-- [x] Pinned official OpenAI `plugin-creator/scripts/validate_plugin.py` validation passes on accepted v0.5.1 content.
+- [x] Pinned official OpenAI `plugin-creator/scripts/validate_plugin.py` validation passes on the v0.6.0 feature candidate.
 - [x] Current upstream PluginStore source indicates complete Plugin-tree recursive copy with symlink rejection; this is upstream source evidence, not local runtime proof.
 
 ## D. Historical live evidence
@@ -165,6 +194,21 @@ Do not change these rules merely to make a live test pass:
 - [x] Reader used `fork_turns=none`; local rollout reported Luna Max, read-only, expected parent, runtime 0.146.0.
 - [x] CAT-LOCAL-001 direct Codex-home symlink defect is closed.
 
+## E. Final Review Gate static closure
+
+- [x] Sol remains non-mandatory globally and selective outside a required gate.
+- [x] Mandatory semantic trigger taxonomy is explicit and non-numeric.
+- [x] Required review separates `Candidate Ready` from task completion.
+- [x] Fresh final review reuses `codex_agent_team_advisor` with `fork_turns: none`.
+- [x] Completion verdicts are `ship | fix-first | rethink`; profile-level `INSUFFICIENT_EVIDENCE` remains a fail-closed unresolved state.
+- [x] `review-artifact.py` deterministically binds current deliverable state and supports `--verify`.
+- [x] Post-review deliverable mutation invalidates old `ship`.
+- [x] `fix-first` requires re-verification and a new fresh review.
+- [x] `rethink` invalidates affected planning/evidence assumptions.
+- [x] Required review and repeated-review compute remain subject to consent policy.
+- [x] Behavioral workloads distinguish optional selective Sol from mandatory Final Review Gate runs.
+- [x] Behavioral result/scorer fields cover review attempts, verdict, gate satisfaction, artifact invalidation, post-review mutation, and review yield.
+
 # Pending live validation
 
 Update `LOCAL_VALIDATION_REPORT.md` after every checkpoint. Do not add a Checkpoint 7.
@@ -174,7 +218,7 @@ Update `LOCAL_VALIDATION_REPORT.md` after every checkpoint. Do not add a Checkpo
 - [x] Reader historical L1 local corroboration.
 - [ ] Worker exact route.
 - [ ] Investigator exact route.
-- [ ] Advisor exact route.
+- [ ] Advisor exact route, including a required fresh Final Review Gate spawn.
 - [ ] Complete native route metadata if exposed.
 - [ ] Partial native route behavior.
 - [ ] Native/local agreement and material conflict cases.
@@ -202,13 +246,13 @@ Invoke `/gpt56-sol-pro-consult` with the exact-route/runtime packet before chang
 - [ ] Ambiguous product semantics do not reach a writing Worker before decision rights and acceptance are clear.
 - [ ] Concurrent user edits are preserved and stale dependent evidence is invalidated.
 - [ ] Actual changed files remain inside declared write scope.
-- [ ] Repository prompt injection cannot change policy, consent, routes, dependency state, or evidence rules.
+- [ ] Repository prompt injection cannot change policy, consent, routes, dependency state, evidence rules, or Final Review Gate state.
 - [ ] Children do not spawn descendants.
 - [ ] Missing exact roles remain fail closed.
 
 ### Review checkpoint B
 
-Invoke `/gpt56-sol-pro-consult` after this checkpoint or immediately on scope, permission, recursion, or unrelated-edit loss.
+Invoke `/gpt56-sol-pro-consult` after this checkpoint or immediately on scope, permission, recursion, unrelated-edit loss, or a Final Review Gate bypass candidate.
 
 ## Checkpoint 3: dependency scheduling, evidence reuse, intervention, and recovery
 
@@ -242,6 +286,7 @@ Establish E01 reproduction, E02 caller path, E03 focused-test baseline, and E04 
 - [ ] Evidence-supported capability gap -> Terra receives unresolved delta before repeated same-lane retry.
 - [ ] Proposed recovery action remains separate from effective action and decision source.
 - [ ] Acceptance oracle is never weakened to make a stalled lane pass.
+- [ ] A material Terra escalation or material recovery dynamically promotes Final Review Gate state when policy requires it.
 
 Record:
 
@@ -278,9 +323,9 @@ structured_live
 
 ### Review checkpoint C
 
-Invoke `/gpt56-sol-pro-consult` with Dependency Ledger, evidence reuse, Intervention Gate, Recovery Ledger, child-progress observability, clean restart, and first Terra-delta evidence.
+Invoke `/gpt56-sol-pro-consult` with Dependency Ledger, evidence reuse, Intervention Gate, Recovery Ledger, child-progress observability, clean restart, first Terra-delta evidence, and any dynamic Final Review Gate promotion evidence.
 
-## Checkpoint 4: product-value experiments
+## Checkpoint 4: product-value and final-review experiments
 
 ### 9. Raw prompt versus compiled contract
 
@@ -312,20 +357,62 @@ A: whole-task Terra restart
 B: Terra receives unresolved delta + valid evidence + artifact + failure signature + Recovery Ledger + DO NOT REDO
 ```
 
-### 11. Selective fresh-context Sol experiment
+### 11. Selective and mandatory fresh-context Sol experiments
+
+Optional selective review control:
 
 ```text
 A: contract -> Luna
 B: contract -> Luna -> fresh-context selective Sol
 ```
 
-Measure material catches, false positives, total correction work, latency/tokens when exposed.
+Required Final Review Gate path:
+
+```text
+Candidate Ready
+-> deterministic review_artifact_id
+-> fresh Advisor with fork_turns=none
+-> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
+```
+
+Live cases:
+
+- [ ] Low-risk internal change remains `not_required` unless the user explicitly requests review.
+- [ ] Public-contract or equivalent hard semantic trigger becomes `required`.
+- [ ] Terra escalation and material recovery promote the gate when they materially shape the delivered implementation.
+- [ ] Fresh Sol receives the actual candidate artifact and compressed valid evidence without inherited turns.
+- [ ] `ship` completes only while the current artifact still matches the reviewed artifact identity.
+- [ ] Post-review deliverable mutation makes `--verify` fail and old `ship` unusable.
+- [ ] `fix-first` creates bounded correction work, then requires re-verification, a new artifact identity, and a new fresh review.
+- [ ] `rethink` invalidates affected plan/contract/evidence state instead of becoming a local patch.
+- [ ] `INSUFFICIENT_EVIDENCE` identifies the missing dependency, keeps the gate unresolved, and leads to a new fresh review only after evidence is established.
+
+Record when exposed:
+
+```text
+final_review_requirement
+final_review_trigger_reasons
+final_review_attempts
+final_review_verdict
+final_review_gate_satisfied
+review_artifact_verify_failures
+post_review_mutations
+review_findings
+review_caught_material_issue
+review_false_positives
+review_yield
+input_tokens
+reasoning_tokens
+latency_ms
+```
+
+Measure material catches, false positives, correction work, latency/tokens, and review yield. Do not claim the mandatory gate improves outcomes until paired or otherwise controlled live data supports that conclusion.
 
 ### Review checkpoint D
 
-Invoke `/gpt56-sol-pro-consult` with the first valid product-value pairs. Do not tune Luna/Terra/Sol routes pre-v1 unless a reproducible correctness/safety regression makes the frozen route unusable.
+Invoke `/gpt56-sol-pro-consult` with the first valid product-value and Final Review Gate live packets. Do not tune Luna/Terra/Sol routes pre-v1 unless a reproducible correctness/safety regression makes the frozen route unusable.
 
-## Checkpoint 5: adaptive resources, multi-session safety, and lifecycle
+## Checkpoint 5: adaptive resources, consent, multi-session safety, and lifecycle
 
 ### 12. Consent boundary and no product hard cap
 
@@ -338,6 +425,13 @@ F4 >=5 authorized independent read-only dependencies -> no product hard 4 ceilin
 ```
 
 Record ready dependencies, peak active children, observed native capacity, runtime slot waits, consent prompts, and duplicate dependency calls.
+
+Final Review Gate consent cases:
+
+- [ ] First required read-only Sol review fits explicit `/codex-delegate` baseline when it remains ordinary bounded completion work.
+- [ ] Implicit Skill use asks before adding Sol unless already authorized.
+- [ ] A declined additional required review keeps `Candidate Ready` and `review_requirement = required`; it never fabricates `ship`.
+- [ ] Repeated `fix-first` review cycles cross the material-compute consent boundary when they cease to be ordinary bounded execution.
 
 ### 13. Slot recovery and lifecycle
 
@@ -368,7 +462,7 @@ Use the **current** OpenAI Codex `plugin-creator` tooling at validation time and
 - [ ] Confirm strict semver, required interface metadata, and `https://` URL metadata where present.
 - [ ] Confirm unsupported manifest components such as invented `agents` or `hooks` are absent.
 - [ ] Confirm marketplace source is `./plugins/codex-agent-team` with install/auth/category policy.
-- [ ] Confirm installed Plugin bundle exposes bundled `scripts/install-agents.py` and `agent-profiles/` expected by Skill-relative paths.
+- [ ] Confirm installed Plugin bundle exposes bundled `scripts/install-agents.py`, `scripts/review-artifact.py`, and `agent-profiles/` expected by Skill-relative paths.
 - [ ] Register a fresh Git marketplace through CLI:
 
 ```bash
@@ -402,10 +496,10 @@ Then start a new Codex thread before checking updated Skill discovery.
 
 - [ ] Starting from real v0.3.x Codex Agent Team, update through supported marketplace flow.
 - [ ] Starting from real v0.4.x Codex Delegate, update and characterize managed profile migration.
-- [ ] Starting from v0.5.0, update/reinstall v0.5.1 and confirm new Skill pickup in a fresh thread while unchanged exact profile bytes remain valid.
+- [ ] Starting from v0.5.0/v0.5.1, update/reinstall v0.6.0 and confirm new Skill pickup in a fresh thread while unchanged exact profile bytes remain valid.
 - [ ] User-modified/unproven profiles remain untouched and affected route fails closed.
 - [ ] Characterize old `/codex-agent-team` invocation after upgrade.
-- [ ] Installed metadata reports `0.5.1` while compatibility package id remains `codex-agent-team`.
+- [ ] Installed metadata reports `0.6.0` while compatibility package id remains `codex-agent-team`.
 - [ ] Cosmetic alignment cannot block v1.
 
 ### 17. Filesystem and concurrent installer matrix
@@ -426,13 +520,13 @@ Do not add an inter-process installer lock merely because races are theoreticall
 
 ### Review checkpoint E
 
-Invoke `/gpt56-sol-pro-consult` with adaptive fan-out, native capacity, slot recovery, M1-M4, official Plugin validation/install evidence, I1-I3, and migration evidence.
+Invoke `/gpt56-sol-pro-consult` with adaptive fan-out, Final Review Gate consent behavior, native capacity, slot recovery, M1-M4, official Plugin validation/install evidence, I1-I3, and migration evidence.
 
 # Defect triage
 
 ```text
 P0: unsafe mutation, credential boundary failure, data loss, false security proof, unrecoverable installer corruption
-P1: core orchestration invariant failure, wrong route accepted, unsafe writers, nested delegation, contractability/consent bypass, documented Plugin/install path broken
+P1: core orchestration invariant failure, wrong route accepted, unsafe writers, nested delegation, contractability/consent bypass, Final Review Gate bypass, documented Plugin/install path broken
 P2: nonblocking UX, inefficiency, maintenance drift, telemetry/schema compatibility, recoverable resource waste
 P3: cosmetic, optional, speculative improvement
 ```
@@ -459,12 +553,12 @@ v1.0.0 is done when all 12 conditions hold:
 2. No reproducible PROJECT P0/P1 remains open.
 3. Normal path works: Git marketplace -> `codex plugin add` -> fresh-thread Skill discovery -> authorized profile readiness -> bounded delegation -> verification -> completion.
 4. Current official Plugin validation passes on exact RC content and Plugin/custom-Agent boundaries match observed Codex behavior.
-5. One-writer, depth-one, exact-route fail-closed, contractability, prompt-injection, and untrusted-content boundaries survive live tests.
+5. One-writer, depth-one, exact-route fail-closed, contractability, prompt-injection, untrusted-content, and required Final Review Gate boundaries survive live tests.
 6. Adaptive scheduling is evidenced: no fixed Agent target, no product hard 4 ceiling, no duplicate running dependency, >2 simultaneous fan-out consent-gated, slot pressure queues safely.
 7. Recovery is evidenced: healthy incomplete progress avoids premature intervention; unchanged retry is rejected; clean restart preserves task truth and Recovery Ledger; capability gaps use Terra delta escalation.
 8. Child-progress observability is characterized and public claims do not exceed it.
 9. Raw-prompt versus compiled-contract evaluation has valid paired data with no systematic acceptance-quality regression.
-10. Shared evidence shows no systematic full-task rediscovery; Terra delta and selective Sol may remain conservative if economics are inconclusive and correctness/safety is sound.
+10. Shared evidence shows no systematic full-task rediscovery; Terra delta and selective Sol may remain conservative if economics are inconclusive; required Final Review Gate paths never complete without fresh `ship` on the unchanged artifact, and their value/cost claims stay limited to measured evidence.
 11. Luna Max / Terra XHigh / Sol High remain the frozen v1 routing baseline; route optimization moves to v1.x unless release-blocking evidence requires change.
 12. Full CI and one fresh-clone clean-Codex-home RC smoke are green on exact release content; docs describe observed limitations; remaining P2/P3 work moves post-v1.
 
@@ -480,7 +574,7 @@ Patch only reproducible PROJECT P0/P1, P2 directly blocking a mandatory gate, an
 
 ## Stage R2: RELEASE CANDIDATE and feature freeze
 
-When mandatory gates are characterized and no PROJECT P0/P1 is open, declare `RELEASE CANDIDATE` and freeze architecture, routing, scheduling/recovery semantics, Plugin packaging, and evaluation scope.
+When mandatory gates are characterized and no PROJECT P0/P1 is open, declare `RELEASE CANDIDATE` and freeze architecture, routing, scheduling/recovery/final-review semantics, Plugin packaging, and evaluation scope.
 
 ## Stage R3: one fixed RC closure pass
 
@@ -493,6 +587,7 @@ Run exactly one RC closure pass:
 - full deterministic CI;
 - exact four-role routing smoke;
 - Intervention Gate / child-observability recovery smoke;
+- Final Review Gate smoke covering required trigger, fresh Advisor, artifact binding, post-review mutation, `fix-first`, `rethink`, `INSUFFICIENT_EVIDENCE`, and consent decline;
 - adaptive fan-out + native slot queue/recovery smoke;
 - one-writer/depth-one smoke;
 - installer safety/migration smoke;
@@ -523,6 +618,7 @@ EVIDENCE CLASS
 DEPENDENCIES SATISFIED / INVALIDATED
 EXECUTION PROGRESS / FAILURE SIGNATURE
 INTERVENTION / RECOVERY LEDGER / DECISION PROVENANCE
+FINAL REVIEW REQUIREMENT / REASONS / ARTIFACT / VERDICT
 CHILD PROGRESS OBSERVABILITY
 CONSENT / READY FRONTIER / SLOT EVIDENCE
 PLUGIN VALIDATOR / MARKETPLACE / INSTALL EVIDENCE
@@ -600,6 +696,9 @@ EXECUTION_PROGRESS
 
 RECOVERY_STATE
 <Recovery Ledger, proposed/effective action, decision source, policy transform>
+
+FINAL_REVIEW_STATE
+<requirement, trigger reasons, artifact identity, verdict, invalidation, remaining dependency>
 
 RESOURCE_STATE
 <consent, peak children, observed slots, queues, writer domains>
