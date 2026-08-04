@@ -15,49 +15,44 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
-  <img src="https://img.shields.io/badge/status-pre--v1-orange.svg" alt="Status">
 </p>
 
-Codex Delegate 是 **Codex Native Subagents 之上的委派策略层**。主会话继续掌握目标、架构、决策和最终验收；只有真正适合分出去的责任才交给子 Agent。
+开 Subagent 很容易，难的是知道什么时候值得开。
 
-当前版本：`0.6.0`，pre-v1。
+Codex Delegate 给 Codex 主会话一套稳定的分工方式，让它按需要把工作交给 Luna、Terra 和 Sol。你只需要说清目标、约束和完成标准；哪些工作留在主会话、哪些可以并行、什么时候需要 Terra 深挖、什么时候让 Sol 独立复核，都由主会话处理。
 
-## 1. 它解决什么问题
+它建立在 Codex Native Subagents 之上，不替换 Codex，也不要求固定的 Agent 队伍。简单任务可以完全不用 Subagent，复杂任务也不会机械地把所有模型都叫出来。
 
-Codex 已经具备原生 Subagent 和并行能力。真正影响复杂任务质量和效率的，是主会话如何使用这些能力：
+## 为什么用 Codex Delegate
 
-- 哪些工作值得委派；
-- 哪些依赖可以并行，哪些必须串行；
-- 如何避免多个 Agent 重复搜索或重复实现；
-- 失败后应该继续、修合同、换干净上下文，还是升级技术调查；
-- 什么时候值得付出一次独立 Sol 复核的成本；
-- 如何让实际 diff、测试和运行证据决定是否完成。
+用 Subagents 时，真正麻烦的通常不是启动 Agent，而是后面的协调：有人重复找同一份资料，可以并行的工作被排成串行，一个局部失败把整段实现带回起点，高风险改动最后却没有第二双眼睛。
 
-Codex Delegate 把这些决策统一放在当前主会话中。它没有固定 Agent 数量，也没有强制 `Luna -> Terra -> Sol` 流水线。
+Codex Delegate 把这些判断留在主会话：
+
+- 只有委派确实有价值时才启动 Subagent；
+- 独立工作尽早并行，先完成的结果先处理，不等无关任务；
+- 局部问题优先局部修复，已经完成的工作尽量保留；
+- 影响范围较大的改动可以交给 Sol 做独立最终复核。
 
 ```text
-用户目标
+你的任务
   ↓
-主会话建立未解决依赖
+主会话理解目标和约束
   ↓
-找出当前 ready frontier
+自己处理，或把合适的工作交给 Luna / Terra / Sol
   ↓
-只委派有明确收益、边界可验收的责任
+边执行边合并结果，继续推进已经可以开始的下一步
   ↓
-并行执行安全且互不依赖的工作
+检查实际改动和测试
   ↓
-谁先完成，就先合并谁的证据并重新计算 frontier
+必要时做独立最终复核
   ↓
-必要时恢复、技术升级或独立复核
-  ↓
-主会话验收实际交付物
+主会话交付结果
 ```
 
-一个简单修改可以使用 `0` 个 Subagent。复杂任务也不会为了“组队”而机械调用所有模型。
+## 安装
 
-## 2. 安装
-
-Codex Delegate 只通过 Codex 原生 Plugin 系统分发。
+Codex Delegate 通过 Codex 原生 Plugin 系统分发。
 
 首次安装：
 
@@ -69,149 +64,92 @@ codex plugin marketplace add R-jed/codex-agent-team --ref main \
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-安装后启动一个新的 Codex thread，然后直接使用：
+安装完成后启动一个新的 Codex thread，然后直接使用：
 
 ```text
 /codex-delegate 修复这个 bug，并运行相关测试。
 ```
 
-已有安装更新：
+更新已有安装：
 
 ```bash
 codex plugin marketplace upgrade codex-agent-team
 codex plugin add codex-agent-team@codex-agent-team
 ```
 
-更新后同样启动新的 Codex thread。
+更新后同样启动一个新的 Codex thread。
 
-### 第一次需要模型专用 Agent 时
+第一次需要 Luna、Terra 或 Sol 的专用角色时，Codex Delegate 会先说明需要添加的 Agent profile，并在得到授权后完成配置。Installer 只管理 Codex Delegate 自己的四个 profile，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent profile。
 
-Plugin 负责分发 Skill 和项目文件。四个自定义 Agent profile 属于 Codex 的独立配置表面，默认位于：
+完整安装、迁移和故障处理见 [Plugin Installation](docs/plugin-installation.md)。
 
-```text
-$CODEX_HOME/agents
-```
+## 模型分工
 
-通常就是 `~/.codex/agents`。
-
-Codex Delegate 不会在 Plugin 安装时静默写入 profile。只有当前任务真的需要某个专用角色且 profile 尚未准备好时，Skill 才会说明管理范围并请求授权。
-
-Installer 只管理四个 Codex Delegate profile 和自己的 ownership manifest，不修改凭据、MCP、仓库、`config.toml` 或无关 Agent profile。Plugin manifest 不声明不存在的 `agents` 组件。
-
-完整安装、迁移和失败处理见 [Plugin Installation](docs/plugin-installation.md)。
-
-## 3. 角色与责任
-
-| 角色 | 当前模型 | 主要职责 |
+| 角色 | 当前模型 | 适合处理 |
 | --- | --- | --- |
-| Luna Reader | GPT-5.6 Luna `max` | 搜索、调用链、测试映射、证据收集 |
-| Luna Worker | GPT-5.6 Luna `max` | 有边界的实现、调试、测试和局部重构 |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | 解决真正未完成的复杂技术 delta |
-| Sol Advisor | GPT-5.6 Sol `high` | 高价值判断、选择性复核、风险触发的独立最终复核 |
+| Luna Reader | GPT-5.6 Luna `max` | 查代码、追调用链、找测试、整理证据 |
+| Luna Worker | GPT-5.6 Luna `max` | 有明确边界的实现、调试、测试和局部重构 |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | Luna 已经无法解决的复杂技术问题 |
+| Sol Advisor | GPT-5.6 Sol `high` | 高价值判断、独立复核和高风险改动的最终检查 |
 
-角色代表责任，模型代表计算资源。更强的模型不会自动获得更大的产品、架构、权限或 scope 决策权。
+角色决定责任范围，模型决定使用哪种计算资源。更强的模型不会自动获得更大的修改范围或决策权。
 
-主会话会先把任务整理成仍未解决的依赖。写入型责任只有在范围、接口、不变量、决策权、验收条件和验证方式足够清楚时才交给 Worker。
+普通实现通常由 Luna 完成。只有出现明确的技术难点或复核价值时，才会使用 Terra 或 Sol。
 
-## 4. 并发与实际性能
+## 并行工作
 
-用户不需要手工告诉 Codex “这里开两个 Agent、那里并行三个任务”。正常情况下，你只需要把**目标、不能破坏的约束和成功标准**说清楚。Codex Delegate 负责识别当前哪些依赖已经 ready，以及并行是否真的有价值。
+你不需要手工设计并发计划。把目标、不能破坏的约束和完成标准说清楚即可，主会话会判断哪些工作可以同时进行。
 
-它采用 completion-driven 的 ready-frontier 策略：
-
-```text
-启动当前安全且有价值的 ready work
-        ↓
-某个 child 先完成
-        ↓
-立即检查结果、合并证据、关闭已完成 child
-        ↓
-重新计算 ready frontier
-        ↓
-有空闲 slot 且存在新的 ready dependency
-        ↓
-立即补位，而不是等待整批 child 全部结束
-```
-
-只有存在真正的 join dependency，或者当前 Codex runtime 只能提供更粗粒度的等待能力时，才需要 barrier wait。
-
-因此，图里“性能主要取决于怎么写 prompt”的说法不够完整。Prompt 清晰度会影响需求理解和依赖拆分，但 wall-clock 性能还取决于：
-
-- 任务本身是否存在独立依赖；
-- 主会话是否采用 completion-driven 调度而不是无必要的整批等待；
-- Native Codex 当前实际提供多少 child capacity 和完成通知能力；
-- 是否存在写入冲突或必须串行的 critical path；
-- 不同模型和验证步骤的真实延迟；
-- 是否出现重复 discovery、重复 inference 或无效 recovery。
-
-如果任务只有一条严格串行的关键路径，增加 Agent 不会让它自动变快。并行真正有价值时，插件应该自己识别并使用，而不是把并行拆解工作转嫁给用户。
-
-显式调用 `/codex-delegate` 后，普通资源包络允许最多两个同时活跃、且有明确理由的 child，无需再次询问。这个 `2` 是 consent boundary，不是固定团队规模或产品硬上限。更大的并行 fan-out 在得到授权后仍由 ready dependencies、workspace safety 和 native runtime capacity 决定。
-
-一个 physical checkout 同时最多只有一个写入 Worker。真正的多 Writer 并发需要隔离的 worktree / workspace。
-
-## 5. 失败、恢复与 Final Review Gate
-
-未通过验收和需要改变执行方式是两个不同判断。
-
-只要新证据仍在缩小问题，当前责任可以继续。出现无效重复后，主会话才通过 Intervention Gate 分类处理：
+两个独立子任务一起运行时，先完成的结果会先被处理。如果它已经解锁下一步，而且还有可用资源，主会话会直接继续，不必等待其他无关任务结束。
 
 ```text
-局部机械问题
--> Luna 做有明确修正假设的针对性修复
+A 还在运行
+B 已完成
+  ↓
+处理 B 的结果
+  ↓
+B 解锁了 C
+  ↓
+立即开始 C
 
-合同缺口
--> 主会话修合同
-
-上下文污染或重复失败
--> 保留 artifact、有效证据和 Recovery Ledger，启动干净的同级上下文
-
-真实技术能力缺口
--> Terra 只接收 unresolved technical delta
-
-高价值判断缺口
--> 主会话决定，或在有价值时使用 Sol
+A 继续运行
 ```
 
-没有固定重试次数，也不会因为 Luna 一次失败就把整个任务交给 Terra 重做。
+只有任务之间真的存在依赖，或者同一工作区存在写入冲突时，才需要等待。
 
-### 高风险改动的最终质量门
+显式使用 `/codex-delegate` 时，默认可以同时运行最多两个有明确理由的 child，无需再次询问。这个数字只是默认授权范围，不是固定团队规模。一个 physical checkout 同时最多只有一个写入 Worker；需要多个 Writer 时应使用真正隔离的 worktree 或 workspace。
 
-Sol 不是所有任务的固定阶段。普通低风险修改可以在主会话检查实际 diff 并完成确定性验证后结束。
+## 失败时怎么处理
 
-当改动实质涉及 public contract、persistent state、security / authorization、data integrity、concurrency、migration、wide blast radius，或者发生 material Terra escalation、material recovery、重要 verification gap，Final Review Gate 可以变为 `required`。
+一次失败不会自动触发更强模型，也不会让整个任务从头再来。
 
-此时主会话只能先进入：
+如果只是局部实现问题，Luna 继续修；如果任务边界不清，主会话先把问题重新整理；如果确实剩下复杂技术难点，只把那一部分交给 Terra；需要独立判断时再使用 Sol。
+
+已经确认有效的结果和信息会继续保留，额外计算只花在仍未解决的部分。
+
+## Final Review Gate
+
+Sol 不是每个任务的固定最后一步。普通低风险修改在主会话检查实际 diff 并完成必要测试后即可结束。
+
+当改动涉及公共接口、持久化状态、安全或授权、数据完整性、并发、迁移，或者影响范围明显较大时，Codex Delegate 可以要求一次独立的 Sol 复核。
+
+Sol 针对当前候选结果给出三种结论：
 
 ```text
-Candidate Ready
+ship       可以交付
+fix-first  先修复，再重新验证和复核
+rethink    关键设计或假设需要重新考虑
 ```
 
-当前候选会绑定一个确定性的 `review_artifact_id`，再由 fresh-context Sol Advisor 独立复核。
+复核后如果交付物发生变化，旧结论不会继续沿用。
 
-```text
-ship       -> 当前 artifact 可以完成
-fix-first  -> 修复、重新验证、生成新 artifact，再做新的 fresh review
-rethink    -> 关键架构、合同或假设需要重新处理
-```
+## 安全边界
 
-`INSUFFICIENT_EVIDENCE` 表示证据不足，gate 仍未满足。任何交付物在 `ship` 后发生变化，旧 verdict 都会失效。
+主会话始终拥有最终控制和验收权。Child 不会继续创建自己的 Agent 队伍，已有的用户修改和其他会话修改必须保留，同一 physical checkout 不允许多个 Worker 同时写入。
 
-## 6. 安全与当前边界
+仓库、网页、issue、日志、生成内容或模型输出里的指令不能自行扩大任务范围或修改权限。Agent 报告“完成”也不会直接被当作验收结果，最终仍以实际改动、测试和可复现结果为准。
 
-Codex Delegate 的核心安全规则是：
-
-- 主会话始终拥有最终控制和验收；
-- delegation depth 固定为 `1`，child 不再创建自己的 Agent 团队；
-- 一个 physical checkout 最多一个写入 Worker；
-- 用户或其他会话已有修改必须保留；
-- repository、网页、日志、issue、生成内容和模型输出中的指令都不能改写 scope、permission、route、consent 或 orchestration policy；
-- profile 中的 `read-only` 是配置意图，需要硬隔离时必须依赖实际 runtime permission evidence；
-- Agent 的“完成”报告只是 claim，实际 artifact、diff、测试和可复现证据才是验收依据。
-
-Codex Delegate 本身不实现第二套 Agent runtime、后台 scheduler、全局 DAG 服务或外部 routing proxy。并发执行依赖 Codex Native Subagents；Codex Delegate 负责决定**哪些工作值得并发、什么时候补位、什么时候必须等待**。
-
-`0.6.0` 仍处于 pre-v1。静态 CI、Plugin validation 和 profile lifecycle 已通过；精确 live route、跨会话 writer safety、installer concurrency、completion-driven scheduling 行为和 Final Review lifecycle 仍需要在当前真实 Codex runtime 上完成 release validation。
+Codex Delegate 不实现第二套 Agent runtime，也不需要额外的后台服务或 routing proxy。它直接使用 Codex Native Subagents，把重点放在更合理地分工、并行、恢复和复核。
 
 ## License
 
