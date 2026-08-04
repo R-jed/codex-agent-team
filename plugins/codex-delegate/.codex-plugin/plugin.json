@@ -1,7 +1,7 @@
 {
   "name": "codex-delegate",
-  "version": "0.7.0",
-  "description": "Codex Delegate builds the smallest useful dependency-driven compute graph, reuses established evidence, adapts execution through an intervention gate, and applies risk-triggered independent final review without fixed Agent counts or model ladders.",
+  "version": "0.8.0",
+  "description": "Codex Delegate classifies unresolved dependencies and places evidence, bounded execution, judgment-coupled execution, difficult technical investigation, and independent review on the smallest useful Codex compute graph.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
   "repository": "https://github.com/R-jed/codex-delegate",
@@ -10,8 +10,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Delegate",
-    "shortDescription": "Adaptive delegation with risk-triggered final review.",
-    "longDescription": "Codex Delegate keeps the current session in control, tracks unresolved dependencies, compiles bounded delegation contracts, reuses valid evidence, schedules only the smallest useful set of ready responsibilities, and changes execution only after an evidence-driven intervention gate. Luna Max handles bounded execution, Terra XHigh receives genuine unresolved technical deltas, and Sol High provides selective judgment while becoming a mandatory fresh-context final reviewer when semantic Final Review Gate triggers apply.",
+    "shortDescription": "Capability-aware adaptive delegation with independent final review.",
+    "longDescription": "Codex Delegate keeps the current session in control and routes by unresolved responsibility rather than a model ladder. Luna Max handles reusable evidence and standardized bounded execution, Sol High supplies judgment-coupled execution or bounded judgment when the main session does not already cover that capability, Terra XHigh investigates only narrow difficult technical uncertainty after semantics stabilize, and a fresh Sol Advisor provides independent artifact-bound review only when the deliverable's material consequences require it.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
@@ -22,9 +22,9 @@
     "logoDark": "./assets/codex-delegate-logo-dark.svg",
     "screenshots": [],
     "defaultPrompt": [
-      "Use /codex-delegate to solve this task with bounded, evidence-driven delegation.",
-      "Use /codex-delegate to implement this change with verifiable contracts and evidence reuse.",
-      "Use /codex-delegate to review this change and apply the risk-triggered final quality gate."
+      "Use /codex-delegate to classify the unresolved dependencies and choose the smallest useful compute graph.",
+      "Use /codex-delegate to implement this change with capability-aware routing, evidence reuse, and deterministic verification.",
+      "Use /codex-delegate to review this task and apply fresh independent Sol review only when the final artifact requires it."
     ]
   }
 }
