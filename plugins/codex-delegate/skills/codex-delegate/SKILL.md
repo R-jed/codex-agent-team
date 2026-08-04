@@ -86,7 +86,7 @@ skill_dir = directory containing this SKILL.md
 installer = skill_dir/../../scripts/install-agents.py
 ```
 
-Before running it, explain the exact managed write/migration scope and request permission. After approval:
+Before running it, explain the exact managed write scope and request permission. After approval:
 
 ```bash
 python "$installer"
@@ -95,9 +95,9 @@ python "$installer" --check
 
 Then inspect native role discovery again. If installation is exact but the current task still cannot discover the role, ask the user to start a fresh Codex task and invoke `/codex-delegate` again.
 
-The installer may manage only the four current project profiles, `.codex-delegate-agents.json`, and bounded migration of proven project-owned historical profiles/receipts. Historical `codex_agent_team_*` identities are migration inputs only and are removed after a successful managed migration. It does not authorize changes to credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+The installer may manage only the four current project profiles and `.codex-delegate-agents.json`. Other Agent profiles are user-owned and must remain untouched. It does not authorize changes to credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
-Mixed concurrent managed-profile generations are unsupported for v1. An exact-route mismatch stops that delegation instead of cross-routing or silently rewriting shared configuration.
+Concurrent changes to shared managed-profile state are unsupported unless current runtime/install validation establishes a safe behavior. An exact-route mismatch stops that delegation instead of cross-routing or silently rewriting shared configuration.
 
 ## 4. Dispatch completion-driven work
 
