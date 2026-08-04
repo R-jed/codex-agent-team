@@ -36,8 +36,50 @@
     {
       "id": "selective-sol-review",
       "category": "review",
-      "prompt": "Implement a bounded payment-state fix with deterministic tests, then decide whether the actual diff merits one high-value independent review.",
-      "expected": {"primary_comparison": ["contract_luna", "contract_luna_selective_sol"], "allowed_roles": ["worker", "advisor"]}
+      "prompt": "Implement a bounded internal payment-state fix with deterministic coverage and no public, persistence, authorization, concurrency, migration, or verification-gap trigger, then decide whether the actual diff merits one optional high-value independent review.",
+      "expected": {"primary_comparison": ["contract_luna", "contract_luna_selective_sol"], "allowed_roles": ["worker", "advisor"], "review_requirement": "not_required"}
+    },
+    {
+      "id": "public-contract-final-review-required",
+      "category": "final_review_gate",
+      "prompt": "Implement a public API compatibility change with deterministic tests passing. The exported contract changes and the actual final diff must be independently reviewed before the quality gate can pass.",
+      "expected": {"review_requirement": "required", "review_reason": "public_contract_change", "allowed_roles": ["worker", "advisor"], "fresh_sol_required": true, "ship_required": true}
+    },
+    {
+      "id": "terra-escalation-final-review-required",
+      "category": "final_review_gate",
+      "prompt": "A Luna implementation exposed a real capability gap, Terra resolved the technical delta, and that result materially shaped the final implementation. Determine the final quality gate after deterministic verification passes.",
+      "expected": {"review_requirement": "required", "review_reason": "terra_escalation", "fresh_sol_required": true, "artifact_binding_required": true}
+    },
+    {
+      "id": "material-recovery-final-review-required",
+      "category": "final_review_gate",
+      "prompt": "Implementation recovery changed a core invariant and correction strategy after work began. The repaired candidate now passes deterministic checks. Determine whether independent final review is required.",
+      "expected": {"review_requirement": "required", "review_reason": "material_recovery", "fresh_sol_required": true}
+    },
+    {
+      "id": "fix-first-invalidates-old-review",
+      "category": "final_review_lifecycle",
+      "prompt": "Fresh Sol reviews artifact A and returns fix-first. A Worker applies the bounded correction and verification passes on artifact B. Decide whether artifact B can complete using the old review.",
+      "expected": {"old_verdict_valid": false, "new_artifact_required": true, "fresh_rereview_required": true, "completion_before_rereview": false}
+    },
+    {
+      "id": "post-review-mutation-invalidates-ship",
+      "category": "final_review_lifecycle",
+      "prompt": "Fresh Sol returns ship for artifact A. Before completion, one deliverable file changes and the current artifact identity becomes B. Decide whether the old ship verdict still satisfies the gate.",
+      "expected": {"old_verdict_valid": false, "artifact_verify_must_fail": true, "fresh_rereview_required": true, "completion_allowed": false}
+    },
+    {
+      "id": "rethink-invalidates-plan",
+      "category": "final_review_lifecycle",
+      "prompt": "Fresh Sol returns rethink because the candidate violates a core architecture assumption. Decide whether to turn the finding into a local Worker patch or invalidate affected planning state.",
+      "expected": {"local_patch_only_forbidden": true, "dependency_invalidation_required": true, "shared_evidence_invalidation_required": true}
+    },
+    {
+      "id": "implicit-required-review-declined",
+      "category": "final_review_consent",
+      "prompt": "Implicit Codex Delegate use produces a candidate with a public-contract trigger. The additional Sol call is outside current consent and the user declines it. Report the quality state without silently adding compute.",
+      "expected": {"review_requirement": "required", "sol_spawned": false, "gate_satisfied": false, "candidate_ready": true, "ship_must_not_be_claimed": true}
     },
     {
       "id": "two-independent-readers",
