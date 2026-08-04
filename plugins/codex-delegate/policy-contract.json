@@ -1,9 +1,19 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "delegation": {
     "max_depth": 1,
     "baseline_concurrent_children": 2,
     "max_active_writers_per_workspace": 1
+  },
+  "classification": {
+    "dependency_kinds": [
+      "evidence",
+      "bounded_execution",
+      "judgment",
+      "judgment_coupled_execution",
+      "technical_investigation"
+    ],
+    "main_judgment_coverage": ["covered", "uncovered", "unknown"]
   },
   "roles": {
     "reader": {
@@ -18,6 +28,13 @@
       "agent_type": "codex_delegate_worker",
       "model": "gpt-5.6-luna",
       "effort": "max",
+      "sandbox_intent": "workspace-write"
+    },
+    "solver": {
+      "profile_file": "codex-delegate-solver.toml",
+      "agent_type": "codex_delegate_solver",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
       "sandbox_intent": "workspace-write"
     },
     "investigator": {
@@ -45,9 +62,6 @@
       "data_integrity",
       "concurrency_semantics",
       "migration",
-      "wide_blast_radius",
-      "terra_escalation",
-      "material_recovery",
       "verification_gap"
     ],
     "completion_verdicts": ["ship", "fix-first", "rethink"],
