@@ -1,8 +1,8 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "plugins" / "codex-agent-team" / "skills" / "codex-agent-team"
 PLUGIN = ROOT / "plugins" / "codex-agent-team"
+SKILL = PLUGIN / "skills" / "codex-agent-team"
 
 
 def test_runtime_evidence_is_typed_and_partial_observation_is_not_proof():
@@ -10,8 +10,8 @@ def test_runtime_evidence_is_typed_and_partial_observation_is_not_proof():
     for field in ["route_evidence", "ancestry_evidence", "permission_evidence"]:
         assert field in runtime
     assert "partial" in runtime
-    assert "never earns `R1`, `L1`, or `R2`" in runtime
-    assert "mutable implementation-coupled telemetry" in runtime
+    assert "A partial record never earns `L1`, `R1`, or `R2`" in runtime
+    assert "corroborating evidence" in runtime
 
 
 def test_compact_grades_remain_derived_compatibility_summaries():
@@ -24,7 +24,7 @@ def test_compact_grades_remain_derived_compatibility_summaries():
         "X0_conflicted",
     ]:
         assert grade in runtime
-    assert "derived from complete route evidence" in runtime
+    assert "compact compatibility grade" in runtime
 
 
 def test_profile_locked_is_the_only_route_assurance_path():
@@ -36,17 +36,20 @@ def test_profile_locked_is_the_only_route_assurance_path():
     assert "No Portable Mode" in route
 
 
-def test_verifier_is_wired_into_skill_and_runtime_reference():
-    verifier = SKILL / "scripts" / "verify-runtime.py"
-    assert verifier.exists()
+def test_normalized_verifier_is_wired_into_skill_and_runtime_reference():
+    verifier = PLUGIN / "scripts" / "runtime-evidence.py"
+    assert verifier.is_file()
     for path in [SKILL / "SKILL.md", SKILL / "references" / "runtime-assurance.md"]:
-        assert "verify-runtime.py" in path.read_text()
+        text = path.read_text()
+        assert "runtime-evidence.py" in text
+        assert "verify-runtime.py" not in text
+    assert not (SKILL / "scripts" / "inspect-runtime.py").exists()
 
 
 def test_depth_one_preserves_not_observed_state():
     runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
     safety = (SKILL / "references" / "safety-policy.md").read_text()
-    assert "missing observed parent -> not_observed" in runtime
+    assert "absence remains `not_observed`" in runtime
     assert "parent_thread_id" in safety
 
 
@@ -67,8 +70,9 @@ def test_live_evals_are_controlled_paired_runs_and_track_correction_cost():
     assert "Main-session correction cost" in docs
     assert "raw_prompt_luna" in docs
     assert "contract_luna_selective_sol" in docs
-    assert "Adaptive fan-out experiment" in docs
-    assert "Execution-stall experiment" in docs
+    assert "contract_luna_final_review_gate" in docs
+    assert "Adaptive scheduling experiment" in docs
+    assert "Intervention / clean-restart experiment" in docs
     assert "no claimed benchmark results" in workloads
 
 
