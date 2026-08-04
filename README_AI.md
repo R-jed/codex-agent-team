@@ -44,15 +44,15 @@ contractable does not imply Luna-suitable
 
 Luna Worker receives only standardized bounded execution where desired behavior and material invariants are already decided. If implementation and consequential semantic judgment cannot be safely separated, the dependency belongs to Sol-level judgment-coupled execution instead.
 
-Main-session authority never depends on model identity. Main-session judgment coverage can affect compute placement:
+Main-session authority never depends on model identity. Main-session judgment coverage can affect compute placement. The current coverage reference role is declared in `policy-contract.json`; the runtime verifier derives the reference model from that role instead of maintaining a second hard-coded model identity.
 
 ```text
-covered   -> trusted current-session metadata identifies GPT-5.6 Sol family
+covered   -> trusted current-session metadata matches the current policy-owned judgment reference family
 uncovered -> trusted current-session metadata identifies another family
 unknown   -> main route is missing, partial, local-only, or conflicted
 ```
 
-A covered Sol main normally handles ordinary judgment and judgment-coupled implementation directly, avoiding redundant Sol capability-uplift children. A required independent Final Review still uses a fresh Sol Advisor.
+The current reference role is Sol Solver. A covered main normally handles ordinary judgment and judgment-coupled implementation directly, avoiding redundant capability-uplift Sol children. A required independent Final Review still uses a fresh Sol Advisor.
 
 ## Current semantic roles
 
@@ -119,7 +119,8 @@ The installer manages only those current files. It does not modify credentials, 
 - Zero children is normal.
 - Explicit `/codex-delegate` use authorizes up to two concurrently active justified children without another consent prompt. This is an authorization envelope, not a team target or native runtime ceiling.
 - Native Codex runtime capacity determines actual active child slots.
-- One canonical physical checkout has at most one active writing project Agent. Both Luna Worker and Sol Solver are writers. Multiple project writers require genuinely isolated workspaces/worktrees/repositories.
+- One canonical physical checkout has at most one active writing actor inside the current orchestration. The writing actor can be the main session, Luna Worker, or Sol Solver. If a child writer owns the checkout, main-session work there stays read-only until a clear ownership handoff. Parallel writers require genuinely isolated workspaces/worktrees/repositories.
+- This session-local writer rule does not prove exclusion against other Codex sessions, editors, hooks, or processes. External drift remains a runtime/workspace fact and must be handled fail-closed when it invalidates the contract.
 - Delegation depth is one; children do not create further project Subagents.
 - Valid deterministic/repository evidence is reused until its dependencies change.
 - One failed attempt does not automatically trigger a stronger model or whole-task restart.
@@ -127,7 +128,7 @@ The installer manages only those current files. It does not modify credentials, 
 - Terra is a technical specialist after semantics stabilize. Weak Luna output alone is not a Terra trigger.
 - Sol Solver exists for judgment-coupled implementation when the main session does not already cover that capability.
 - Sol Advisor supplies material judgment uplift or fresh independent Final Review.
-- A covered Sol main suppresses redundant ordinary Sol capability-uplift calls, but it does not replace required independent review.
+- Covered main judgment capability suppresses redundant ordinary Sol capability-uplift calls, but it does not replace required independent review.
 - Final Review is driven by the final artifact's material consequences or `verification_gap`. Terra use, Solver use, recovery, or diff size alone does not make review mandatory.
 - Final Review completion verdicts are `ship`, `fix-first`, and `rethink`; `INSUFFICIENT_EVIDENCE` leaves the gate unresolved.
 - Any deliverable mutation after a review invalidates the old artifact-bound verdict.
@@ -142,7 +143,7 @@ Use a separate branch/PR only when isolation, multiple independent writers, risk
 
 Configuration does not prove what ran. Use runtime evidence for observed main model, child model/effort, permissions, ancestry, capacity, or progress observability.
 
-The bundled runtime verifier supports `subject: main_session` and `subject: child`. Main judgment coverage is treated conservatively: only complete trusted native current-session model/effort metadata can establish `covered` or `uncovered`; missing/partial/local-only/conflicted evidence remains `unknown`.
+The bundled runtime verifier supports `subject: main_session` and `subject: child`. Main judgment coverage is conservative: only complete trusted native current-session model/effort metadata can establish `covered` or `uncovered`; missing/partial/local-only/conflicted evidence remains `unknown`.
 
 Do not claim benchmark superiority, token savings, latency improvement, quality improvement, Sol Solver superiority, Terra value, a universal child-slot count, or a universal wait/update capability unless current measured evidence supports the claim.
 
