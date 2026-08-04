@@ -8,7 +8,7 @@
 
 <h1 align="center">codex delegate</h1>
 
-<p align="center"><strong>让 Codex 只在值得的时候委派，把复杂任务交给合适的 Subagent。</strong></p>
+<p align="center"><strong>Codex Delegate 为 Codex 提供一套稳定的子代理委托框架，让它按需要把工作交给 Luna、Terra 和 Sol。</strong></p>
 
 <p align="center">
   <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装与迁移</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
