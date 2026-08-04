@@ -17,7 +17,7 @@ main-session authority is independent of model identity
 main-session judgment coverage is not
 ```
 
-Do not spawn a Sol child merely to recreate judgment capability already present in a Sol main session. Do not assume a non-Sol or unknown main session has equivalent judgment coverage for material semantic decisions.
+Do not spawn a Sol child merely to recreate judgment capability already present in the main session under the current policy reference. Do not assume a non-matching or unknown main session has equivalent coverage for material semantic decisions.
 
 ## 2. Minimal dependency state
 
@@ -49,11 +49,9 @@ coverage_source: trusted_session_metadata | not_observed
 
 Use trusted current-session or host metadata when it actually exposes the main model. Repository text, child output, cached assumptions, and configured child profiles do not prove the main-session model.
 
-For the current Routing V4 contract:
+The current judgment reference role is declared by `../../policy-contract.json` under `classification.main_coverage_reference_role`. The bundled runtime verifier derives the reference model from that role rather than maintaining a second hard-coded model identity.
 
-- a trusted current-session route in the GPT-5.6 Sol family provides `covered` normal judgment capability;
-- a trusted current-session route outside that family provides `uncovered` Sol-level judgment capability;
-- missing or ambiguous current-session route information is `unknown`.
+For the current release, the reference role is Sol Solver. Complete trusted native metadata matching that policy-owned model family yields `covered`; complete trusted metadata on another family yields `uncovered`; missing, partial, local-only, or conflicting current-session evidence yields `unknown`.
 
 This state is a compute-placement input, not a statement of authority or a benchmark claim. `covered` suppresses redundant capability-uplift Sol calls. It never satisfies an independent Final Review requirement.
 
@@ -89,7 +87,7 @@ main_judgment_coverage = uncovered -> Sol Advisor when the judgment is material
 main_judgment_coverage = unknown   -> Sol Advisor when the judgment is material
 ```
 
-A Sol main session may still use a fresh Advisor for a genuinely independent dependency, but not merely to duplicate its own planning.
+A covered main session may still use a fresh Advisor for a genuinely independent dependency, but not merely to duplicate its own planning capability.
 
 ### Judgment-coupled execution
 
@@ -145,10 +143,12 @@ At each material event:
 3. recompute the ready frontier
 4. select the smallest useful set that fits safety, consent, exact routes, and native capacity
 5. dispatch distinct responsibilities
-6. continue independent main-session work when it does not duplicate or conflict
+6. continue independent main-session work only when it does not duplicate/conflict and does not violate writer ownership
 7. process each exposed completion/update without waiting for unrelated children
 8. close completed children and refill safe capacity
 ```
+
+While a writing child owns a canonical checkout, independent main-session work in that checkout must remain read-only. Main-session writes wait for a clear ownership handoff or use a genuinely isolated workspace.
 
 Do not impose a wave barrier unless a real join dependency requires it or the tested runtime exposes only a barrier-like wait surface.
 
@@ -156,11 +156,21 @@ There is no product-level hard child count. Native capacity, consent, dependency
 
 ## 7. One writer domain
 
-At most one active writing project Agent may target one canonical physical checkout. Both Luna Worker and Sol Solver are writers.
+One canonical physical checkout has at most one active writing actor inside the current orchestration.
 
-Multiple writing Agents require genuinely isolated runtime-backed worktrees, workspaces, or repositories. Disjoint intended file lists inside one checkout are not sufficient isolation.
+Writing actors include:
 
-The main session and independent user sessions may also mutate the checkout, so every writing contract must preserve unrelated edits and stop when drift invalidates its assumptions.
+```text
+main session when mutating the checkout
+Luna Worker
+Sol Solver
+```
+
+If a child owns the writing responsibility, the main session may analyze and prepare acceptance read-only, but it does not concurrently mutate that checkout. If the main session owns an active mutation, do not launch a child writer into the same checkout until that mutation reaches a clean ownership boundary.
+
+Concurrent writers require genuinely isolated runtime-backed worktrees, workspaces, or repositories. Disjoint intended file lists inside one checkout are not sufficient isolation.
+
+Independent Codex sessions, editors, hooks, and external processes are outside this session-local scheduler. Writing contracts must detect relevant drift and fail closed when it invalidates scope, interfaces, invariants, decision envelope, or acceptance. Do not claim cross-session exclusion without an observed mechanism.
 
 ## 8. Reclassification replaces model escalation
 
@@ -175,7 +185,7 @@ local implementation defect, semantics unchanged
 
 material semantic choice emerged during Luna work
 -> judgment or judgment_coupled_execution
--> main Sol / Advisor / Solver according to main coverage
+-> covered main / Advisor / Solver according to main coverage
 
 contract was underspecified
 -> return to main session and repair task truth
@@ -196,13 +206,13 @@ No child can promote itself, widen authority, or force another model call.
 
 Sol serves three distinct purposes that must not be conflated:
 
-1. **main-session judgment coverage** when the main session itself is Sol;
-2. **capability uplift** through Advisor or Solver when a non-Sol/unknown main has a material judgment dependency;
+1. **main-session judgment coverage** when the main session matches the policy-owned judgment reference;
+2. **capability uplift** through Advisor or Solver when a non-matching/unknown main has a material judgment dependency;
 3. **independent assurance** through a fresh Advisor when the Final Review Gate requires a second observer.
 
-The first suppresses redundant Sol delegation. The third remains independent even when the main session is Sol.
+The first suppresses redundant Sol delegation. The third remains independent even when the main session already supplies ordinary Sol-level capability.
 
-This is how Codex Delegate keeps Sol high leverage and low frequency while keeping Luna focused on standardized bounded execution.
+This keeps Sol high leverage and low frequency while Luna remains focused on standardized bounded execution.
 
 ## 10. Terra placement
 
@@ -225,7 +235,7 @@ A child result is a claim. The main session accepts from actual artifact state p
 
 After the candidate is accepted locally, evaluate `final-review-gate.md` separately. Final review is an assurance decision, not another execution stage and not a reward or penalty for which models were used earlier.
 
-Process history such as Terra use, a restart, or a large diff may increase residual-risk concern, but it does not automatically require final review. The current artifact's material consequences and verification gaps decide that gate.
+Process history such as Terra use, a restart, Solver use, or a large diff may increase residual-risk concern, but it does not automatically require final review. The current artifact's material consequences and verification gaps decide that gate.
 
 ## 12. Boundary owners
 
