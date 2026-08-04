@@ -240,27 +240,49 @@ def test_route_assurance_has_no_portable_mode():
     assert "Portable Mode" in skill
 
 
-def test_readmes_are_concise_user_product_docs_not_release_handoffs():
+def test_readmes_are_release_ready_user_product_docs():
     zh = read("README.md")
     en = read("README_EN.md")
     assert "README_EN.md" in zh and "README.md" in en
+
     for text in [zh, en]:
+        lower = text.lower()
         assert "```mermaid" not in text
         assert "/codex-delegate" in text
         assert "HEADOFF.md" not in text
         assert "LOCAL_VALIDATION_REPORT.md" not in text
-        assert "completion-driven" in text.lower()
-        assert "Final Review Gate" in text
+        assert "Final Review" in text
+        assert "Native Subagents" in text
+        assert "status-pre--v1" not in text
+        assert "pre-v1" not in lower
+        assert "release validation" not in lower
+        assert "live pending" not in lower
+        assert "ready frontier" not in lower
+        assert "intervention gate" not in lower
+        assert "recovery ledger" not in lower
+        assert "review_artifact_id" not in lower
 
     for heading in [
-        "## 1. 它解决什么问题",
-        "## 2. 安装",
-        "## 3. 角色与责任",
-        "## 4. 并发与实际性能",
-        "## 5. 失败、恢复与 Final Review Gate",
-        "## 6. 安全与当前边界",
+        "## 为什么用 Codex Delegate",
+        "## 安装",
+        "## 模型分工",
+        "## 并行工作",
+        "## 失败时怎么处理",
+        "## Final Review",
+        "## 安全边界",
     ]:
         assert heading in zh
+
+    for heading in [
+        "## Why Codex Delegate",
+        "## Installation",
+        "## Models and roles",
+        "## Parallel work",
+        "## When work goes wrong",
+        "## Final Review",
+        "## Safety",
+    ]:
+        assert heading in en
 
 
 def test_readmes_use_main_session_without_old_root_role_vocabulary():
