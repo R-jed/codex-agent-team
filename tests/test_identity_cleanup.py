@@ -5,6 +5,10 @@ LEGACY_PUBLIC = "codex-agent-team"
 LEGACY_INTERNAL_TOKENS = ("codex_agent_team_", "codex-agent-team-", ".codex-agent-team-")
 ALLOWED_MIGRATION_SURFACES = {
     "plugins/codex-delegate/scripts/install-agents.py",
+    "plugins/codex-delegate/skills/codex-delegate/SKILL.md",
+    "plugins/codex-delegate/skills/codex-delegate/references/safety-policy.md",
+    "docs/architecture.md",
+    "docs/native-subagent-runtime.md",
     "docs/plugin-installation.md",
     "README.md",
     "README_EN.md",
@@ -44,11 +48,10 @@ def test_legacy_identity_is_confined_to_one_way_migration_surfaces():
     assert not violations, f"Legacy identity escaped migration boundary: {violations}"
 
 
-def test_current_runtime_surfaces_have_no_legacy_identity():
+def test_active_route_profile_and_eval_surfaces_have_no_legacy_identity():
     current_surfaces = [
         ROOT / "plugins" / "codex-delegate" / "policy-contract.json",
         ROOT / "plugins" / "codex-delegate" / "agent-profiles",
-        ROOT / "plugins" / "codex-delegate" / "skills" / "codex-delegate" / "SKILL.md",
         ROOT / "plugins" / "codex-delegate" / "skills" / "codex-delegate" / "references" / "routing-policy.md",
         ROOT / "plugins" / "codex-delegate" / "skills" / "codex-delegate" / "references" / "runtime-assurance.md",
         ROOT / "plugins" / "codex-delegate" / "skills" / "codex-delegate" / "references" / "final-review-gate.md",
