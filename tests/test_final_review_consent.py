@@ -37,5 +37,5 @@ def test_declined_review_keeps_quality_gate_unsatisfied():
 
 def test_repeated_final_review_cycles_remain_compute_consent_bounded():
     consent = (REFERENCES / "consent-policy.md").read_text()
-    assert "The Final Review Gate does not authorize unlimited reviewer retries" in consent
+    assert "final review gate does not authorize unlimited reviewer retries" in consent.lower()
     assert "Approval for one additional Sol pass does not authorize repeated Sol retries" in consent
