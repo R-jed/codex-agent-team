@@ -20,16 +20,16 @@ Canonical entry point: /codex-delegate
 Compatibility namespace: R-jed/codex-agent-team / codex-agent-team
 Release posture: HOLD FOR RELEASE / LIVE VALIDATION PENDING
 Architecture posture: FROZEN AT v0.6.0
-Repository maintenance posture: ENGINEERING CONSOLIDATION + POLICY REDUCTION COMPLETE
+Repository maintenance posture: ENGINEERING CONSOLIDATION + POLICY REDUCTION + DEAD-SURFACE SWEEP COMPLETE
 Known open reproducible PROJECT P0/P1: none
 ```
 
-Latest accepted static validation before this dead-code/evidence-ledger sweep:
+Latest static validation for the dead-code/evidence-ledger sweep:
 
 ```text
-PR: #31
-exact tested head: 502e738f4a6ba16f8907d7d692c7d8364f734e36
-workflow: 30891101018
+PR: #32
+exact tested sweep head: 350a336417d5d8a0cf0c1c86817740e1ddc23f2f
+workflow: 30894739615
 Ubuntu / Python 3.11: PASS
 Ubuntu / Python 3.12: PASS
 macOS / Python 3.11: PASS
@@ -39,7 +39,7 @@ pinned official OpenAI Plugin validator: PASS
 managed profile install / --check / idempotent reinstall: PASS
 ```
 
-The static chain above proves repository consistency only. It does not prove current native route identity, permission enforcement, completion notification semantics, cross-session writer exclusion, installer multi-process safety, or Final Review quality yield.
+That tested head includes the functional dead-surface removal and evidence-ledger redesign. Any later evidence-only bookkeeping commit still requires normal CI before merge. Static validation proves repository consistency only. It does not prove current native route identity, permission enforcement, completion notification semantics, cross-session writer exclusion, installer multi-process safety, or Final Review quality yield.
 
 ## Evidence classes
 
@@ -64,6 +64,8 @@ The static chain above proves repository consistency only. It does not prove cur
 | `runtime-evidence.py` keeps route / ancestry / permission evidence separate | Deterministic | PASS | Normalized input only; no rollout scraping |
 | `review-artifact.py` binds the source deliverable deterministically | Deterministic | PASS | Ignored/generated deliverables need an additional digest when material |
 | One normative owner per major policy boundary | Repository fact + tests | PASS | Duplicate prose is not a second source of truth |
+| Dead duplicate route-assurance document removed | Repository fact + tests | PASS | Route configuration/runtime facts remain with their normative owners |
+| Behavioral scorer dead abstractions removed | Deterministic | PASS | Output/schema semantics unchanged by tests |
 | Completion-driven ready-frontier refill | Repository fact + tests | STATIC PASS / LIVE PENDING | Native completion/wait surface is not yet proven |
 | No unnecessary batch barrier when a dependency becomes ready | Policy contract | LIVE PENDING | Checkpoint 3 A/B/C timing case owns proof |
 | Required Final Review Gate lifecycle | Repository fact + tests | STATIC PASS / LIVE PENDING | Fresh Sol route, artifact handoff, verdict lifecycle need live proof |
@@ -202,6 +204,7 @@ PR #27 -> v0.6.0 Final Review Gate feature baseline
 PR #28 -> policy/runtime-evidence engineering consolidation
 PR #30 -> README/policy reduction + completion-driven scheduling contract
 PR #31 -> post-merge evidence reconciliation
+PR #32 -> dead-code/dead-surface sweep + evidence-ledger compaction
 ```
 
 Historical v0.5.x evidence remains available in Git history and prior PRs. It should not be copied forward into this ledger unless a current claim explicitly depends on it.
