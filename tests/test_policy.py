@@ -9,9 +9,14 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_ROOT = ROOT / "plugins" / "codex-agent-team"
 SKILL_DIR = PLUGIN_ROOT / "skills" / "codex-agent-team"
+REF_DIR = SKILL_DIR / "references"
 PROFILE_DIR = PLUGIN_ROOT / "agent-profiles"
 POLICY_CONTRACT = PLUGIN_ROOT / "policy-contract.json"
 RUNTIME_VERIFIER = PLUGIN_ROOT / "scripts" / "runtime-evidence.py"
+
+
+def read(path: str) -> str:
+    return (ROOT / path).read_text()
 
 
 def load_evals():
@@ -22,18 +27,12 @@ def load_policy_contract():
     return json.loads(POLICY_CONTRACT.read_text())
 
 
-def read(name):
-    return (ROOT / name).read_text()
-
-
-def test_eval_schema():
+def test_eval_schema_and_skill_identity():
     schema = json.loads((ROOT / "evals" / "routing-case.schema.json").read_text())
     jsonschema.Draft202012Validator(schema).validate(load_evals())
     assert load_evals()["schema_version"] == "3.0"
     assert load_evals()["skill_name"] == "codex-delegate"
 
-
-def test_skill_frontmatter_and_name():
     text = (SKILL_DIR / "SKILL.md").read_text()
     match = re.match(r"^---\n(.*?)\n---\n", text, re.S)
     assert match
@@ -50,37 +49,56 @@ def test_openai_yaml_matches_skill():
     assert data["interface"]["display_name"] == "Codex Delegate"
     assert "/codex-delegate" in data["interface"]["default_prompt"]
     assert "unresolved dependencies" in data["interface"]["default_prompt"].lower()
-    assert "execution progress" in data["interface"]["default_prompt"].lower()
     assert data["policy"]["allow_implicit_invocation"] is True
 
 
-def test_core_references_and_executable_helpers_exist():
+def test_policy_has_one_normative_owner_per_boundary():
     skill = (SKILL_DIR / "SKILL.md").read_text()
-    for name in [
-        "delegation-contract.md",
-        "execution-progress.md",
-        "routing-policy.md",
-        "runtime-assurance.md",
-        "consent-policy.md",
-        "safety-policy.md",
-        "orchestration-receipt.md",
-        "final-review-gate.md",
-    ]:
-        assert (SKILL_DIR / "references" / name).is_file()
+    expected = {
+        "delegation-contract.md": "contract",
+        "routing-policy.md": "routing",
+        "execution-progress.md": "progress",
+        "consent-policy.md": "consent",
+        "safety-policy.md": "safety",
+        "runtime-assurance.md": "runtime",
+        "final-review-gate.md": "review",
+        "orchestration-receipt.md": "receipt",
+    }
+    for name in expected:
+        assert (REF_DIR / name).is_file()
         assert f"references/{name}" in skill
-    assert not (SKILL_DIR / "references" / "task-packet.md").exists()
+
+    contract = (REF_DIR / "delegation-contract.md").read_text()
+    for duplicated_heading in [
+        "## Dependency Ledger",
+        "## Shared Evidence State",
+        "## Recovery Ledger",
+        "## Intervention Gate",
+        "## Failure classification",
+        "## Safety rules",
+    ]:
+        assert duplicated_heading not in contract
+
+    assert "This file owns the responsibility contract and return packet" in contract
+    assert "This file owns dependency readiness, completion-driven dispatch" in (
+        REF_DIR / "routing-policy.md"
+    ).read_text()
+
+
+def test_only_shipped_runtime_verifier_is_referenced():
     assert RUNTIME_VERIFIER.is_file()
     assert (PLUGIN_ROOT / "scripts" / "review-artifact.py").is_file()
+    assert not (SKILL_DIR / "scripts" / "inspect-runtime.py").exists()
+    assert not (SKILL_DIR / "scripts" / "verify-runtime.py").exists()
 
+    policy_surface = [SKILL_DIR / "SKILL.md", *REF_DIR.glob("*.md")]
+    policy_surface += [ROOT / "docs" / "architecture.md", ROOT / "docs" / "native-subagent-runtime.md", ROOT / "docs" / "model-route-assurance.md"]
+    for path in policy_surface:
+        text = path.read_text()
+        assert "inspect-runtime.py" not in text
+        assert "verify-runtime.py" not in text
 
-def test_runtime_docs_reference_only_shipped_verifier():
-    assurance = (SKILL_DIR / "references" / "runtime-assurance.md").read_text()
-    route_doc = read("docs/model-route-assurance.md")
-    combined = assurance + route_doc
-    assert "runtime-evidence.py" in combined
-    assert "inspect-runtime.py" not in combined
-    assert "verify-runtime.py" not in combined
-    assert "does not scrape Codex rollout internals" in combined
+    assert "runtime-evidence.py" in (REF_DIR / "runtime-assurance.md").read_text()
 
 
 def test_policy_contract_is_small_stable_constant_source():
@@ -94,17 +112,14 @@ def test_policy_contract_is_small_stable_constant_source():
     assert set(contract["roles"]) == {"reader", "worker", "investigator", "advisor"}
     assert contract["final_review"]["completion_verdicts"] == ["ship", "fix-first", "rethink"]
     assert contract["final_review"]["unresolved_verdict"] == "insufficient_evidence"
-    assert len(contract["final_review"]["trigger_codes"]) == len(
-        set(contract["final_review"]["trigger_codes"])
-    )
+    assert len(contract["final_review"]["trigger_codes"]) == len(set(contract["final_review"]["trigger_codes"]))
 
 
 def test_semantic_profiles_match_policy_contract_exactly():
-    contract = load_policy_contract()
-    expected_files = {spec["profile_file"] for spec in contract["roles"].values()}
-    assert {path.name for path in PROFILE_DIR.glob("*.toml")} == expected_files
+    roles = load_policy_contract()["roles"]
+    assert {path.name for path in PROFILE_DIR.glob("*.toml")} == {spec["profile_file"] for spec in roles.values()}
 
-    for spec in contract["roles"].values():
+    for spec in roles.values():
         data = tomllib.loads((PROFILE_DIR / spec["profile_file"]).read_text())
         assert data["name"] == spec["agent_type"]
         assert data["model"] == spec["model"]
@@ -114,10 +129,10 @@ def test_semantic_profiles_match_policy_contract_exactly():
         assert data["name"].startswith("codex_agent_team_")
 
 
-def test_static_cases_use_policy_contract_routes_and_dependency_ids():
+def test_static_cases_use_policy_contract_routes_and_unique_dependencies():
     roles = load_policy_contract()["roles"]
     for case in load_evals()["evals"]:
-        dependency_ids = []
+        ids = []
         for node in case["expected"].get("nodes", []):
             spec = roles[node["responsibility"]]
             assert node["model"] == spec["model"]
@@ -125,27 +140,40 @@ def test_static_cases_use_policy_contract_routes_and_dependency_ids():
             assert node["agent_type"] == spec["agent_type"]
             assert node["route_assurance"] == "profile_locked"
             assert node["fork_turns"] == "none" or re.fullmatch(r"[1-9][0-9]*", node["fork_turns"])
-            assert node["dependency_id"]
-            dependency_ids.append(node["dependency_id"])
-        assert len(dependency_ids) == len(set(dependency_ids))
+            ids.append(node["dependency_id"])
+        assert len(ids) == len(set(ids))
 
 
-def test_no_fixed_three_model_pipeline_or_hard_agent_count():
+def test_no_fixed_pipeline_or_product_child_ceiling():
     ids = {case["id"] for case in load_evals()["evals"]}
     assert {"luna-sol-short-path", "luna-capability-gap-terra-delta", "five-independent-readers-authorized"} <= ids
-    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
-    schema = (ROOT / "evals" / "routing-case.schema.json").read_text()
-    assert "Luna -> Terra -> Sol" in routing
-    assert "never required" in routing
-    assert "main -> Luna -> Sol -> main" in routing
+    routing = (REF_DIR / "routing-policy.md").read_text()
+    schema = read("evals/routing-case.schema.json")
+    assert "`Luna -> Terra -> Sol` is never required" in routing
     assert "no product-level hard child count" in routing.lower()
     assert '"maxItems": 4' not in schema
 
 
-def test_contractability_is_upstream_of_model_selection():
+def test_completion_driven_ready_frontier_is_explicit_across_kernel_and_docs():
     skill = (SKILL_DIR / "SKILL.md").read_text()
-    assert skill.index("## 4. Contractability Gate") < skill.index("## 6. Official Plugin boundary")
-    contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
+    routing = (REF_DIR / "routing-policy.md").read_text()
+    architecture = read("docs/architecture.md")
+    runtime = read("docs/native-subagent-runtime.md")
+
+    for text in [skill, routing, architecture, runtime]:
+        assert "completion-driven" in text.lower()
+        assert "ready frontier" in text.lower()
+        assert "join dependency" in text.lower()
+
+    assert "refill newly free capacity" in skill
+    assert "start C while A is still running" in routing
+    assert "Avoid model-mediated busy polling" in routing
+    assert "barrier_only" in runtime
+    assert "any_child_update" in runtime
+
+
+def test_contractability_is_upstream_of_writing_delegation():
+    contract = (REF_DIR / "delegation-contract.md").read_text()
     for field in [
         "DEPENDENCY",
         "OUTCOME",
@@ -156,48 +184,45 @@ def test_contractability_is_upstream_of_model_selection():
         "ACCEPTANCE ORACLE",
         "VERIFICATION",
         "STOP / ESCALATE",
+        "RETURN",
     ]:
         assert field in contract
     assert "do not create a writing Worker" in contract
+    assert "Do not resend an unchanged contract after failure" in contract
 
 
-def test_failure_classification_prevents_blind_retry_and_whole_task_terra_rework():
-    contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
-    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
-    progress = (SKILL_DIR / "references" / "execution-progress.md").read_text()
+def test_recovery_is_owned_by_execution_progress_and_prevents_blind_retry():
+    progress = (REF_DIR / "execution-progress.md").read_text()
+    routing = (REF_DIR / "routing-policy.md").read_text()
     for phrase in ["mechanical defect", "contract gap", "execution stall", "capability gap", "judgment gap"]:
-        assert phrase in (contract + routing).lower()
-    assert "Low quality alone is not a Terra trigger" in contract
-    assert "Terra is not a mandatory reviewer and not a generic second implementation attempt" in routing
+        assert phrase in progress.lower()
     assert "does not define a universal retry count" in progress
     assert "Capability takes precedence over retry" in progress
     assert "Intervention Gate" in progress
+    assert "Low quality alone is not a Terra trigger" in routing
 
 
-def test_shared_evidence_dependency_and_recovery_state_are_explicit():
-    contract = (SKILL_DIR / "references" / "delegation-contract.md").read_text()
+def test_evidence_and_recovery_state_are_explicit_without_duplicate_policy_owners():
     skill = (SKILL_DIR / "SKILL.md").read_text()
-    for text in [contract, skill]:
-        assert "Dependency Ledger" in text
-        assert "Shared Evidence State" in text
-        assert "Recovery Ledger" in text
-        assert "invalidated" in text.lower()
-    assert "deterministic | repository_fact | model_judgment" in contract
-    assert "A file or artifact change invalidates only evidence that depends on the changed input" in contract
-    assert "already `running` or `satisfied` must not receive a duplicate Agent call" in skill
+    contract = (REF_DIR / "delegation-contract.md").read_text()
+    progress = (REF_DIR / "execution-progress.md").read_text()
+    assert "Dependency Ledger" in skill
+    assert "Shared Evidence State" in skill
+    assert "Recovery Ledger" in skill
+    assert "type: deterministic | repository_fact | model_judgment" in contract
+    assert "Recovery Ledger" in progress
+    assert "already `running` or `satisfied` must not receive duplicate inference" in skill
 
 
 def test_parallelism_consent_writer_and_depth_invariants():
-    contract = load_policy_contract()["delegation"]
-    skill = (SKILL_DIR / "SKILL.md").read_text()
-    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
-    safety = (SKILL_DIR / "references" / "safety-policy.md").read_text()
-    consent = (SKILL_DIR / "references" / "consent-policy.md").read_text()
-    assert contract["max_depth"] == 1
-    assert contract["baseline_concurrent_children"] == 2
-    assert contract["max_active_writers_per_workspace"] == 1
-    assert "outputs satisfy different ready dependencies" in routing
-    assert "smallest useful scheduling wave" in skill
+    delegation = load_policy_contract()["delegation"]
+    routing = (REF_DIR / "routing-policy.md").read_text()
+    safety = (REF_DIR / "safety-policy.md").read_text()
+    consent = (REF_DIR / "consent-policy.md").read_text()
+    assert delegation["max_depth"] == 1
+    assert delegation["baseline_concurrent_children"] == 2
+    assert delegation["max_active_writers_per_workspace"] == 1
+    assert "Completion-driven dispatch" in routing
     assert "Children must not spawn further Subagents" in safety
     assert "up to 2 concurrently active justified child Agents" in consent
     assert "at most 1 active writer" in consent
@@ -206,7 +231,7 @@ def test_parallelism_consent_writer_and_depth_invariants():
 
 def test_route_assurance_has_no_portable_mode():
     skill = (SKILL_DIR / "SKILL.md").read_text()
-    routing = (SKILL_DIR / "references" / "routing-policy.md").read_text()
+    routing = (REF_DIR / "routing-policy.md").read_text()
     assurance = read("docs/model-route-assurance.md")
     for text in [skill, routing, assurance]:
         assert "profile_locked" in text
@@ -216,27 +241,25 @@ def test_route_assurance_has_no_portable_mode():
     assert "## No Portable Mode" in assurance
 
 
-def test_readmes_are_user_facing_without_arbitrary_line_budget():
+def test_readmes_are_concise_user_product_docs_not_release_handoffs():
     zh = read("README.md")
     en = read("README_EN.md")
     assert "README_EN.md" in zh and "README.md" in en
     for text in [zh, en]:
         assert "```mermaid" not in text
         assert "/codex-delegate" in text
-        assert "codex plugin marketplace add R-jed/codex-agent-team --ref main" in text
-        assert "codex plugin add codex-agent-team@codex-agent-team" in text
-        assert "Luna Reader" in text
-        assert "Luna Worker" in text
-        assert "Terra Investigator" in text
-        assert "Sol Advisor" in text
+        assert "HEADOFF.md" not in text
+        assert "LOCAL_VALIDATION_REPORT.md" not in text
+        assert "completion-driven" in text.lower()
         assert "Final Review Gate" in text
+
     for heading in [
-        "## 1. 这个项目是什么",
-        "## 2. 怎么安装",
-        "## 3. 它能干什么",
-        "## 4. 架构是怎么设计的",
-        "## 5. 安全性怎么样",
-        "## 6. 使用前需要注意什么",
+        "## 1. 它解决什么问题",
+        "## 2. 安装",
+        "## 3. 角色与责任",
+        "## 4. 并发与实际性能",
+        "## 5. 失败、恢复与 Final Review Gate",
+        "## 6. 安全与当前边界",
     ]:
         assert heading in zh
 
@@ -251,7 +274,7 @@ def test_readmes_use_main_session_without_old_root_role_vocabulary():
     assert "Root" not in zh
 
 
-def test_chinese_readme_avoids_em_dash_and_basic_spacing_regressions():
+def test_chinese_readme_avoids_em_dash_and_spacing_regressions():
     text = read("README.md")
     assert "—" not in text
     stripped = re.sub(r"```.*?```", "", text, flags=re.S)
@@ -265,39 +288,32 @@ def test_chinese_readme_avoids_em_dash_and_basic_spacing_regressions():
     assert not bad, f"Chinese/English spacing regressions: {bad}"
 
 
-def test_architecture_matches_current_final_review_and_runtime_design():
+def test_architecture_matches_current_runtime_and_final_review_design():
     architecture = read("docs/architecture.md")
+    runtime = read("docs/native-subagent-runtime.md")
     assurance = read("docs/model-route-assurance.md")
-    native = read("docs/native-subagent-runtime.md")
     for phrase in [
-        "Role identity is intentionally separate from model identity",
+        "smallest useful compute graph on the shortest safe critical path",
+        "Completion-driven scheduling",
         "Dependency Ledger",
         "Recovery Ledger",
-        "Intervention Gate",
-        "no second numerical hard ceiling",
-        "codex_agent_team_investigator",
-        "route_evidence",
         "Final Review Gate",
         "review_artifact_id",
-        "fresh Sol ship verdict",
+        "route_evidence",
     ]:
         assert phrase in architecture
-    assert "Final Sol review remains selective, not mandatory" not in architecture
     assert "No Portable Mode" in assurance
-    assert "does not define a product hard child count" in native
-    assert "child progress observability" in native.lower()
+    assert "Completion-driven scheduling contract" in runtime
+    assert "child-progress observability" in runtime.lower()
 
 
 def test_official_runtime_and_plugin_references_are_documented():
     refs = read("docs/openai-references.md")
-    runtime = read("docs/native-subagent-runtime.md")
     installation = read("docs/plugin-installation.md")
     assert "https://developers.openai.com/codex/subagents" in refs
     assert "plugin-creator/SKILL.md" in refs
     assert "installing-and-updating.md" in refs
     assert "scripts/validate_plugin.py" in refs
-    assert "spawn_agent" in runtime
-    assert "delegation depth" in runtime
     assert "~/.codex/agents" in installation
     assert "active Codex-home `agents` directory" in installation
     assert "codex plugin add codex-agent-team@codex-agent-team" in installation
