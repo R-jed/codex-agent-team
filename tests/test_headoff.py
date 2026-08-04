@@ -105,6 +105,7 @@ def test_handoff_requires_real_plugin_install_upgrade_and_installer_concurrency(
         "codex plugin marketplace upgrade codex-agent-team",
         "codex plugin add codex-agent-team@codex-agent-team",
         "start a new Codex thread",
+        "marketplace upgrade` followed by explicit `plugin add` refreshes the installed Plugin bytes",
         "I1 two installers target the same clean CODEX_HOME",
         "I2 one installer fails after mutation begins while a peer succeeds",
         "I3 two different managed profile generations compete in one CODEX_HOME",
@@ -125,19 +126,28 @@ def test_handoff_multi_session_writer_matrix_is_evidence_driven():
         assert phrase in text
 
 
-def test_handoff_adversarial_review_is_transport_agnostic():
+def test_handoff_targets_existing_project_chatgpt_conversation_fail_closed():
     text = HANDOFF.read_text()
-    assert "Review Checkpoints A-E" in text
-    assert "Codex remains the local executor" in text
-    assert "model_judgment" in text
-    assert "must not be counted as evidence that Codex Delegate itself routed correctly" in text
-    assert "Do not bind release correctness to the title or existence of one specific external ChatGPT conversation" in text
-    for forbidden in [
-        "TARGET_CHATGPT_CONVERSATION_TITLE",
-        "分支 · 分支 · 项目对比分析",
-        "continue_existing_conversation",
+    for phrase in [
+        "Review Checkpoints A-E",
+        "Codex remains the local executor",
+        "model_judgment",
+        "/gpt56-sol-pro-consult",
+        "## Project consultation target",
+        "TARGET_CHATGPT_CONVERSATION_TITLE: 分支 · 分支 · 项目对比分析",
+        "TARGET_MODE: continue_existing_conversation",
+        "MATCH_POLICY: exact_title_unique_match",
+        "CONSULTATION_TARGET_UNRESOLVED",
+        "do not fuzzy match",
+        "do not create a replacement ChatGPT conversation",
+        "do not silently fall back to an isolated consultation conversation",
+        "The target contract does not replace any transport-level `task_id`, sentinel, safety scan",
+        "must not be counted as evidence that Codex Delegate itself routed correctly",
     ]:
-        assert forbidden not in text
+        assert phrase in text
+    lines = text.splitlines()
+    assert "conversation_title: 分支 · 项目对比分析" not in lines
+    assert "分支 · 项目对比分析" not in lines
 
 
 def test_validation_report_reflects_merged_v060_baseline_and_provenance():
