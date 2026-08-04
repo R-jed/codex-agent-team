@@ -116,7 +116,7 @@
           "final_review_attempts": {"type": "integer", "minimum": 0},
           "final_review_verdict": {
             "type": ["string", "null"],
-            "enum": [null, "ship", "fix-first", "rethink", "incomplete", "declined"]
+            "enum": [null, "ship", "fix-first", "rethink", "insufficient_evidence", "incomplete", "declined"]
           },
           "final_review_gate_satisfied": {"type": ["boolean", "null"]},
           "review_artifact_verify_failures": {"type": "integer", "minimum": 0},
