@@ -31,6 +31,7 @@ Repository inspection through GitHub confirmed:
 - `README_AI.md` is the canonical AI-facing product/install/usage reference and identifies all old public/internal names as migration inputs only;
 - active policy/profile/routing/eval surfaces use the single current `codex_delegate_*` generation;
 - the installer treats old project-named profiles/manifests as bounded one-way migration inputs, removes only exact proven project-owned state, fails closed on unproven state, and verifies that the old project generation is absent after successful migration;
+- when both recognized historical ownership receipts exist, disjoint proven hashes are merged for migration, while conflicting hashes for the same file fail closed before mutation;
 - `docs/plugin-installation.md` documents the same one-way migration boundary and explicitly states that 0.7.0 removes the active compatibility layer;
 - there are no open pull requests;
 - four historical work branches remain, and each compares as `ahead_by: 0` against `main`, so none contains work missing from `main`.
@@ -57,6 +58,7 @@ This review is repository fact only. It does not substitute for deterministic te
 | current role namespace is exclusively `codex_delegate_*` | repository fact, deterministic revalidation pending | policy/profile/test tree changed in 0.7.0 |
 | current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer changed in 0.7.0 |
 | proven 0.6.x project state migrates one-way and old project state is removed | repository implementation fact, deterministic + live validation pending | static migration tests then Checkpoint 6 |
+| recognized historical ownership receipts merge safely or fail closed on conflict | repository implementation fact, deterministic + live validation pending | migration ownership fix reviewed through 476fcb45363844e680521d6484a90a81ca1cfd24 |
 | unproven old project profile fails closed | repository implementation fact, deterministic + live validation pending | no silent overwrite/delete |
 | Plugin structure/current official validator | pending 0.7.0 CI | RC reruns then-current validator |
 | exact current Reader/Worker/Investigator/Advisor routes | live pending | Checkpoint 1 |
