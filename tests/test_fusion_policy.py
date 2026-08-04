@@ -4,33 +4,31 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "plugins" / "codex-agent-team" / "skills" / "codex-agent-team"
-
-
-def read(path: str) -> str:
-    return (ROOT / path).read_text()
+PLUGIN = ROOT / "plugins" / "codex-agent-team"
+SKILL = PLUGIN / "skills" / "codex-agent-team"
+RUNTIME_VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
 
 
 def load_cases() -> dict:
     return json.loads((ROOT / "evals" / "runtime-assurance-cases.json").read_text())
 
 
-def test_runtime_assurance_reference_and_inspector_remain_installed():
+def test_runtime_assurance_reference_and_normalized_verifier_are_installed():
     runtime = SKILL / "references" / "runtime-assurance.md"
-    inspector = SKILL / "scripts" / "inspect-runtime.py"
     skill = (SKILL / "SKILL.md").read_text()
-    assert runtime.exists()
-    assert inspector.exists()
+    assert runtime.is_file()
+    assert RUNTIME_VERIFIER.is_file()
     assert "references/runtime-assurance.md" in skill
-    assert "scripts/inspect-runtime.py" in runtime.read_text()
+    assert "runtime-evidence.py" in runtime.read_text()
+    assert "runtime-evidence.py" in skill
+    assert not (SKILL / "scripts" / "inspect-runtime.py").exists()
 
 
 def test_three_compute_tiers_have_distinct_responsibilities_not_fixed_order():
     skill = (SKILL / "SKILL.md").read_text()
     routing = (SKILL / "references" / "routing-policy.md").read_text()
     combined = skill + routing
-    assert "Luna Max" in combined
-    assert "bounded execution" in combined
+    assert "Luna" in combined and "bounded" in combined
     assert "Terra" in combined and "unresolved" in combined and "technical delta" in combined
     assert "Sol" in combined and "selective" in combined and "judgment" in combined
     assert "main -> Luna -> Sol -> main" in routing
@@ -42,18 +40,27 @@ def test_runtime_observation_is_demand_driven_not_universal_overhead():
     routing = (SKILL / "references" / "routing-policy.md").read_text()
     runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
     assert "Runtime observation is demand-driven" in routing
-    assert "Do not inspect rollout data for every routine child" in runtime
+    assert "Do not demand runtime telemetry for every routine child" in runtime
+    assert "Ordinary bounded work may proceed" in runtime
 
 
 def test_delegation_contract_records_decision_rights_and_evidence_state():
     contract = (SKILL / "references" / "delegation-contract.md").read_text()
     safety = (SKILL / "references" / "safety-policy.md").read_text()
-    for section in ["DEPENDENCY", "OUTCOME", "SCOPE", "INVARIANTS", "DECISION RIGHTS", "ACCEPTANCE ORACLE", "VERIFICATION"]:
+    for section in [
+        "DEPENDENCY",
+        "OUTCOME",
+        "SCOPE",
+        "INVARIANTS",
+        "DECISION RIGHTS",
+        "ACCEPTANCE ORACLE",
+        "VERIFICATION",
+    ]:
         assert section in contract
     assert "Shared Evidence State" in contract
     assert "unresolved_delta" in contract
     assert "Child reports are claims" in safety
-    assert "independently inspectable artifacts and evidence" in safety
+    assert "inspectable artifacts and evidence" in safety
 
 
 def test_sol_review_is_selective_and_terra_is_delta_investigation():
@@ -67,9 +74,9 @@ def test_sol_review_is_selective_and_terra_is_delta_investigation():
 
 def test_behavioral_read_only_never_claims_runtime_enforcement():
     safety = (SKILL / "references" / "safety-policy.md").read_text()
-    assert "Behavioral read-only is allowed only when all of these conditions hold" in safety
+    assert "Behavioral read-only is allowed only when hard host isolation is not required" in safety
     assert "permission_guarantee = instruction_enforced" in safety
-    assert "Do not upgrade behavioral read-only to `runtime_enforced`" in safety
+    assert "Do not relabel behavioral read-only as `runtime_enforced`" in safety
 
 
 def test_runtime_truth_cases_cover_partial_and_typed_evidence_regressions():
