@@ -5,7 +5,7 @@ PLUGIN = ROOT / "plugins" / "codex-delegate"
 SKILL = PLUGIN / "skills" / "codex-delegate"
 
 
-def test_runtime_evidence_is_typed_and_partial_is_not_proof():
+def test_runtime_evidence_is_typed_and_main_coverage_is_conservative():
     runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
     for field in ["route_evidence", "ancestry_evidence", "permission_evidence"]:
         assert field in runtime
@@ -17,38 +17,96 @@ def test_runtime_evidence_is_typed_and_partial_is_not_proof():
         "X0_conflicted",
     ]:
         assert grade in runtime
-    assert "partial record never earns" in runtime
+    for phrase in [
+        "main_judgment_coverage",
+        "covered",
+        "uncovered",
+        "unknown",
+        "local-only",
+        "Main-session coverage is used only to avoid redundant capability-uplift Sol calls",
+    ]:
+        assert phrase in runtime
 
 
-def test_profile_locked_is_only_route_assurance_and_verifier_is_current():
-    runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
+def test_runtime_verifier_supports_main_and_child_subjects():
+    verifier = (PLUGIN / "scripts" / "runtime-evidence.py").read_text()
+    assert 'subject == "main_session"' in verifier
+    assert 'subject == "child"' in verifier
+    assert 'SOL_MODEL_PREFIX = "gpt-5.6-sol"' in verifier
+    assert 'coverage = "unknown"' in verifier
+    assert "quarantine_main_route_claim" in verifier
+
+
+def test_exact_project_roles_have_no_cross_role_fallback():
     routing = (SKILL / "references" / "routing-policy.md").read_text()
-    assert "profile_locked" in runtime and "profile_locked" in routing
-    assert "native_explicit_validated" not in runtime + routing
-    assert "There is no Portable Mode" in routing
+    skill = (SKILL / "SKILL.md").read_text()
+    for role in [
+        "codex_delegate_reader",
+        "codex_delegate_worker",
+        "codex_delegate_solver",
+        "codex_delegate_investigator",
+        "codex_delegate_advisor",
+    ]:
+        assert role in skill or role in routing
+    assert "Exact-route mismatch fails closed" in skill
+    assert "Do not cross-route" in skill
     assert (PLUGIN / "scripts" / "runtime-evidence.py").is_file()
-    assert "codex_delegate_worker" in runtime
 
 
-def test_consent_and_live_eval_boundaries_remain():
+def test_consent_and_live_eval_boundaries_remain_distinct():
     consent = (SKILL / "references" / "consent-policy.md").read_text()
     for phrase in [
         "up to 2 concurrently active justified child Agents",
-        "at most 1 active writer",
-        "The exact team shape is dynamic",
-        "does not add another numerical hard ceiling",
+        "at most 1 active writing project Agent",
+        "Material compute expansion",
+        "Do not spend Sol merely because the baseline permits it",
     ]:
         assert phrase in consent
+
     docs = (ROOT / "docs" / "behavioral-evals.md").read_text()
-    assert "controlled live runs" in docs
-    assert "raw_prompt_luna" in docs
-    assert "contract_luna_final_review_gate" in docs
+    for phrase in [
+        "paired live workloads",
+        "raw_prompt_luna",
+        "bounded_luna",
+        "advisor_then_luna",
+        "sol_solver",
+        "Process-history negative control",
+    ]:
+        assert phrase.lower() in docs.lower()
 
 
-def test_profile_lifecycle_is_current_only():
+def test_writer_safety_covers_worker_and_solver():
+    safety = (SKILL / "references" / "safety-policy.md").read_text()
+    assert "codex_delegate_worker" in safety
+    assert "codex_delegate_solver" in safety
+    assert "one active writing project Agent" in safety
+    assert "Multiple writing Agents require genuine filesystem isolation" in safety
+
+
+def test_profile_lifecycle_is_current_only_and_five_role():
     installation = (ROOT / "docs" / "plugin-installation.md").read_text()
-    skill = (SKILL / "SKILL.md").read_text()
-    assert "codex_delegate_worker" in installation
+    ai = (ROOT / "README_AI.md").read_text()
+    for role in [
+        "codex_delegate_reader",
+        "codex_delegate_worker",
+        "codex_delegate_solver",
+        "codex_delegate_investigator",
+        "codex_delegate_advisor",
+    ]:
+        assert role in installation
+        assert role in ai
     assert ".codex-delegate-agents.json" in installation
     assert "leaves unrelated Agent profiles untouched" in installation
-    assert "Other Agent profiles are user-owned and must remain untouched" in skill
+
+
+def test_process_history_is_not_a_final_review_trigger():
+    final_review = (SKILL / "references" / "final-review-gate.md").read_text()
+    for phrase in [
+        "Terra was used",
+        "Sol Solver was used",
+        "a clean restart happened",
+        "material recovery happened",
+        "the diff is large",
+    ]:
+        assert phrase in final_review
+    assert "do **not** make review mandatory by themselves" in final_review
