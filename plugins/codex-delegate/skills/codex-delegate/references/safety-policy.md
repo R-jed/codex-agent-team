@@ -55,28 +55,32 @@ When ancestry is observable and material, verify the expected parent. Unexpected
 
 ## 5. One writer domain
 
-One canonical physical checkout has at most one active writing project Agent.
+One canonical physical checkout has at most one active writing actor inside the current Codex Delegate orchestration.
 
-Current writing roles are:
+Writing actors are:
 
 ```text
+main session when it is mutating that checkout
 codex_delegate_worker
 codex_delegate_solver
 ```
 
-Multiple writing Agents require genuine filesystem isolation such as separate runtime-backed worktrees, workspaces, or repositories. Intended disjoint file lists inside one checkout do not prove isolation because generated files, lockfiles, formatters, Git metadata, tests, and dependency chains can couple the work.
+If a Worker or Solver owns an active writing dependency in a checkout, the main session may continue read-only analysis, acceptance preparation, or work in another genuinely isolated workspace, but it must not concurrently mutate that same checkout. Main-session integration writes wait until the child writing responsibility has stopped or completed.
 
-A writing Agent must:
+Likewise, do not spawn Worker or Solver into a checkout while the main session is actively performing a conflicting mutation there. Transfer the writing responsibility at a clear orchestration boundary.
 
-- preserve unrelated existing edits;
+Multiple simultaneous writing actors require genuine filesystem isolation such as separate runtime-backed worktrees, workspaces, or repositories. Intended disjoint file lists inside one checkout do not prove isolation because generated files, lockfiles, formatters, Git metadata, tests, and dependency chains can couple the work.
+
+Every writing actor or writing contract must preserve unrelated existing edits and current state. A writing child must:
+
 - never revert unknown changes to recover an assumed baseline;
-- re-read affected state before mutation when concurrent change is plausible;
+- re-read affected state before mutation when concurrent external drift is plausible;
 - invalidate only evidence that depends on changed state;
 - stop when drift makes scope, interfaces, invariants, decision envelope, or acceptance stale.
 
 The main session compares actual changed scope with granted write scope before acceptance.
 
-This policy describes the required safety invariant across sessions. Do not claim cross-session locking or exclusion until live evidence proves a mechanism actually enforces it.
+This current-session invariant does not prove exclusion against independent Codex sessions, editors, Git hooks, or other processes targeting the same checkout. Until live evidence establishes a coordination mechanism, cross-session safety relies on isolated workspaces where possible plus drift detection and fail-closed behavior. Do not claim a project lock that does not exist.
 
 ## 6. Shared Codex-home state
 
