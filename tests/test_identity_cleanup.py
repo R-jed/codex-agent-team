@@ -4,6 +4,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RETIRED_TOKENS = (
     "codex" + "-agent-team",
     "codex" + "_agent_team",
+    "codex" + " agent team",
 )
 SCAN_ROOTS = ("plugins", "docs", "evals", "tests", ".agents", ".github")
 ROOT_FILES = ("README.md", "README_EN.md", "README_AI.md", "HEADOFF.md", "LOCAL_VALIDATION_REPORT.md")
