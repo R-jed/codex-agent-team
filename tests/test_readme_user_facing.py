@@ -40,6 +40,20 @@ def test_ai_reference_is_authoritative_and_current():
     assert "historical migration inputs only" in AI
 
 
+def test_readmes_lead_with_quickstart_and_user_value_before_deeper_mechanics():
+    assert ZH.index(DIRECTIVE) < ZH.index("## 快速开始")
+    assert EN.index(DIRECTIVE) < EN.index("## Quickstart")
+    assert ZH.index("## 快速开始") < ZH.index("## 会怎么分工")
+    assert EN.index("## Quickstart") < EN.index("## How work is divided")
+    for phrase in ["## 它解决什么", "## 适合怎么用", "## 文档"]:
+        assert phrase in ZH
+    for phrase in ["## What it solves", "## Typical usage", "## Documentation"]:
+        assert phrase in EN
+    for text in [ZH, EN]:
+        for link in ["README_AI.md", "docs/plugin-installation.md", "docs/architecture.md", "docs/native-subagent-runtime.md"]:
+            assert link in text
+
+
 def test_readmes_explain_adaptive_parallelism_and_recovery():
     assert "你不需要手工设计并发计划" in ZH
     assert "You do not need to design the concurrency plan yourself" in EN
