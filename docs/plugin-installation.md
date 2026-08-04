@@ -62,7 +62,7 @@ Start a **new Codex thread** before testing the updated Skill.
 
 During release validation, record the marketplace upgrade result, installed Plugin version, and fresh-thread discovery. Do not hand-edit marketplace files or `config.toml` to simulate an update.
 
-For local Plugin-development iteration where the semantic version is intentionally unchanged, follow the current OpenAI plugin-creator cachebuster/reinstall workflow. Release versions such as `0.5.0 -> 0.5.1` use the real version change and do not need an artificial cachebuster solely to represent that release.
+For local Plugin-development iteration where the semantic version is intentionally unchanged, follow the current OpenAI plugin-creator cachebuster/reinstall workflow. Release versions such as `0.5.1 -> 0.6.0` use the real version change and do not need an artificial cachebuster solely to represent that release.
 
 ## Official Plugin boundary
 
@@ -117,27 +117,30 @@ When a required role is missing or an exactly owned earlier generation needs mig
 
 Successful file installation is configuration evidence. It does not prove current-task role refresh or the effective route of a spawned child.
 
-## Version 0.5.1
+## Version 0.6.0
 
-Version `0.5.1` keeps the v0.5.0 semantic routes and adaptive dependency scheduling while refining recovery governance and official Plugin installation documentation.
+Version `0.6.0` keeps the v0.5.1 adaptive dependency scheduling, evidence reuse, Intervention Gate, Recovery Ledger, and the same four managed Agent profile bytes. It adds the risk-triggered Final Review Gate as a new acceptance layer for higher-risk deliverables.
 
-Recovery now separates:
+Sol remains selective globally. A semantic trigger can make a fresh `codex_agent_team_advisor` review mandatory for one candidate after main-session verification. The candidate is bound to a deterministic `review_artifact_id`; any deliverable mutation after review invalidates the old verdict.
+
+The completion lifecycle is:
 
 ```text
-execution evidence
--> structured progress signals
--> Intervention Gate
--> recovery classification
--> effective action
+main-session verification
+-> Candidate Ready
+-> fresh Sol final review when required
+-> ship | fix-first | rethink
 ```
 
-It adds a bounded Recovery Ledger, proposed-versus-effective action provenance, event-driven recovery evaluation, and an explicit live gate for child-progress observability.
+The existing Advisor profile may also return `INSUFFICIENT_EVIDENCE` when a justified verdict requires missing evidence. That keeps the gate unresolved until the named evidence dependency is established and a new fresh review runs.
 
-No fixed retry count, fixed stall threshold, cheap-first model ladder, or product hard child ceiling is introduced.
+`fix-first` requires a new correction, re-verification, a new artifact identity, and a new fresh review. `rethink` returns the affected architecture, contract, or invariant assumptions to the main session rather than becoming a local patch.
 
-The managed Agent profile bytes are unchanged from v0.5.0. An exact v0.5.0 profile generation therefore does not need replacement solely because the Plugin Skill moved to v0.5.1.
+Final-review triggering is semantic rather than numeric. No fixed diff threshold, file threshold, retry threshold, model ladder, or mandatory Luna -> Terra -> Sol pipeline is introduced.
 
-## Migration from Codex Agent Team 0.3.x and Codex Delegate 0.4.x / 0.5.0
+The managed Agent profile bytes remain unchanged from v0.5.0 and v0.5.1. An exact existing profile generation therefore does not need replacement solely because the Plugin Skill moved to v0.6.0.
+
+## Migration from Codex Agent Team 0.3.x and Codex Delegate 0.4.x / 0.5.x
 
 For real installed upgrades, use the supported Git marketplace lifecycle:
 
@@ -197,7 +200,7 @@ Concurrent same-Codex-home multi-process behavior remains a live release gate. N
 
 ## Plugin validation before release
 
-Static repository tests are insufficient to claim current official Plugin compatibility.
+Static repository tests are insufficient to claim current official Plugin compatibility or live Final Review Gate behavior.
 
 Each release candidate must:
 
@@ -207,13 +210,14 @@ Each release candidate must:
 4. run `codex plugin add codex-agent-team@codex-agent-team`;
 5. start a new thread and confirm `/codex-delegate` discovery;
 6. authorize first-run profile provisioning when needed and verify all four exact roles are discovered from the active Codex Agent directory;
-7. record the exact Codex build, Plugin version, validator revision, commands, and outcomes in `LOCAL_VALIDATION_REPORT.md`.
+7. exercise the required Final Review Gate path on representative live workloads, including fresh Advisor routing, artifact handoff, verdict invalidation, `INSUFFICIENT_EVIDENCE`, and consent behavior;
+8. record the exact Codex build, Plugin version, validator revision, commands, and outcomes in `LOCAL_VALIDATION_REPORT.md`.
 
 CI also runs a pinned official OpenAI Plugin validator for deterministic regression protection. That pin is static evidence only; RC validation still reruns the then-current official validator.
 
 ## Failure behavior
 
-If marketplace registration/upgrade, Plugin installation, official validation, profile provisioning, or exactness verification fails, stop and record the actual failure. Do not manually patch user config to make the supported path appear successful.
+If marketplace registration/upgrade, Plugin installation, official validation, profile provisioning, exactness verification, or a required final-review dependency fails, stop and record the actual failure. Do not manually patch user config to make the supported path appear successful.
 
 If profile installation fails, the affected responsibility stays in the main session. Do not manually overwrite, rename, or cross-route a conflicting role.
 
