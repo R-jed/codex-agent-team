@@ -251,8 +251,6 @@ def test_readmes_are_release_ready_user_product_docs():
         assert "/codex-delegate" in text
         assert "HEADOFF.md" not in text
         assert "LOCAL_VALIDATION_REPORT.md" not in text
-        assert "Final Review" in text
-        assert "Native Subagents" in text
         assert "status-pre--v1" not in text
         assert "pre-v1" not in lower
         assert "release validation" not in lower
@@ -262,13 +260,18 @@ def test_readmes_are_release_ready_user_product_docs():
         assert "recovery ledger" not in lower
         assert "review_artifact_id" not in lower
 
+    assert "Codex 原生 Subagents" in zh
+    assert "## 最终复核" in zh
+    assert "Codex Native Subagents" in en
+    assert "## Final Review Gate" in en
+
     for heading in [
         "## 为什么用 Codex Delegate",
         "## 安装",
         "## 模型分工",
         "## 并行工作",
         "## 失败时怎么处理",
-        "## Final Review",
+        "## 最终复核",
         "## 安全边界",
     ]:
         assert heading in zh
@@ -279,7 +282,7 @@ def test_readmes_are_release_ready_user_product_docs():
         "## Models and roles",
         "## Parallel work",
         "## When work goes wrong",
-        "## Final Review",
+        "## Final Review Gate",
         "## Safety",
     ]:
         assert heading in en
