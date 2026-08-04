@@ -11,7 +11,7 @@
 <p align="center"><strong>Codex Delegate 为 Codex 提供一套稳定的子代理委托框架，让它按需要把工作交给 Luna、Terra 和 Sol。</strong></p>
 
 <p align="center">
-  <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装与迁移</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
+  <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
 </p>
 
 <p align="center">
@@ -153,7 +153,7 @@ rethink    关键设计或假设需要重新考虑
 
 codex delegate 不实现第二套 Agent runtime，也不需要后台 daemon 或外部 routing proxy。它直接使用 Codex Native Subagents。
 
-## 更新与迁移
+## 更新
 
 更新现有安装：
 
@@ -162,16 +162,14 @@ codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-更新后启动新的 Codex 会话。第一次需要专用 Luna、Terra 或 Sol 角色时，codex delegate 会说明需要管理的 Agent 文件，并在得到授权后完成配置或迁移。
-
-如果你使用过旧的 `codex-agent-team` Plugin，或者从 codex delegate 0.6.x 升级，请阅读[安装与迁移指南](docs/plugin-installation.md)。旧项目身份只用于一次性迁移，成功迁移后不会继续作为当前 fallback 层。
+更新后启动新的 Codex 会话。第一次需要专用 Luna、Terra 或 Sol 角色时，codex delegate 会说明需要管理的 Agent 文件，并在得到授权后完成配置。
 
 安装程序只管理 codex delegate 自己的当前 Agent profiles 和 ownership 记录，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置。
 
 ## 文档
 
 - [README_AI.md](README_AI.md)：AI Agent 查询本项目时应优先读取的 canonical reference。
-- [安装与迁移](docs/plugin-installation.md)：首次安装、升级、旧版本迁移和 installer safety。
+- [安装指南](docs/plugin-installation.md)：首次安装、更新和 installer safety。
 - [架构](docs/architecture.md)：主会话控制、adaptive dependency orchestration 和 evidence boundary。
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)：原生并发、路由和 runtime evidence 的边界。
 
