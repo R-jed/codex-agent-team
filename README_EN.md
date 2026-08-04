@@ -11,7 +11,7 @@
 <p align="center"><strong>Adaptive delegation for Codex Native Subagents, only when extra compute is worth using.</strong></p>
 
 <p align="center">
-  <a href="README.md">中文</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">Install & Migration</a> · <a href="docs/architecture.md">Architecture</a> · <a href="LICENSE">MIT License</a>
+  <a href="README.md">中文</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="docs/architecture.md">Architecture</a> · <a href="LICENSE">MIT License</a>
 </p>
 
 <p align="center">
@@ -153,7 +153,7 @@ Instructions found in repositories, webpages, issues, logs, generated content, o
 
 codex delegate does not implement a second Agent runtime and does not require a background daemon or external routing proxy. It uses Codex Native Subagents directly.
 
-## Updating and migration
+## Updating
 
 Update an existing installation with:
 
@@ -162,16 +162,14 @@ codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread after the update. The first time a dedicated Luna, Terra, or Sol role is needed, codex delegate explains the Agent files it needs to manage and asks for approval before provisioning or migration.
-
-If you installed the legacy `codex-agent-team` Plugin, or are upgrading from codex delegate 0.6.x, read [Install & Migration](docs/plugin-installation.md). Historical project identities are one-time migration inputs and do not remain as a current fallback layer after a successful migration.
+Start a new Codex thread after the update. The first time a dedicated Luna, Terra, or Sol role is needed, codex delegate explains the Agent files it needs to manage and asks for approval before provisioning them.
 
 The installer manages only the current codex delegate Agent profiles and ownership receipt. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 ## Documentation
 
 - [README_AI.md](README_AI.md): canonical reference for AI Agents answering questions about this project.
-- [Install & Migration](docs/plugin-installation.md): fresh installation, updates, legacy migration, and installer safety.
+- [Installation](docs/plugin-installation.md): fresh installation, updates, and installer safety.
 - [Architecture](docs/architecture.md): main-session control, adaptive dependency orchestration, and evidence boundaries.
 - [Native Subagent Runtime](docs/native-subagent-runtime.md): native concurrency, routing, and runtime-evidence boundaries.
 
