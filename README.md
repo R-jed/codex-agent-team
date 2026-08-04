@@ -22,7 +22,15 @@ Codex Delegate 是 Codex Native Subagents 之上的委派策略层。它把开�
 
 主会话始终负责用户意图、任务范围、关键决策、调度、验收和最终回复。Luna、Terra 和 Sol 是可选择的执行与判断资源，没有固定流水线，也没有固定 Agent 数量。
 
-当前版本：`0.6.0`，pre-v1。
+当前版本：`0.6.0`，pre-v1。v0.6.0 已合并进入 `main`，风险触发的 Final Review Gate、确定性 artifact binding、consent/recovery 集成和 behavioral metrics 都属于当前主线能力。
+
+## 当前项目状态
+
+v0.6.0 最终合并候选已经通过 Ubuntu / Python 3.11、Ubuntu / Python 3.12、macOS / Python 3.11、pinned official OpenAI Plugin validator，以及 `167` 个 pytest。
+
+pre-v1 阶段仍在 current Codex runtime 上完成这些 live validation：Worker / Investigator / Advisor exact route、required Final Review Gate 的 fresh Sol 与 artifact 生命周期、跨独立主会话的同 checkout writer exclusion，以及正式 release 前的 current Plugin validator、真实 marketplace install/upgrade 和 installer concurrency。
+
+因此，仓库 CI 已验证的项目契约与仍待真实 runtime 证明的行为会继续分开描述；尚未完成的 live gate 不会被当成已经在所有 Codex runtime 上验证通过。
 
 ## 快速开始
 
