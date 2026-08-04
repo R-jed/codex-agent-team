@@ -2,7 +2,7 @@
 
 This page records the OpenAI sources that materially influence the current design. It separates OpenAI runtime, Plugin, Skill, and model facts from Codex Delegate policy choices.
 
-Last reviewed: 2026-08-03.
+Last reviewed: 2026-08-04.
 
 ## Codex Plugin structure and validation
 
@@ -60,11 +60,33 @@ Used for:
 - required custom-Agent fields such as `name`, `description`, and `developer_instructions`;
 - optional model, reasoning-effort, and sandbox configuration;
 - model/reasoning precedence and runtime-owned effective behavior;
-- native concurrency configuration such as `max_concurrent_threads_per_session` being a runtime setting rather than a Codex Delegate product constant.
+- native concurrency configuration such as `max_concurrent_threads_per_session` being a runtime setting rather than a Codex Delegate product constant;
+- the explicit recommendation that independent read-heavy work can run in parallel and may save time;
+- the current public orchestration description that Codex waits until all requested results are available before returning a consolidated multi-agent response.
+
+The last two points must be kept separate. Native Codex supports parallel child execution, but the public documentation's consolidated wait model does not by itself prove that a tested client/runtime exposes per-child completion events suitable for completion-driven frontier refill. That behavior remains a live runtime fact.
 
 Codex runtime details are version-sensitive. The live tool contract exposed by the user's current Codex session remains the decisive runtime surface.
 
 Codex Delegate does not claim that Plugin installation natively installs custom Agent roles. The Plugin distributes the Skill and bundled project files. The managed profile installer is a user-approved post-install provisioning step that writes the four exact semantic profiles into the official personal custom-Agent configuration location.
+
+### Public Codex issue telemetry: wait/polling overhead
+
+https://github.com/openai/codex/issues/35259
+
+This is **public user-reported telemetry in the OpenAI Codex repository, not an OpenAI runtime guarantee or benchmark**.
+
+The report describes repeated model turns whose only action was agent/process wait or status polling. In one corrected full usage window, the reporter attributes 19.8% of raw local token volume to wait/status-only turns and argues that waiting should be event-driven or harness-managed so unchanged state does not trigger another model call.
+
+Codex Delegate uses this only as evidence that coordination overhead and model-mediated polling are real risks worth measuring. It does not copy the reported percentage into product claims and does not assume the same behavior exists in every Codex build/client.
+
+### Public Codex issue telemetry: child close/lifecycle blocking
+
+https://github.com/openai/codex/issues/24389
+
+This is also **version-scoped user-reported issue evidence**. The report describes a `multi_agent_v1.close_agent` call blocking a parent thread for roughly eight hours on an unresponsive child.
+
+Codex Delegate uses this as a reason to test child close/slot-recovery behavior explicitly instead of assuming lifecycle operations are instantaneous or harmless. It is not evidence that current supported runtimes still have the same defect.
 
 ### MultiAgentV2 spawn handler
 
@@ -116,7 +138,7 @@ Used for:
 - model/reasoning overrides potentially being hidden by runtime configuration;
 - the absence of a universal post-spawn effective-model receipt on every runtime surface;
 - why configured route facts and observed runtime facts stay separate;
-- why child-progress observability must be characterized on the tested runtime rather than assumed from orchestration policy.
+- why child-progress observability and completion/wait semantics must be characterized on the tested runtime rather than assumed from orchestration policy.
 
 ### Agent thread creation
 
@@ -199,12 +221,15 @@ The following are project policy, not claims that OpenAI requires this exact wor
 - every Agent call must satisfy a distinct unresolved dependency;
 - zero children is normal; up to two concurrently active justified children is the normal no-extra-consent envelope, not a scheduler target or lifetime cap;
 - Codex Delegate defines no product-level hard child ceiling; actual parallelism is limited by ready dependencies, consent, workspace safety, exact routes, and native runtime capacity;
+- completion-driven ready-frontier refill is the desired scheduling policy when the tested runtime exposes useful individual child completion/update events;
+- a real join dependency or coarser native wait surface may require barrier waiting, and that limitation must be recorded rather than hidden;
+- model-mediated polling is coordination overhead to measure and minimize, not productive task progress;
 - acceptance failure and need for intervention are separate facts;
 - recovery uses a bounded Recovery Ledger, event-driven evaluation, and evidence rather than fixed retry/stall thresholds;
 - one shared workspace has at most one active writing Worker;
 - delegation depth remains one;
 - exact project-profile routing fails closed without cross-role substitution;
-- runtime route, ancestry, permission, capacity, and child-progress observability remain runtime facts that must be measured where material;
+- runtime route, ancestry, permission, capacity, completion/wait semantics, and child-progress observability remain runtime facts that must be measured where material;
 - Terra XHigh and Sol High remain route hypotheses until representative paired live workloads justify them.
 
 These choices must be evaluated against real Codex runtime behavior and representative developer workloads. Static repository tests establish policy/tooling consistency only.
