@@ -139,6 +139,55 @@ def test_proven_06_team_generation_migrates_and_is_removed(tmp_path: Path):
     assert run(home, "--check").returncode == 0
 
 
+def test_two_legacy_receipts_merge_disjoint_proven_ownership(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    team_file = agents / "codex-agent-team-reader.toml"
+    team_data = b'name = "codex_agent_team_reader"\n# team-owned\n'
+    team_file.write_bytes(team_data)
+    model_file = agents / "luna-worker.toml"
+    model_data = b"# older project-owned model profile\n"
+    model_file.write_bytes(model_data)
+    (home / LEGACY_TEAM_MANIFEST).write_text(
+        json.dumps({"schema_version": 2, "profile_hashes": {team_file.name: sha(team_data)}})
+    )
+    (home / LEGACY_FULL_MANIFEST).write_text(
+        json.dumps({"schema_version": 1, "mode": "profile", "profile_hashes": {model_file.name: sha(model_data)}})
+    )
+
+    result = run(home)
+
+    assert result.returncode == 0, result.stderr
+    assert not team_file.exists()
+    assert not model_file.exists()
+    assert not (home / LEGACY_TEAM_MANIFEST).exists()
+    assert not (home / LEGACY_FULL_MANIFEST).exists()
+    assert run(home, "--check").returncode == 0
+
+
+def test_conflicting_legacy_receipts_fail_closed_before_mutation(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    old = agents / "codex-agent-team-worker.toml"
+    old_data = b'name = "codex_agent_team_worker"\n# old\n'
+    old.write_bytes(old_data)
+    (home / LEGACY_TEAM_MANIFEST).write_text(
+        json.dumps({"schema_version": 2, "profile_hashes": {old.name: sha(old_data)}})
+    )
+    (home / LEGACY_FULL_MANIFEST).write_text(
+        json.dumps({"schema_version": 1, "mode": "profile", "profile_hashes": {old.name: "0" * 64}})
+    )
+    before = state(home)
+
+    result = run(home)
+
+    assert result.returncode != 0
+    assert "Conflicting legacy ownership hashes" in result.stderr
+    assert state(home) == before
+
+
 def test_unproven_old_team_profile_fails_closed_and_is_untouched(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"

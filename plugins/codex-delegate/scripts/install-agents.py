@@ -165,7 +165,21 @@ def manifest_hashes(manifest: dict | None) -> dict[str, str]:
 
 
 def legacy_ownership_hashes(team_manifest: dict | None, full_manifest: dict | None) -> dict[str, str]:
-    return manifest_hashes(team_manifest) if team_manifest is not None else manifest_hashes(full_manifest)
+    merged: dict[str, str] = {}
+    for source_name, manifest in (
+        (LEGACY_TEAM_MANIFEST_NAME, team_manifest),
+        (LEGACY_FULL_MANIFEST_NAME, full_manifest),
+    ):
+        for filename, digest in manifest_hashes(manifest).items():
+            existing = merged.get(filename)
+            if existing is not None and existing != digest:
+                fail(
+                    "Conflicting legacy ownership hashes for "
+                    f"{filename!r} across historical manifests; refusing migration. "
+                    f"Conflict observed while reading {source_name}."
+                )
+            merged[filename] = digest
+    return merged
 
 
 def desired_manifest() -> dict:
