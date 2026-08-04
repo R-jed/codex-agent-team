@@ -91,10 +91,9 @@ def test_repository_marketplace_points_at_nested_plugin_root():
 
 def test_main_skill_owns_first_run_profile_setup_and_receipts():
     text = (MAIN_SKILL / "SKILL.md").read_text()
-    assert "Agent Profile Readiness" in text
-    assert "Official Plugin boundary" in text
-    assert "$CODEX_HOME/agents" in text
-    assert "does not claim a native `agents` component" in text
+    assert "## 3. Ensure the exact role is available" in text
+    assert "Custom Agent profiles are a Codex configuration surface" in text
+    assert "active Codex-home `agents` directory" in text
     assert "../../scripts/install-agents.py" in text
     assert 'python "$installer" --check' in text
     assert "/codex-delegate" in text
