@@ -80,12 +80,14 @@ def test_behavioral_result_schema_supports_final_review_metrics():
     ]:
         assert field in props
 
+    assert "contract_luna_final_review_gate" in props["mode"]["enum"]
     assert props["final_review_requirement"]["enum"] == [None, "not_required", "required"]
     assert props["final_review_verdict"]["enum"] == [
         None,
         "ship",
         "fix-first",
         "rethink",
+        "insufficient_evidence",
         "incomplete",
         "declined",
     ]
