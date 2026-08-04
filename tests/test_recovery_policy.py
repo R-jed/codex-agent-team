@@ -18,7 +18,9 @@ def test_recovery_is_two_stage_and_not_failure_triggered():
     progress = read(SKILL_ROOT / "references" / "execution-progress.md")
     routing = read(SKILL_ROOT / "references" / "routing-policy.md")
 
-    for text in [skill, progress, routing]:
+    assert "Intervention Gate" in skill
+    assert "references/execution-progress.md" in skill
+    for text in [progress, routing]:
         assert "Intervention Gate" in text
         assert "acceptance" in text.lower()
         assert "forward progress" in text.lower()
