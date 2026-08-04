@@ -36,7 +36,7 @@ PR #27 was squash-merged as `b043428223ba99ce77e2268c32cfa6a38daad3ed`.
 
 The current `refactor/engineering-consolidation-v061` branch is a behavior-preserving maintenance candidate. It may repair stale executable/documentation contracts and reduce duplication, but it must not change product behavior without a new explicit architecture decision supported by evidence.
 
-Before any live checkpoint, record the actual tested `origin/main` SHA in `LOCAL_VALIDATION_REPORT.md`.
+Before any live checkpoint, fetch `origin/main`, record the actual tested SHA in `LOCAL_VALIDATION_REPORT.md`, and invalidate only evidence whose declared dependencies changed.
 
 ## Stop line
 
@@ -55,7 +55,7 @@ Do not change these accepted product rules merely to make a live test pass:
 - a required Final Review Gate is never silently downgraded;
 - no old `ship` is retained after any deliverable mutation;
 - `INSUFFICIENT_EVIDENCE` is never converted into `ship` or `fix-first`;
-- static tests never substitute for live runtime/product-value evidence.
+- static tests, Plugin validation, or external model consultation never substitute for live runtime/product-value evidence.
 
 Do not add a Checkpoint 7. A newly discovered release blocker belongs inside the existing checkpoint that owns the affected invariant.
 
@@ -80,7 +80,7 @@ The repository already contains and statically tests:
 
 ## Engineering-consolidation closure
 
-The v0.6.x maintenance candidate is allowed to reduce duplicated implementation/policy surface while preserving the above semantics. Its intended static changes are:
+The v0.6.x maintenance candidate may reduce duplicated implementation/policy surface while preserving the accepted v0.6.0 semantics. Its intended static end state is:
 
 ```text
 policy-contract.json owns stable route/resource/final-review constants
@@ -92,7 +92,7 @@ LOCAL_VALIDATION_REPORT.md remains the evidence ledger
 HEADOFF.md remains the finite release checklist
 ```
 
-The maintenance candidate is accepted only after the maintained CI matrix, profile lifecycle, and pinned Plugin validator are green.
+The maintenance candidate is accepted only after the maintained CI matrix, managed-profile lifecycle, and pinned official Plugin validator are green. It does not create a new architecture baseline or a new mandatory checkpoint.
 
 # Pending live validation
 
@@ -148,7 +148,7 @@ Record results in `LOCAL_VALIDATION_REPORT.md`.
 
 ### Review Checkpoint A
 
-After Checkpoint 1, perform one independent adversarial review of the sanitized evidence and release implications. The reviewer is advisory only; deterministic/runtime evidence remains authoritative.
+After Checkpoint 1, send one sanitized adversarial review packet through the required project consultation target defined below. The reviewer is advisory only; deterministic/runtime evidence remains authoritative.
 
 ## Checkpoint 2: contractability and scope safety
 
@@ -166,11 +166,11 @@ For every writing case, verify the actual changed-file set, preserved unrelated 
 
 ### Review Checkpoint B
 
-Review only new evidence or a P0/P1 candidate. Do not reopen already satisfied architecture questions without invalidating evidence.
+Send only the new evidence and unresolved judgment to the required project consultation target. Do not reopen already satisfied architecture questions without invalidating evidence.
 
 ## Checkpoint 3: dependency scheduling, evidence reuse, intervention, and recovery
 
-Validate the orchestration behaviors that static policy cannot prove:
+Validate the orchestration behaviors that static policy cannot prove.
 
 ### Dependency scheduling
 
@@ -224,7 +224,7 @@ Do not infer a stronger level than the tested runtime actually exposes.
 
 ### Review Checkpoint C
 
-Review whether observed failures require a project change or merely document a runtime limitation.
+Use the required project consultation target to review whether observed failures require a project change or merely document a runtime limitation.
 
 ## Checkpoint 4: product-value and final-review experiments
 
@@ -280,7 +280,7 @@ Record review material catches, false positives, attempts, artifact failures, po
 
 ### Review Checkpoint D
 
-Review product-value results without turning one benchmark into a permanent architecture constant.
+Send the controlled product-value evidence to the required project consultation target. Do not turn one benchmark into a permanent architecture constant.
 
 ## Checkpoint 5: adaptive resources, consent, multi-session safety, and lifecycle
 
@@ -316,7 +316,7 @@ Do not implement a workspace lock before M3 establishes a reproducible failure i
 
 ### Review Checkpoint E
 
-Any P0/P1 candidate gets immediate independent adversarial review before remediation is accepted. The reviewer does not replace reproduction, deterministic evidence, or user decisions.
+Send the multi-session/resource evidence to the required project consultation target. Any P0/P1 candidate also gets immediate adversarial review before remediation is accepted. The reviewer does not replace reproduction, deterministic evidence, or user decisions.
 
 ## Checkpoint 6: official Plugin install, migration, and installer concurrency
 
@@ -324,7 +324,7 @@ Any P0/P1 candidate gets immediate independent adversarial review before remedia
 
 For the eventual RC:
 
-1. run the then-current official `plugin-creator/scripts/validate_plugin.py` and record its source revision;
+1. run the then-current official `plugin-creator/scripts/validate_plugin.py` and record its OpenAI Codex source revision;
 2. register/refresh the real marketplace:
 
 ```bash
@@ -339,7 +339,10 @@ codex plugin add codex-agent-team@codex-agent-team
 3. start a new Codex thread after install/reinstall;
 4. confirm `/codex-delegate` discovery;
 5. verify metadata reports `0.6.0` or the selected RC/release version;
-6. validate first-run managed profile consent and exact role discovery.
+6. validate first-run managed profile consent and exact role discovery;
+7. while a behavior-preserving maintenance update still reports manifest version `0.6.0`, verify on the tested Codex build that `marketplace upgrade` followed by explicit `plugin add` refreshes the installed Plugin bytes. If it does not, bump the patch version before RC instead of relying on stale-cache assumptions.
+
+Current upstream OpenAI `PluginStore` source atomically replaces the selected version directory during an explicit install, but this is upstream source evidence only. Checkpoint 6 must prove the actual user-build behavior before release.
 
 ### Real upgrade/migration paths
 
@@ -440,11 +443,39 @@ Do not commit credentials, unrelated prompts, private rollout logs, or hidden re
 
 # Feedback protocol for continued adversarial review
 
-Independent review may be used at Review Checkpoints A-E and immediately after a P0/P1 candidate. Keep it transport-agnostic and project-portable.
+`/gpt56-sol-pro-consult` is the required adversarial consultation mechanism for this project at Review Checkpoints A-E, immediately after any P0/P1 candidate, and for bounded project discussion when local evidence requires a consequential judgment.
 
-The reviewer receives a compact sanitized packet containing only decision-relevant evidence, for example:
+## Project consultation target
 
 ```text
+SKILL: /gpt56-sol-pro-consult
+TARGET_CHATGPT_CONVERSATION_TITLE: 分支 · 分支 · 项目对比分析
+TARGET_MODE: continue_existing_conversation
+MATCH_POLICY: exact_title_unique_match
+```
+
+The target is the existing user + GPT-5.6 Sol Codex Delegate project discussion thread. Exact-title continuity is required so adversarial review receives the accumulated project context while each request still carries a current sanitized evidence packet.
+
+Target resolution is fail closed:
+
+- match the exact title `分支 · 分支 · 项目对比分析`;
+- do not fuzzy match, pick by recency, or guess from a similar title;
+- if there is no unique exact match, return `CONSULTATION_TARGET_UNRESOLVED`;
+- do not create a replacement ChatGPT conversation;
+- do not silently fall back to an isolated consultation conversation;
+- do not claim the applicable Review Checkpoint complete until the required consultation reaches this exact target.
+
+The target contract does not replace any transport-level `task_id`, sentinel, safety scan, or other protocol field required by `/gpt56-sol-pro-consult`.
+
+Each consultation receives a compact sanitized current-state packet:
+
+```text
+CONSULTATION_TARGET
+skill: /gpt56-sol-pro-consult
+conversation_title: 分支 · 分支 · 项目对比分析
+mode: continue_existing_conversation
+match_policy: exact_title_unique_match
+
 COMPLETED_HEADOFF_ITEMS
 NEW_EVIDENCE
 DEPENDENCY_STATE
@@ -461,9 +492,9 @@ LOCAL_JUDGMENT
 ASK
 ```
 
-Codex remains the local executor. A model consultation is `model_judgment`; it must not be counted as evidence that Codex Delegate itself routed correctly or that a runtime property was observed.
+Codex remains the local executor. Consultation output is `model_judgment`; it must not be counted as evidence that Codex Delegate itself routed correctly, that a Plugin install succeeded, or that a runtime property was observed. Deterministic/runtime evidence remains authoritative.
 
-Do not bind release correctness to the title or existence of one specific external ChatGPT conversation. If an external consultation transport is unavailable, record that fact and continue with deterministic/runtime evidence; do not fabricate consultation provenance.
+If the consultation transport or exact target is temporarily unavailable, deterministic/runtime testing may continue and the failure must be recorded, but the corresponding required Review Checkpoint remains incomplete. Never fabricate consultation provenance.
 
 # Completion condition
 
