@@ -116,9 +116,12 @@ def mean_values(values: list[float | int | None]) -> float | None:
 
 def metric_summary(runs: list[dict[str, Any]], metric: Metric) -> float | int | None:
     values = [number_or_none(run.get(metric.field)) for run in runs]
+    present = [value for value in values if value is not None]
+    if not present:
+        return None
     if metric.aggregate == "mean":
-        return mean_values(values)
-    return sum(value for value in values if value is not None)
+        return statistics.fmean(present)
+    return sum(present)
 
 
 def workload_specs(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -273,6 +276,14 @@ def build_summary(payload: dict[str, Any], specs: dict[str, dict[str, Any]]) -> 
     return summary
 
 
+def printable(value: Any) -> str:
+    if value is None:
+        return "not_recorded"
+    if isinstance(value, float):
+        return str(round(value, 2))
+    return str(value)
+
+
 def print_human(summary: dict[str, Any]) -> None:
     runtime = summary["runtime"]
     print(f"Runtime: {runtime['codex_version']} ({runtime['date']})")
@@ -287,8 +298,7 @@ def print_human(summary: dict[str, Any]) -> None:
             print(f"    pairs: {stats['pair_count']}")
             print(f"    mean_success_delta: {stats['mean_success_delta']:.3f}")
             for field in COMPARISON_CLI_FIELDS:
-                value = stats["mean_metric_deltas"][field]
-                print(f"    delta_{field}: {'not_recorded' if value is None else round(value, 2)}")
+                print(f"    delta_{field}: {printable(stats['mean_metric_deltas'][field])}")
 
     print("\nDescriptive mode aggregates (do not compare across workload mixes)")
     for mode, stats in summary["modes"].items():
@@ -303,10 +313,6 @@ def print_human(summary: dict[str, Any]) -> None:
             "mean_input_tokens",
             "mean_reasoning_tokens",
             "mean_latency_ms",
-        ):
-            value = stats[key]
-            print(f"  {key}: {'not_recorded' if value is None else round(value, 2)}")
-        for key in (
             "material_judgment_violations",
             "reclassification_events",
             "judgment_uplift_calls",
@@ -318,7 +324,7 @@ def print_human(summary: dict[str, Any]) -> None:
             "review_false_positives",
             "final_review_attempts",
         ):
-            print(f"  {key}: {stats[key]}")
+            print(f"  {key}: {printable(stats[key])}")
 
 
 def main() -> None:
