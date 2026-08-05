@@ -125,11 +125,27 @@ https://developers.openai.com/codex/subagents
 Used for:
 
 - native Codex Subagents and child-thread execution;
+- specialized agents running in parallel when work divides cleanly into independent responsibilities;
 - parallel read-heavy work as a useful starting point and extra caution for parallel write-heavy workflows;
+- subagent workflows consuming more tokens than comparable single-agent runs;
+- Codex itself handling spawning, follow-up routing, waiting, and closing Agent threads;
+- `agents.max_concurrent_threads_per_session` as a host-level cap on concurrently open spawned-Agent threads;
+- Codex choosing its own default when that host cap is unset;
+- official examples that fan a review out across several independent points rather than prescribing a universal small Agent count;
 - custom Agent TOML files under `~/.codex/agents/` for personal roles and `.codex/agents/` for project-scoped roles;
-- custom-Agent fields such as `name`, `description`, `developer_instructions`, model, reasoning effort, and sandbox intent;
-- native concurrency remaining a host/runtime capability rather than a codex delegate product constant;
-- subagent workflows consuming additional tokens and therefore requiring delegation to justify itself.
+- custom-Agent fields such as `name`, `description`, `developer_instructions`, model, reasoning effort, and sandbox intent.
+
+Current codex delegate consequence:
+
+```text
+project ordinary numeric child ceiling: none
+project Agent-count target: none
+host/native concurrency: respected as an upper bound
+preferred parallelism: distinct ready read-heavy work
+write parallelism: constrained by project one-writer safety
+```
+
+codex delegate does not mirror Codex's host thread-cap value into `policy-contract.json`. A configured or observed host capacity is runtime/environment specific and must not become a permanent project constant.
 
 Current codex delegate custom profiles:
 
@@ -215,9 +231,12 @@ Use live/runtime evidence only when a claim actually depends on it. Missing tele
 
 The following are codex delegate choices, not OpenAI requirements:
 
-- Main session owns user intent, authorization, integration, acceptance, and final response.
+- Main session acts as the team leader and owns user intent, authorization, team composition, integration, acceptance, and final response.
 - Zero children is normal.
-- Explicit `/codex-delegate` use has a project ordinary-consent envelope of up to two justified concurrent children.
+- There is no project-level ordinary numeric child ceiling or target Agent count.
+- Main manages a ready frontier and uses progressive fan-out only for distinct, ready, non-duplicative responsibilities whose delegation value exceeds handoff/compute/integration cost.
+- Native Agent capacity is an upper bound, never a target to fill.
+- Child count alone is not a consent trigger; material compute expansion is.
 - One canonical checkout has one active writing actor inside the current orchestration.
 - Main, Luna Worker, and Sol Solver share that writer domain.
 - Delegation depth is one.
