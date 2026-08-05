@@ -2,7 +2,7 @@
 
 This file owns the boundaries that must remain true while `router-core.md` selects and runs work.
 
-The goal is to protect user intent, workspace integrity, compute consent, and evidence quality without turning ordinary coding into ceremony.
+The goal is to let a strong main session lead a useful specialist team without letting delegation expand scope, collide on writes, duplicate work, or turn spare capacity into unnecessary compute.
 
 ## 1. User authority and delegation depth
 
@@ -10,6 +10,7 @@ The main session always owns:
 
 - user outcome and acceptance;
 - scope and authorization;
+- team composition and delegation decisions;
 - external side effects;
 - integration and final response.
 
@@ -43,32 +44,40 @@ Independent Codex sessions, editors, hooks, and external processes are outside t
 
 Do not claim cross-session locking unless a real mechanism has been observed and validated.
 
-## 4. Consent is for material expansion
+## 4. Adaptive fan-out still requires discipline
 
-Explicit `/codex-delegate` invocation authorizes an ordinary bounded orchestration shape:
+Explicit `/codex-delegate` invocation authorizes adaptive delegation for the requested task under the user's existing scope and permissions.
 
-```text
-up to 2 concurrently active justified children
-at most 1 active writing actor per canonical checkout
-no permission expansion
-no scope expansion
-no external side effect
-no unexpectedly large compute expansion
-```
+Project policy does not impose an ordinary numeric child ceiling. The main session may use as many simultaneously useful children as the task genuinely supports and the native runtime allows, provided every child has a distinct ready responsibility and the overall orchestration remains within the ordinary compute shape implied by the task.
 
-This is an envelope, not a target. Zero children is normal.
+This freedom is not a target. Zero children is normal. Native capacity is a ceiling, never a reason to fill slots.
+
+Do not spawn a child when:
+
+- another active owner already covers the same unchanged responsibility;
+- valid evidence already satisfies the responsibility;
+- the work is speculative and likely to be invalidated by an unresolved dependency;
+- delegation mainly adds handoff or integration cost without useful parallelism, isolation, capability, or independence;
+- the role is being selected because capacity is available rather than because its capability is needed.
+
+Several independent low-cost read-only responsibilities can be ordinary fan-out. Child count by itself is not a consent trigger.
+
+## 5. Consent is for material expansion
 
 Ask before materially expanding:
 
 - permissions or sandbox capability;
 - agreed scope;
-- external/irreversible actions;
-- more than two simultaneous children when broad fan-out was not already requested;
-- repeated expensive Solver, Advisor, Investigator, or correction/re-review loops beyond the ordinary task shape.
+- external or irreversible actions;
+- compute far beyond what the user could reasonably expect from the requested task;
+- broad speculative fan-out whose value has not been established;
+- repeated expensive Solver, Advisor, Investigator, or correction/re-review loops after the ordinary useful path is exhausted.
 
-Do not evade consent by serializing a large number of expensive calls.
+Judge compute expansion by the actual shape and cost of the orchestration, not by crossing a fixed child-count threshold. A handful of distinct Luna read-only lanes can be cheaper and more appropriate than several repeated Sol calls.
 
-## 5. Explicit invocation only
+Do not evade consent by serializing expensive calls that would be material if run in parallel. Do not use parallelism to hide material compute expansion either.
+
+## 6. Explicit invocation only
 
 The product's supported user entrypoint is:
 
@@ -82,7 +91,7 @@ Do not silently add codex delegate orchestration to an unrelated task through im
 
 Explicit invocation is the signal that the user wants adaptive delegation for this task. Normal task permissions and external-impact boundaries still apply.
 
-## 6. First-use readiness before delegated execution
+## 7. First-use readiness before delegated execution
 
 Do not discover missing Agent profiles halfway through a delegated implementation.
 
@@ -96,7 +105,7 @@ After understanding that delegation is likely useful, but before starting delega
 
 The five profiles use Codex's native custom-Agent TOML mechanism. The bundled installer is a project-specific lifecycle and ownership layer. It manages only the five current project profiles plus `.codex-delegate-agents.json`. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
-## 7. Runtime evidence is on demand
+## 8. Runtime evidence is on demand
 
 Configuration intent and observed runtime fact are different.
 
@@ -114,7 +123,7 @@ Missing evidence remains missing. Local/configured data cannot be relabeled as n
 
 For routine bounded execution, exact profile configuration plus actual artifact verification can be sufficient when runtime route proof is not itself part of acceptance.
 
-## 8. Read-only guarantees
+## 9. Read-only guarantees
 
 A configured read-only profile is intent, not proof of host enforcement.
 
@@ -122,13 +131,13 @@ When hard read-only isolation is required, demand native evidence or keep the re
 
 When hard isolation is not required, behavioral read-only may be accepted only if mutation is forbidden, relevant state is captured before and after execution, no mutation is observed, and broader effective permission remains recorded as residual risk.
 
-## 9. External actions
+## 10. External actions
 
 Child Agents do not perform production deployment/configuration, destructive data deletion, payments, third-party messaging/publication, account/permission administration, or similarly irreversible external side effects.
 
 The main session retains these actions and checks explicit user authorization at the external boundary.
 
-## 10. Evidence integrity
+## 11. Evidence integrity
 
 Child completion, confidence, model agreement, or a successful irrelevant command is not acceptance.
 
@@ -141,7 +150,7 @@ Use inspectable evidence:
 
 Preserve `unknown`, `partial`, or `not_observed` when facts are missing. Quarantine material route, permission, identity, or ancestry conflicts instead of guessing.
 
-## 11. User-visible output
+## 12. User-visible output
 
 Do not emit a separate orchestration receipt for every successful explicit invocation.
 
