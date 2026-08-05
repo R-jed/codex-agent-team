@@ -61,7 +61,7 @@ The deterministic gate passes only when:
 - the complete pytest suite has no failures or errors;
 - release-relevant skips, xfails, and warnings are reviewed explicitly;
 - the retired-identity guard passes on the exact tree;
-- the retired custom slash invocation guard passes, with `$codex-delegate` as canonical explicit Skill invocation and `/skills` reserved for the Codex Skill picker;
+- the retired custom slash-style invocation guard passes, with `$codex-delegate` as canonical explicit Skill invocation and `/skills` reserved for the Codex Skill picker;
 - public Plugin metadata includes current website, privacy policy, terms, category, brand assets, and valid starter prompts;
 - the Plugin remains the smallest required skills-only shape, without unused MCP/apps/hooks surfaces;
 - policy schema `3` validates and exactly five managed native custom-Agent profiles match it;
@@ -87,6 +87,7 @@ Do not change these principles merely to make one workload pass:
 - demanding/material read-only judgment belongs to capable main or Sol Advisor;
 - demanding/material judgment-coupled writing belongs to capable main or Sol Solver;
 - Terra is a bounded read-heavy investigation/evidence-synthesis lane after semantics are stable and material judgment is absent;
+- Terra is not an escalation rung;
 - difficult, ambiguous, multi-step technical judgment belongs to capable main/Sol, not automatically Terra;
 - main-session Sol capability is a dedup optimization, not authority or task taxonomy;
 - failure does not create a model ladder;
@@ -122,7 +123,7 @@ Required behaviors:
 
 - the Plugin is discoverable from the Codex Plugin Marketplace;
 - a new thread exposes `$codex-delegate` and `/skills` can discover/select the Skill;
-- `/codex-delegate` is not relied on as a custom Skill command;
+- no invented custom slash command is required for Skill invocation;
 - an ordinary task does not implicitly invoke codex delegate;
 - first explicit invocation that needs delegation detects missing roles before delegated implementation starts;
 - provisioning asks permission and installs only the five native custom-Agent TOML profiles + ownership receipt;
