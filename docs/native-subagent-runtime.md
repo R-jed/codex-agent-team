@@ -159,20 +159,25 @@ A wake-up event does not imply deterministic insight into child progress.
 
 ## Capacity
 
-codex delegate has no product-level hard child count.
+codex delegate has no project-level ordinary numeric child ceiling and no target Agent count.
 
-Explicit `/codex-delegate` invocation includes up to two concurrently active justified children in the ordinary consent envelope. Larger fan-out requires user authorization unless the request already clearly asks for broad parallel work.
+The main session chooses the active set from responsibilities that are ready, distinct, non-duplicative, worth delegating, and safe to run now. It may use several child Agents when a task contains several independent valuable lanes. It may use none when delegation adds no value.
 
 Actual active concurrency remains bounded by:
 
 ```text
-useful independent work
+useful independent ready work
 writer safety
 exact role availability
+user scope and compute consent
 native runtime capacity
 ```
 
-One observed capacity value applies only to the tested runtime/environment.
+Current Codex exposes a host-level concurrent-thread cap through its own Agent configuration. codex delegate does not override or mirror that number in project policy. The host capacity is treated as an upper bound, never a target to fill.
+
+A single observed or configured capacity value applies only to that runtime/environment. Do not turn it into a permanent product constant.
+
+Material compute expansion is governed by `guardrails.md`. Child count alone is not the trigger: several narrow read-only Luna lanes can be ordinary, while repeated expensive Sol/Terra loops can require renewed consent at a lower count.
 
 ## Writer ownership
 
@@ -226,6 +231,6 @@ If a runtime shows stale slots, blocking close operations, missing completion si
 
 ## User-facing takeaway
 
-codex delegate decides when additional native compute is useful and keeps it inside a small set of quality/safety boundaries. Native Codex decides how sessions and child threads actually execute.
+codex delegate lets the main session lead a specialist team whose size follows the task. It decides when additional native compute is useful and keeps that delegation inside a small set of quality and safety boundaries. Native Codex decides how many threads can actually run and how sessions and child threads execute.
 
 This separation lets the Plugin improve daily development without becoming a second orchestration runtime.
