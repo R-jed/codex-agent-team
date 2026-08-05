@@ -3,43 +3,45 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "codex-delegate"
 SKILL = PLUGIN / "skills" / "codex-delegate"
-RUNTIME_REFERENCE = SKILL / "references" / "runtime-assurance.md"
+GUARDRAILS = SKILL / "references" / "guardrails.md"
+RUNTIME_DOC = ROOT / "docs" / "native-subagent-runtime.md"
 RUNTIME_VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
 LEGACY_INSPECTOR = SKILL / "scripts" / "inspect-runtime.py"
 LEGACY_VERIFIER = SKILL / "scripts" / "verify-runtime.py"
 
 
-def test_runtime_assurance_uses_one_normalized_verifier():
+def test_runtime_assurance_uses_one_optional_normalized_verifier():
     assert RUNTIME_VERIFIER.is_file()
     assert not LEGACY_INSPECTOR.exists()
     assert not LEGACY_VERIFIER.exists()
-    reference = RUNTIME_REFERENCE.read_text()
-    assert "runtime-evidence.py" in reference
-    assert "normalized" in reference.lower()
+    guardrails = GUARDRAILS.read_text()
+    runtime = RUNTIME_DOC.read_text()
+    assert "runtime-evidence.py" in guardrails
+    assert "runtime-evidence.py" in runtime
+    assert "diagnostic" in runtime.lower()
+    assert "on demand" in runtime.lower()
 
 
-def test_project_does_not_scrape_rollout_files_for_runtime_proof():
-    reference = RUNTIME_REFERENCE.read_text()
-    assert "no longer ships a rollout-file inspector" in reference
-    assert "Runtime internals are intentionally not scraped by this project" in reference
-    assert "sessions root" not in reference.lower()
-    assert "--sessions-dir" not in reference
-    assert "rollout-2026-" not in reference
+def test_project_does_not_scrape_runtime_internals_for_proof():
+    runtime = RUNTIME_DOC.read_text().lower()
+    assert "configured values never become observed values by assumption" in runtime
+    for forbidden in ["--sessions-dir", "rollout-2026-", "sessions root"]:
+        assert forbidden not in runtime
 
 
 def test_missing_native_permission_evidence_remains_fail_closed():
-    reference = RUNTIME_REFERENCE.read_text()
-    assert "required read-only but native sandbox missing" in reference
-    assert "return to main session" in reference
-    assert "local/reconstructed" not in reference or "cannot establish host enforcement" in reference
+    guardrails = GUARDRAILS.read_text()
+    assert "When hard read-only isolation is required, demand native evidence" in guardrails
+    assert "keep the responsibility in the main session/blocked" in guardrails
+    assert "configured read-only profile is intent, not proof" in guardrails
 
 
 def test_runtime_evidence_keeps_route_ancestry_and_permission_typed():
-    reference = RUNTIME_REFERENCE.read_text()
+    runtime = RUNTIME_DOC.read_text()
+    verifier = RUNTIME_VERIFIER.read_text()
     for field in ["route_evidence", "ancestry_evidence", "permission_evidence"]:
-        assert field in reference
-    for status in ["not_observed", "partial", "matched", "conflict"]:
-        assert status in reference
+        assert field in runtime
+        assert field in verifier
     for grade in [
         "C1_configuration_only",
         "L1_local_record_observed",
@@ -47,4 +49,4 @@ def test_runtime_evidence_keeps_route_ancestry_and_permission_typed():
         "R2_runtime_reported_and_local_record_agree",
         "X0_conflicted",
     ]:
-        assert grade in reference
+        assert grade in verifier
