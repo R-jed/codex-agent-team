@@ -13,70 +13,66 @@ def load_cases() -> dict:
     return json.loads((ROOT / "evals" / "runtime-assurance-cases.json").read_text())
 
 
-def test_runtime_assurance_reference_and_normalized_verifier_are_installed():
-    runtime = SKILL / "references" / "runtime-assurance.md"
-    skill = (SKILL / "SKILL.md").read_text()
-    assert runtime.is_file()
+def test_compact_runtime_references_and_verifier_are_installed():
+    refs = SKILL / "references"
+    assert {path.name for path in refs.glob("*.md")} == {
+        "router-core.md",
+        "guardrails.md",
+        "final-review.md",
+    }
     assert RUNTIME_VERIFIER.is_file()
-    assert "references/runtime-assurance.md" in skill
-    assert "runtime-evidence.py" in runtime.read_text()
+    skill = (SKILL / "SKILL.md").read_text()
     assert "runtime-evidence.py" in skill
     assert not (SKILL / "scripts" / "inspect-runtime.py").exists()
 
 
-def test_compute_lanes_have_distinct_responsibilities_not_fixed_order():
-    skill = (SKILL / "SKILL.md").read_text()
-    routing = (SKILL / "references" / "routing-policy.md").read_text()
-    combined = skill + routing
+def test_compute_lanes_have_distinct_responsibilities_without_fixed_order():
+    combined = (SKILL / "SKILL.md").read_text() + (SKILL / "references" / "router-core.md").read_text()
     assert "Luna" in combined and "bounded" in combined
-    assert "Terra" in combined and "unresolved" in combined and "technical delta" in combined
-    assert "Sol" in combined and "selective" in combined and "judgment" in combined
-    assert "main -> Luna -> Sol -> main" in routing
-    assert "never required" in routing
-    assert "no product-level hard child count" in routing.lower()
+    assert "Terra" in combined and "narrow" in combined and "technical" in combined
+    assert "Sol" in combined and "material judgment" in combined
+    assert "fixed" in combined.lower() and "pipeline" in combined.lower()
+    assert "Zero children is normal" in combined
 
 
 def test_runtime_observation_is_demand_driven_not_universal_overhead():
-    runtime = (SKILL / "references" / "runtime-assurance.md").read_text()
-    assert "Do not demand runtime telemetry for every routine child" in runtime
-    assert "Ordinary bounded work may proceed" in runtime
-    assert "when post-spawn route identity" in (SKILL / "references" / "routing-policy.md").read_text().lower()
+    guardrails = (SKILL / "references" / "guardrails.md").read_text()
+    router = (SKILL / "references" / "router-core.md").read_text()
+    assert "Do not run runtime-evidence diagnostics for every ordinary child" in guardrails
+    assert "Routine bounded work does not inspect" in guardrails or "routine bounded" in guardrails.lower()
+    assert "Main-session Sol dedup is an optimization" in router
 
 
-def test_delegation_contract_records_decision_rights_and_evidence_schema():
-    contract = (SKILL / "references" / "delegation-contract.md").read_text()
-    safety = (SKILL / "references" / "safety-policy.md").read_text()
+def test_compact_child_packet_keeps_decision_rights_acceptance_and_evidence_reuse():
+    router = (SKILL / "references" / "router-core.md").read_text()
     for section in [
-        "DEPENDENCY",
         "OUTCOME",
-        "SCOPE",
-        "INVARIANTS",
+        "READ / WRITE SCOPE",
+        "INTERFACES AND INVARIANTS",
         "DECISION RIGHTS",
-        "ACCEPTANCE ORACLE",
-        "VERIFICATION",
+        "ACCEPTANCE",
+        "VALID EVIDENCE / DO NOT REDO",
+        "STOP WHEN",
     ]:
-        assert section in contract
-    assert "type: deterministic | repository_fact | model_judgment" in contract
-    assert "unresolved_delta" in contract
-    assert "Child reports are claims" in safety
-    assert "inspectable artifacts and evidence" in safety
+        assert section in router
+    assert "child report is a claim" in router.lower()
+    assert "actual artifact state" in router
 
 
-def test_sol_is_selective_and_terra_is_delta_investigation():
-    routing = (SKILL / "references" / "routing-policy.md").read_text()
-    receipt = (SKILL / "references" / "orchestration-receipt.md").read_text()
-    assert "Terra is not a mandatory reviewer" in routing
-    assert "Sol handles bounded consequential judgment or independent review" in routing
-    assert "Sol is not globally mandatory" in routing
-    assert "Luna + Sol example" in receipt
-    assert "Delta-escalation example" in receipt
+def test_sol_is_high_leverage_and_terra_is_specialist_only():
+    router = (SKILL / "references" / "router-core.md").read_text()
+    assert "Material judgment before writing" in router
+    assert "Writing with judgment coupled to implementation" in router
+    assert "Narrow difficult technical uncertainty" in router
+    assert "Terra is a specialist lane" in router
+    assert "Failed Luna attempt never directly means" in router
 
 
 def test_behavioral_read_only_never_claims_runtime_enforcement():
-    safety = (SKILL / "references" / "safety-policy.md").read_text()
-    assert "Behavioral read-only is allowed only when hard host isolation is not required" in safety
-    assert "permission_guarantee = instruction_enforced" in safety
-    assert "Do not relabel behavioral read-only as `runtime_enforced`" in safety
+    guardrails = (SKILL / "references" / "guardrails.md").read_text()
+    assert "configured read-only profile is intent, not proof" in guardrails
+    assert "behavioral read-only" in guardrails
+    assert "broader effective permission remains recorded as residual risk" in guardrails
 
 
 def test_runtime_truth_cases_cover_partial_and_typed_evidence_regressions():
