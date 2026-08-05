@@ -210,10 +210,24 @@
       }
     },
     {
-      "id": "three-agent-fanout-needs-consent",
+      "id": "three-independent-readers-can-fanout",
+      "category": "routing",
+      "input": {"task": "Map three independent read-only subsystems in parallel; each has a distinct evidence lane and can make progress now."},
+      "expected": {
+        "action": "delegate",
+        "dependency_kind": "evidence",
+        "nodes": [
+          {"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D02", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"},
+          {"dependency_id": "D03", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"}
+        ]
+      }
+    },
+    {
+      "id": "material-compute-expansion-needs-consent",
       "category": "consent",
-      "input": {"task": "Three independent read-only dependencies are ready and broad parallel work was not authorized."},
-      "expected": {"action": "ask_consent", "nodes": [], "consent_reason": "larger_simultaneous_fanout"}
+      "input": {"task": "The useful ordinary path is already exhausted; the proposed next step adds repeated expensive Solver, Advisor, and Investigator calls without new evidence."},
+      "expected": {"action": "ask_consent", "nodes": [], "consent_reason": "material_compute_expansion"}
     },
     {
       "id": "worker-and-solver-share-one-writer-domain",
