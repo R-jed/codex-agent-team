@@ -141,7 +141,7 @@ Open the Codex Plugin Marketplace
 -> $codex-delegate <task>
 ```
 
-Codex CLI/IDE users may also use `/skills` to open the Skill picker. Do not describe `/codex-delegate` as a custom Skill command.
+Codex CLI/IDE users may also use `/skills` to open the Skill picker. Do not invent a custom slash command for this Skill.
 
 Do not lead ordinary users through repository marketplace registration or CLI installation commands. Do not tell them to edit `config.toml`, Plugin cache state, marketplace state, or Agent profiles manually.
 
