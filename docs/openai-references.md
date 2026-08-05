@@ -1,235 +1,236 @@
-# OpenAI references used by Codex Delegate
+# OpenAI references used by codex delegate
 
-This page records the OpenAI sources that materially influence the current design. It separates OpenAI runtime, Plugin, Skill, and model facts from Codex Delegate policy choices.
+This page records the current OpenAI sources that materially constrain codex delegate. It separates official Codex/Plugin/model facts from project policy and from product hypotheses that still require live evidence.
 
-Last reviewed: 2026-08-04.
+Last reviewed: 2026-08-05.
 
-## Codex Plugin structure and validation
+## Normative source order
 
-### Official Codex Plugin Creator sample
+When these sources disagree with older repository notes, samples, cached pages, issues, or historical commits, prefer the current official documentation and then revalidate the project.
 
-https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/plugin-creator/SKILL.md
+```text
+current OpenAI documentation
+-> current official validator / current Codex host behavior where applicable
+-> project policy
+-> historical samples and issue telemetry only as supporting context
+```
 
-Used for:
+Do not turn a version-specific runtime observation into a permanent OpenAI guarantee.
 
-- the required `.codex-plugin/plugin.json` Plugin root structure;
-- the rule that the outer Plugin folder and manifest `name` match;
-- repo/team marketplace structure under `.agents/plugins/marketplace.json` when that distribution target is intentional;
-- required marketplace `policy.installation`, `policy.authentication`, and `category` metadata;
-- relative marketplace `source.path` such as `./plugins/<plugin-name>`;
-- omitting unsupported Plugin-manifest fields;
-- validating the Plugin root with the current `plugin-creator` `scripts/validate_plugin.py` before handoff or release.
+## Skills
 
-### Official Plugin manifest and marketplace reference
+### Build skills
 
-https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/plugin-creator/references/plugin-json-spec.md
-
-Used for:
-
-- required Plugin metadata and strict semver;
-- `https://` requirements for URL metadata when present;
-- declaring `apps` or `mcpServers` only when their companion files exist;
-- keeping unsupported fields such as `hooks` out of `plugin.json`;
-- repository marketplace policy and nested Plugin source-path shape.
-
-### Official Plugin update/reinstall reference
-
-https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/plugin-creator/references/installing-and-updating.md
+https://developers.openai.com/codex/skills
 
 Used for:
 
-- installing/reinstalling a Plugin with `codex plugin add <plugin>@<marketplace>`;
-- using CLI marketplace operations instead of hand-editing marketplace/config state during install/update flows;
-- starting a new thread after reinstall so updated skills/tools are picked up;
-- using the official cachebuster helper for local-development iteration when that flow applies.
+- `SKILL.md` as the Skill entry point with `name` and `description` frontmatter;
+- progressive disclosure through optional `scripts/`, `references/`, `assets/`, and `agents/openai.yaml`;
+- explicit Codex invocation by mentioning a Skill with `$skill-name`;
+- `/skills` as the Codex CLI/IDE Skill picker;
+- `policy.allow_implicit_invocation: false` disabling implicit matching while preserving explicit `$skill` invocation;
+- restart/reload expectations when newly installed Skill state is not visible;
+- preferring plugins for reusable distribution beyond local/repository-scoped Skill authoring.
 
-Codex Delegate uses a repository Git marketplace rather than the default personal marketplace. Release validation therefore tests the configured Git marketplace path and installed Plugin id explicitly.
+Current codex delegate consequence:
 
-## Codex Native Subagent runtime contract
+```text
+canonical explicit invocation: $codex-delegate
+Skill picker: /skills
+implicit invocation: disabled
+```
 
-### Official Codex Subagents documentation
+The project does not define or rely on an invented custom slash command for its Skill.
+
+## Plugin architecture and packaging
+
+### Plugin architecture
+
+https://developers.openai.com/plugins/concepts/plugins
+
+Used for:
+
+- Plugins as the installable/discoverable package shared across supported ChatGPT and Codex surfaces;
+- skills-only Plugins when instructions plus existing host tools are sufficient;
+- the principle to start with the smallest shape that supports the use case;
+- adding MCP/UI only when the product actually needs service-backed tools or visual interaction.
+
+Current codex delegate consequence:
+
+```text
+shape: skills-only
+no project MCP server
+no project UI
+no second Agent runtime
+```
+
+Native Codex Subagents and custom Agents already supply the execution surface needed by this product, so an MCP server would add infrastructure without a demonstrated user requirement.
+
+### Package your plugin
+
+https://developers.openai.com/plugins/build/plugins
+
+Used for:
+
+- `.codex-plugin/plugin.json` as the required Plugin entry point;
+- `skills/` at the Plugin root for bundled Skills;
+- stable kebab-case Plugin identity;
+- local repository marketplace metadata under `$REPO_ROOT/.agents/plugins/marketplace.json` for authoring/testing;
+- manifest install-surface metadata including descriptions, category, capabilities, legal links, starter prompts, and brand assets;
+- relative component/asset paths;
+- CLI marketplace commands for manual/development authoring rather than hand-editing Plugin configuration.
+
+Current package:
+
+```text
+plugins/codex-delegate/.codex-plugin/plugin.json
+plugins/codex-delegate/skills/
+plugins/codex-delegate/assets/
+.agents/plugins/marketplace.json
+```
+
+The public user path remains the native Plugin Marketplace. Repository marketplace/CLI instructions are development and troubleshooting paths.
+
+## Public Plugin submission
+
+### Submit plugins
+
+https://developers.openai.com/plugins/deploy/submission
+
+Used for:
+
+- public Skills-only submission being a supported Plugin type;
+- verified developer/business identity requirements;
+- public listing materials including name, descriptions, logo, category, website, support path, privacy policy, terms, starter prompts, test cases, availability, and release notes;
+- public website/support/privacy/terms URLs matching the publisher and accurately describing data handling.
+
+Current repository support:
+
+```text
+website: repository/homepage
+privacy: PRIVACY.md
+terms: TERMS.md
+support/security: repository issue and security-reporting surfaces
+starter prompts: manifest interface.defaultPrompt
+```
+
+Operational publisher verification, submission-form fields, countries/regions, final support URL, release notes, and required positive/negative submission test cases remain release-operations work. Repository files cannot prove those external submission steps are complete.
+
+## Native Subagents and custom Agents
+
+### Subagents
 
 https://developers.openai.com/codex/subagents
 
 Used for:
 
-- the distinction between a Subagent and the Agent thread/session where it runs;
-- Codex native delegation and custom Agent roles;
-- personal custom-Agent discovery from `$CODEX_HOME/agents` (normally `~/.codex/agents`);
-- project custom-Agent discovery from `.codex/agents`;
-- required custom-Agent fields such as `name`, `description`, and `developer_instructions`;
-- optional model, reasoning-effort, and sandbox configuration;
-- model/reasoning precedence and runtime-owned effective behavior;
-- native concurrency configuration such as `max_concurrent_threads_per_session` being a runtime setting rather than a Codex Delegate product constant;
-- the explicit recommendation that independent read-heavy work can run in parallel and may save time;
-- the current public orchestration description that Codex waits until all requested results are available before returning a consolidated multi-agent response.
+- native Codex Subagents and child-thread execution;
+- parallel read-heavy work as a useful starting point and extra caution for parallel write-heavy workflows;
+- custom Agent TOML files under `~/.codex/agents/` for personal roles and `.codex/agents/` for project-scoped roles;
+- custom-Agent fields such as `name`, `description`, `developer_instructions`, model, reasoning effort, and sandbox intent;
+- native concurrency remaining a host/runtime capability rather than a codex delegate product constant;
+- subagent workflows consuming additional tokens and therefore requiring delegation to justify itself.
 
-The last two points must be kept separate. Native Codex supports parallel child execution, but the public documentation's consolidated wait model does not by itself prove that a tested client/runtime exposes per-child completion events suitable for completion-driven frontier refill. That behavior remains a live runtime fact.
+Current codex delegate custom profiles:
 
-Codex runtime details are version-sensitive. The live tool contract exposed by the user's current Codex session remains the decisive runtime surface.
+```text
+codex_delegate_reader
+codex_delegate_worker
+codex_delegate_solver
+codex_delegate_investigator
+codex_delegate_advisor
+```
 
-Codex Delegate does not claim that Plugin installation natively installs custom Agent roles. The Plugin distributes the Skill and bundled project files. The managed profile installer is a user-approved post-install provisioning step that writes the four exact semantic profiles into the official personal custom-Agent configuration location.
+The five TOML files use the native custom-Agent mechanism. `install-agents.py` is a project-specific lifecycle/ownership/collision-safety layer around those native files. It does not implement a second runtime.
 
-### Public Codex issue telemetry: wait/polling overhead
+Whether future Codex releases provide a simpler first-class Plugin lifecycle for shipping these exact custom Agent profiles must be rechecked before preserving the installer indefinitely.
 
-https://github.com/openai/codex/issues/35259
+## Current model guidance
 
-This is **public user-reported telemetry in the OpenAI Codex repository, not an OpenAI runtime guarantee or benchmark**.
+### Model catalog
 
-The report describes repeated model turns whose only action was agent/process wait or status polling. In one corrected full usage window, the reporter attributes 19.8% of raw local token volume to wait/status-only turns and argues that waiting should be event-driven or harness-managed so unchanged state does not trigger another model call.
+https://developers.openai.com/api/docs/models
 
-Codex Delegate uses this only as evidence that coordination overhead and model-mediated polling are real risks worth measuring. It does not copy the reported percentage into product claims and does not assume the same behavior exists in every Codex build/client.
-
-### Public Codex issue telemetry: child close/lifecycle blocking
-
-https://github.com/openai/codex/issues/24389
-
-This is also **version-scoped user-reported issue evidence**. The report describes a `multi_agent_v1.close_agent` call blocking a parent thread for roughly eight hours on an unresponsive child.
-
-Codex Delegate uses this as a reason to test child close/slot-recovery behavior explicitly instead of assuming lifecycle operations are instantaneous or harmless. It is not evidence that current supported runtimes still have the same defect.
-
-### MultiAgentV2 spawn handler
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs
-
-Used for:
-
-- `spawn_agent` V2 arguments such as `agent_type`, model/reasoning overrides, and `fork_turns`;
-- `fork_turns` semantics;
-- child thread/session creation and parent/depth metadata;
-- why project role-specific spawns set `fork_turns` explicitly.
-
-### Native model/effort validation and runtime-owned child state
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_common.rs
-
-Used for:
-
-- validation of explicit model/reasoning requests against the active backend;
-- configured defaults affecting omitted values;
-- runtime-owned permission/approval state being reapplied to children;
-- why configured profile sandbox intent is not proof of effective host-enforced permissions.
-
-### Agent roles, profile locks, and precedence
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/config/agent_roles.rs
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role.rs
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/role_tests.rs
-
-Used for:
-
-- discovery of custom Agent files;
-- role-file configuration and precedence;
-- role-level model/reasoning locks;
-- live role guidance exposing locked settings;
-- why Codex Delegate uses exact namespaced semantic profiles and fails closed when the required profile cannot be established.
-
-The current architecture has no Portable Mode and no built-in-role substitution path.
-
-### Multi-agent tool surface and observability
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs
-
-Used for:
-
-- native Agent spawn/list/wait/message/interrupt/close lifecycle tools;
-- model/reasoning overrides potentially being hidden by runtime configuration;
-- the absence of a universal post-spawn effective-model receipt on every runtime surface;
-- why configured route facts and observed runtime facts stay separate;
-- why child-progress observability and completion/wait semantics must be characterized on the tested runtime rather than assumed from orchestration policy.
-
-### Agent thread creation
-
-https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/control/spawn.rs
-
-Used for:
-
-- spawned children receiving their own native thread identities;
-- native parent/child structure;
-- why a child thread is the runtime container for the Subagent rather than a second user-facing App Thread created by this project.
-
-## Codex Skill structure
-
-### OpenAI Skill Creator sample
-
-https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md
-
-Used for:
-
-- `SKILL.md` as the installable entry point;
-- concise YAML frontmatter;
-- progressive disclosure;
-- moving detailed policy into `references/`;
-- keeping repository/community documentation outside the installed Skill body.
-
-### `agents/openai.yaml` reference
-
-https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/references/openai_yaml.md
-
-Used for `display_name`, `short_description`, `default_prompt`, and implicit invocation policy.
-
-## GPT-5.6 model family
-
-### GPT-5.6 launch announcement
-
-https://openai.com/index/gpt-5-6/
-
-Used for GPT-5.6 family positioning, Codex availability, reasoning-effort support, and published coding-evaluation context.
-
-OpenAI-published coding results are supporting model-family context only. They are not Codex Delegate benchmarks and do not prove that one route/effort is optimal for this workflow.
-
-### Current OpenAI API pricing
-
-https://developers.openai.com/api/docs/pricing
-
-Pricing is time-sensitive. Use the current pricing page when evaluating workflow economics instead of copying an old price table into routing policy.
-
-Codex Delegate currently keeps Luna Max as the execution baseline, but price alone never authorizes delegation or model escalation. Route/effort changes require representative workload evidence.
-
-### GPT-5.6 model guidance
+### GPT-5.6 guidance
 
 https://developers.openai.com/api/docs/guides/latest-model
 
-Used for:
-
-- GPT-5.6 capability-tier positioning;
-- supported reasoning-effort choices;
-- evaluating reasoning settings on representative workloads instead of assuming the highest effort is always optimal;
-- autonomy and approval boundaries for normal local actions versus destructive, external, costly, or scope-expanding actions.
-
 ### Individual model pages
 
-- Luna: https://developers.openai.com/api/docs/models/gpt-5.6-luna
-- Terra: https://developers.openai.com/api/docs/models/gpt-5.6-terra
 - Sol: https://developers.openai.com/api/docs/models/gpt-5.6-sol
+- Terra: https://developers.openai.com/api/docs/models/gpt-5.6-terra
+- Luna: https://developers.openai.com/api/docs/models/gpt-5.6-luna
 
-Used for model identity, supported reasoning settings, capability descriptions, context/output limits, and tool support. For live pricing, prefer the central pricing page.
+Current official positioning used by this project:
 
-## Current Codex Delegate policy choices
+```text
+GPT-5.6 Sol
+-> frontier / complex professional work
+-> demanding, ambiguous, multi-step reasoning and coding
 
-The following are project policy, not claims that OpenAI requires this exact workflow:
+GPT-5.6 Terra
+-> balance intelligence and cost
+-> useful for exploration, read-heavy scans, larger supporting context, and distilled investigation results
 
-- the current user-facing Codex session owns the task-level compute graph and final acceptance;
-- no Luna, Terra, or Sol stage is mandatory;
-- Luna Max is the current Reader/Worker execution baseline;
-- Terra XHigh is a read-only Investigator for one unresolved complex technical delta, not a default reviewer or whole-task retry;
-- Sol High is a selective Advisor for high-value judgment/review and may appear directly after Luna;
-- writing delegation requires a bounded Delegation Contract with decision rights and an acceptance oracle;
-- valid deterministic/repository evidence is reused until its dependencies are invalidated;
-- every Agent call must satisfy a distinct unresolved dependency;
-- zero children is normal; up to two concurrently active justified children is the normal no-extra-consent envelope, not a scheduler target or lifetime cap;
-- Codex Delegate defines no product-level hard child ceiling; actual parallelism is limited by ready dependencies, consent, workspace safety, exact routes, and native runtime capacity;
-- completion-driven ready-frontier refill is the desired scheduling policy when the tested runtime exposes useful individual child completion/update events;
-- a real join dependency or coarser native wait surface may require barrier waiting, and that limitation must be recorded rather than hidden;
-- model-mediated polling is coordination overhead to measure and minimize, not productive task progress;
-- acceptance failure and need for intervention are separate facts;
-- recovery uses a bounded Recovery Ledger, event-driven evaluation, and evidence rather than fixed retry/stall thresholds;
-- one shared workspace has at most one active writing Worker;
-- delegation depth remains one;
-- exact project-profile routing fails closed without cross-role substitution;
-- runtime route, ancestry, permission, capacity, completion/wait semantics, and child-progress observability remain runtime facts that must be measured where material;
-- Terra XHigh and Sol High remain route hypotheses until representative paired live workloads justify them.
+GPT-5.6 Luna
+-> cost-sensitive, high-volume workloads
+-> useful for fast, narrowly scoped, clear, repeatable work
+```
 
-These choices must be evaluated against real Codex runtime behavior and representative developer workloads. Static repository tests establish policy/tooling consistency only.
+All three support configurable reasoning effort. The best effort setting remains workload-dependent and must be evaluated rather than inferred solely from the maximum available setting.
+
+Current codex delegate role interpretation:
+
+- Luna Reader: narrow bounded factual evidence.
+- Luna Worker: clear repeatable bounded implementation after material behavior is decided.
+- Terra Investigator: bounded read-heavy technical investigation/evidence synthesis after semantics stabilize and material judgment is absent.
+- Sol Advisor: demanding/material read-only judgment and fresh independent review.
+- Sol Solver: demanding/material judgment-coupled implementation.
+
+Terra is not an escalation rung above Luna. Weak Luna output does not imply Terra. Demanding, ambiguous, multi-step technical reasoning that still requires consequential judgment belongs to capable Main/Sol.
+
+These role placements are project policy informed by official model guidance. Their user-value and cost effectiveness still require controlled live workloads.
+
+## Official validation
+
+The maintained CI downloads and runs the official OpenAI Plugin validator from a pinned `openai/codex` revision so deterministic CI is reproducible.
+
+For a fixed release candidate, `HEADOFF.md` additionally requires the then-current official OpenAI Plugin validator and records its revision separately. A pinned validator passing does not prove a later upstream validator will pass.
+
+Plugin validation proves package/metadata rules. It does not prove live model routing quality, child discovery, exact runtime model/effort, onboarding behavior, writer safety across independent sessions, or independent-review value.
+
+## Runtime facts versus configured intent
+
+The project preserves this distinction:
+
+```text
+configured profile/model/effort/sandbox
+!=
+observed live runtime fact
+```
+
+Use live/runtime evidence only when a claim actually depends on it. Missing telemetry remains missing. Do not make runtime diagnostics ordinary ceremony for a bounded task whose acceptance depends on the artifact rather than exact route provenance.
+
+## Project policy choices
+
+The following are codex delegate choices, not OpenAI requirements:
+
+- Main session owns user intent, authorization, integration, acceptance, and final response.
+- Zero children is normal.
+- Explicit `$codex-delegate` use has a project ordinary-consent envelope of up to two justified concurrent children.
+- One canonical checkout has one active writing actor inside the current orchestration.
+- Main, Luna Worker, and Sol Solver share that writer domain.
+- Delegation depth is one.
+- Main-session Sol capability is a cost/quality dedup optimization.
+- Failure does not create Luna -> Terra -> Sol escalation.
+- Blockers are diagnosed as `contract | judgment | investigation | stalled`.
+- A stalled same-role lane gets at most one materially improved clean retry.
+- Final Review is consequence-driven and uses a fresh Sol Advisor when independent assurance is required.
+- Ordinary successful tasks do not receive a separate orchestration receipt by default.
+
+These choices must be validated against representative daily-development workloads and real Codex runtime behavior before v1.0.0 claims are made.
+
+## Non-normative telemetry
+
+Public GitHub issues, community discussion, and prior project experiments can motivate tests, but they do not override official documentation or prove current runtime behavior. Keep any such evidence explicitly labeled as user-reported/version-scoped and do not copy community percentages or anecdotes into product guarantees.
