@@ -32,7 +32,7 @@ def test_skill_and_openai_interface_keep_one_explicit_product_entrypoint():
 
     data = yaml.safe_load((SKILL / "agents" / "openai.yaml").read_text())
     assert data["interface"]["display_name"] == "Codex Delegate"
-    assert "/codex-delegate" in data["interface"]["default_prompt"]
+    assert "$codex-delegate" in data["interface"]["default_prompt"]
     assert data["policy"]["allow_implicit_invocation"] is False
 
 
@@ -118,8 +118,9 @@ def test_router_core_uses_direct_capability_questions_and_one_task_state():
         "does delegation help",
         "Writing with behavior already decided",
         "Writing with judgment coupled to implementation",
+        "Bounded read-heavy technical investigation",
         "Main-session Sol dedup is an optimization",
-        "blocked_by: none | contract | judgment | specialist | stalled",
+        "blocked_by: none | contract | judgment | investigation | stalled",
         "at most one clean retry",
     ]:
         assert phrase.lower() in router.lower()
@@ -128,12 +129,23 @@ def test_router_core_uses_direct_capability_questions_and_one_task_state():
     assert "Recovery Ledger" not in skill
 
 
+def test_terra_is_investigation_lane_not_hard_work_escalation():
+    router = (REFS / "router-core.md").read_text()
+    investigator = (PROFILES / "codex-delegate-investigator.toml").read_text()
+    assert "read-heavy technical investigation" in router
+    assert "not an escalation rung" in router
+    assert "Demanding, ambiguous, multi-step technical reasoning" in router
+    assert "read-heavy technical investigation" in investigator
+    assert "blocker=judgment" in investigator
+
+
 def test_guardrails_keep_safety_without_hot_path_runtime_ceremony():
     guardrails = (REFS / "guardrails.md").read_text()
     for phrase in [
         "One writer per canonical checkout",
         "main session when mutating the checkout",
         "Explicit invocation only",
+        "$codex-delegate <task>",
         "First-use readiness before delegated execution",
         "Runtime evidence is on demand",
         "Do not emit a separate orchestration receipt",
@@ -166,7 +178,7 @@ def test_public_docs_keep_product_identity_and_five_profiles():
 
     for text in [zh, en]:
         assert directive in text
-        assert "/codex-delegate" in text
+        assert "$codex-delegate" in text
         assert "0.9.0" in text
         assert "Sol Solver" in text
         assert "HEADOFF.md" not in text
