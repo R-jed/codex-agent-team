@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Delegate"
-  short_description: "Capability-aware delegation with bounded execution and independent review"
-  default_prompt: "Use /codex-delegate to classify unresolved dependencies, account for the current main-session judgment coverage when material, route standardized bounded execution to Luna, judgment-coupled execution to Sol, difficult technical uncertainty to Terra, reuse valid evidence, reclassify from new execution evidence instead of following a model ladder, and apply fresh independent Sol review only when the final artifact's consequences require it."
+  short_description: "Adaptive delegation for reliable everyday development"
+  default_prompt: "Use /codex-delegate to keep the main session in control, delegate only when it adds concrete value, route bounded execution to Luna, material judgment and judgment-coupled implementation to Sol, narrow specialist technical uncertainty to Terra, preserve one-writer safety, reuse valid evidence, and apply fresh independent Sol review only when the final artifact requires it."
 
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false
