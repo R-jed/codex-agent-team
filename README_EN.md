@@ -28,21 +28,17 @@ Simple tasks can use zero Subagents. Complex tasks do not follow a fixed Luna, T
 
 ## Quickstart
 
-The current pre-release development build installs through the native Codex Plugin system:
-
-```bash
-codex plugin marketplace add R-jed/codex-delegate --ref main \
-  --sparse .agents/plugins \
-  --sparse plugins/codex-delegate
-
-codex plugin add codex-delegate@codex-delegate
-```
+Open the **Codex Plugin Marketplace**, search for `codex-delegate`, select **Codex Delegate**, and install it.
 
 Start a new Codex thread, then invoke it explicitly:
 
 ```text
 /codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
 ```
+
+That is the complete installation path for ordinary users. You do not need to register another marketplace, run installation commands, or configure Agent profiles manually.
+
+For development installs, manual installs, or troubleshooting, see [Installation](docs/plugin-installation.md).
 
 The Plugin does not implicitly enter ordinary tasks. You also do not need to choose an Agent manually or design an execution pipeline in advance.
 
@@ -179,21 +175,10 @@ Ordinary successful tasks also do not receive a separate orchestration receipt b
 
 codex delegate uses Codex Native Subagents directly. It does not run a second Agent runtime, background daemon, or routing proxy.
 
-## Updating
-
-```bash
-codex plugin marketplace upgrade codex-delegate
-codex plugin add codex-delegate@codex-delegate
-```
-
-Start a new Codex thread after the update.
-
-The installer manages only the five current codex delegate Agent profiles and ownership receipt. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
-
 ## Documentation
 
 - [README_AI.md](README_AI.md): canonical reference for AI Agents answering questions about this project.
-- [Installation](docs/plugin-installation.md): installation, updates, first-use readiness, and installer safety.
+- [Installation](docs/plugin-installation.md): Plugin Marketplace install, manual/development install, updates, and installer safety.
 - [Architecture](docs/architecture.md): product mechanism, role boundaries, and writer safety.
 - [Native Subagent Runtime](docs/native-subagent-runtime.md): native concurrency, runtime evidence, and host boundaries.
 
