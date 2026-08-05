@@ -24,9 +24,9 @@
     "logoDark": "./assets/codex-delegate-logo-dark.svg",
     "screenshots": [],
     "defaultPrompt": [
-      "Use $codex-delegate to complete this development task and delegate only when extra native compute adds value.",
-      "Use $codex-delegate to implement this change with bounded execution and material judgment only where needed.",
-      "Use $codex-delegate to review this change and add independent review only when the final artifact warrants it."
+      "Use /codex-delegate to complete this development task and delegate only when extra native compute adds value.",
+      "Use /codex-delegate to implement this change with bounded execution and material judgment only where needed.",
+      "Use /codex-delegate to review this change and add independent review only when the final artifact warrants it."
     ]
   }
 }
