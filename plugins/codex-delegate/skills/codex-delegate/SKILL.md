@@ -1,256 +1,191 @@
 ---
 name: codex-delegate
-description: Build the smallest useful native Codex Subagent compute graph by classifying unresolved dependencies, accounting for main-session judgment coverage, routing bounded execution to Luna, judgment-coupled execution to Sol, difficult technical uncertainty to Terra, reusing evidence, and applying independent final review only when the deliverable's consequences require it.
+description: Delegate only when it improves the task, keep bounded execution on Luna, place material judgment on Sol, use Terra only for narrow specialist uncertainty, preserve one-writer safety, and apply fresh independent review only when the final artifact requires it.
 ---
 
-# Codex Delegate
+# codex delegate
 
-Use this Skill as a thin policy layer over Codex Native Subagents. The current main session remains the task-level control plane. Child Agents receive one classified unresolved dependency only when delegation creates concrete value.
+codex delegate is a thin policy layer over Codex Native Subagents. The current user-facing main session stays in control. The product exists to make everyday development more reliable without forcing users to design an Agent team or pay for unnecessary review loops.
 
-Stable role/classification/review constants live in `../../policy-contract.json`. `references/routing-policy.md` is the single normative owner for dependency classification, actor selection, main-session judgment coverage, scheduling, and reclassification.
+The runtime policy has three owners only:
+
+- `references/router-core.md`: delegation benefit, actor selection, child packet, reroute, scheduling, acceptance
+- `references/guardrails.md`: consent, writer ownership, permissions, trust boundaries, provisioning, runtime evidence
+- `references/final-review.md`: independent artifact-bound final assurance
+
+Stable role/model constants and review reason codes live in `../../policy-contract.json`.
 
 ## Core invariants
 
-1. Main session owns user intent, scope, authorization, task state, integration, acceptance, and final response.
-2. Main-session authority is independent of model identity; main-session judgment coverage is not.
-3. Every child call satisfies a distinct unresolved dependency that valid existing evidence does not already satisfy.
-4. Zero children is normal. There is no mandatory model sequence, fixed team shape, or product hard child count.
-5. Luna Worker receives only standardized bounded execution whose material behavior decisions are already made.
-6. Sol Solver receives judgment-coupled implementation only when material judgment cannot be safely separated and the main session does not already cover that capability.
-7. Terra receives only a narrow difficult technical uncertainty after semantic intent is stable.
-8. Sol Advisor provides material judgment uplift or fresh independent final review. A covered main session suppresses redundant capability-uplift Sol calls but never substitutes for required independent review.
-9. One canonical physical checkout has at most one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share that writer domain. Delegation depth remains one.
-10. Child reports are claims. Acceptance uses actual artifact state plus deterministic/reproducible evidence.
-11. Failure does not imply escalation. New evidence reclassifies the same dependency when its nature changed.
-12. Valid deterministic/repository evidence is reused until its dependencies change.
-13. Consent governs material expansion in compute, concurrency, permission, scope, or external impact; it is not the scheduler.
-14. A required Final Review Gate completes only on a fresh Sol `ship` verdict for the unchanged bound artifact.
+1. Main session owns user intent, authorization, integration, acceptance, and final response.
+2. Zero children is normal. Delegation must provide concrete value.
+3. Luna Reader gathers bounded evidence. Luna Worker implements behavior that is already decided.
+4. Sol Advisor handles material read-only judgment. Sol Solver handles implementation where material judgment is coupled to the write.
+5. Terra Investigator receives only a narrow difficult technical question after semantics are stable.
+6. Main-session Sol capability is a dedup optimization, not task taxonomy or authority. Do not buy duplicate Sol capability when trusted current-session evidence already covers it.
+7. Failure does not imply model escalation. Diagnose the remaining blocker and reroute only when the work really changed.
+8. One canonical checkout has one active writing actor inside this orchestration. Main writes, Luna Worker, and Sol Solver share that domain.
+9. Child reports are claims. Accept from actual artifact state plus relevant deterministic or reproducible evidence.
+10. Fresh independent Final Review is on demand for consequential artifacts. A Sol main does not review its own candidate independently.
+11. Children do not create project Subagents. Delegation depth is one.
+12. Do not emit orchestration ceremony when it adds no user value.
 
-## 1. Understand the task and initialize compact state
+## 1. Understand the task
 
-Identify the user's observable outcome, authorization, constraints, consequence of error, acceptance signals, and relevant repository/runtime facts.
-
-Do not begin with a model, Agent count, or planned Luna -> Terra -> Sol sequence.
-
-Maintain only:
+Identify:
 
 ```text
-Dependency Ledger
-- id / outcome / status / requires / produces
-- kind: evidence | bounded_execution | judgment | judgment_coupled_execution | technical_investigation
-- write intent / workspace / acceptance
-
-Shared Evidence State
-- id / type: deterministic | repository_fact | model_judgment
-- claim / source / depends_on / validity
-
-Recovery Ledger
-- material attempt facts needed to avoid repeated dead ends
-
-Main Judgment Coverage
-- covered | uncovered | unknown
-- source when actually observed
+observable user outcome
+scope / authorization
+important invariants
+acceptance conditions
+known repository/runtime facts
 ```
 
-Do not duplicate a dependency already running or satisfied unless changed inputs invalidate it.
+Do not start by choosing Luna, Terra, Sol, an Agent count, or a pipeline.
 
-## 2. Classify what is actually unresolved
-
-Use `references/routing-policy.md`.
-
-The five dependency kinds are:
+Maintain one compact task state per unresolved work item:
 
 ```text
-evidence
--> missing inspectable facts
-
-bounded_execution
--> desired behavior is decided; remaining discretion is local and independently verifiable
-
-judgment
--> material architecture / behavior / compatibility / risk decision
-
-judgment_coupled_execution
--> implementation and material semantic judgment cannot be safely separated
-
-technical_investigation
--> semantics are stable; a narrow difficult technical uncertainty remains
+outcome
+owner
+read/write intent
+material judgment: none | separable | coupled
+acceptance
+valid evidence
+current failure
+blocker
 ```
 
-A task being large, expensive, many-file, or contractable does not determine its kind.
+Do not maintain separate ledgers unless the task genuinely needs persistent structured state.
 
-The critical distinction is:
+## 2. Decide whether delegation helps
 
-```text
-contractable != Luna-suitable
-```
+Use `references/router-core.md`.
 
-If material semantic discretion is expected during implementation, do not disguise it as bounded Luna work.
+Keep the task in main when delegation would mostly duplicate context or add handoff overhead.
 
-## 3. Account for main-session judgment coverage only when it matters
+Delegate only for concrete value such as:
 
-When trusted current-session metadata exposes the main model and material judgment is unresolved, normalize it through `references/runtime-assurance.md` / `../../scripts/runtime-evidence.py`.
+- useful context isolation;
+- independent read-only work;
+- standardized bounded implementation;
+- material Sol judgment or judgment-coupled implementation;
+- narrow specialist technical investigation;
+- required independent final assurance.
 
-The coverage reference role/model comes from `../../policy-contract.json`; the verifier does not maintain a second hard-coded route identity.
+## 3. Complete readiness before delegated execution
 
-Routing V4 uses:
+This Skill is designed for explicit `/codex-delegate` use.
 
-```text
-covered   -> current main matches the trusted policy-owned judgment reference
-uncovered -> trusted current main is outside that reference family
-unknown   -> route not observed completely or is conflicted
-```
-
-Do not inspect or ask for main-model metadata for routine bounded work merely to optimize cost.
-
-When coverage is `covered`, keep normal judgment and judgment-coupled implementation in the main session by default. Do not spawn another Sol solely to recreate capability already present.
-
-When coverage is `uncovered` or `unknown`, material judgment may justify Sol Advisor; judgment-coupled implementation may justify Sol Solver.
-
-Independent Final Review is separate and may still require a fresh Advisor regardless of main model.
-
-## 4. Select the smallest useful actor
-
-Classification maps to role, subject to delegation benefit:
-
-```text
-evidence                    -> main or codex_delegate_reader
-bounded_execution           -> main or codex_delegate_worker
-judgment                    -> covered main, or codex_delegate_advisor when coverage is uncovered/unknown
-judgment_coupled_execution  -> covered main, or codex_delegate_solver when coverage is uncovered/unknown
-technical_investigation     -> main or codex_delegate_investigator
-```
-
-A child is justified only for concrete context isolation, useful parallelism, specialized capability, or independent judgment.
-
-Cost is a constraint and tie-breaker among safe useful choices. Lower price does not make a role semantically appropriate.
-
-## 5. Compile the responsibility, then ensure the exact role
-
-Use `references/delegation-contract.md`.
-
-Writing responsibilities require enforceable outcome, scope, interfaces, invariants, decision envelope, acceptance oracle, verification, and stop conditions.
-
-Role availability is checked only after a dependency justifies that role. Exact current roles come from `../../policy-contract.json`.
-
-If a required role is unavailable, resolve the bundled installer relative to this Skill:
+Once the task actually justifies a child, check the exact required project role before delegated implementation begins. If provisioning is missing:
 
 ```text
 installer = skill_dir/../../scripts/install-agents.py
 ```
 
-Explain its managed write scope and request permission before running:
+Explain that the installer manages only the five codex delegate profiles plus `.codex-delegate-agents.json`, request permission, then run:
 
 ```bash
 python "$installer"
 python "$installer" --check
 ```
 
-It manages only the current project profiles and `.codex-delegate-agents.json`. It does not modify unrelated Agent profiles, credentials, MCP configuration, repositories, or `config.toml`.
+If the current Codex thread cannot see newly provisioned roles until restart, stop before delegated code execution and ask the user to start a fresh thread. Do not discover this halfway through a Worker/Solver implementation.
 
-Exact-route mismatch fails closed. Do not cross-route simply to keep work moving.
+Exact role mismatch fails closed. Do not substitute another role/model simply to keep moving.
 
-## 6. Dispatch completion-driven work
+## 4. Route the smallest useful responsibility
 
-Dispatch the smallest useful set of ready dependencies that fits:
+The practical mapping is:
 
 ```text
-classification
-contractability
-consent
-workspace safety
-exact route availability
-native capacity
+read-only factual evidence
+-> main or codex_delegate_reader
+
+write; behavior/invariants/acceptance already decided
+-> main or codex_delegate_worker
+
+material judgment before writing
+-> capable main or codex_delegate_advisor
+
+write where material judgment cannot be separated
+-> capable main or codex_delegate_solver
+
+semantics stable + narrow difficult technical uncertainty
+-> main or codex_delegate_investigator
 ```
 
-Scheduling is completion-driven. Process a child's exposed completion/update as soon as useful, merge supported evidence, close completed children, recompute the ready frontier, and refill safe capacity without waiting for unrelated work.
+A task being large or contractable does not make it Luna work.
 
-A barrier is used only for a real join dependency or when the tested native runtime exposes no finer completion surface.
+Consult main-session model/effort only when material judgment already needs Sol capability and trusted current-session metadata is available or worth checking. `../../scripts/runtime-evidence.py` is an optional diagnostic for that dedup decision and other runtime claims. It is not part of every routine task.
 
-One canonical checkout has one writing actor at a time inside this orchestration. If Worker or Solver owns a writing dependency, the main session may continue read-only work in that checkout but must wait for a clear ownership handoff before making integration writes there. Concurrent writes require genuinely isolated workspaces.
+## 5. Run with minimal safe coordination
 
-## 7. Verify and reclassify instead of escalating
+Compile one bounded responsibility packet using `router-core.md`.
+
+Use the smallest useful set of children. Explicit `/codex-delegate` permits up to two concurrently active justified children inside the ordinary consent envelope, subject to native capacity and `guardrails.md`.
+
+Read-only independent work may run concurrently. A canonical checkout has only one writing actor inside this orchestration. If Worker or Solver owns the write, main stays read-only in that checkout until ownership returns.
+
+Process exposed child completion when useful. Do not manufacture a wave barrier, busy-poll telemetry the runtime does not expose, or repeat discovery that valid evidence already covers.
+
+## 6. Verify, then diagnose blockers
 
 When a child returns:
 
 1. inspect actual artifact/diff/state;
-2. inspect exact verification results;
-3. merge only supported evidence;
-4. update acceptance state;
-5. decide whether the dependency is satisfied;
-6. if unresolved, rerun the same classifier with the new evidence.
+2. inspect relevant verification results;
+3. merge only supported new evidence;
+4. check the user acceptance conditions;
+5. if unresolved, diagnose the blocker.
 
-Use `references/execution-progress.md` for progress semantics.
-
-Standard reclassification signals are:
+Use only these blocker classes in the hot path:
 
 ```text
-CONTRACT_GAP
-JUDGMENT_REQUIRED
-TECHNICAL_GAP
-EXECUTION_STALL
+contract
+judgment
+specialist
+stalled
 ```
 
-Examples:
+Then:
 
 ```text
-bounded local defect, semantics unchanged
--> focused Luna correction
-
-material semantic choice emerged
--> judgment or judgment_coupled_execution
--> covered main / Advisor / Solver according to main coverage
-
-narrow difficult technical uncertainty remains after semantics stabilize
--> technical_investigation
--> Terra gets only that delta
-
-same bounded work stalls but classification remains correct
--> optional clean same-role restart with fresh evidence packet
+contract -> main repairs task truth or acceptance
+judgment -> main/Sol handles the material decision
+specialist -> Terra only for a narrow technical delta after semantics are stable
+stalled -> at most one clean same-role retry when the role remains correct and the packet is materially improved
 ```
 
-Do not translate a failed Luna attempt directly into Terra or Sol. Reclassification is the decision point.
+Do not translate “Luna failed” directly into Terra or Sol.
 
-## 8. Apply boundary policies where relevant
+## 7. Apply Final Review only when the candidate needs it
 
-- `references/safety-policy.md`: permission, trust, writer ownership, external impact, delegation depth
-- `references/consent-policy.md`: material compute/fan-out/scope/permission expansion
-- `references/runtime-assurance.md`: main-session coverage plus child route/ancestry/permission evidence
+After normal acceptance reaches Candidate Ready, use `references/final-review.md`.
 
-Do not manufacture runtime facts that the current Codex build did not expose.
+Prior use of Terra, Solver, recovery, a large diff, or many files does not itself require review. The current artifact's consequences and any material verification gap decide the gate.
 
-## 9. Apply independent Final Review only to the candidate's consequences
-
-After the main session has a Candidate Ready artifact, evaluate `references/final-review-gate.md`.
-
-Mandatory triggers come from the current artifact's semantic consequences and verification gaps. Prior use of Terra, Solver, recovery, or a large diff is evidence to consider, not an automatic review trigger.
-
-If review is required:
+When review is required:
 
 ```text
-Candidate Ready
--> bind review_artifact_id
+bind exact candidate
 -> fresh codex_delegate_advisor with fork_turns: none
 -> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
 ```
 
-Only `ship` for the unchanged current artifact satisfies a required gate.
+Only a fresh `ship` verdict for the unchanged candidate satisfies required independent review.
 
-## 10. Close and report
+## 8. Report the task result
 
-Close completed, superseded, rejected, or no-longer-needed children promptly.
+Normal completion output focuses on:
 
-Use `references/orchestration-receipt.md` when explicit `/codex-delegate` use, child execution, capability placement, reclassification, consent, or Final Review materially affected the workflow.
+```text
+what changed
+verification performed
+remaining material risk, if any
+```
 
-The receipt summarizes meaningful orchestration decisions and never replaces the normal completion report.
+Do not append a separate orchestration receipt just because `/codex-delegate` was explicitly invoked.
 
-## References
-
-- `references/routing-policy.md`: classification, actor selection, main coverage, scheduling, reclassification
-- `references/delegation-contract.md`: responsibility and return packet
-- `references/execution-progress.md`: progress/stall evidence and recovery facts
-- `references/consent-policy.md`: resource authorization
-- `references/safety-policy.md`: permission, trust, writer safety, external effects
-- `references/runtime-assurance.md`: main and child runtime evidence
-- `references/final-review-gate.md`: independent artifact-bound assurance
-- `references/orchestration-receipt.md`: compact user-visible orchestration record
+Mention routing only when it materially affected the result or user decision, such as additional consent, meaningful rerouting, a route/runtime limitation, required Final Review, or an explicit user request for orchestration details.
