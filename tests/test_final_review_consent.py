@@ -1,41 +1,40 @@
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCES = (
-    ROOT
-    / "plugins"
-    / "codex-delegate"
-    / "skills"
-    / "codex-delegate"
-    / "references"
-)
+REFERENCES = ROOT / "plugins" / "codex-delegate" / "skills" / "codex-delegate" / "references"
 
 
 def test_explicit_invocation_can_cover_first_required_final_review():
-    consent = (REFERENCES / "consent-policy.md").read_text()
-    assert "first risk-triggered Final Review Gate pass" in consent
-    assert "explicit `/codex-delegate` baseline" in consent
-    assert "single read-only Sol advisor" in consent
+    final_review = (REFERENCES / "final-review.md").read_text()
+    guardrails = (REFERENCES / "guardrails.md").read_text()
+    assert "first ordinary fresh review after explicit `/codex-delegate` use" in final_review
+    assert "up to 2 concurrently active justified children" in guardrails
 
 
-def test_implicit_invocation_does_not_silently_expand_sol_compute():
-    consent = (REFERENCES / "consent-policy.md").read_text()
-    assert "For implicit Skill invocation, ask before adding Sol" in consent
-    assert "does not silently expand implicit-call compute authorization" in consent
+def test_implicit_invocation_is_disabled_instead_of_needing_extra_consent_policy():
+    openai = (
+        ROOT
+        / "plugins"
+        / "codex-delegate"
+        / "skills"
+        / "codex-delegate"
+        / "agents"
+        / "openai.yaml"
+    ).read_text()
+    guardrails = (REFERENCES / "guardrails.md").read_text()
+    assert "allow_implicit_invocation: false" in openai
+    assert "Explicit invocation only" in guardrails
 
 
-def test_declined_review_keeps_quality_gate_unsatisfied():
-    consent = (REFERENCES / "consent-policy.md").read_text()
-    receipt = (REFERENCES / "orchestration-receipt.md").read_text()
-    assert "keep the candidate at **Candidate Ready**" in consent
-    assert "do not downgrade `review_requirement`" in consent
-    assert "do not fabricate `ship`" in consent
-    assert "additional Sol review declined by user" in receipt
-    assert "independent final review not satisfied" in receipt
+def test_declined_required_review_remains_incomplete():
+    final_review = (REFERENCES / "final-review.md").read_text()
+    assert "the user declines it" in final_review
+    assert "independent assurance remains incomplete" in final_review
+    assert "Do not silently downgrade the review requirement" in final_review
 
 
 def test_repeated_final_review_cycles_remain_compute_consent_bounded():
-    consent = (REFERENCES / "consent-policy.md").read_text()
-    assert "final review gate does not authorize unlimited reviewer retries" in consent.lower()
-    assert "Approval for one additional Sol pass does not authorize repeated Sol retries" in consent
+    final_review = (REFERENCES / "final-review.md").read_text()
+    guardrails = (REFERENCES / "guardrails.md").read_text()
+    assert "Repeated correction/re-review loops" in final_review
+    assert "repeated expensive Solver, Advisor, Investigator, or correction/re-review loops" in guardrails
