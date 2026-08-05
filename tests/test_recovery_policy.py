@@ -14,7 +14,7 @@ def test_recovery_is_blocker_diagnosis_not_model_escalation():
     skill = (SKILL_ROOT / "SKILL.md").read_text()
     router = ROUTER.read_text()
     assert "Verify, then diagnose blockers" in skill
-    for blocker in ["contract", "judgment", "specialist", "stalled"]:
+    for blocker in ["contract", "judgment", "investigation", "stalled"]:
         assert blocker in skill
         assert blocker in router
     assert "A failed Luna attempt never directly means" in router
@@ -40,7 +40,7 @@ def test_runtime_state_is_one_compact_work_item_not_three_ledgers():
         "acceptance",
         "valid_evidence",
         "current_failure",
-        "blocked_by: none | contract | judgment | specialist | stalled",
+        "blocked_by: none | contract | judgment | investigation | stalled",
     ]:
         assert field in router
     for retired in ["Dependency Ledger", "Shared Evidence State", "Recovery Ledger"]:
