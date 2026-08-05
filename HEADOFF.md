@@ -14,7 +14,7 @@ repository: R-jed/codex-delegate
 marketplace/plugin id: codex-delegate
 skill: codex-delegate
 explicit invocation: $codex-delegate
-version: 0.9.0
+version: 0.9.1
 current roles: codex_delegate_reader / worker / solver / investigator / advisor
 current ownership manifest: .codex-delegate-agents.json
 runtime policy surface: router-core.md / guardrails.md / final-review.md
