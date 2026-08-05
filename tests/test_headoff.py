@@ -20,6 +20,7 @@ def test_handoff_requires_official_compliance_and_deterministic_execution_before
         "## Deterministic execution preflight",
         "tests/test_official_plugin_compliance.py",
         "python -m pytest tests/test_identity_cleanup.py -q",
+        "tests/test_concurrency_policy.py",
         "tests/test_runtime_evidence.py",
         "tests/test_capability_dedup.py",
         "tests/test_behavioral_evals.py",
@@ -49,13 +50,28 @@ def test_handoff_uses_five_roles_and_compact_policy_surface():
     for phrase in [
         "version: 0.9.1",
         "router-core.md / guardrails.md / final-review.md",
-        "policy-contract.json schema 3",
+        "policy-contract.json schema 4",
         "invocation: explicit only",
         "contract | judgment | investigation | stalled",
         "ordinary successful tasks do not need a separate orchestration receipt",
         ".codex-delegate-agents.json",
+        "ready frontier + progressive fan-out",
+        "no project ordinary numeric child ceiling",
     ]:
         assert phrase in HANDOFF
+
+
+def test_handoff_adaptive_fanout_keeps_strong_main_in_control():
+    for phrase in [
+        "main session always owns user intent, authorization, team composition",
+        "project policy does not target or cap an ordinary fixed child count",
+        "Main manages a ready frontier",
+        "native Agent capacity is an upper bound, never a target to fill",
+        "child count alone is not a consent trigger; material compute expansion is",
+        "three or more distinct ready read-only responsibilities may run together",
+        "spare native capacity alone does not create another child",
+    ]:
+        assert phrase.lower() in HANDOFF.lower()
 
 
 def test_handoff_terra_is_read_heavy_lane_and_sol_keeps_demanding_judgment():
@@ -80,6 +96,7 @@ def test_handoff_keeps_daily_runtime_and_behavioral_gates():
         "review_artifact_id",
         "Advisor + Luna handoff vs one Sol Solver",
         "Sol-main direct execution vs redundant Sol Solver",
+        "adaptive multi-reader fan-out vs unnecessary serial waves",
         "first-use five-profile native custom-Agent provisioning/readiness behavior",
     ]:
         assert phrase.lower() in HANDOFF.lower()
@@ -113,13 +130,16 @@ def test_report_is_pending_evidence_ledger_for_current_candidate():
         "codex_delegate_reader",
         "codex_delegate_solver",
         ".codex-delegate-agents.json",
-        "policy-contract.json schema 3",
+        "policy-contract.json schema 4",
         "MECHANISM COMPRESSION + OFFICIAL CODEX ALIGNMENT IMPLEMENTED / VALIDATION PENDING",
         "DETERMINISTIC + LIVE VALIDATION PENDING",
         "Static validation for the exact current tree is pending",
+        "policy has no ordinary numeric child ceiling",
+        "Main uses ready-frontier progressive fan-out",
         "exactly three model-facing runtime references remain",
         "Sol Solver reduces handoff/rework on judgment-coupled implementation | hypothesis only",
         "Terra improves read-heavy stable-semantics investigation at useful cost/quality | hypothesis only",
+        "adaptive multi-reader fan-out improves wall-clock completion without harmful overdelegation | hypothesis only",
         CONSULTATION_TARGET,
     ]:
         assert phrase in REPORT
