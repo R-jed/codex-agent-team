@@ -8,26 +8,26 @@ The distinction is deliberate:
 | --- | --- |
 | runs the main session and child threads | decides whether delegation helps and which exact project role is useful |
 | exposes whatever capacity/wait/update/runtime metadata the build supports | uses only observed capability without inventing a universal runtime contract |
-| provides Agent configuration and sandbox/tool surfaces | adds one-writer, consent, trust, and exact-role boundaries |
+| provides custom Agent configuration and sandbox/tool surfaces | adds one-writer, consent, trust, and exact-role boundaries |
 | returns child output | verifies claims against the actual artifact and relevant evidence |
 
 ## Explicit entry point
 
-The product is designed for explicit invocation:
+The product follows the Codex Skill invocation convention:
 
 ```text
-/codex-delegate <task>
+$codex-delegate <task>
 ```
 
-Implicit invocation is disabled. The user chooses when adaptive delegation is worth applying.
+Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled. The user chooses when adaptive delegation is worth applying.
 
 ## First-use readiness
 
-Exact custom roles are separate from the Plugin manifest. When an explicit task actually needs a child, role readiness is checked before delegated implementation starts.
+The exact project roles use Codex's native custom-Agent TOML mechanism. Personal custom Agents are stored under the active Codex home `agents` directory, normally `~/.codex/agents/`.
 
-If profiles are missing, codex delegate asks permission, runs the bundled installer and `--check`, then verifies the role surface. If the current Codex thread cannot discover newly provisioned roles until restart, the task stops before child writing and resumes in a fresh thread.
+When an explicit task actually needs a child, role readiness is checked before delegated implementation starts. If profiles are missing, codex delegate asks permission, runs the bundled installer and `--check`, then verifies the role surface. The installer is a project-specific lifecycle and ownership layer around native custom Agent files; it is not a second runtime.
 
-This avoids provisioning in the middle of an implementation.
+If the current Codex thread cannot discover newly provisioned roles until restart, the task stops before child writing and resumes in a fresh thread.
 
 ## Current exact roles
 
@@ -38,6 +38,21 @@ codex_delegate_solver        -> gpt-5.6-sol   / high  / workspace-write
 codex_delegate_investigator  -> gpt-5.6-terra / xhigh / read-only
 codex_delegate_advisor       -> gpt-5.6-sol   / high  / read-only
 ```
+
+Responsibility semantics follow the current model guidance:
+
+```text
+Luna Reader/Worker
+-> clear, repeatable, bounded work
+
+Terra Investigator
+-> bounded read-heavy technical investigation / evidence synthesis after semantics stabilize
+
+Sol Advisor/Solver
+-> demanding, ambiguous, multi-step material judgment and judgment-coupled implementation
+```
+
+Terra is not an escalation rung above Luna. A difficult technical problem that still requires demanding or material judgment belongs on the Sol path.
 
 Model-specific delegation requires the exact current profile. There is no built-in-role substitution or hidden model ladder.
 
@@ -146,7 +161,7 @@ A wake-up event does not imply deterministic insight into child progress.
 
 codex delegate has no product-level hard child count.
 
-Explicit invocation includes up to two concurrently active justified children in the ordinary consent envelope. Larger fan-out requires user authorization unless the request already clearly asks for broad parallel work.
+Explicit `$codex-delegate` invocation includes up to two concurrently active justified children in the ordinary consent envelope. Larger fan-out requires user authorization unless the request already clearly asks for broad parallel work.
 
 Actual active concurrency remains bounded by:
 
