@@ -20,19 +20,19 @@ def test_handoff_requires_deterministic_execution_preflight_before_live_evidence
         "## Deterministic execution preflight",
         "python -m pytest tests/test_identity_cleanup.py -q",
         "tests/test_runtime_evidence.py",
+        "tests/test_routing_v4_main_coverage.py",
         "tests/test_behavioral_evals.py",
         "python -m pytest -q",
         "complete pytest suite has no failures or errors",
         "both required Plugin validator runs pass",
         "tested SHA remains unchanged after validation",
-        "Do not carry forward a green result from an earlier SHA",
         "LOCAL_VALIDATION_REPORT.md",
     ]:
         assert phrase in HANDOFF
     assert HANDOFF.index("## Deterministic execution preflight") < HANDOFF.index("## Checkpoint 1:")
 
 
-def test_handoff_uses_five_current_roles_and_routing_v4():
+def test_handoff_uses_five_roles_and_compact_policy_surface():
     for role in [
         "codex_delegate_reader",
         "codex_delegate_worker",
@@ -43,30 +43,40 @@ def test_handoff_uses_five_current_roles_and_routing_v4():
         assert role in HANDOFF
     for phrase in [
         "version: 0.8.0",
-        "Routing V4",
-        "contractable` does not imply Luna-suitable",
-        "JUDGMENT_REQUIRED",
-        "TECHNICAL_GAP",
-        "unknown main-session model does not automatically route routine work to Sol",
+        "router-core.md / guardrails.md / final-review.md",
+        "policy-contract.json schema 3",
+        "invocation: explicit only",
+        "contract | judgment | specialist | stalled",
+        "ordinary successful tasks do not need a separate orchestration receipt",
         ".codex-delegate-agents.json",
     ]:
         assert phrase in HANDOFF
 
 
-def test_handoff_keeps_core_runtime_and_behavioral_gates():
+def test_handoff_keeps_daily_runtime_and_behavioral_gates():
     for phrase in [
-        "barrier_only | per_child_terminal | any_child_update",
-        "A = slow independent dependency",
+        "A = slow independent read-only work",
         "M3 different sessions, same canonical physical checkout",
         "M5 Worker + Solver proposed concurrently in same checkout",
+        "M6 Main writer + Worker/Solver proposed concurrently in same checkout",
         "I1 two installers target the same clean CODEX_HOME",
         "INSUFFICIENT_EVIDENCE",
         "review_artifact_id",
-        "advisor_then_luna vs sol_solver",
-        "main_session_only vs sol_solver",
-        "process-history negative control",
+        "Advisor + Luna handoff vs one Sol Solver",
+        "Sol-main direct execution vs redundant Sol Solver",
+        "first-use role readiness",
     ]:
         assert phrase.lower() in HANDOFF.lower()
+
+
+def test_handoff_requires_immutable_release_candidate_for_release_evidence():
+    for phrase in [
+        "`main` is a moving development ref",
+        "fixed immutable RC/tag",
+        "immutable candidate SHA/ref",
+        "make the immutable release ref the recommended stable user-install channel",
+    ]:
+        assert phrase in HANDOFF
 
 
 def test_handoff_keeps_exact_adversarial_consultation_target():
@@ -80,20 +90,20 @@ def test_handoff_keeps_exact_adversarial_consultation_target():
         assert phrase in HANDOFF
 
 
-def test_report_is_pending_evidence_ledger_for_routing_v4():
+def test_report_is_pending_evidence_ledger_for_compressed_candidate():
     for phrase in [
         "Plugin version: 0.8.0",
         "codex_delegate_reader",
         "codex_delegate_solver",
         ".codex-delegate-agents.json",
-        "ROUTING V4 IMPLEMENTED / VALIDATION PENDING",
-        "DETERMINISTIC + LIVE V4 VALIDATION PENDING",
+        "policy-contract.json schema 3",
+        "MECHANISM COMPRESSION IMPLEMENTED / VALIDATION PENDING",
+        "DETERMINISTIC + LIVE VALIDATION PENDING",
         "Static validation for the exact current tree is pending",
-        "policy schema 2 / routing-eval schema 4.0",
-        "Sol Solver improves or simplifies non-Sol judgment-coupled execution | hypothesis only",
+        "exactly three model-facing runtime references remain",
+        "Sol Solver reduces handoff/rework on judgment-coupled implementation | hypothesis only",
         CONSULTATION_TARGET,
     ]:
         assert phrase in REPORT
     assert "public users and ai agents should use readme/readme_ai" in REPORT.lower()
     assert "pytest passed" in REPORT
-    assert "should be interpreted as `pytest passed`" in REPORT
