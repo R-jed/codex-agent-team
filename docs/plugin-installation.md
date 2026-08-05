@@ -9,17 +9,17 @@ For ordinary users, installation is intentionally simple:
 1. Open the **Codex Plugin Marketplace**.
 2. Search for `codex-delegate`.
 3. Select **Codex Delegate** and install or enable it.
-4. Start a new Codex thread and invoke the Skill:
+4. Start a new Codex thread and invoke the Plugin:
 
 ```text
-$codex-delegate <task>
+/codex-delegate <task>
 ```
 
 Codex CLI/IDE users can also open the Skill picker with `/skills`.
 
 That is the normal supported installation path. Ordinary users do not need to register the repository as another marketplace, run CLI installation commands, edit `config.toml`, or configure Agent profiles manually.
 
-Implicit invocation is disabled, so use `$codex-delegate` explicitly when you want the Plugin to orchestrate a task.
+Implicit invocation is disabled, so use `/codex-delegate` explicitly when you want the Plugin to orchestrate a task.
 
 ## Current identity
 
@@ -28,7 +28,7 @@ Repository:       R-jed/codex-delegate
 Marketplace id:  codex-delegate
 Plugin id:        codex-delegate
 Skill:            codex-delegate
-Invocation:       $codex-delegate
+Invocation:       /codex-delegate
 Version:          0.9.1
 ```
 
@@ -66,7 +66,7 @@ codex plugin add codex-delegate@codex-delegate
 Start a new Codex thread, then invoke explicitly:
 
 ```text
-$codex-delegate <task>
+/codex-delegate <task>
 ```
 
 Do not manually edit `config.toml`, marketplace state, Plugin cache state, or Agent profiles to simulate installation.
@@ -88,7 +88,7 @@ Start a new Codex thread after a manual update.
 
 Role setup should not interrupt an implementation halfway through.
 
-When an explicit `$codex-delegate` task actually benefits from a child, the Skill checks the required exact role before delegated code execution starts. If provisioning is needed, it:
+When an explicit `/codex-delegate` task actually benefits from a child, the Skill checks the required exact role before delegated code execution starts. If provisioning is needed, it:
 
 1. explains the project-managed write scope and asks permission;
 2. resolves `../../scripts/install-agents.py` relative to the installed Skill;
@@ -137,7 +137,7 @@ Each fixed release candidate must:
 4. verify the Plugin remains the smallest required skills-only shape and public legal/listing metadata is valid;
 5. verify marketplace metadata points to `./plugins/codex-delegate`;
 6. perform a real fresh Plugin Marketplace install from the fixed candidate;
-7. start a new thread and confirm `$codex-delegate` discovery, `/skills` discovery, version `0.9.1`, and implicit invocation disabled;
+7. start a new thread and confirm `/codex-delegate` discovery, `/skills` discovery, version `0.9.1`, and implicit invocation disabled;
 8. verify first-use five-role provisioning/readiness before delegated execution;
 9. verify installer idempotence, managed-profile update/addition, unrelated-profile preservation, and non-mutating `--check`;
 10. exercise same-Codex-home installer concurrency cases owned by `HEADOFF.md`;
