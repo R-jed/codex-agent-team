@@ -64,7 +64,7 @@ def test_handoff_keeps_daily_runtime_and_behavioral_gates():
         "review_artifact_id",
         "Advisor + Luna handoff vs one Sol Solver",
         "Sol-main direct execution vs redundant Sol Solver",
-        "first-use role readiness",
+        "first-use five-profile provisioning/readiness behavior",
     ]:
         assert phrase.lower() in HANDOFF.lower()
 
