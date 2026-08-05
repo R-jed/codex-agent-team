@@ -9,7 +9,7 @@ ALL_READMES = [path.read_text() for path in ROOT.rglob("README*.md")]
 DIRECTIVE = "If you are an AI Agent, jump to README_AI.md and follow the instructions strictly."
 
 
-def test_readmes_present_same_current_product_and_ai_jump():
+def test_public_readmes_keep_current_identity_roles_and_entrypoint():
     for text in [ZH, EN]:
         for phrase in [
             "codex delegate",
@@ -23,27 +23,47 @@ def test_readmes_present_same_current_product_and_ai_jump():
             DIRECTIVE,
         ]:
             assert phrase in text
-    assert "## 最终复核" in ZH
-    assert "## Final Review" in EN
 
 
-def test_public_readmes_use_marketplace_first_installation_update_and_official_skill_invocation():
+def test_public_readmes_are_marketplace_first_and_explain_updates_simply():
     assert "Codex 中打开**插件市场**" in ZH
     assert "搜索 `codex-delegate`" in ZH
     assert "Open the **Codex Plugin Marketplace**" in EN
     assert "search for `codex-delegate`" in EN
     assert "$codex-delegate" in ZH and "/skills" in ZH
     assert "$codex-delegate" in EN and "/skills" in EN
-    assert "后续更新同样直接通过 Codex 插件市场完成" in ZH
-    assert "Future updates are handled through the Codex Plugin Marketplace as well" in EN
+    assert "以后更新插件，同样直接通过 Codex 插件市场完成" in ZH
+    assert "Updates are handled through the Codex Plugin Marketplace as well" in EN
     for text in [ZH, EN]:
         assert "codex plugin marketplace add" not in text
         assert "codex plugin add codex-delegate@codex-delegate" not in text
-    assert "开发安装、手动安装或排障" in ZH
-    assert "development installs, manual installs, or troubleshooting" in EN
 
 
-def test_all_readmes_are_release_ready_product_surfaces_not_status_ledgers():
+def test_public_readmes_use_plain_language_instead_of_internal_policy_jargon():
+    forbidden = [
+        "material judgment",
+        "judgment-coupled",
+        "bounded read-heavy",
+        "capability dedup",
+        "orchestration receipt",
+        "runtime ontology",
+        "consent envelope",
+        "dependency ledger",
+        "shared evidence state",
+        "recovery ledger",
+    ]
+    for text in [ZH, EN]:
+        lowered = text.lower()
+        for phrase in forbidden:
+            assert phrase not in lowered
+
+    assert "可以把它理解成一个很轻的“任务分配器”" in ZH
+    assert "Think of codex delegate as a small task dispatcher" in EN
+    assert "你不需要自己挑模型" in ZH
+    assert "You do not need to pick models yourself" in EN
+
+
+def test_all_readmes_are_product_or_reference_docs_not_release_status_ledgers():
     forbidden = [
         "HEADOFF.md",
         "LOCAL_VALIDATION_REPORT.md",
@@ -70,13 +90,12 @@ def test_all_readmes_are_release_ready_product_surfaces_not_status_ledgers():
             assert phrase.lower() not in lowered
 
 
-def test_ai_reference_is_authoritative_and_mechanism_compressed():
+def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
     for phrase in [
-        "canonical public reference for AI Agents",
         "R-jed/codex-delegate",
-        "Marketplace id:     codex-delegate",
+        "Marketplace id:      codex-delegate",
         "Explicit invocation: $codex-delegate",
-        "Current version:    0.9.1",
+        "Current version:     0.9.1",
         "codex_delegate_reader",
         "codex_delegate_worker",
         "codex_delegate_solver",
@@ -89,19 +108,21 @@ def test_ai_reference_is_authoritative_and_mechanism_compressed():
         "final-review.md",
         "policy-contract.json` schema `3`",
         "Implicit invocation is disabled",
-        "Do not claim benchmark superiority",
         "search for `codex-delegate` in the Codex Plugin Marketplace",
-        "Tell them to invoke the Skill with `$codex-delegate`",
-        "Provide CLI installation commands only for explicit manual/development/troubleshooting requests",
-        "For ordinary users, updates should be handled through the Codex Plugin Marketplace",
+        "Do not claim benchmark wins",
     ]:
         assert phrase in AI
 
 
-def test_evals_readme_stays_measurement_only_and_does_not_expose_release_status():
+def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
     for phrase in [
-        "maintainer-facing measurement and regression surface",
-        "does not define the runtime router",
+        "test data used to check routing and runtime behavior",
+        "not part of the normal user setup",
+        "behavioral-workloads.json",
+        "behavioral-result.schema.json",
+        "LOCAL_EVAL_FIXTURE_TEMPLATE.md",
+        "routing-cases.json",
+        "runtime-assurance-cases.json",
         "router-core.md",
         "guardrails.md",
         "final-review.md",
@@ -111,15 +132,24 @@ def test_evals_readme_stays_measurement_only_and_does_not_expose_release_status(
         assert phrase in EVALS
 
 
-def test_readmes_lead_with_quickstart_and_user_value_before_deeper_mechanics():
-    assert ZH.index(DIRECTIVE) < ZH.index("## 快速开始")
-    assert EN.index(DIRECTIVE) < EN.index("## Quickstart")
-    assert ZH.index("## 快速开始") < ZH.index("## 会怎么分工")
-    assert EN.index("## Quickstart") < EN.index("## How work is divided")
-    for phrase in ["## 它解决什么", "## 主会话本身已经有足够 Sol 能力时", "## 文档"]:
+def test_public_readmes_cover_first_use_parallel_writing_and_independent_review():
+    for phrase in [
+        "第一次需要子 Agent 时",
+        "同一个实际 Git checkout 里，同一时间只允许一个写入者",
+        "什么时候会再做一次独立复核",
+        "Luna 做得不好不会自动升级到 Terra",
+    ]:
         assert phrase in ZH
-    for phrase in ["## What it solves", "## When the main session already has sufficient Sol capability", "## Documentation"]:
+    for phrase in [
+        "First time a child Agent is needed",
+        "only one actor writes to the same physical Git checkout at a time",
+        "When it asks for one more review",
+        "Weak Luna output does not automatically send the task to Terra",
+    ]:
         assert phrase in EN
+
+
+def test_public_readmes_link_to_deeper_docs_without_exposing_maintainer_ledgers():
     for text in [ZH, EN]:
         for link in [
             "README_AI.md",
@@ -128,46 +158,11 @@ def test_readmes_lead_with_quickstart_and_user_value_before_deeper_mechanics():
             "docs/native-subagent-runtime.md",
         ]:
             assert link in text
+        assert "HEADOFF.md" not in text
+        assert "LOCAL_VALIDATION_REPORT.md" not in text
 
 
-def test_readmes_explain_explicit_capability_aware_routing_and_recovery():
-    assert "插件不会隐式介入普通任务" in ZH
-    assert "does not implicitly enter ordinary tasks" in EN
-    assert "一个任务能够写出 contract，并不代表适合交给 Luna" in ZH
-    assert "A task being contractable does not make it Luna-suitable" in EN
-    assert "你不需要手工设计并发计划" in ZH
-    assert "You do not need to design the concurrency plan yourself" in EN
-    assert "两个有明确理由的子 Agent" in ZH
-    assert "up to two justified child Agents" in EN
-    assert "一次失败不会自动触发更强模型" in ZH
-    assert "One failed attempt does not automatically trigger a stronger model" in EN
-    assert "Sol 并非每个任务的固定最后一步" in ZH
-    assert "Sol is not a mandatory final step for every task" in EN
-
-
-def test_readmes_explain_first_use_and_no_default_receipt():
-    assert "## 首次使用体验" in ZH
-    assert "## First-use experience" in EN
-    assert "任何子 Agent 写代码之前" in ZH
-    assert "before any child starts writing" in EN
-    assert "不会默认追加一份内部 orchestration receipt" in ZH
-    assert "do not receive a separate orchestration receipt by default" in EN
-
-
-def test_readmes_explain_official_model_boundaries_and_final_review():
-    assert "Luna 做得不好不会自动触发 Terra" in ZH
-    assert "Weak Luna output does not automatically trigger Terra" in EN
-    assert "bounded read-heavy" in ZH
-    assert "bounded read-heavy" in EN
-    assert "真正困难、模糊或需要复杂技术判断的问题进入 Sol 路径" in ZH
-    assert "Demanding, ambiguous, or judgment-heavy technical work belongs on the Sol path" in EN
-    assert "这些事实本身不会自动触发 Final Review" in ZH
-    assert "does not automatically require review" in EN
-    assert "fresh Sol Advisor" in ZH
-    assert "fresh Sol Advisor" in EN
-
-
-def test_public_readmes_expose_only_current_project_identity():
+def test_all_readmes_expose_only_current_project_identity():
     retired_tokens = (
         "codex" + "-agent-team",
         "codex" + "_agent_team_",
@@ -175,8 +170,6 @@ def test_public_readmes_expose_only_current_project_identity():
     )
     for text in ALL_READMES:
         assert all(token not in text for token in retired_tokens)
-    assert "安装与迁移" not in ZH
-    assert "Install & Migration" not in EN
 
 
 def test_visual_assets_remain_bounded():
