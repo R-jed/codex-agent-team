@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.9.1-green.svg" alt="Version">
-  <img src="https://img.shields.io/badge/Codex-Native%20Subagents-111827.svg" alt="Codex Native Subagents">
+  <img src="https://img.shields.io/badge/Codex-%E5%8E%9F%E7%94%9F%20Subagents-111827.svg" alt="Codex 原生 Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
@@ -54,7 +54,7 @@ codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，�
 | 需要做架构、兼容性或其他重要技术判断 | 主会话或 Sol Advisor |
 | 一边写代码一边还要持续做重要判断 | 主会话或 Sol Solver |
 | 需要较大范围地读代码、整理技术证据，但暂时不改代码 | Terra Investigator |
-| 最终改动风险较高，需要一个独立的第二视角 | fresh Sol Advisor |
+| 最终改动风险较高，需要一个独立的第二视角 | 新的 Sol Advisor |
 
 有些任务完全不需要子 Agent，这很正常。一个任务很大，也不代表一定要拆出去。真正决定是否委派的是额外 Agent 能不能带来清楚的价值。
 
@@ -140,7 +140,7 @@ Main
 
 插件最终看的是实际改动和测试结果，不会因为某个 Agent 自己说“完成了”就直接当作成功。
 
-codex delegate 直接使用 Codex Native Subagents。它没有另外运行后台服务、独立 Agent runtime 或外部路由代理。
+codex delegate 直接使用 Codex 原生 Subagents。它没有另外运行后台服务、独立 Agent runtime 或外部路由代理。
 
 ## 文档
 
