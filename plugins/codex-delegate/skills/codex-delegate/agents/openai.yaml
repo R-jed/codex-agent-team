@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Delegate"
   short_description: "Adaptive delegation for reliable everyday development"
-  default_prompt: "Use $codex-delegate to complete this development task with adaptive native Subagent delegation."
+  default_prompt: "Use /codex-delegate to complete this development task with adaptive native Subagent delegation."
 
 policy:
   allow_implicit_invocation: false
