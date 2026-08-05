@@ -1,7 +1,7 @@
 {
   "name": "codex-delegate",
-  "version": "0.9.1",
-  "description": "Use Codex Native Subagents only when delegation improves the task, with clear bounded Luna execution, Sol judgment, read-heavy Terra investigation, and selective independent review.",
+  "version": "0.10.0",
+  "description": "Let the main Codex session lead a specialist Subagent team, delegating adaptively when extra native compute adds real value.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
   "repository": "https://github.com/R-jed/codex-delegate",
@@ -11,7 +11,7 @@
   "interface": {
     "displayName": "Codex Delegate",
     "shortDescription": "Adaptive delegation for reliable everyday development.",
-    "longDescription": "Codex Delegate keeps the current session in control and uses additional native Subagents only when they add concrete value. Luna Max handles clear repeatable bounded evidence and implementation whose material behavior is already decided, Sol High handles demanding material judgment and judgment-coupled writing, Terra XHigh handles bounded read-heavy technical investigation and evidence synthesis after semantics stabilize, and a fresh Sol Advisor reviews only final artifacts that genuinely require independent assurance.",
+    "longDescription": "Codex Delegate lets the current session act as team leader. It keeps work in Main when that is best, assigns distinct ready responsibilities to native Subagents when delegation adds value, chooses Luna, Terra, or Sol by capability need, adapts the active team as new evidence arrives, preserves one-writer safety, and uses fresh independent review only when the final artifact genuinely warrants it.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
@@ -24,8 +24,8 @@
     "logoDark": "./assets/codex-delegate-logo-dark.svg",
     "screenshots": [],
     "defaultPrompt": [
-      "Use /codex-delegate to complete this development task and delegate only when extra native compute adds value.",
-      "Use /codex-delegate to implement this change with bounded execution and material judgment only where needed.",
+      "Use /codex-delegate to complete this development task. Act as the team leader and delegate distinct work only when it adds value.",
+      "Use /codex-delegate to implement this change, choosing the specialist roles and parallelism dynamically from the task.",
       "Use /codex-delegate to review this change and add independent review only when the final artifact warrants it."
     ]
   }
