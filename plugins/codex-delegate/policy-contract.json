@@ -1,8 +1,7 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "delegation": {
     "max_depth": 1,
-    "baseline_concurrent_children": 2,
     "max_active_writers_per_workspace": 1
   },
   "capability_dedup": {
