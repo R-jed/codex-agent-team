@@ -183,7 +183,7 @@ A clean retry carries the current artifact, valid evidence, current failure, a c
 
 Use the smallest useful safe set of children.
 
-- Explicit `$codex-delegate` use includes up to two concurrently active justified children within the ordinary consent envelope.
+- Explicit `/codex-delegate` use includes up to two concurrently active justified children within the ordinary consent envelope.
 - Read-only independent work may run concurrently when native capacity allows.
 - One canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain.
 - Concurrent writers require genuinely isolated workspaces or worktrees.
