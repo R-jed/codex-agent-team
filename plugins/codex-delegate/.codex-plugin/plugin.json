@@ -1,6 +1,6 @@
 {
   "name": "codex-delegate",
-  "version": "0.10.0",
+  "version": "0.9.1",
   "description": "Let the main Codex session lead a specialist Subagent team, delegating adaptively when extra native compute adds real value.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
