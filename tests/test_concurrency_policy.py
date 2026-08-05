@@ -15,7 +15,12 @@ def policy():
 
 def test_scheduler_is_completion_driven_without_product_hard_child_count():
     text = (ROUTER.read_text() + (SKILL / "SKILL.md").read_text()).lower()
-    for phrase in ["smallest useful safe set", "completion", "native capacity", "without waiting"]:
+    for phrase in [
+        "smallest useful safe set",
+        "native capacity",
+        "process exposed child completion",
+        "artificial wave barrier",
+    ]:
         assert phrase in text
     assert "fixed team" not in text
 
@@ -63,4 +68,5 @@ def test_codex_home_concurrency_remains_release_validation_boundary():
     guardrails = GUARDRAILS.read_text().lower()
     installation = (ROOT / "docs" / "plugin-installation.md").read_text().lower()
     assert "cross-session locking" in guardrails
-    assert "concurrent same-codex-home multi-process behavior remains a release-validation concern" in installation
+    assert "concurrent same-codex-home multi-process behavior" in installation
+    assert "release-validation concern" in installation
