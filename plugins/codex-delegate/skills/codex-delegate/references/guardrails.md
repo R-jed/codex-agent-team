@@ -45,7 +45,7 @@ Do not claim cross-session locking unless a real mechanism has been observed and
 
 ## 4. Consent is for material expansion
 
-Explicit `/codex-delegate` authorizes an ordinary bounded orchestration shape:
+Explicit `$codex-delegate` invocation authorizes an ordinary bounded orchestration shape:
 
 ```text
 up to 2 concurrently active justified children
@@ -70,15 +70,17 @@ Do not evade consent by serializing a large number of expensive calls.
 
 ## 5. Explicit invocation only
 
-The product's supported user mental model is:
+The product's supported user mental model follows the Codex Skill convention:
 
 ```text
-/codex-delegate <task>
+$codex-delegate <task>
 ```
+
+Users may also open the Codex Skill picker with `/skills`.
 
 Do not silently add codex delegate orchestration to an unrelated task through implicit Skill invocation.
 
-Explicit invocation is the signal that the user wants adaptive delegation for this task. Normal task permissions and external-impact boundaries still apply.
+Explicit Skill invocation is the signal that the user wants adaptive delegation for this task. Normal task permissions and external-impact boundaries still apply.
 
 ## 6. First-use readiness before delegated execution
 
@@ -92,7 +94,7 @@ After understanding that delegation is likely useful, but before starting delega
 4. verify the role surface the current runtime actually exposes;
 5. if a fresh Codex thread is required to see new profiles, stop before delegated code execution and tell the user to restart the task in a fresh thread.
 
-The installer manages only the five current project profiles plus `.codex-delegate-agents.json`. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+The five profiles use Codex's native custom-Agent TOML mechanism. The bundled installer is a project-specific lifecycle and ownership layer. It manages only the five current project profiles plus `.codex-delegate-agents.json`. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
 ## 7. Runtime evidence is on demand
 
