@@ -64,7 +64,7 @@ final-review.md
 
 `policy-contract.json` schema `3` contains stable machine constants only: role routes, delegation limits, capability-dedup reference, and Final Review reason codes.
 
-Do not reconstruct the older runtime dependency ontology from eval files or historical docs. `evals/` is a measurement surface, not the runtime router specification.
+Do not reconstruct older runtime dependency ontologies from eval files or historical docs. `evals/` is a measurement surface, not the runtime router specification.
 
 ## Current roles
 
@@ -128,7 +128,7 @@ Routine bounded work does not inspect main-session metadata. Missing telemetry s
 
 A covered main can avoid redundant ordinary Sol capability-uplift calls. It never replaces a required fresh independent Final Review.
 
-## Install
+## Install and update
 
 For ordinary users, always lead with the native Plugin Marketplace path:
 
@@ -145,7 +145,7 @@ Codex CLI/IDE users may also use `/skills` to open the Skill picker. Do not inve
 
 Do not lead ordinary users through repository marketplace registration or CLI installation commands. Do not tell them to edit `config.toml`, Plugin cache state, marketplace state, or Agent profiles manually.
 
-Only provide the CLI path when the user explicitly asks for a manual/development install, is testing a specific repository revision, or is troubleshooting marketplace discovery. The current pre-release manual fallback is:
+Only provide the CLI path when the user explicitly asks for a manual/development install, is testing a specific repository revision, or is troubleshooting marketplace discovery. For repository development or manual installation:
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate --ref main \
@@ -162,9 +162,9 @@ codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Implicit invocation is disabled. Explicit `$codex-delegate` invocation remains available. Start a new thread after installation or a manual update.
+Implicit invocation is disabled. Explicit `$codex-delegate` invocation remains available. Start a new thread after installation or an update.
 
-Before v1.0.0, `main` is a development channel. Release evidence must remain bound to the exact tested SHA/ref. Stable public guidance should continue to prefer the Plugin Marketplace UI rather than exposing release-maintenance mechanics to ordinary users.
+For ordinary users, updates should be handled through the Codex Plugin Marketplace. Repository refs and profile lifecycle details are implementation concerns and should not be surfaced unless the user is explicitly doing development or troubleshooting.
 
 ## Managed Agent profiles
 
@@ -223,7 +223,7 @@ When review is required, bind the exact candidate and use a fresh `codex_delegat
 
 ## Evidence and claims
 
-Configuration does not prove what ran. Use observed runtime evidence only when the claim needs it, such as exact route/model/effort, hard read-only enforcement, ancestry, main capability dedup, independent-review provenance, or release diagnostics.
+Configuration does not prove what ran. Use observed runtime evidence only when the claim needs it, such as exact route/model/effort, hard read-only enforcement, ancestry, main capability dedup, independent-review provenance, or runtime diagnostics.
 
 Do not claim benchmark superiority, token savings, latency improvement, quality improvement, Sol Solver superiority, Terra value, universal child-slot counts, or universal wait/update behavior without current measured evidence.
 
@@ -239,6 +239,6 @@ Lead with the user value: codex delegate decides whether extra native compute is
 
 When installation is relevant, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke the Skill with `$codex-delegate`. Provide CLI installation commands only for explicit manual/development/troubleshooting requests.
 
-Do not direct ordinary users to `HEADOFF.md` or `LOCAL_VALIDATION_REPORT.md`; those are maintainer evidence artifacts.
+Keep maintainer-only evidence and internal release-management material out of ordinary user guidance.
 
 For details, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the three installed Skill references.

@@ -40,6 +40,8 @@ Codex 也可以通过 `/skills` 打开 Skill 选择器。
 
 这就是普通用户的完整安装路径。你不需要注册额外 marketplace、不需要运行安装命令，也不需要手工配置 Agent profiles。
 
+后续更新同样直接通过 Codex 插件市场完成。更新后开启新的 Codex 会话即可使用当前版本；普通用户无需处理 repository ref、Agent profile 或升级脚本。
+
 如果你在做开发安装、手动安装或排障，请查看[安装指南](docs/plugin-installation.md)。
 
 插件不会隐式介入普通任务。你也不需要手工选择 Agent 或设计执行流水线。

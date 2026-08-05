@@ -40,6 +40,8 @@ You can also use `/skills` to open the Skill picker.
 
 That is the complete installation path for ordinary users. You do not need to register another marketplace, run installation commands, or configure Agent profiles manually.
 
+Future updates are handled through the Codex Plugin Marketplace as well. Start a new Codex thread after an update to use the current version; ordinary users do not need to manage repository refs, Agent profiles, or upgrade scripts.
+
 For development installs, manual installs, or troubleshooting, see [Installation](docs/plugin-installation.md).
 
 The Plugin does not implicitly enter ordinary tasks. You also do not need to choose an Agent manually or design an execution pipeline in advance.
