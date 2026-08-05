@@ -2,11 +2,12 @@
 
 Use this template before starting any formal paired live behavioral run from `HEADOFF.md`.
 
-The repository workload registry defines experiment shapes. This file defines the minimum information that must be frozen locally so a baseline/candidate pair is reproducible and comparable.
+The workload registry defines experiment shapes. This file freezes the minimum local information needed to compare a baseline and candidate reproducibly. Experimental labels in `evals/` do not define the runtime router.
 
 ```text
 fixture_id:
 workload_id:
+pair_id:
 workload_definition_hash:
 
 repository:
@@ -26,20 +27,28 @@ allowed_verification:
 - <command or inspection>
 
 main_session_route:
-worker_route: <route or null>
+main_judgment_coverage: <covered | uncovered | unknown when material>
 permissions_fingerprint:
 tool_surface_fingerprint:
 codex_runtime_version:
 
+baseline_mode:
+baseline_execution_route:
+candidate_mode:
+candidate_execution_route:
+<execution placement may differ when it is the experimental variable>
+
 sanitization_notes:
-<what was removed from the public/local report, without changing the executable task>
+<what was removed from the report without changing the executable task>
 ```
 
 Rules:
 
 - Freeze this definition before the first run in a pair.
-- Baseline and candidate use the same exact prompt, repository revision, starting state, acceptance rubric, routes, permissions, and tool surface unless the compared mode explicitly changes that one experimental factor.
+- Baseline and candidate use the same exact prompt, repository revision, starting state, acceptance rubric, main-session conditions, permissions, and tool surface.
+- The compared strategy/execution route may differ only when that difference is the declared experimental factor.
 - Compute `workload_definition_hash` from the frozen executable definition, not from the generic workload id alone.
-- If any controlled input changes, create a new fixture version, pair id, and workload-definition hash.
+- If a controlled input changes, create a new fixture version, pair id, and workload-definition hash.
+- Missing runtime telemetry remains missing. Do not invent main-route or token facts merely to complete the fixture.
 - Do not place credentials, private transcripts, hidden reasoning, or unrelated local paths in the fixture.
 - Store a sanitized copy or equivalent reproduction data with `LOCAL_VALIDATION_REPORT.md` when safe.
