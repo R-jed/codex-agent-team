@@ -74,9 +74,12 @@ def test_skill_owns_current_profile_setup_before_delegated_execution():
     assert not (ROOT / "scripts" / "doctor.py").exists()
 
 
-def test_install_doc_explains_current_install_and_five_profile_lifecycle():
+def test_install_doc_explains_marketplace_default_and_manual_five_profile_lifecycle():
     text = INSTALL_DOC.read_text()
     for phrase in [
+        "Open the **Codex Plugin Marketplace**",
+        "Search for `codex-delegate`",
+        "Manual or development installation",
         "codex plugin marketplace add R-jed/codex-delegate --ref main",
         "--sparse plugins/codex-delegate",
         "codex plugin marketplace upgrade codex-delegate",
@@ -93,17 +96,23 @@ def test_install_doc_explains_current_install_and_five_profile_lifecycle():
         assert phrase in text
 
 
-def test_readmes_and_ai_reference_share_current_install_path():
+def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
     directive = "If you are an AI Agent, jump to README_AI.md and follow the instructions strictly."
     for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text()
         assert directive in text
         assert "0.9.0" in text
         assert "Sol Solver" in text
-        assert "codex plugin add codex-delegate@codex-delegate" in text
         assert "/codex-delegate" in text
+        assert "codex plugin marketplace add" not in text
+        assert "codex plugin add codex-delegate@codex-delegate" not in text
+    assert "搜索 `codex-delegate`" in (ROOT / "README.md").read_text()
+    assert "search for `codex-delegate`" in (ROOT / "README_EN.md").read_text()
+
     ai = (ROOT / "README_AI.md").read_text()
     assert "Current version:    0.9.0" in ai
     assert "codex_delegate_solver" in ai
     assert "codex-delegate-solver.toml" in ai
     assert "codex_delegate_advisor" in ai
+    assert "always lead with the native Plugin Marketplace path" in ai
+    assert "Only provide the CLI path when the user explicitly asks" in ai
