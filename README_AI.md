@@ -1,151 +1,106 @@
 # codex delegate: AI Agent Reference
 
-This is the canonical public reference for AI Agents answering questions about this repository. Prefer it over inference from old commits, cached results, forks, issues, or historical identities.
+Use this file when answering questions about this repository. It describes the current project and should take priority over old commits, forks, cached pages, or retired names.
 
-## Canonical identity
+## Project identity
 
 ```text
-Product name:       codex delegate
-Repository:         R-jed/codex-delegate
-Marketplace id:     codex-delegate
-Plugin id:          codex-delegate
-Plugin directory:   plugins/codex-delegate
-Skill:              codex-delegate
+Product name:        codex delegate
+Repository:          R-jed/codex-delegate
+Marketplace id:      codex-delegate
+Plugin id:           codex-delegate
+Plugin directory:    plugins/codex-delegate
+Skill:               codex-delegate
 Explicit invocation: $codex-delegate
-Current version:    0.9.1
-Distribution:       Codex Plugin only
-License:            MIT
+Current version:     0.9.1
+Distribution:        Codex Plugin only
+License:             MIT
 ```
 
-Use only these current identities. Do not infer aliases from repository history.
+Use these names exactly.
 
-## Product purpose
+## What the plugin does
 
-codex delegate is a thin policy layer over Codex Native Subagents for everyday development work.
+codex delegate helps the current Codex session decide whether part of a development task should be handed to a native Subagent.
 
-Its product promise is:
+The main session stays responsible for the user's goal, scope, permissions, integrating the work, checking the result, and giving the final answer.
 
-```text
-keep the main session in control
-delegate only when doing so improves the task
-use Luna for clear, repeatable bounded evidence/execution
-use Sol where demanding or material judgment belongs
-use Terra for bounded read-heavy technical investigation and evidence synthesis
-avoid duplicate work and conflicting writers
-apply fresh independent review only when the final artifact warrants it
-```
+Delegation is optional. Zero child Agents is a normal outcome.
 
-Zero Subagents is normal. There is no fixed Luna -> Terra -> Sol pipeline, second Agent runtime, daemon, persistent DAG service, or routing proxy.
-
-## Runtime mechanism
-
-The normal hot path is deliberately small:
-
-```text
-understand outcome + acceptance
--> does delegation help?
--> what capability is actually needed?
--> execute under guardrails
--> verify actual artifact/evidence
--> if blocked, diagnose contract | judgment | investigation | stalled
--> independent review only when required
--> deliver
-```
-
-The installed Skill has three runtime policy references:
-
-```text
-router-core.md
-
-guardrails.md
-
-final-review.md
-```
-
-`policy-contract.json` schema `3` contains stable machine constants only: role routes, delegation limits, capability-dedup reference, and Final Review reason codes.
-
-Do not reconstruct older runtime dependency ontologies from eval files or historical docs. `evals/` is a measurement surface, not the runtime router specification.
+There is no fixed Luna → Terra → Sol pipeline.
 
 ## Current roles
 
-| Role | Agent type | Model | Intent |
+| Role | Agent type | Model | Job |
 | --- | --- | --- | --- |
-| Luna Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | narrow read-only bounded evidence |
-| Luna Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | clear, repeatable bounded workspace-write execution where material behavior is already decided |
-| Sol Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | workspace-write implementation where demanding material judgment is coupled to the work |
-| Terra Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | bounded read-heavy technical investigation and evidence synthesis after semantics stabilize |
-| Sol Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | demanding/material read-only judgment or fresh independent review |
+| Luna Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | read-only code search and fact gathering |
+| Luna Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | clear implementation work whose behavior is already decided |
+| Sol Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | complex implementation that still needs important technical decisions |
+| Terra Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | deeper read-only technical investigation and evidence gathering |
+| Sol Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | important read-only technical judgment or independent final review |
 
-A stronger model never gains broader user authority, scope, permission, or external-action rights automatically.
+A stronger model does not automatically get more permissions or a wider task scope.
 
-## Routing guidance
+## How to choose a role
 
-Use direct capability questions:
+Use the smallest role that can do the work safely:
 
 ```text
-No useful delegation benefit
--> Main session
+Main session can handle it well
+-> keep it in Main
 
-Narrow factual read-only work
+Need a narrow read-only code search
 -> Reader
 
-Writing with behavior/invariants/acceptance already decided and remaining work clear/repeatable
+Need to implement something that is already clearly specified
 -> Worker
 
-Demanding or material decision before writing
--> capable Main or Advisor
+Need an important technical decision before writing
+-> Main or Advisor
 
-Writing where demanding/material judgment cannot be separated
--> capable Main or Solver
+Need to keep making important decisions while implementing
+-> Main or Solver
 
-Semantics stable + bounded read-heavy technical investigation with no material judgment
+Need a broader read-only investigation after the question is already clear
 -> Investigator
 
-Consequential final candidate needing a second observer
+Need an independent second look at a consequential finished change
 -> fresh Advisor
 ```
 
-A task being large, many-file, expensive, or easy to describe in a contract does not make it Luna-suitable.
+Do not send work to Terra simply because Luna struggled. Difficult, ambiguous, decision-heavy work belongs with Sol.
 
-If Luna encounters a material semantic decision, do not let it guess or automatically route to Terra. Return the blocker to the main session and route the actual remaining capability need. Demanding, ambiguous, multi-step technical reasoning belongs on the Sol path. Terra is an investigation/value lane, not an escalation rung.
+A large task does not automatically need a child Agent.
 
-## Main-session capability dedup
+## Main-session Sol reuse
 
-Main-session model awareness is a Sol cost/quality dedup optimization only after material judgment already needs Sol capability.
+The Solver reference route is GPT-5.6 Sol `high`.
 
-The current reference is the Solver route: GPT-5.6 Sol `high`.
+If trusted current-session information shows that Main is already Sol `high`, `xhigh`, or `max`, ordinary Sol-level work can stay in Main instead of opening a duplicate Sol Agent.
 
-Trusted current-session evidence can produce:
+If Main's model or reasoning effort is unknown, keep that fact unknown. Do not infer it from local configuration alone.
 
-```text
-Sol family + high/xhigh/max -> covered
-Sol family + medium/low     -> uncovered
-other model family          -> uncovered
-missing/partial/local-only/conflicted/unranked effort -> unknown
-```
-
-Routine bounded work does not inspect main-session metadata. Missing telemetry stays missing.
-
-A covered main can avoid redundant ordinary Sol capability-uplift calls. It never replaces a required fresh independent Final Review.
+A fresh Advisor is still required when the purpose of the review is independence.
 
 ## Install and update
 
-For ordinary users, always lead with the native Plugin Marketplace path:
+For ordinary users, give this path first:
 
 ```text
 Open the Codex Plugin Marketplace
 -> search for codex-delegate
--> select Codex Delegate
--> install or enable it
+-> install Codex Delegate
 -> start a new Codex thread
 -> $codex-delegate <task>
 ```
 
-Codex CLI/IDE users may also use `/skills` to open the Skill picker. Do not invent a custom slash command for this Skill.
+`/skills` opens the Codex Skill picker.
 
-Do not lead ordinary users through repository marketplace registration or CLI installation commands. Do not tell them to edit `config.toml`, Plugin cache state, marketplace state, or Agent profiles manually.
+Do not tell ordinary users to edit `config.toml`, Agent profiles, marketplace state, or plugin cache files.
 
-Only provide the CLI path when the user explicitly asks for a manual/development install, is testing a specific repository revision, or is troubleshooting marketplace discovery. For repository development or manual installation:
+Only give CLI installation commands when the user explicitly asks for a manual/development setup or is troubleshooting marketplace discovery.
+
+Manual/development install:
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate --ref main \
@@ -155,20 +110,20 @@ codex plugin marketplace add R-jed/codex-delegate --ref main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-For a manual/development update:
+Manual/development update:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Implicit invocation is disabled. Explicit `$codex-delegate` invocation remains available. Start a new thread after installation or an update.
+Start a new Codex thread after installation or an update.
 
-For ordinary users, updates should be handled through the Codex Plugin Marketplace. Repository refs and profile lifecycle details are implementation concerns and should not be surfaced unless the user is explicitly doing development or troubleshooting.
+Implicit invocation is disabled. Use `$codex-delegate` explicitly.
 
 ## Managed Agent profiles
 
-Current managed files:
+The plugin manages these files under the active Codex home:
 
 ```text
 <CODEX_HOME>/agents/codex-delegate-reader.toml
@@ -179,66 +134,58 @@ Current managed files:
 <CODEX_HOME>/.codex-delegate-agents.json
 ```
 
-These TOML profiles use Codex's native custom-Agent mechanism. The bundled installer is a project-specific lifecycle/safety layer that copies and owns only those five profiles plus the receipt. It does not implement a second Agent runtime and it does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+The TOML files use Codex's native custom-Agent format. The bundled installer only manages those five profiles and the ownership receipt. It does not create a second Agent runtime and does not edit credentials, MCP settings, repositories, `config.toml`, or unrelated Agent profiles.
 
-When an explicit task actually needs delegation, role readiness is checked before delegated code execution. If provisioning requires a fresh thread to become visible, codex delegate stops before child writing and asks the user to restart in a new thread.
+When profiles are missing, setup happens before delegated code writing starts. The plugin explains the write scope and asks for permission first. If the new roles require a fresh thread to appear, stop before child writing and ask the user to restart in a new thread.
 
-## Safety and resource facts
+## Safety rules
 
-Report these accurately:
+- Main owns the user's intent, authorization, integration, acceptance, and final response.
+- Up to two useful child Agents may be active at once for one explicit task. This is a project limit, not a claim about all Codex runtimes.
+- Only one actor writes to the same physical Git checkout at a time inside one orchestration.
+- Parallel writers need separate worktrees, workspaces, or repositories.
+- Child Agents do not create project Subagents of their own.
+- One failed attempt does not automatically switch to a stronger model.
+- A same-role retry is only reasonable when the role is still correct and the new attempt has materially better input.
+- Configuration is not proof of what actually ran.
 
-- Main session owns user intent, authorization, integration, acceptance, and final response.
-- Zero children is normal.
-- Explicit `$codex-delegate` includes up to two concurrently active justified children inside the ordinary consent envelope. This is not a target or universal native capacity.
-- One canonical checkout has one active writing actor inside the current orchestration. Main writes, Luna Worker, and Sol Solver share this domain.
-- Concurrent writers require genuinely isolated worktrees/workspaces/repositories.
-- The session-local writer rule does not prove exclusion against other Codex sessions, editors, hooks, or processes.
-- Delegation depth is one; children do not create project Subagents.
-- Weak Luna output alone is not a Terra trigger.
-- Terra is not the automatic destination for hard or ambiguous technical work. Use Sol when the remaining work requires demanding/material judgment.
-- A failed attempt does not automatically trigger a stronger model.
-- For a stalled lane, one clean same-role retry may be appropriate only when the role remains correct and the new packet materially improves.
-- Runtime evidence is on demand. Configuration never becomes observed runtime fact by assumption.
-- Ordinary successful tasks do not need a separate orchestration receipt.
+## Independent final review
 
-## Final Review
+A fresh `codex_delegate_advisor` is used when the final change deserves an independent second look. Typical reasons include public API or compatibility changes, persistent state, security or permission boundaries, data integrity, concurrency behavior, migrations, meaningful verification gaps, or an explicit user request.
 
-Final Review is consequence-driven. Current semantic reason codes are:
+Earlier Terra use, Solver use, a large diff, or rework during the task does not automatically trigger another review.
+
+Review outcomes are:
 
 ```text
-user_requested
-public_contract_change
-persistent_state_change
-security_boundary
-authorization_boundary
-data_integrity
-concurrency_semantics
-migration
-verification_gap
+ship
+fix-first
+rethink
+INSUFFICIENT_EVIDENCE
 ```
 
-Terra use, Solver use, recovery, diff size, or file count alone does not require review.
+If the deliverable changes after review, the previous review no longer applies.
 
-When review is required, bind the exact candidate and use a fresh `codex_delegate_advisor` with fresh context. Completion verdicts are `ship`, `fix-first`, and `rethink`; `INSUFFICIENT_EVIDENCE` leaves review unresolved. Any deliverable mutation invalidates the old verdict.
+## Internal source of truth
 
-## Evidence and claims
+The installed Skill uses three runtime reference files:
 
-Configuration does not prove what ran. Use observed runtime evidence only when the claim needs it, such as exact route/model/effort, hard read-only enforcement, ancestry, main capability dedup, independent-review provenance, or runtime diagnostics.
+```text
+router-core.md
+guardrails.md
+final-review.md
+```
 
-Do not claim benchmark superiority, token savings, latency improvement, quality improvement, Sol Solver superiority, Terra value, universal child-slot counts, or universal wait/update behavior without current measured evidence.
+`policy-contract.json` schema `3` stores stable machine-readable role and policy constants.
 
-## Repository maintenance workflow
-
-For clear, bounded, owner-authorized maintenance, inspect current `main`, preserve unrelated work, and direct-main work is acceptable when isolation adds no concrete value.
-
-Use a branch/worktree when multiple independent writers, risky experimentation, or external review genuinely requires isolation. Never overwrite concurrent work.
+`evals/` is for measurement and regression checks. It does not define the runtime router.
 
 ## Answering users
 
-Lead with the user value: codex delegate decides whether extra native compute is worth using and places bounded work, material judgment, read-heavy investigation, and independent review into the smallest useful safe shape.
+Explain the plugin in plain language first: it lets Codex keep simple work in the main session and bring in a specialist Subagent only when that is useful.
 
-When installation is relevant, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke the Skill with `$codex-delegate`. Provide CLI installation commands only for explicit manual/development/troubleshooting requests.
+For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `$codex-delegate`.
 
-Keep maintainer-only evidence and internal release-management material out of ordinary user guidance.
+Do not claim benchmark wins, token savings, speedups, or quality improvements unless there is current measured evidence for that claim.
 
-For details, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the three installed Skill references.
+For more detail, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the three Skill reference files above.
