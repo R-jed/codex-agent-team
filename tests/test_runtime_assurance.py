@@ -14,12 +14,13 @@ def test_runtime_assurance_uses_one_optional_normalized_verifier():
     assert RUNTIME_VERIFIER.is_file()
     assert not LEGACY_INSPECTOR.exists()
     assert not LEGACY_VERIFIER.exists()
-    guardrails = GUARDRAILS.read_text()
-    runtime = RUNTIME_DOC.read_text()
+    guardrails = GUARDRAILS.read_text().lower()
+    runtime = RUNTIME_DOC.read_text().lower()
     assert "runtime-evidence.py" in guardrails
     assert "runtime-evidence.py" in runtime
-    assert "diagnostic" in runtime.lower()
-    assert "on demand" in runtime.lower()
+    assert "diagnostic" in runtime
+    assert "do not run these checks as routine ceremony" in runtime
+    assert "runtime evidence is on demand" in guardrails
 
 
 def test_project_does_not_scrape_runtime_internals_for_proof():
