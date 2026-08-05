@@ -2,7 +2,7 @@
 
 This is the single runtime routing contract for codex delegate.
 
-The product goal is simple: keep the user-facing main session in control, delegate only when doing so improves the task, use Luna for bounded execution, use Sol where material judgment belongs, use Terra only for a real specialist technical question, and avoid repeated work.
+The product goal is simple: keep the user-facing main session in control, delegate only when doing so improves the task, use Luna for clear repeatable bounded work, use Sol where demanding or material judgment belongs, use Terra for bounded read-heavy technical investigation, and avoid repeated work.
 
 Do not build a model ladder or an Agent team before understanding the task.
 
@@ -19,7 +19,7 @@ material_judgment: none | separable | coupled
 acceptance
 valid_evidence
 current_failure
-blocked_by: none | contract | judgment | specialist | stalled
+blocked_by: none | contract | judgment | investigation | stalled
 ```
 
 Add another work item only when it represents a genuinely distinct unresolved responsibility. Do not duplicate work that valid evidence already satisfies or another active owner already holds.
@@ -28,7 +28,7 @@ Add another work item only when it represents a genuinely distinct unresolved re
 
 Zero children is normal.
 
-Keep work in the main session when a child would mostly duplicate context, add handoff overhead, or provide no useful isolation, parallelism, specialist capability, or independent judgment.
+Keep work in the main session when a child would mostly duplicate context, add handoff overhead, or provide no useful isolation, parallelism, capability uplift, read-heavy investigation, or independent judgment.
 
 A task being large, many-file, expensive, or "complex" does not by itself justify delegation.
 
@@ -36,9 +36,9 @@ A task being large, many-file, expensive, or "complex" does not by itself justif
 
 When delegation helps, answer these questions directly.
 
-### Read-only factual work
+### Narrow read-only factual work
 
-If the missing result is inspectable evidence such as repository tracing, call mapping, test mapping, or bounded research:
+If the missing result is bounded inspectable evidence such as a focused repository trace, call mapping, test mapping, or narrow factual lookup:
 
 ```text
 -> Luna Reader
@@ -46,7 +46,7 @@ If the missing result is inspectable evidence such as repository tracing, call m
 
 ### Writing with behavior already decided
 
-If the desired behavior, invariants, scope, and acceptance are already clear, and remaining discretion is local implementation detail:
+If the desired behavior, invariants, scope, and acceptance are already clear, and remaining discretion is local, clear, and repeatable implementation detail:
 
 ```text
 -> Luna Worker
@@ -56,9 +56,9 @@ The key test is whether Luna mainly answers "how do I implement the already-deci
 
 A writable contract alone does not make work Luna-suitable. If implementation is expected to require consequential architecture, compatibility, state, or cross-module semantic choices, use the Sol path.
 
-### Material judgment before writing
+### Demanding or material judgment before writing
 
-If a consequential architecture, behavior, compatibility, or risk decision should be resolved before implementation:
+If architecture, behavior, compatibility, risk, or difficult technical reasoning requires consequential judgment before implementation:
 
 ```text
 -> main session when it already has sufficient Sol capability
@@ -67,7 +67,7 @@ If a consequential architecture, behavior, compatibility, or risk decision shoul
 
 ### Writing with judgment coupled to implementation
 
-If material semantic decisions cannot be safely separated from implementation and must be made while inspecting or changing the artifact:
+If demanding or material semantic decisions cannot be safely separated from implementation and must be made while inspecting or changing the artifact:
 
 ```text
 -> main session when it already has sufficient Sol capability
@@ -76,15 +76,17 @@ If material semantic decisions cannot be safely separated from implementation an
 
 Do not create Advisor -> Luna -> Advisor loops merely to avoid the Solver lane.
 
-### Narrow difficult technical uncertainty
+### Bounded read-heavy technical investigation
 
-If semantic intent is already stable and one narrow difficult technical question remains:
+If semantic intent is already stable, no material decision remains, and the task benefits from broader read-only exploration, technical synthesis, or processing a larger supporting context than a narrow Reader task:
 
 ```text
 -> Terra Investigator
 ```
 
-Terra is a specialist lane. Weak Luna output, task size, one failing test, or low confidence does not justify Terra.
+Terra is an investigation/value lane. It is not the automatic destination for "hard" work and it is not an escalation rung above Luna.
+
+Demanding, ambiguous, multi-step technical reasoning that still requires material judgment belongs on the Sol path. Weak Luna output, task size, one failing test, or low confidence does not justify Terra by itself.
 
 ## 4. Main-session Sol dedup is an optimization
 
@@ -104,7 +106,7 @@ unknown
 -> use the normal Sol path only when material judgment genuinely requires it
 ```
 
-Do not interrogate runtime metadata for a routine Luna task just to optimize cost. Missing telemetry is allowed to remain missing.
+Do not interrogate runtime metadata for a routine Luna or Terra task just to optimize cost. Missing telemetry is allowed to remain missing.
 
 A covered main session never replaces a required fresh independent Final Review.
 
@@ -129,11 +131,11 @@ Writing roles additionally require a clear acceptance oracle and bounded write s
 
 Decision boundaries:
 
-- Reader gathers evidence and does not invent semantics.
+- Reader gathers narrow evidence and does not invent semantics.
 - Worker makes local implementation choices only; material semantic judgment returns to main/Sol.
 - Solver may make implementation-coupled material choices explicitly inside its granted decision rights.
-- Investigator resolves the narrow technical question and does not take over implementation.
-- Advisor resolves one judgment or performs fresh independent review and remains read-only.
+- Investigator performs bounded read-heavy technical investigation and synthesis after semantics stabilize; if material judgment appears, it returns the decision to main/Sol.
+- Advisor resolves one demanding/material judgment or performs fresh independent review and remains read-only.
 
 Children do not widen scope, permission, user intent, external impact, or their own role.
 
@@ -148,7 +150,7 @@ files_changed, if any
 verification
 new_evidence
 remaining_problem
-blocker: none | contract | judgment | specialist | stalled
+blocker: none | contract | judgment | investigation | stalled
 material_decisions, if any
 ```
 
@@ -163,10 +165,10 @@ contract
 -> main repairs missing task truth, scope, invariant, or acceptance
 
 judgment
--> main or Sol resolves the material decision
+-> main or Sol resolves the demanding/material decision
 
-specialist
--> Terra only when semantics are stable and the technical delta is narrow
+investigation
+-> Terra only when semantics are stable, the work remains read-only, and no material judgment is required
 
 stalled
 -> if the same role remains correct, allow at most one clean retry with a materially improved packet
@@ -181,7 +183,7 @@ A clean retry carries the current artifact, valid evidence, current failure, a c
 
 Use the smallest useful safe set of children.
 
-- Explicit `/codex-delegate` includes up to two concurrently active justified children within the ordinary consent envelope.
+- Explicit `$codex-delegate` use includes up to two concurrently active justified children within the ordinary consent envelope.
 - Read-only independent work may run concurrently when native capacity allows.
 - One canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain.
 - Concurrent writers require genuinely isolated workspaces or worktrees.
