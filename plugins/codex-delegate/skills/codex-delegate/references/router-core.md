@@ -196,7 +196,7 @@ ready now
 + safe under writer, permission, scope, and external-impact boundaries
 ```
 
-Use the smallest useful active set, then grow it progressively when the task justifies it.
+Use progressive fan-out. Start with the smallest useful active set, then grow it only when the task justifies another ready responsibility.
 
 ```text
 understand current work
