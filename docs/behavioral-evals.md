@@ -1,26 +1,42 @@
 # Live Behavioral Evaluation Protocol
 
-Static tests prove repository contracts, packaging, profile lifecycle, schemas, and deterministic tooling. They do not prove model quality, cost, native runtime behavior, or the value of a routing choice.
+Static tests prove repository contracts, packaging, profile lifecycle, schemas, and deterministic tooling. They do not prove model quality, cost, native runtime behavior, onboarding quality, or the value of a routing choice.
 
-Routing V4 therefore uses paired live workloads to test the architecture's hypotheses rather than assuming Luna, Terra, or Sol superiority.
+The live suite uses controlled paired workloads to test product hypotheses without turning experimental labels into runtime policy.
+
+## Measurement boundary
+
+`evals/` is a measurement surface.
+
+Some schema/mode names remain from earlier Routing V4 experiments so historical runs stay comparable. They are experiment labels only. The current runtime router is defined by the compact Skill policy in:
+
+```text
+router-core.md
+guardrails.md
+final-review.md
+```
+
+Do not make the Skill maintain an ontology merely because an eval field exists.
 
 ## Primary product questions
 
 The live suite asks:
 
-1. Does restricting Luna to genuinely bounded execution reduce correction work versus giving Luna the raw task?
-2. For judgment-coupled implementation on a non-Sol main, does Sol Solver outperform an Advisor -> Luna handoff in total quality/correction cost?
-3. When the main session is already Sol, does keeping normal judgment-coupled work in main avoid redundant Sol calls without reducing outcome quality?
-4. When the main route is unknown, does Routing V4 avoid buying Sol for routine bounded work while still protecting material judgment?
-5. Does evidence-driven reclassification prevent weak Luna execution from becoming blind Luna retry or false Terra escalation?
-6. Does Terra delta investigation add value only for real difficult technical uncertainty after semantics stabilize?
+1. Does a bounded Luna responsibility reduce correction work versus giving Luna the raw task?
+2. For implementation where material judgment is coupled to writing, does one Sol Solver outperform an Advisor -> Luna handoff in total quality/correction cost?
+3. When the main session already meets the Sol reference capability, does keeping ordinary judgment-coupled work in Main avoid redundant Sol calls without reducing quality?
+4. When main-route telemetry is unavailable, does the product avoid buying Sol for routine bounded work while still protecting genuine material judgment?
+5. When Luna encounters a material semantic blocker, does correct rerouting reduce wrong edits/rework compared with simply continuing Luna?
+6. Does Terra add value only for a genuine narrow technical uncertainty after semantics stabilize?
 7. Does consequence-driven Final Review catch material issues while avoiding decorative review caused only by process history?
+8. Does explicit invocation + pre-execution role readiness reduce onboarding interruption compared with discovering missing roles mid-task?
+9. Does removing default orchestration receipts improve completion clarity without hiding consequential routing/consent/review information?
 
-These questions remain separate. Do not collapse them into one global mode score.
+These are separate questions. Do not collapse them into one global score.
 
 ## Comparison modes
 
-Schema `4.0` recognizes:
+Schema `4.0` currently recognizes historical measurement labels:
 
 ```text
 main_session_only
@@ -34,7 +50,9 @@ adaptive_routing_v4_final_review
 external_baseline
 ```
 
-The mode is the experimental strategy. `execution_route` records the actual primary execution route and may differ across paired strategies by design.
+`adaptive_routing_v4` is retained as an experiment identifier. It does not mean the current Skill maintains the old V4 dependency taxonomy.
+
+`execution_route` records actual primary execution placement and may differ across paired strategies by design.
 
 ## Freeze controlled inputs
 
@@ -46,8 +64,8 @@ repository + base revision
 setup / starting state
 acceptance rubric + id
 allowed verification commands
-main-session route
-main_judgment_coverage
+main-session route, when exposed
+main capability state, when material
 permissions / approval posture
 tool surface
 Codex runtime version
@@ -55,19 +73,7 @@ Codex runtime version
 
 Hash the frozen definition into `workload_definition_hash`. If a controlled input changes, create a new pair id/hash.
 
-Paired runs must keep these controls identical:
-
-```text
-workload_definition_hash
-main_session_route
-main_judgment_coverage
-permissions_fingerprint
-tool_surface_fingerprint
-acceptance_rubric_id
-repo_revision / repeat_index
-```
-
-Do not require the same `execution_route` across a pair. The whole purpose of several Routing V4 experiments is to compare different execution placements under the same task and main-session conditions.
+Do not require the same `execution_route` across a pair when execution placement is the experimental variable.
 
 ## Core metrics
 
@@ -89,7 +95,6 @@ material_judgment_violations
 ```text
 agent_count
 peak_active_children
-reclassification_events
 correction_turns
 execution_stall_events
 clean_same_lane_restarts
@@ -101,6 +106,8 @@ advisor_calls
 terra_calls
 redundant_sol_calls
 ```
+
+Existing `reclassification_events` may remain as a compatibility field for old runs; for current runs interpret it simply as a meaningful actor/capability reroute after new evidence.
 
 ### Resource use
 
@@ -143,21 +150,17 @@ Missing telemetry stays `null` where allowed. Never estimate unavailable tokens,
 
 ## Experiment A: bounded Luna
 
-Primary comparison:
-
 ```text
 raw_prompt_luna
 vs
 bounded_luna
 ```
 
-Use the same Luna route and frozen task. The candidate must be a true `bounded_execution` dependency whose material behavior decisions are already resolved.
+Use the same Luna route and frozen task. The bounded case must have desired behavior, important invariants, and acceptance already resolved.
 
-Measure correctness, scope discipline, judgment violations, correction work, repeated discovery, and total resource use.
+Measure correctness, scope discipline, material judgment violations, correction work, repeated discovery, and total resource use.
 
-## Experiment B: judgment-coupled implementation on non-Sol main
-
-Primary comparison:
+## Experiment B: judgment-coupled implementation
 
 ```text
 advisor_then_luna
@@ -165,13 +168,13 @@ vs
 sol_solver
 ```
 
-Use a workload where implementation repeatedly exposes consequential semantic choices that cannot be safely decided once up front.
+Use a workload where implementation repeatedly exposes consequential semantic choices that cannot safely be decided once up front.
 
-The test asks whether a write-capable Sol dependency avoids repeated handoff/review loops. Do not assume Solver wins; measure outcome quality, correction turns, tokens, latency, and judgment violations.
+The question is whether one write-capable Sol responsibility reduces handoff/review loops. Do not assume Solver wins.
 
 ## Experiment C: Sol main capability reuse
 
-On the same judgment-coupled workload with trusted Sol main-session coverage compare:
+On the same judgment-heavy writing workload with trusted main-session capability at or above the current policy reference, compare:
 
 ```text
 main_session_only
@@ -179,53 +182,45 @@ vs
 sol_solver
 ```
 
-The hypothesis is that an extra Sol child is redundant when it exists only for capability uplift. Record `redundant_sol_calls` and total compute alongside acceptance quality.
-
-This experiment does not apply to independent Final Review, which intentionally requires a second fresh context.
+Measure whether the extra Sol child is redundant. This does not apply to independent Final Review, which intentionally requires a second fresh context.
 
 ## Experiment D: unknown main route
 
-For routine bounded work with `main_judgment_coverage = unknown`, compare bounded Luna against an unnecessary Sol Solver strategy.
+For routine bounded work when main route telemetry is unavailable, compare bounded Luna against an unnecessary Sol Solver strategy.
 
-The purpose is to verify that unknown main identity does not automatically become “always buy Sol.”
+The purpose is to prove missing telemetry does not become “always buy Sol.”
 
-Separately exercise a material judgment workload under unknown coverage to ensure Routing V4 still requests Sol capability when the dependency genuinely requires it.
+Separately exercise a material-judgment workload under unknown telemetry to ensure quality protection remains intact.
 
-## Experiment E: reclassification
+## Experiment E: material judgment emerges during Luna work
 
-Create a task that begins as valid bounded execution and later exposes material semantic uncertainty.
+Start with genuinely bounded work, then introduce evidence showing a consequential semantic choice is now required.
 
-Compare continuing the original Luna responsibility with `adaptive_routing_v4`, which must preserve current evidence and reclassify the same dependency rather than restart the whole task.
+Compare blindly continuing Luna with the current product behavior, which stops bounded execution and routes the actual judgment need to Main/Sol.
 
-Measure wrong edits, correction turns, repeated work, and whether the unresolved delta narrows.
+Measure wrong edits, correction turns, repeated work, and whether the unresolved problem narrows.
 
 ## Experiment F: Terra technical delta
 
-Only use a workload where desired semantics are already fixed and evidence isolates a difficult technical question.
+Use a workload where desired semantics are already fixed and evidence isolates one difficult technical question.
 
-Compare a broad stronger restart baseline with:
+Compare a broad stronger restart with:
 
 ```text
 Terra receives only the technical delta
 + current artifact
 + valid evidence
-+ factual failure signature
++ factual failure
 + DO NOT REDO facts
 ```
 
-Measure duplicate work, correction cost, and final correctness.
-
-Also test a false technical-gap case where semantics are unresolved; Routing V4 must return to judgment rather than send the ambiguity to Terra.
+Also test a false-specialist case where semantics are still unresolved. Terra must not receive ambiguity merely because Luna struggled.
 
 ## Experiment G: consequence-driven Final Review
 
-Use two populations.
+Required-review population should exercise public contract, security, authorization, concurrency, persistent state, data integrity, material migration, user-requested review, and verification-gap reasons.
 
-### Required review
-
-Exercise semantic triggers such as public contract, security, authorization, concurrency, persistent state, data integrity, material migration, explicit user request, or verification gap.
-
-Record the full artifact-bound lifecycle:
+Record:
 
 ```text
 Candidate Ready
@@ -234,34 +229,38 @@ Candidate Ready
 -> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
 ```
 
-### Process-history negative control
+For the process-history negative control, use a candidate where Terra/Solver/recovery happened but no semantic review reason remains. Compare no review with the legacy forced-review strategy. Process history alone must not become a trigger.
 
-Use a candidate where Terra/Solver/recovery happened but no semantic trigger or material verification gap remains.
+## Experiment H: first-use readiness
 
-Compare:
+Measure the first explicit `/codex-delegate` experience when project Agent profiles are absent.
 
-```text
-adaptive_routing_v4
-vs
-adaptive_routing_v4_final_review
-```
-
-This measures the cost and false-positive risk of decorative review. Process history must not be treated as a trigger by itself.
-
-## Main-session correction cost
-
-Workflow cost is:
+The current candidate should:
 
 ```text
-execution compute
-+ main-session planning/integration
-+ deterministic verification
-+ correction/reclassification work
-+ specialist investigation
-+ independent review when justified
+identify that delegation will be useful
+-> check required role readiness
+-> request provisioning permission
+-> install + --check
+-> if restart is needed, stop before child write
+-> resume delegated task in fresh thread
 ```
 
-Model price alone is not workflow cost.
+Record user prompts, interrupted work, repeated discovery, and whether any implementation had to be abandoned because setup occurred too late.
+
+## Experiment I: completion clarity
+
+Compare ordinary successful tasks with and without a separate orchestration receipt.
+
+The current candidate should focus the normal completion report on:
+
+```text
+what changed
+verification
+remaining material risk
+```
+
+Routing detail should still appear when consent, meaningful rerouting, a limitation, required review, or an explicit user question makes it consequential.
 
 ## Scoring
 
@@ -269,10 +268,10 @@ Model price alone is not workflow cost.
 python scripts/score-behavioral-evals.py path/to/result.json
 ```
 
-The scorer validates schema and controlled pairing first. Primary candidate-minus-baseline deltas are produced only for each workload's declared pair. Cross-workload mode aggregates are descriptive inventory and must not be treated as a controlled comparison.
+The scorer validates schema and controlled pairing first. Primary candidate-minus-baseline deltas are produced only for each workload's declared pair. Cross-workload mode aggregates are descriptive inventory, not controlled comparisons.
 
 ## Release evidence rule
 
-Do not claim that Routing V4 improves quality, reduces cost, prevents rework, makes Sol Solver superior, makes Terra beneficial, or improves review efficiency until named live workloads on named runtime versions support that claim.
+Do not claim improved quality, lower cost, reduced rework, Solver superiority, Terra value, onboarding improvement, or review efficiency until named live workloads on named runtime versions support that claim.
 
-The architecture defines where each role is allowed to operate. Behavioral evidence determines whether those routing hypotheses deliver user value in practice.
+The runtime mechanism defines where each role is allowed to operate. Behavioral evidence determines whether those choices create user value in practice.
