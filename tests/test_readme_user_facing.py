@@ -106,7 +106,7 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
         "router-core.md",
         "guardrails.md",
         "final-review.md",
-        "policy-contract.json` schema `3`",
+        "policy-contract.json` schema `4`",
         "Implicit invocation is disabled",
         "search for `codex-delegate` in the Codex Plugin Marketplace",
         "Do not claim benchmark wins",
