@@ -1,150 +1,86 @@
 # Native Subagent Runtime Contract
 
-Codex Delegate uses Codex's native Subagent/thread mechanisms. A **Subagent** is the delegated actor; an **Agent thread** is the native child thread where that actor runs.
+codex delegate uses Codex Native Subagents and child threads directly. It does not create another Agent runtime, persistent scheduler, daemon, thread pool, or routing proxy.
 
-The project does not create a second Agent runtime, persistent scheduler, custom thread pool, background daemon, or routing proxy.
+The distinction is deliberate:
 
-## Native versus policy responsibilities
-
-| Native Codex | Codex Delegate policy |
+| Native Codex | codex delegate |
 | --- | --- |
-| run the current main session | observe main-route metadata only when the host exposes it and routing actually needs it |
-| spawn/run child threads | decide which classified unresolved dependencies deserve children |
-| expose some capacity/wait/update surface | use available capacity without inventing a product hard ceiling |
-| close/interrupt/inspect threads when supported | process completed work promptly and recover slots |
-| custom Agent configuration | require exact semantic project roles |
-| tool/sandbox behavior | add current-session writer ownership and runtime-evidence safety rules |
-| child output/progress | treat reports as claims until artifacts/evidence are checked |
+| runs the main session and child threads | decides whether delegation helps and which exact project role is useful |
+| exposes whatever capacity/wait/update/runtime metadata the build supports | uses only observed capability without inventing a universal runtime contract |
+| provides Agent configuration and sandbox/tool surfaces | adds one-writer, consent, trust, and exact-role boundaries |
+| returns child output | verifies claims against the actual artifact and relevant evidence |
 
-## Main-session model evidence
+## Explicit entry point
 
-Routing V4 distinguishes authority from judgment capability.
-
-The main session always remains the control plane. `policy-contract.json` declares `classification.main_coverage_reference_role`, and the runtime verifier derives the current judgment reference model from that role rather than maintaining another hard-coded model identity.
-
-When material judgment is unresolved, trusted current-session metadata may establish:
+The product is designed for explicit invocation:
 
 ```text
-covered   -> complete native metadata matches the policy-owned judgment reference family
-uncovered -> complete native metadata identifies another model family
-unknown   -> metadata is missing, partial, local-only, or conflicted
+/codex-delegate <task>
 ```
 
-The current reference role is Solver, currently GPT-5.6 Sol `high`.
+Implicit invocation is disabled. The user chooses when adaptive delegation is worth applying.
 
-Use `plugins/codex-delegate/scripts/runtime-evidence.py` with `subject: main_session` to normalize that evidence.
+## First-use readiness
 
-Do not infer the main model from child profiles, repository files, cached state, or another Agent's statement. Do not ask for or inspect main-route metadata merely for routine bounded work. Unknown coverage is a conservative routing state, not a reason to always spawn Sol.
+Exact custom roles are separate from the Plugin manifest. When an explicit task actually needs a child, role readiness is checked before delegated implementation starts.
 
-Covered main judgment capability suppresses redundant capability-uplift Sol calls for normal judgment and judgment-coupled execution. It does not satisfy a required fresh independent Final Review of the integrated candidate.
+If profiles are missing, codex delegate asks permission, runs the bundled installer and `--check`, then verifies the role surface. If the current Codex thread cannot discover newly provisioned roles until restart, the task stops before child writing and resumes in a fresh thread.
 
-## Completion-driven scheduling contract
+This avoids provisioning in the middle of an implementation.
 
-Codex Delegate's desired scheduling policy remains completion-driven:
-
-```text
-compute ready frontier
--> classify ready dependencies
--> dispatch the smallest useful safe set into available native capacity
--> react when an individual child completion/material update is exposed
--> inspect / merge evidence / reclassify if needed / close that child
--> recompute frontier
--> refill freed capacity immediately when newly-ready work exists
-```
-
-Example:
+## Current exact roles
 
 ```text
-A slow, independent
-B fast, independent
-C requires B only
-
-spawn A + B
-B completes
--> process B
--> start C while A remains active, if the runtime exposes B's completion and a slot is available
-```
-
-A barrier is valid when a real join dependency requires every relevant result. A barrier may also be unavoidable when the tested Codex runtime exposes only a coarser wait/consolidation surface.
-
-The policy degrades to the surface actually available. It never claims event-driven behavior that was not observed.
-
-## Wait/update surface is runtime evidence
-
-For every release-relevant runtime, characterize the strongest actual child-completion surface:
-
-```text
-barrier_only
-per_child_terminal
-any_child_update
-```
-
-Interpretation:
-
-- `barrier_only`: the usable orchestration surface returns only after the requested set is complete;
-- `per_child_terminal`: the main session can wait/inspect one selected child independently;
-- `any_child_update`: the main session can block for whichever live child next exposes a meaningful update/final status.
-
-These labels describe tested behavior, not permanent Codex architecture constants.
-
-Avoid model-mediated busy polling. Prefer native blocking wait/update mechanisms when available. If the runtime forces polling, record the limitation and observed cost rather than hiding it behind policy claims.
-
-## Main-session work while children run
-
-When the native surface allows it, the main session may continue independent work while children run, such as preparing acceptance checks, integrating a completed read-only dependency, or resolving a separate judgment it already covers.
-
-It must not duplicate a child's owned dependency. If Worker or Solver owns a writing dependency in the same canonical checkout, main-session work in that checkout remains read-only until a clear writer-ownership handoff occurs. Main may write concurrently only in a genuinely isolated workspace.
-
-## Adaptive capacity
-
-Codex Delegate defines no product hard child count.
-
-Explicit `/codex-delegate` use permits up to two concurrently active justified children without another consent prompt. Larger fan-out normally requires authorization unless already implied by the user request.
-
-After authorization, actual active concurrency is bounded by:
-
-```text
-useful ready dependencies
-workspace safety
-exact role availability
-native runtime capacity
-```
-
-Excess work remains pending. When a child completes and a native slot becomes reusable, completion-driven policy may refill that slot with newly-ready useful work.
-
-One observed capacity proves only the tested build/environment behavior.
-
-## Semantic roles and exact profiles
-
-Current Routing V4 roles are:
-
-```text
-codex_delegate_reader        -> gpt-5.6-luna / max   / read-only
-codex_delegate_worker        -> gpt-5.6-luna / max   / workspace-write
-codex_delegate_solver        -> gpt-5.6-sol  / high  / workspace-write
+codex_delegate_reader        -> gpt-5.6-luna  / max   / read-only
+codex_delegate_worker        -> gpt-5.6-luna  / max   / workspace-write
+codex_delegate_solver        -> gpt-5.6-sol   / high  / workspace-write
 codex_delegate_investigator  -> gpt-5.6-terra / xhigh / read-only
-codex_delegate_advisor       -> gpt-5.6-sol  / high  / read-only
+codex_delegate_advisor       -> gpt-5.6-sol   / high  / read-only
 ```
 
-Role semantics are:
+Model-specific delegation requires the exact current profile. There is no built-in-role substitution or hidden model ladder.
+
+Profile matching proves configuration intent only. It does not prove the route a live child actually ran.
+
+## Main-session capability dedup
+
+Main-session route evidence is optional optimization data.
+
+Only when the router has already established that material judgment needs Sol capability may trusted current-session model/effort metadata be used to avoid a redundant Advisor/Solver call.
+
+`policy-contract.json` owns the capability reference. `plugins/codex-delegate/scripts/runtime-evidence.py` normalizes observed metadata.
+
+Current reference is Solver, GPT-5.6 Sol `high`:
 
 ```text
-Reader        evidence
-Worker        bounded_execution
-Solver        judgment_coupled_execution
-Investigator  technical_investigation
-Advisor       judgment or fresh independent final review
+Sol family + high/xhigh/max
+-> covered
+
+Sol family + medium/low
+-> uncovered
+
+other model family
+-> uncovered
+
+missing / partial / local-only / conflicted / unranked effort
+-> unknown
 ```
 
-Model-specific delegation uses exact custom project profiles. There is no Portable Mode, built-in-role substitution, or hidden fallback ladder.
+Routine bounded work does not inspect main-session metadata. `unknown` is allowed to remain unknown.
 
-After explicit user approval, the managed installer provisions current profiles into the active Codex-home `agents` directory and records project ownership in `.codex-delegate-agents.json`. Other Agent profiles remain user-owned and untouched.
+A covered main session can suppress ordinary Sol capability uplift. It cannot satisfy fresh independent review of its own final candidate.
 
-Profile matching establishes configuration assurance only. It does not prove what a child actually ran as.
+## Runtime evidence is diagnostic
 
-## Child runtime observations
+The helper supports:
 
-When post-spawn proof matters, child Runtime Evidence keeps concerns separate:
+```text
+subject: main_session
+subject: child
+```
+
+For child diagnostics it keeps route, ancestry, and permission evidence separate:
 
 ```text
 route_evidence
@@ -152,15 +88,50 @@ ancestry_evidence
 permission_evidence
 ```
 
-The bundled verifier requires complete evidence for complete claims. Partial observations remain partial. A configured read-only sandbox is not proof of host enforcement.
+Use runtime diagnostics when the claim actually depends on runtime observation, including:
 
-See the installed `references/runtime-assurance.md`.
+- exact model/role/effort proof;
+- hard host-enforced read-only;
+- main capability dedup;
+- ancestry when depth-one proof matters;
+- independent-review provenance;
+- configuration/runtime conflicts;
+- release validation.
 
-## Child progress observability
+Do not run these checks as routine ceremony for every bounded child. Exact profile configuration plus real artifact verification may be sufficient when runtime route proof is not part of acceptance.
 
-Completion/update notification and structured in-flight execution progress are different capabilities.
+Configured values never become observed values by assumption.
 
-Characterize child-progress observability separately:
+## Completion and wait surface
+
+The desired scheduling behavior is completion-driven when the native runtime exposes a usable completion surface.
+
+For release-relevant builds characterize the strongest actually observed surface:
+
+```text
+barrier_only
+per_child_terminal
+any_child_update
+```
+
+These are observed runtime labels, not permanent Codex constants.
+
+Example:
+
+```text
+A slow independent read-only task
+B fast independent read-only task
+C depends only on B
+
+spawn A + B
+B completes
+-> process B
+-> start C while A remains active only if the runtime exposes B completion and reusable capacity
+```
+
+If the runtime exposes only a barrier, codex delegate degrades to that surface. It does not simulate event-driven behavior with model-mediated busy polling.
+
+Child progress observability is separate:
 
 ```text
 none
@@ -169,47 +140,77 @@ periodic_summary
 structured_live
 ```
 
-A runtime may support `any_child_update` while exposing only terminal-quality execution evidence. Do not infer deterministic mid-run anti-thrashing from a wake-up event or streaming prose.
+A wake-up event does not imply deterministic insight into child progress.
 
-If rich progress is unavailable, Codex Delegate verifies and reclassifies at dependency return/completion boundaries. It does not invent telemetry.
+## Capacity
 
-## Context and evidence
+codex delegate has no product-level hard child count.
 
-Role-specific children use fresh context by default (`fork_turns=none`) because the Delegation Contract carries the task-local truth they need.
+Explicit invocation includes up to two concurrently active justified children in the ordinary consent envelope. Larger fan-out requires user authorization unless the request already clearly asks for broad parallel work.
 
-Fresh context does not mean fresh discovery. Pass valid evidence, current artifact/failure, unresolved delta, acceptance, and explicit `DO NOT REDO` facts while omitting private reasoning and dead-end narration.
+Actual active concurrency remains bounded by:
 
-## Recursion and writer policy
+```text
+useful independent work
+writer safety
+exact role availability
+native runtime capacity
+```
 
-Delegation depth remains one:
+One observed capacity value applies only to the tested runtime/environment.
+
+## Writer ownership
+
+One canonical physical checkout has one active writing actor inside the current orchestration:
+
+```text
+main session while mutating
+codex_delegate_worker
+codex_delegate_solver
+```
+
+When a child writer owns the checkout, Main can continue read-only analysis but waits for ownership handoff before integration writes.
+
+Concurrent writers require genuine filesystem isolation such as separate worktrees/workspaces/repositories.
+
+This session-local rule cannot exclude another Codex session, editor, hook, or external process. Current safety relies on recommended isolation plus drift detection and fail-closed behavior. Cross-session coordination must be validated empirically before a stronger mechanism is added.
+
+## Context transfer
+
+Children normally use fresh context (`fork_turns=none`) and receive a compact responsibility packet from `references/router-core.md`.
+
+Fresh context does not mean repeated discovery. Pass only task-local truth:
+
+```text
+outcome
+scope
+interfaces/invariants
+decision rights
+acceptance
+valid evidence / DO NOT REDO
+current failure, if any
+stop condition
+```
+
+Do not transfer private reasoning or dead-end narration.
+
+## Delegation depth
 
 ```text
 main session -> child
 child -> no further project delegation
 ```
 
-One canonical physical checkout has at most one active writing actor inside the current orchestration:
-
-```text
-main session while mutating the checkout
-codex_delegate_worker
-codex_delegate_solver
-```
-
-A child writer and the main session do not concurrently mutate the same checkout. Transfer writer ownership at a clear dependency boundary. Multiple simultaneous writers require genuine filesystem isolation such as runtime-backed worktrees/workspaces or independent repositories.
-
-This session-local policy cannot exclude another Codex session, editor, hook, or process. External drift remains an observed runtime/workspace condition and writing responsibilities fail closed when it invalidates their contract.
-
-Read-only children may fan out across independent dependencies when consent and native capacity allow.
+Unexpected descendants are outside the supported product contract.
 
 ## Lifecycle
 
-Process completed child results promptly and close completed/no-longer-needed threads when supported so capacity can recover.
+Process completed/no-longer-needed children promptly and close them when the native surface supports it so capacity can recover.
 
-Do not assume close/wait operations are instantaneous or nonblocking. If a tested runtime shows stale slots, long blocking close operations, repeated wait polling, missing main-route metadata, or missing completion notifications, record that as version-scoped runtime evidence and adapt release claims accordingly.
+If a runtime shows stale slots, blocking close operations, missing completion signals, absent route metadata, or other limitations, record the exact build and adapt product claims. Do not hide runtime limitations behind policy wording.
 
 ## User-facing takeaway
 
-Codex Delegate controls **what unresolved responsibility should run where**, **who owns writes in a checkout**, and **when newly available capacity should be used**. Native Codex controls **how the main session and child threads actually execute and which route/completion/progress signals exist**.
+codex delegate decides when additional native compute is useful and keeps it inside a small set of quality/safety boundaries. Native Codex decides how sessions and child threads actually execute.
 
-That distinction is why routing quality cannot be reduced to model prestige, cheaper tokens, or more Agent slots alone.
+This separation lets the Plugin improve daily development without becoming a second orchestration runtime.
