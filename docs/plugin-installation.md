@@ -9,9 +9,9 @@ Plugin packaging and custom Agent profiles are separate Codex surfaces. The Plug
 ```text
 Repository:       R-jed/codex-delegate
 Marketplace id:  codex-delegate
-Plugin id:       codex-delegate
+Plugin id:        codex-delegate
 Skill/command:   codex-delegate / /codex-delegate
-Version:         0.8.0
+Version:         0.9.0
 ```
 
 Current managed Agent state:
@@ -92,7 +92,7 @@ The bundled installer:
 
 It does not edit credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
-Concurrent same-Codex-home multi-process behavior remains a release-validation concern until tested. Single-process rollback does not prove multi-process transactionality.
+Concurrent same-Codex-home multi-process behavior remains a live release-validation concern until tested. Single-process rollback does not prove multi-process transactionality.
 
 ## Plugin validation before release
 
@@ -103,7 +103,7 @@ Each fixed release candidate must:
 3. run the then-current official OpenAI Plugin validator against `plugins/codex-delegate` and record its revision;
 4. verify marketplace metadata points to `./plugins/codex-delegate`;
 5. perform a real fresh marketplace install from the fixed candidate;
-6. start a new thread and confirm explicit `/codex-delegate` discovery and version `0.8.0`;
+6. start a new thread and confirm explicit `/codex-delegate` discovery and version `0.9.0`;
 7. prove implicit invocation remains disabled;
 8. verify first-use five-role provisioning/readiness before delegated execution;
 9. verify installer idempotence, managed-profile update/addition, unrelated-profile preservation, and non-mutating `--check`;
