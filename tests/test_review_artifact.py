@@ -29,7 +29,7 @@ def init_repo(tmp_path: Path) -> Path:
     (repo / ".gitignore").write_text("ignored-cache/\n", encoding="utf-8")
     (repo / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
     git(repo, "add", ".gitignore", "app.py")
-    git(repo, "commit", "-m", "base")
+    git(repo, "commit", "-m", "test: base")
     return repo
 
 
@@ -156,7 +156,7 @@ def test_head_change_invalidates_artifact_even_with_clean_worktree(tmp_path: Pat
 
     (repo / "app.py").write_text("VALUE = 4\n", encoding="utf-8")
     git(repo, "add", "app.py")
-    git(repo, "commit", "-m", "change head")
+    git(repo, "commit", "-m", "test: change head")
     after = artifact_id(repo)
     assert after != before
 
