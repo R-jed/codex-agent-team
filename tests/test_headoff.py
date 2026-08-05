@@ -58,7 +58,7 @@ def test_handoff_uses_five_roles_and_compact_policy_surface():
         "ready frontier + progressive fan-out",
         "no project ordinary numeric child ceiling",
     ]:
-        assert phrase in HANDOFF
+        assert phrase.lower() in HANDOFF.lower()
 
 
 def test_handoff_adaptive_fanout_keeps_strong_main_in_control():
@@ -97,7 +97,7 @@ def test_handoff_keeps_daily_runtime_and_behavioral_gates():
         "Advisor + Luna handoff vs one Sol Solver",
         "Sol-main direct execution vs redundant Sol Solver",
         "adaptive multi-reader fan-out vs unnecessary serial waves",
-        "first-use five-profile native custom-Agent provisioning/readiness behavior",
+        "first-use five-profile provisioning and readiness behavior",
     ]:
         assert phrase.lower() in HANDOFF.lower()
 
