@@ -241,7 +241,9 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
     native_complete = route_complete(native, "native", violations)
     local_complete = route_complete(local, "local", violations)
     native_fields, local_fields = seen(native, CHILD_ROUTE_FIELDS), seen(local, CHILD_ROUTE_FIELDS)
-    route_conflict = any(item.startswith("source_conflict:") for item in violations) or any(
+    route_conflict = any(
+        item == f"source_conflict:{field}" for item in violations for field in CHILD_ROUTE_FIELDS
+    ) or any(
         f"{label}:{field}_mismatch" in violations for label in ("native", "local") for field in CHILD_ROUTE_FIELDS
     )
     route_status = (
@@ -286,7 +288,14 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
         violations.append("permission:read_only_not_enforced")
 
     identity_conflict = any(item.endswith("thread_id_mismatch") or item.startswith("source_conflict:thread_id") for item in violations)
-    conflict = route["status"] == "conflict" or ancestry["status"] == "conflict" or permission["status"] in {"broader_than_required", "conflict"} or identity_conflict
+    any_source_conflict = any(item.startswith("source_conflict:") for item in violations)
+    conflict = (
+        route["status"] == "conflict"
+        or ancestry["status"] == "conflict"
+        or permission["status"] in {"broader_than_required", "conflict"}
+        or identity_conflict
+        or any_source_conflict
+    )
     runtime_required = expected.get("runtime_observation_required", False)
     if conflict:
         status, decision = "mismatch", "quarantine"
