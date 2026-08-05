@@ -22,7 +22,6 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
     assert payload["homepage"] == "https://github.com/R-jed/codex-delegate#readme"
     assert payload["interface"]["displayName"] == "Codex Delegate"
     assert payload["interface"]["websiteURL"] == "https://github.com/R-jed/codex-delegate"
-    assert "judgment-coupled execution" in payload["interface"]["longDescription"]
     assert SKILL.is_dir()
 
     market = json.loads(MARKETPLACE.read_text())
@@ -53,7 +52,7 @@ def test_plugin_brand_assets_and_supported_components():
 
 def test_only_current_five_profiles_are_packaged():
     policy = json.loads(POLICY.read_text())
-    assert policy["schema_version"] == 2
+    assert policy["schema_version"] == 3
     assert set(policy["roles"]) == {"reader", "worker", "solver", "investigator", "advisor"}
     expected = {spec["profile_file"] for spec in policy["roles"].values()}
     assert len(expected) == 5
@@ -63,13 +62,14 @@ def test_only_current_five_profiles_are_packaged():
     assert policy["roles"]["solver"]["profile_file"] == "codex-delegate-solver.toml"
 
 
-def test_skill_owns_current_profile_setup_and_no_standalone_installer_surface():
+def test_skill_owns_current_profile_setup_before_delegated_execution():
     text = (SKILL / "SKILL.md").read_text()
     assert "../../scripts/install-agents.py" in text
     assert 'python "$installer" --check' in text
     assert ".codex-delegate-agents.json" in text
     assert "/codex-delegate" in text
-    assert "It manages only the current project profiles" in text
+    assert "Complete readiness before delegated execution" in text
+    assert "stop before delegated code execution" in text
     assert not (ROOT / "scripts" / "install.py").exists()
     assert not (ROOT / "scripts" / "doctor.py").exists()
 
@@ -86,7 +86,9 @@ def test_install_doc_explains_current_install_and_five_profile_lifecycle():
         ".codex-delegate-agents.json",
         "Version:         0.8.0",
         "leaves unrelated Agent profiles untouched",
-        "five current profiles",
+        "First-use Agent readiness",
+        "Implicit invocation is disabled",
+        "immutable release ref/tag",
     ]:
         assert phrase in text
 
