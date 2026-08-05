@@ -16,7 +16,7 @@ POLICY = PLUGIN_ROOT / "policy-contract.json"
 def test_plugin_manifest_and_marketplace_use_canonical_identity():
     payload = json.loads(PLUGIN.read_text())
     assert payload["name"] == "codex-delegate"
-    assert payload["version"] == "0.8.0"
+    assert payload["version"] == "0.9.0"
     assert payload["skills"] == "./skills/"
     assert payload["repository"] == "https://github.com/R-jed/codex-delegate"
     assert payload["homepage"] == "https://github.com/R-jed/codex-delegate#readme"
@@ -84,7 +84,7 @@ def test_install_doc_explains_current_install_and_five_profile_lifecycle():
         "codex_delegate_reader",
         "codex_delegate_solver",
         ".codex-delegate-agents.json",
-        "Version:         0.8.0",
+        "Version:         0.9.0",
         "leaves unrelated Agent profiles untouched",
         "First-use Agent readiness",
         "Implicit invocation is disabled",
@@ -98,12 +98,12 @@ def test_readmes_and_ai_reference_share_current_install_path():
     for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text()
         assert directive in text
-        assert "0.8.0" in text
+        assert "0.9.0" in text
         assert "Sol Solver" in text
         assert "codex plugin add codex-delegate@codex-delegate" in text
         assert "/codex-delegate" in text
     ai = (ROOT / "README_AI.md").read_text()
-    assert "Current version:    0.8.0" in ai
+    assert "Current version:    0.9.0" in ai
     assert "codex_delegate_solver" in ai
     assert "codex-delegate-solver.toml" in ai
     assert "codex_delegate_advisor" in ai
