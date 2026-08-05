@@ -1,120 +1,58 @@
 # Architecture
 
-Codex Delegate is a policy layer over Codex Native Subagents. It does not implement another Agent runtime, persistent DAG service, background scheduler, thread pool, or routing proxy.
+codex delegate is a thin policy layer over Codex Native Subagents. It does not implement a second Agent runtime, persistent DAG service, background scheduler, daemon, or routing proxy.
 
-The main session is always the task-level control plane. It owns user intent, scope, authorization, dependency state, integration, acceptance, and final response.
+The user-facing main session remains the control plane. It owns user intent, authorization, integration, acceptance, and final response.
 
-Routing V4 targets the **smallest useful compute graph that preserves required judgment quality, workspace safety, and independent assurance**.
+The product target is the smallest useful delegation graph that improves everyday development quality without making the user manage Agent topology.
 
-## First-principles control loop
+## Runtime mechanism
 
-```text
-1. understand the user outcome and acceptance
-2. identify what is actually unresolved
-3. classify each dependency
-4. account for main-session judgment coverage only when material judgment exists
-5. choose the smallest useful actor
-6. transfer writer ownership cleanly when a child will mutate the checkout
-7. execute and collect inspectable evidence
-8. if unresolved, reclassify from new evidence instead of climbing a model ladder
-9. verify the integrated candidate
-10. add fresh independent Sol review only when the candidate's consequences require it
-11. main session accepts and reports
-```
-
-Stable role/classification/review constants live in `plugins/codex-delegate/policy-contract.json`. Detailed normative behavior lives in the installed Skill references.
-
-## Dependency model
-
-The main session keeps compact in-session state:
+The normal control loop is intentionally short:
 
 ```text
-Dependency Ledger
-- status: pending | ready | running | satisfied | blocked | invalidated
-- kind: evidence | bounded_execution | judgment | judgment_coupled_execution | technical_investigation
-- requires / produces
-- write intent / workspace / acceptance
-
-Shared Evidence State
-- deterministic
-- repository_fact
-- model_judgment
-- explicit dependencies and validity
-
-Recovery Ledger
-- only material attempt facts needed to prevent repeated dead ends
-
-Main Judgment Coverage
-- covered | uncovered | unknown
+understand outcome + acceptance
+-> ask whether delegation helps
+-> select the capability actually needed
+-> execute under one-writer / consent boundaries
+-> verify the real artifact
+-> diagnose a blocker only when work is unresolved
+-> run fresh independent review only when the final artifact requires it
+-> deliver
 ```
 
-A running dependency has one active owner. A satisfied dependency stays closed until changed inputs invalidate it.
-
-## Classification is the routing primitive
-
-### Evidence
-
-Missing inspectable facts such as code tracing, symbol mapping, test mapping, or bounded research.
-
-Typical delegated actor: Luna Reader.
-
-### Bounded execution
-
-Desired behavior and material invariants are already decided. Remaining discretion is local and independently verifiable.
-
-Typical delegated actor: Luna Worker.
-
-The important invariant is:
+The installed Skill has three model-facing runtime references:
 
 ```text
-contractable does not imply Luna-suitable
+router-core.md
+-> delegation benefit, role selection, child packet, blocker handling, scheduling, acceptance
+
+guardrails.md
+-> authority, explicit invocation, provisioning readiness, consent, writer ownership, trust, permissions, runtime evidence
+
+final-review.md
+-> artifact-bound independent assurance
 ```
 
-If implementation is expected to require material architecture, behavior, compatibility, or cross-module semantic choices, the dependency is judgment-coupled execution.
+`plugins/codex-delegate/policy-contract.json` contains only stable machine constants: role routes, delegation limits, capability-dedup reference, and Final Review reason codes.
 
-### Judgment
+## Direct capability selection
 
-A material decision must be resolved before implementation can safely proceed.
+The router does not require a large internal taxonomy. It asks what capability the unresolved work actually needs.
 
-If the current main session already has trusted judgment coverage under the current policy reference, normal judgment stays in main. Otherwise a Sol Advisor supplies capability uplift.
+| Work remaining | Typical actor |
+| --- | --- |
+| no meaningful delegation benefit | Main session |
+| independent read-only factual evidence | Luna Reader |
+| writing where behavior/invariants/acceptance are already decided | Luna Worker |
+| material decision before implementation | capable Main or Sol Advisor |
+| writing where material judgment is coupled to implementation | capable Main or Sol Solver |
+| narrow difficult technical question after semantics are stable | Terra Investigator |
+| independent final assurance for a consequential candidate | fresh Sol Advisor |
 
-### Judgment-coupled execution
+The important quality boundary is simple: Luna Worker receives work where material behavior decisions are already made. A task being large, many-file, or easy to describe in a contract does not make it Luna-suitable.
 
-Implementation and material judgment cannot be safely separated up front.
-
-If the current main session already has trusted judgment coverage, main normally handles it directly. Otherwise a write-capable Sol Solver owns the bounded dependency.
-
-This avoids repeated Advisor -> Luna -> Advisor loops for work whose design evolves with implementation evidence.
-
-### Technical investigation
-
-Semantic intent is already stable and a narrow difficult technical uncertainty remains.
-
-Typical delegated actor: Terra Investigator.
-
-Terra is not a generic stronger retry for weak Luna output.
-
-## Main-session model awareness
-
-Authority never depends on model identity. Compute placement can.
-
-`plugins/codex-delegate/policy-contract.json` declares `classification.main_coverage_reference_role`. The bundled runtime verifier derives the current reference model from that role, avoiding a second hard-coded model source.
-
-Trusted current-session metadata is normalized through `plugins/codex-delegate/scripts/runtime-evidence.py`:
-
-```text
-covered   -> trusted main route matches the policy-owned judgment reference family
-uncovered -> trusted main route is outside that family
-unknown   -> route not fully observed or is conflicted
-```
-
-The current reference role is Solver, currently GPT-5.6 Sol `high`.
-
-Routine bounded work does not need main-model inspection. Unknown coverage does not mean “always spawn Sol.” It matters only when material judgment is unresolved.
-
-Covered main judgment capability suppresses redundant capability-uplift Sol calls. It does not satisfy independent Final Review of the main session's own candidate.
-
-## Current semantic roles
+## Current roles
 
 | Responsibility | Agent type | Route | Intent |
 | --- | --- | --- | --- |
@@ -122,136 +60,167 @@ Covered main judgment capability suppresses redundant capability-uplift Sol call
 | Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | standardized bounded implementation |
 | Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | judgment-coupled implementation |
 | Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | narrow difficult technical uncertainty |
-| Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | material judgment or fresh independent review |
+| Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | material read-only judgment or fresh independent review |
 
-Role identity remains separate from model identity so future model changes do not redefine responsibility semantics.
+Role identity is separate from model identity so future route changes do not redefine responsibility semantics.
 
-## Completion-driven scheduling
+## Compact task state
 
-Scheduling starts from ready dependencies, not an Agent-count target.
+The normal runtime keeps one small work-item state rather than separate orchestration ledgers:
 
 ```text
-ready frontier
--> classify
--> choose smallest useful safe actor set
--> dispatch into available native capacity
--> process each exposed completion/update
--> merge evidence / close completed child
--> reclassify if needed
--> recompute ready frontier
--> refill safe capacity
+outcome
+owner
+read/write intent
+material judgment: none | separable | coupled
+acceptance
+valid evidence
+current failure
+blocker: none | contract | judgment | specialist | stalled
 ```
 
-A wave barrier is used only for a real join dependency or when the tested runtime exposes no finer wait surface.
+Add another work item only for a genuinely distinct unresolved responsibility. Valid evidence prevents repeated discovery and duplicate ownership.
 
-Explicit `/codex-delegate` use includes up to two concurrently active justified children without another prompt. This is a consent envelope, not a target or product ceiling.
+## Blocked work
 
-## Writer safety
-
-One canonical physical checkout has at most one active writing actor inside the current orchestration.
-
-Writing actors are:
+Failure does not imply a stronger model.
 
 ```text
-main session while mutating that checkout
-codex_delegate_worker
-codex_delegate_solver
+contract
+-> Main repairs missing task truth, scope, invariant, or acceptance
+
+judgment
+-> capable Main / Advisor / Solver handles the material decision
+
+specialist
+-> Investigator only when semantics are stable and the remaining technical delta is narrow
+
+stalled
+-> at most one clean same-role retry when the role remains correct and the packet materially improves
 ```
 
-When Worker or Solver owns a writing dependency, the main session can continue read-only analysis and acceptance preparation in that checkout but waits for a clean ownership handoff before integration writes. When main is actively mutating a checkout, do not launch a child writer into it until that write responsibility reaches a clear boundary.
+If the same failure continues without new evidence or acceptance progress, stop repeating the lane and diagnose the real blocker.
 
-Multiple concurrent writers require genuine filesystem isolation such as separate worktrees/workspaces/repositories. File-list promises are not sufficient isolation.
+## Main-session capability dedup
 
-This session-local invariant does not prove exclusion against another Codex session, editor, hook, or process. Cross-session coordination remains a live-runtime/product boundary; current contracts preserve unrelated edits and fail closed on material drift.
+Main-session model awareness exists to avoid redundant Sol compute. It is an optimization after the router has already established that material judgment needs Sol capability.
 
-## Recovery through reclassification
+`policy-contract.json` declares the reference role and reasoning-effort order. `plugins/codex-delegate/scripts/runtime-evidence.py` can normalize trusted current-session model/effort metadata when the optimization is material.
 
-Failure is not a model-escalation event.
-
-When progress stops, the main session asks whether the dependency is still classified correctly given the new evidence.
+Current reference role is Solver, GPT-5.6 Sol `high`:
 
 ```text
-bounded local defect
--> bounded_execution
--> focused Luna correction
+matching Sol family + high/xhigh/max
+-> covered
 
-material semantic choice emerged
--> judgment / judgment_coupled_execution
--> covered main / Advisor / Solver according to main coverage
+matching Sol family + medium/low
+-> uncovered
 
-contract truth missing
--> main repairs task state
+nonmatching family
+-> uncovered
 
-semantics stable + narrow hard technical question
--> technical_investigation
--> Terra receives only that delta
-
-same bounded work stalls while classification remains valid
--> optional clean same-role restart
+missing / partial / local-only / conflicted / unranked effort
+-> unknown
 ```
 
-Standard child stop signals are:
+Routine bounded work does not inspect the main model. Missing telemetry does not block ordinary routing.
+
+A covered main session can avoid ordinary capability-uplift Advisor/Solver calls. It never substitutes for required independent review of its own candidate.
+
+## Writer ownership
+
+One canonical physical checkout has one active writing actor inside the current orchestration:
 
 ```text
-CONTRACT_GAP
-JUDGMENT_REQUIRED
-TECHNICAL_GAP
-EXECUTION_STALL
+Main session while mutating
+Luna Worker
+Sol Solver
 ```
 
-There is no universal retry count or fixed stronger-model progression.
+If Worker or Solver owns the write, Main may continue read-only analysis but waits for ownership handoff before integration writes.
 
-## Final Review is independent assurance
+Multiple concurrent writers require real filesystem isolation such as separate worktrees/workspaces/repositories. File-list promises are insufficient isolation.
 
-After main-session verification creates a Candidate Ready artifact, evaluate consequences:
+Independent sessions, editors, hooks, and external processes remain outside this session-local scheduler. Current policy relies on isolation where practical plus drift detection and fail-closed behavior. It does not claim a cross-session lock that has not been implemented and validated.
+
+## Explicit invocation and onboarding
+
+The supported user mental model is explicit:
 
 ```text
-no semantic review trigger
--> main acceptance can complete
+/codex-delegate <task>
+```
 
-material review trigger
--> bind review_artifact_id
--> fresh Sol Advisor
+Implicit invocation is disabled.
+
+When an explicit task actually benefits from delegation, exact role readiness is checked before delegated implementation starts. If profiles must be provisioned, the Skill explains the managed scope, asks permission, runs the bundled installer plus `--check`, then verifies the role surface. If the runtime requires a fresh thread to discover new roles, execution stops before child writing begins.
+
+This avoids discovering installation requirements midway through a development task.
+
+## Runtime evidence boundary
+
+Runtime evidence is diagnostic and on demand.
+
+Use it when a claim genuinely depends on observed runtime facts, such as:
+
+- Sol capability dedup;
+- hard host-enforced read-only;
+- exact route/model/effort proof;
+- ancestry when depth-one proof matters;
+- independent-review provenance;
+- configuration/runtime conflicts;
+- release diagnostics.
+
+Ordinary bounded implementation can rely on exact configured role intent plus actual artifact verification when runtime route proof is not part of acceptance.
+
+Configuration remains separate from observation. Missing evidence stays missing.
+
+## Final Review
+
+Final Review is an independent assurance decision after Candidate Ready.
+
+Current semantic trigger classes are:
+
+```text
+user-requested review
+public contract change
+persistent state change
+security boundary
+authorization boundary
+data integrity
+concurrency semantics
+material migration
+verification gap
+```
+
+Prior use of Terra, Solver, recovery, a large diff, or many files does not by itself trigger review.
+
+When required:
+
+```text
+bind exact candidate
+-> fresh codex_delegate_advisor
 -> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
 ```
 
-Current mandatory trigger classes are user-requested review, public contract, persistent state, security, authorization, data integrity, concurrency semantics, material migration, and verification gap.
+Any deliverable mutation invalidates the old verdict.
 
-Process history is not itself a trigger. Terra use, Solver use, recovery, or a large diff may reveal residual risk, but only the actual semantic consequence or verification gap makes review mandatory.
+## User-visible output
 
-Fresh independent review remains required when triggered even if the main session has covered judgment capability or Sol Solver implemented the candidate.
-
-## Runtime evidence
-
-The bundled `plugins/codex-delegate/scripts/runtime-evidence.py` has two subjects:
+The product reports the development result first:
 
 ```text
-main_session
-child
+what changed
+verification
+remaining material risk
 ```
 
-Main-session mode derives conservative judgment coverage only from complete trusted native model/effort metadata and the policy-owned reference model.
-
-Child mode keeps route, ancestry, and permission evidence typed separately. Configuration is never copied into observed fields.
-
-Native capacity, wait semantics, child progress observability, and cross-session coordination remain runtime facts that live validation must characterize.
-
-## Safety and consent boundaries
-
-Safety owns permission, trust, delegation depth, writer ownership, and high-impact external actions.
-
-Consent owns material expansion in compute, concurrency, scope, permission, or external impact.
-
-A stronger model never gains broader user authorization automatically.
-
-## Plugin boundary
-
-Codex Plugin is the supported distribution path and `/codex-delegate` is the user entry point.
-
-Current managed profiles are installed into Codex home separately from Plugin manifest components. The installer manages only the current project generation and `.codex-delegate-agents.json`, leaving unrelated Agent configuration untouched.
+It does not emit a separate orchestration receipt for every successful invocation. Routing details are surfaced when they materially affected consent, execution, a limitation, independent review, or when the user asks.
 
 ## Evaluation boundary
 
-Static tests prove contracts and deterministic helpers. Live paired workloads test Routing V4 hypotheses, including bounded Luna quality, Sol Solver value, covered-main redundancy avoidance, Terra technical-delta value, reclassification behavior, writer ownership, and consequence-driven Final Review.
+Static tests prove machine contracts and deterministic helpers. `evals/` is a measurement surface for controlled product experiments, not a second runtime policy specification.
 
-No quality/cost superiority claim is valid until named live workloads on named runtime versions support it.
+Behavioral labels in eval schemas may remain more detailed than the runtime hot path so historical experiments stay comparable. They must not force the Skill to maintain the old runtime ontology.
+
+No model-quality or cost-superiority claim is valid until named live workloads on named runtime versions support it.
