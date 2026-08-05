@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Delegate"
   short_description: "Adaptive delegation for reliable everyday development"
-  default_prompt: "Use /codex-delegate to keep the main session in control, delegate only when it adds concrete value, route bounded execution to Luna, material judgment and judgment-coupled implementation to Sol, narrow specialist technical uncertainty to Terra, preserve one-writer safety, reuse valid evidence, and apply fresh independent Sol review only when the final artifact requires it."
+  default_prompt: "Use $codex-delegate to complete this development task with adaptive native Subagent delegation."
 
 policy:
   allow_implicit_invocation: false
