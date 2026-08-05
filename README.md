@@ -78,9 +78,9 @@ codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，�
 
 ## 并行和写代码时的安全规则
 
-一次 `/codex-delegate` 任务里，最多可以同时运行两个确实有用的子 Agent。很多任务只会用一个，或者一个都不用。
+一次 `/codex-delegate` 任务里可以同时运行多个真正有用的子 Agent。主会话会根据当前已经准备好、彼此独立的工作动态决定数量。简单任务可能一个都不开；大型代码审查可能同时安排多个 Reader、Investigator 或 Advisor。它不会为了占满并发容量而硬凑 Agent。
 
-读代码的工作可以并行。写代码时更保守：同一个实际 Git checkout 里，同一时间只允许一个写入者。这个写入者可能是主会话、Luna Worker 或 Sol Solver。
+读代码的工作更适合并行。写代码时更保守：同一个实际 Git checkout 里，同一时间只允许一个写入者。这个写入者可能是主会话、Luna Worker 或 Sol Solver。
 
 如果真的需要多个 Agent 同时写代码，需要把它们放到不同的 worktree、workspace 或 repository 里。
 
