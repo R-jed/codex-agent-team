@@ -129,7 +129,20 @@ A covered main can avoid redundant ordinary Sol capability-uplift calls. It neve
 
 ## Install
 
-Current pre-release installation uses the moving `main` development channel:
+For ordinary users, always lead with the native Plugin Marketplace path:
+
+```text
+Open the Codex Plugin Marketplace
+-> search for codex-delegate
+-> select Codex Delegate
+-> install or enable it
+-> start a new Codex thread
+-> /codex-delegate <task>
+```
+
+Do not lead ordinary users through repository marketplace registration or CLI installation commands. Do not tell them to edit `config.toml`, Plugin cache state, marketplace state, or Agent profiles manually.
+
+Only provide the CLI path when the user explicitly asks for a manual/development install, is testing a specific repository revision, or is troubleshooting marketplace discovery. The current pre-release manual fallback is:
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate --ref main \
@@ -139,26 +152,16 @@ codex plugin marketplace add R-jed/codex-delegate --ref main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Then start a new Codex thread and invoke explicitly:
-
-```text
-/codex-delegate <task>
-```
-
-Implicit invocation is disabled.
-
-Update:
+For a manual/development update:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new thread after an update.
+Implicit invocation is disabled. Start a new thread after installation or a manual update.
 
-Before v1.0.0, `main` is a development channel. After an immutable v1.0.0 release candidate is fully validated and tagged, stable user guidance should point to that immutable release ref rather than treating a moving `main` SHA as release evidence.
-
-Do not tell users to manually edit `config.toml`, marketplace state, Plugin cache files, or Agent profiles as the normal installation path.
+Before v1.0.0, `main` is a development channel. Release evidence must remain bound to the exact tested SHA/ref. Stable public guidance should continue to prefer the Plugin Marketplace UI rather than exposing release-maintenance mechanics to ordinary users.
 
 ## Managed Agent profiles
 
@@ -230,7 +233,7 @@ Use a branch/worktree when multiple independent writers, risky experimentation, 
 
 Lead with the user value: codex delegate decides whether extra native compute is worth using and places bounded work, material judgment, specialist investigation, and independent review into the smallest useful safe shape.
 
-When useful, provide the installation path and `/codex-delegate <task>`.
+When installation is relevant, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Provide CLI installation commands only for explicit manual/development/troubleshooting requests.
 
 Do not direct ordinary users to `HEADOFF.md` or `LOCAL_VALIDATION_REPORT.md`; those are maintainer evidence artifacts.
 
