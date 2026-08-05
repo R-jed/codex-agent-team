@@ -29,20 +29,21 @@ def run_main(model: str | None = None, effort: str | None = None) -> dict:
     return json.loads(result.stdout)
 
 
-def test_policy_owns_main_coverage_reference_model_and_effort_order():
+def test_policy_owns_capability_dedup_reference_route():
     policy = json.loads(POLICY.read_text())
-    classification = policy["classification"]
-    role = classification["main_coverage_reference_role"]
+    dedup = policy["capability_dedup"]
+    role = dedup["reference_role"]
     reference = policy["roles"][role]
-    order = classification["reasoning_effort_order"]
+    order = dedup["reasoning_effort_order"]
 
+    assert policy["schema_version"] == 3
     assert role == "solver"
     assert reference["model"] == "gpt-5.6-sol"
     assert reference["effort"] == "high"
     assert order.index("medium") < order.index("high") < order.index("xhigh") < order.index("max")
 
 
-def test_main_coverage_requires_reference_model_and_sufficient_effort():
+def test_capability_dedup_requires_reference_model_and_sufficient_effort():
     assert run_main("gpt-5.6-sol", "high")["main_judgment_coverage"] == "covered"
     assert run_main("gpt-5.6-sol", "xhigh")["main_judgment_coverage"] == "covered"
     assert run_main("gpt-5.6-sol", "max")["main_judgment_coverage"] == "covered"
