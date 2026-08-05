@@ -47,7 +47,7 @@ def test_handoff_uses_five_roles_and_compact_policy_surface():
     ]:
         assert role in HANDOFF
     for phrase in [
-        "version: 0.9.0",
+        "version: 0.9.1",
         "router-core.md / guardrails.md / final-review.md",
         "policy-contract.json schema 3",
         "invocation: explicit only",
@@ -108,7 +108,7 @@ def test_handoff_keeps_exact_adversarial_consultation_target():
 
 def test_report_is_pending_evidence_ledger_for_officially_aligned_candidate():
     for phrase in [
-        "Plugin version: 0.9.0",
+        "Plugin version: 0.9.1",
         "Canonical explicit invocation: $codex-delegate",
         "codex_delegate_reader",
         "codex_delegate_solver",
