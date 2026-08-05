@@ -32,15 +32,18 @@ def test_two_children_is_consent_envelope_not_scheduler_target():
     assert "envelope, not a target" in text
 
 
-def test_authorized_static_eval_can_exceed_four_readers_and_slot_pressure_queues():
+def test_static_eval_keeps_parallel_readers_and_consent_boundary():
     payload = json.loads((ROOT / "evals" / "routing-cases.json").read_text())
     by_id = {case["id"]: case for case in payload["evals"]}
-    fanout = by_id["five-independent-readers-authorized"]
-    assert len(fanout["expected"]["nodes"]) == 5
-    assert all(node["agent_type"] == "codex_delegate_reader" for node in fanout["expected"]["nodes"])
-    queued = by_id["runtime-slot-pressure-queues-ready-work"]
-    assert queued["expected"]["action"] == "queue"
-    assert queued["expected"]["queued_dependencies"] == ["D04", "D05"]
+
+    parallel = by_id["two-independent-readers"]
+    assert parallel["expected"]["action"] == "delegate"
+    assert len(parallel["expected"]["nodes"]) == 2
+    assert all(node["agent_type"] == "codex_delegate_reader" for node in parallel["expected"]["nodes"])
+
+    consent = by_id["three-agent-fanout-needs-consent"]
+    assert consent["expected"]["action"] == "ask_consent"
+    assert consent["expected"]["consent_reason"] == "larger_simultaneous_fanout"
 
 
 def test_writer_safety_is_workspace_scoped_and_depth_one():
