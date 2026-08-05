@@ -1,10 +1,10 @@
-# codex delegate Local Runtime Validation Handoff
+# codex delegate v1.0 Validation Handoff
 
-This is the finite deterministic/live-validation and v1.0.0 release checklist for the mechanism-compressed, official-Codex-aligned codex delegate candidate.
+This is the finite deterministic/live-validation and v1.0.0 release checklist for the current codex delegate candidate.
 
-The product goal remains small: explicit Plugin invocation, main-session leadership, delegation only when useful, Luna for clear repeatable bounded work, Sol for demanding/material judgment, Terra for bounded read-heavy investigation, adaptive fan-out for genuinely independent ready work, one-writer safety, and independent review only when the final artifact warrants it.
+The product model is now settled: the user gives one strong Main session the goal, Main acts as the team leader, and `/codex-delegate` gives that leader the rules for deciding what to keep, what to delegate, which specialist role fits, how much useful parallelism to use, and when to stop adding Agents.
 
-Do not add routing ceremony during validation. Change the mechanism only when deterministic or controlled live evidence establishes a real user-facing defect or falsifies a product hypothesis.
+The project should trust a capable Main model to lead. The policy exists to prevent loss of control, not to replace Main's judgment with a fixed Agent count or rigid model pipeline.
 
 ## Current candidate baseline
 
@@ -27,21 +27,54 @@ known open reproducible PROJECT P0/P1: none established on exact current tree
 release posture: HOLD FOR RELEASE / OFFICIAL COMPLIANCE + DETERMINISTIC + LIVE VALIDATION PENDING
 ```
 
-Before every validation checkpoint, fetch `origin/main`, record the exact tested SHA/runtime, and invalidate evidence whose declared dependencies changed.
+Before every checkpoint, fetch current `origin/main`, record the exact SHA and runtime, and invalidate evidence whose declared dependencies changed.
+
+## Architecture decision to preserve
+
+These are product decisions, not tuning suggestions:
+
+- main session always owns user intent, authorization, team composition, integration, acceptance, and final response;
+- zero children is a normal outcome;
+- delegation requires a concrete benefit;
+- project policy does not target or cap an ordinary fixed child count;
+- Main manages a ready frontier and uses progressive fan-out;
+- every child needs a distinct, ready, non-duplicative responsibility;
+- native Agent capacity is an upper bound, never a target to fill;
+- spare native capacity alone does not create another child;
+- three or more distinct ready read-only responsibilities may run together when the task and native capacity justify it;
+- child count alone is not a consent trigger; material compute expansion is;
+- one canonical physical checkout has one active writer inside one orchestration;
+- delegation depth remains one;
+- children do not widen scope, permissions, external impact, or user intent;
+- there is no fixed Luna → Terra → Sol ladder;
+- failure does not imply model escalation;
+- exact role mismatch fails closed;
+- configured intent does not count as observed runtime truth;
+- independent Final Review is triggered by the final artifact's consequences, not process ceremony.
+
+The five specialist roles remain:
+
+```text
+codex_delegate_reader       -> Luna Reader, narrow read-only evidence
+codex_delegate_worker       -> Luna Worker, clear repeatable writing after behavior is decided
+codex_delegate_solver       -> Sol Solver, judgment-coupled implementation
+codex_delegate_investigator -> Terra Investigator, broader read-only investigation after semantics are stable
+codex_delegate_advisor      -> Sol Advisor, important read-only judgment or fresh independent review
+```
+
+Terra is a bounded read-heavy investigation/evidence-synthesis lane. Terra is not an escalation rung. Difficult, ambiguous, multi-step technical judgment belongs to capable main/Sol.
 
 ## Repository maintenance workflow
 
 For clear, bounded, owner-authorized maintenance, inspect current `main` first and preserve unrelated work. Direct-main work is allowed when isolation adds no concrete value.
 
-Use a branch/worktree when multiple independent writers, risky experimentation, or external review genuinely requires isolation. Do not overwrite concurrent work.
+Use a branch or worktree when multiple independent writers, risky experimentation, or external review genuinely requires isolation. Never overwrite concurrent work.
 
-During pre-release development, `main` is a moving development ref. The final v1.0.0 installation/release proof must use one fixed immutable RC/tag. Do not treat a green result on an earlier `main` SHA as release evidence for a later SHA.
+During pre-release development, `main` is a moving development ref. The final v1.0.0 installation and release proof must use one fixed immutable RC/tag. A green earlier `main` SHA is not release evidence for a later SHA.
 
 ## Deterministic execution preflight
 
-Complete this gate on one exact current SHA before treating live-runtime results as release evidence.
-
-Record exact Git SHA, Python version, validator revision where applicable, commands, exit codes, relevant skips/xfails/warnings, and concise outputs in `LOCAL_VALIDATION_REPORT.md`.
+Complete this gate on one exact current SHA before treating live-runtime results as release evidence. Record commands, outputs, exit codes, Python version, validator revision, relevant warnings/skips, and the exact SHA in `LOCAL_VALIDATION_REPORT.md`.
 
 Required deterministic execution:
 
@@ -60,157 +93,103 @@ The deterministic gate passes only when:
 
 - every required command exits successfully;
 - the complete pytest suite has no failures or errors;
-- release-relevant skips, xfails, and warnings are reviewed explicitly;
-- the retired-identity guard passes on the exact tree;
-- the canonical invocation guard passes, with `/codex-delegate` as the project user command and no stale dollar-style codex-delegate invocation references;
-- public Plugin metadata includes current website, privacy policy, terms, category, brand assets, and valid starter prompts;
-- the Plugin remains the smallest required skills-only shape, without unused MCP/apps/hooks surfaces;
-- policy schema `4` validates and exactly five managed native custom-Agent profiles match it;
-- the machine policy contains no ordinary numeric child ceiling;
-- the installed Skill exposes only the three current runtime references;
-- implicit invocation is disabled;
-- installer fresh/update/add-Solver/idempotent/non-mutating/safety tests pass;
-- capability-dedup fixtures prove model + reasoning-effort behavior without treating local-only data as native observation;
+- release-relevant skips, xfails, and warnings are reviewed;
+- canonical `/codex-delegate` and `/skills` behavior remains the documented project entry surface;
+- no stale dollar-style codex-delegate invocation remains;
+- public Plugin metadata still includes website, privacy policy, terms, category, brand assets, and valid starter prompts;
+- the Plugin remains the smallest useful skills-only shape;
+- policy-contract.json schema 4 defines exactly five managed profiles and no ordinary numeric child ceiling;
+- `router-core.md / guardrails.md / final-review.md` remain the only model-facing runtime references;
+- implicit invocation remains disabled;
+- installer fresh/update/idempotent/non-mutating/safety tests pass;
+- runtime evidence and Sol capability dedup preserve unknown when native truth is missing;
 - both required Plugin validator runs pass;
 - the tested SHA remains unchanged after validation.
 
-If any deterministic check fails, stop release validation, fix only evidence-backed defects, rerun focused checks, then rerun the full deterministic gate on the new exact SHA.
+If any deterministic check fails, stop release validation, fix the evidence-backed defect, rerun focused checks, then rerun the full deterministic gate on the new exact SHA.
 
-Deterministic execution does not prove real model quality, native capacity, adaptive team-size quality, cross-session safety, onboarding quality, Sol Solver value, Terra investigation value, or Final Review yield.
+Static checks do not prove model quality, native concurrent capacity, adaptive team-size quality, cross-session safety, onboarding quality, Sol Solver value, Terra investigation value, or Final Review yield.
 
 ## Product stop line
 
-Do not change these principles merely to make one workload pass:
+Do not reintroduce a fixed child count, role ladder, mandatory final Sol pass, or orchestration ceremony merely to make one workload easier to describe.
 
-- main session always owns user intent, authorization, team composition, integration, acceptance, and final response;
-- zero children is a valid and common result;
-- delegation requires concrete value;
-- project policy does not target or cap an ordinary fixed child count;
-- Main manages a ready frontier and expands progressively only for distinct, ready, non-duplicative responsibilities worth delegating;
-- native Agent capacity is an upper bound, never a target to fill;
-- child count alone is not a consent trigger; material compute expansion is;
-- Luna Worker receives clear repeatable writing work only when material behavior decisions are already made;
-- demanding/material read-only judgment belongs to capable main or Sol Advisor;
-- demanding/material judgment-coupled writing belongs to capable main or Sol Solver;
-- Terra is a bounded read-heavy investigation/evidence-synthesis lane after semantics are stable and material judgment is absent;
-- Terra is not an escalation rung;
-- difficult, ambiguous, multi-step technical judgment belongs to capable main/Sol, not automatically Terra;
-- main-session Sol capability is a dedup optimization, not authority or task taxonomy;
-- failure does not create a model ladder;
-- blocked work is diagnosed as `contract | judgment | investigation | stalled`;
-- a stall permits at most one clean same-role retry when the role remains correct and the packet materially improves;
-- main session, Worker, and Solver share one writer domain per canonical checkout;
-- delegation depth remains one;
-- exact route mismatch fails closed;
-- runtime evidence is on demand and missing telemetry remains missing;
-- first-use native custom-Agent provisioning completes before delegated code execution begins;
-- prior Terra/Solver/recovery/diff size does not itself require Final Review;
-- required Final Review needs a fresh Advisor and an unchanged bound artifact;
-- ordinary successful tasks do not need a separate orchestration receipt;
-- static tests, validators, consultation, and configured intent never substitute for required live evidence.
+Blocked work stays compact:
+
+```text
+contract | judgment | investigation | stalled
+```
+
+A stall permits at most one clean same-role retry when the role remains correct and the packet materially improves. Ordinary successful tasks do not need a separate orchestration receipt.
 
 Do not add Checkpoint 7.
 
 ## Checkpoint 1: Plugin discovery, command invocation, and exact five-role readiness
 
-Validate fresh Plugin discovery, `/codex-delegate` invocation, and the first-use readiness boundary.
+Validate a fresh user path:
 
-Exact project roles:
-
-```text
-codex_delegate_reader
-codex_delegate_worker
-codex_delegate_solver
-codex_delegate_investigator
-codex_delegate_advisor
-```
-
-Required behaviors:
-
-- the Plugin is discoverable from the Codex Plugin Marketplace;
+- Plugin is discoverable from the Codex Plugin Marketplace;
 - a new thread exposes `/codex-delegate` and `/skills` can discover/select the Skill;
-- no dollar-style Skill mention is required for the project user command;
-- an ordinary task does not implicitly invoke codex delegate;
-- first explicit invocation that needs delegation detects missing roles before delegated implementation starts;
-- provisioning asks permission and installs only the five native custom-Agent TOML profiles + ownership receipt;
-- if the current thread cannot see newly provisioned roles, execution stops before child writing and asks for a fresh thread;
-- after restart, exact role/profile tuples come from `policy-contract.json`;
+- ordinary tasks do not implicitly invoke codex delegate;
+- first delegated use detects missing project roles before delegated implementation starts;
+- provisioning requests permission and writes only the five managed native custom-Agent profiles plus `.codex-delegate-agents.json`;
+- if a fresh thread is required to see new roles, stop before child writing;
+- exact role/profile tuples come from policy-contract.json schema 4;
 - missing or mismatched exact roles do not cross-route.
 
 ### Review Checkpoint A
 
-Send only sanitized new evidence and unresolved consequential judgment to the required consultation target below.
+Send only sanitized new evidence and unresolved consequential judgment to the consultation target below.
 
 ## Checkpoint 2: everyday routing quality and Sol dedup
 
-Exercise representative daily-development tasks:
+Exercise representative tasks:
 
 ```text
 T1 trivial isolated fix
 -> main only
 
 T2 narrow independent factual trace
--> Luna Reader when context isolation helps
+-> Luna Reader when delegation helps
 
-T3 fully specified clear repeatable implementation
+T3 fully specified implementation
 -> Luna Worker when delegation helps
 
-T4 demanding/material design or technical decision before implementation
+T4 demanding/material design judgment
 -> capable main or Sol Advisor
 
-T5 implementation requires continuing compatibility/state judgment
+T5 implementation with continuing material judgment
 -> capable main or Sol Solver
 
-T6 semantics stable + broader read-only technical investigation/evidence synthesis, no material judgment
+T6 stable semantics + broader read-only investigation
 -> Terra Investigator
 
-T7 large/many-file task with no delegation benefit
+T7 large task with no delegation benefit
 -> main only
 
 T8 ambiguous task truth
--> no child writer until main repairs the contract
+-> main repairs the contract before child writing
 ```
 
-For T4/T5 compare trusted Sol-main `high` or stronger with non-Sol/insufficient-effort main. Verify capability dedup avoids redundant Sol only when trusted model + effort meet the policy reference.
-
-Verify unknown main-route telemetry does not add cost to routine bounded work.
+Verify trusted Sol-main capability can suppress redundant Sol delegation when appropriate. Unknown Main route telemetry must stay unknown and must not add routine cost.
 
 ### Review Checkpoint B
 
-Review any repeated unnecessary Agent call, Luna semantic overreach, Terra used as an escalation rung, missed Sol judgment placement, or unjustified fan-out before changing policy.
+Review repeated unnecessary Agent calls, Luna semantic overreach, Terra used as an escalation rung, missed Sol judgment placement, and unjustified fan-out before changing policy.
 
 ## Checkpoint 3: blockers, recovery, writer ownership, and adaptive scheduling
 
-Validate the compact blocker model:
-
-```text
-contract
--> main repairs task truth
-
-judgment
--> capable main / Advisor / Solver
-
-investigation
--> Investigator only after semantics are stable, work remains read-only, and material judgment is absent
-
-stalled
--> at most one materially improved clean same-role retry
-```
-
-Prove:
+Validate:
 
 - weak Luna quality alone does not trigger Terra;
-- a child requesting Terra does not force Terra;
-- demanding/ambiguous technical judgment routes to Sol rather than Terra;
-- repeated same failure without new evidence does not create unbounded retry loops;
-- valid evidence is reused and repeated discovery is suppressed;
+- demanding or ambiguous technical judgment routes to Sol;
 - duplicate responsibility ownership is suppressed;
-- speculative work that depends on unresolved semantics is not spawned early;
-- three or more distinct ready read-only responsibilities may run together when native capacity and value justify it;
+- speculative work behind unresolved semantics is not spawned early;
+- three or more distinct ready read-only responsibilities may run together when useful;
 - spare native capacity alone does not create another child;
-- Main + Worker, Main + Solver, and Worker + Solver do not concurrently write one canonical checkout inside one orchestration;
+- Main + Worker, Main + Solver, and Worker + Solver do not write one canonical checkout concurrently;
 - isolated worktrees/workspaces may own separate writers;
-- independent read-only work can refill native capacity as completions become available.
+- exposed child completions can refill useful work without forcing artificial waves.
 
 Use the A/B/C case:
 
@@ -220,34 +199,32 @@ B = fast independent read-only work
 C = depends only on B
 ```
 
-Record the actual runtime wait/update surface without inventing event-driven behavior.
+Record the real runtime wait/update surface. Do not invent event-driven behavior the host does not expose.
 
-Also use a fan-out case with at least three distinct read-only lanes and compare it with a negative control where proposed extra lanes are duplicate or speculative.
+Also run a positive fan-out case with at least three independent read-only lanes and a negative control containing duplicate or speculative lanes.
 
 ### Review Checkpoint C
 
-Distinguish product defects from native-runtime observability/capacity boundaries.
+Separate product defects from native-runtime capacity or observability boundaries.
 
 ## Checkpoint 4: controlled product-value experiments and Final Review
 
-`evals/` remains a measurement surface. Its schema/workload labels are not runtime ontology.
+`evals/` remains a measurement surface, not runtime policy.
 
-Use frozen paired workloads to test the real product questions:
+Run paired workloads covering:
 
 - bounded Luna packet vs raw Luna prompt;
-- Advisor + Luna handoff vs one Sol Solver for judgment-coupled work;
-- Sol-main direct execution vs redundant Sol Solver when capability is already covered;
-- unknown-main routine work with and without unnecessary Sol;
-- continuing Luna vs correct Sol reroute when material judgment emerges;
-- Luna Reader vs Terra Investigator on stable-semantics read-heavy investigation;
-- adaptive multi-reader fan-out vs unnecessary serial waves on independent read-only work;
-- adaptive fan-out negative control where duplicate/speculative children should not be spawned;
-- Terra negative control where demanding/ambiguous technical judgment must go to Sol;
-- no decorative Final Review vs unnecessary review after process-history-only signals.
+- Advisor + Luna handoff vs one Sol Solver;
+- Sol-main direct execution vs redundant Sol Solver;
+- Luna Reader vs Terra Investigator on stable-semantics investigation;
+- adaptive multi-reader fan-out vs unnecessary serial waves;
+- duplicate/speculative fan-out negative control;
+- demanding/ambiguous technical judgment must go to Sol;
+- useful Final Review vs decorative process-history-only review.
 
-Measure acceptance, wrong edits, material judgment violations, correction turns, repeated work, duplicate ownership, unnecessary children, redundant Sol calls, tokens/latency when exposed, and review findings.
+Measure acceptance, wrong edits, correction turns, repeated work, duplicate ownership, unnecessary children, redundant expensive calls, latency/tokens when exposed, and review findings.
 
-Mandatory Final Review lifecycle must prove:
+Required Final Review lifecycle:
 
 ```text
 semantic trigger
@@ -257,30 +234,24 @@ semantic trigger
 -> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
 ```
 
-A Sol main must still use a fresh independent Advisor when review is required. Mutation after review invalidates the old verdict.
+A Sol main still needs a fresh Advisor when independence is required. Mutation after review invalidates the old verdict.
 
 ### Review Checkpoint D
 
-Do not convert one workload result into a permanent model-quality claim. Change role placement only from replicated evidence across representative tasks.
+Do not turn one workload result into a permanent model-quality claim.
 
 ## Checkpoint 5: consent, onboarding friction, and multi-session safety
 
-Validate ordinary explicit-invocation consent:
+Validate that adaptive delegation feels natural to a user who simply writes `/codex-delegate <task>` and does not specify team size.
 
-```text
-adaptive useful child set, no fixed numeric project ceiling
-1 writer per canonical checkout inside the orchestration
-no silent permission/scope/external/material-compute expansion
-```
+Confirm:
 
-Validate user experience:
-
-- routine successful tasks do not produce a separate orchestration receipt;
-- the user is not asked merely because the active child count crosses an arbitrary number;
-- user is prompted when compute, permissions, scope, or external impact materially expands;
-- initial role setup occurs before delegated implementation;
+- no prompt merely because active child count crosses an arbitrary number;
+- material permission, scope, external-impact, or compute expansion asks for consent;
+- several justified low-cost read-only lanes can stay inside ordinary execution;
 - repeated Solver/Advisor/Investigator/re-review loops eventually require renewed consent when compute materially expands;
-- several distinct low-cost read-only lanes can remain inside ordinary task execution when clearly justified.
+- initial role setup completes before delegated implementation;
+- routine success does not add extra routing ceremony.
 
 Multi-session matrix:
 
@@ -305,18 +276,18 @@ For the selected fixed RC:
 
 1. record one immutable candidate SHA/ref;
 2. run maintained CI and both required Plugin validators;
-3. verify public website/privacy/terms/support path and Plugin listing metadata remain valid;
-4. perform a real fresh Plugin installation from that fixed candidate, not from a subsequently moving `main`;
-5. start a new thread and confirm `/codex-delegate` command discovery through the Plugin plus `/skills`, and confirm the candidate version;
-6. prove implicit invocation is disabled;
-7. prove first-use five-profile native custom-Agent provisioning/readiness behavior;
-8. verify repeat install is idempotent and `--check` is strictly non-mutating;
-9. verify managed-profile update/addition only when exact ownership is proven;
-10. verify modified/unowned current filenames fail closed and unrelated profiles remain untouched;
-11. test same-Codex-home installer races I1-I3;
-12. rerun all release-relevant live checkpoints on the immutable candidate with no open reproducible P0/P1.
+3. verify public website/privacy/terms/support path and Plugin listing metadata;
+4. perform a real fresh Plugin installation from that fixed candidate;
+5. confirm `/codex-delegate`, `/skills`, candidate version, and disabled implicit invocation in a fresh thread;
+6. prove first-use five-profile provisioning and readiness behavior;
+7. verify repeat install is idempotent and `--check` is non-mutating;
+8. verify managed-profile updates occur only with exact ownership proof;
+9. verify modified/unowned reserved profiles fail closed and unrelated profiles remain untouched;
+10. test same-CODEX_HOME installer races I1-I3;
+11. rerun release-relevant live checkpoints on the immutable candidate;
+12. close only with no open reproducible P0/P1.
 
-Same-Codex-home races:
+Same-CODEX_HOME races:
 
 ```text
 I1 two installers target the same clean CODEX_HOME
@@ -324,24 +295,24 @@ I2 one installer fails after mutation begins while a peer succeeds
 I3 two current-profile update/addition attempts compete in one CODEX_HOME
 ```
 
-Add inter-process serialization/CAS only if a reproducible invariant failure establishes the need.
+Add inter-process serialization or CAS only if a reproducible invariant failure establishes the need.
 
 ## Definition of Done for v1.0.0
 
 Release only when one immutable RC passes:
 
-- complete official Plugin/Skill compliance + deterministic preflight;
+- complete Plugin/Skill compliance and deterministic preflight;
 - maintained CI and then-current official Plugin validation;
 - fresh marketplace install/update/five-profile lifecycle;
 - `/codex-delegate` invocation and onboarding behavior;
-- representative daily routing and capability-dedup cases;
-- adaptive fan-out, blocker/retry/Terra-investigation/writer safety cases;
+- representative daily routing and Sol capability-dedup cases;
+- adaptive fan-out, blocker/retry/Terra investigation, and writer-safety cases;
 - controlled product-value experiments;
 - required Final Review lifecycle;
 - multi-session and installer-concurrency validation;
 - no open reproducible P0/P1.
 
-Quality/cost claims must remain scoped to evidence actually recorded.
+Quality, speed, or cost claims must stay within evidence actually recorded.
 
 Then tag `v1.0.0`, publish the GitHub Release, and make the immutable release ref the recommended stable user-install channel. `main` can remain the development channel after release.
 
@@ -356,4 +327,4 @@ MATCH_POLICY: exact_title_unique_match
 FAILURE: CONSULTATION_TARGET_UNRESOLVED
 ```
 
-Do not fuzzy match, guess by recency, create a replacement conversation, or silently fall back to an isolated consultation. Consultation output is model judgment and never counts as runtime/install/product evidence.
+Do not fuzzy match, guess by recency, create a replacement conversation, or silently fall back to an isolated consultation. Consultation output is model judgment and never counts as runtime, install, or product evidence.
