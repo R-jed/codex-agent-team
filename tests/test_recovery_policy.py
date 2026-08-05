@@ -64,21 +64,29 @@ def test_progress_observability_remains_runtime_fact_not_recovery_ceremony():
     assert "does not simulate event-driven behavior with model-mediated busy polling" in runtime
 
 
-def test_behavioral_schema_can_keep_legacy_recovery_measurements_without_owning_runtime_policy():
+def test_behavioral_schema_keeps_only_measurement_needed_for_recovery_comparisons():
     schema = json.loads((ROOT / "evals" / "behavioral-result.schema.json").read_text())
     jsonschema.Draft202012Validator.check_schema(schema)
     props = schema["properties"]["runs"]["items"]["properties"]
     for field in [
+        "reclassification_events",
+        "execution_stall_events",
+        "clean_same_lane_restarts",
+        "same_failure_without_new_evidence",
+        "duplicate_dependency_calls",
+    ]:
+        assert field in props
+
+    for retired_runtime_state in [
         "recovery_ledger_entries",
         "attempt_cycle_detected",
         "proposed_recovery_action",
         "effective_recovery_action",
         "recovery_decision_source",
-        "child_progress_observability",
     ]:
-        assert field in props
+        assert retired_runtime_state not in props
 
     docs = (ROOT / "docs" / "behavioral-evals.md").read_text().lower()
     assert "measurement surface" in docs
-    assert "historical measurement labels" in docs
+    assert "historical" in docs and "experiment labels" in docs
     assert "do not make the skill maintain an ontology" in docs
