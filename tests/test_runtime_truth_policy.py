@@ -45,7 +45,8 @@ def test_exact_project_roles_have_no_cross_role_fallback():
 def test_consent_writer_and_explicit_invocation_are_one_guardrail_surface():
     guardrails = (SKILL / "references" / "guardrails.md").read_text()
     for phrase in [
-        "up to 2 concurrently active justified children",
+        "Project policy does not impose an ordinary numeric child ceiling",
+        "Child count by itself is not a consent trigger",
         "One writer per canonical checkout",
         "main session when mutating the checkout",
         "Explicit invocation only",
