@@ -72,7 +72,7 @@ def run_score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[s
                 "suite": "codex-delegate-live-behavior",
                 "runtime": {
                     "codex_version": "fixture",
-                    "date": "2026-08-04",
+                    "date": "2026-08-05",
                     "observed_child_capacity": 3,
                 },
                 "runs": runs,
@@ -88,7 +88,7 @@ def run_score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[s
     )
 
 
-def test_behavioral_workloads_cover_routing_v4_product_questions():
+def test_behavioral_workloads_cover_current_product_questions():
     payload = json.loads(WORKLOADS.read_text())
     assert payload["schema_version"] == "4.0"
     assert payload["suite"] == "codex-delegate-live-behavior"
@@ -112,12 +112,12 @@ def test_behavioral_workloads_cover_routing_v4_product_questions():
     assert "no claimed benchmark results" in payload["note"]
 
 
-def test_behavioral_result_schema_requires_v4_controls():
+def test_behavioral_result_schema_keeps_historical_measurement_controls():
     schema = json.loads(SCHEMA.read_text())
     payload = {
         "schema_version": "4.0",
         "suite": "codex-delegate-live-behavior",
-        "runtime": {"codex_version": "fixture", "date": "2026-08-04"},
+        "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
         "runs": [base_run("raw_prompt_luna"), base_run("bounded_luna")],
     }
     jsonschema.Draft202012Validator(schema).validate(payload)
@@ -149,7 +149,7 @@ def test_behavioral_schema_accepts_solver_and_routing_metrics():
     payload = {
         "schema_version": "4.0",
         "suite": "codex-delegate-live-behavior",
-        "runtime": {"codex_version": "fixture", "date": "2026-08-04"},
+        "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
         "runs": [run],
     }
     assert not list(jsonschema.Draft202012Validator(schema).iter_errors(payload))
@@ -178,11 +178,10 @@ def test_scorer_reports_paired_delta_and_strategy_routes(tmp_path: Path):
     )
 
     result = run_score(tmp_path, [raw, bounded])
-
     assert result.returncode == 0, result.stderr
     summary = json.loads(result.stdout)
-    assert summary["pair_count"] == 1
     pair = summary["pairs"]["bounded-1"]
+    assert summary["pair_count"] == 1
     assert pair["modes"] == ["bounded_luna", "raw_prompt_luna"]
     assert pair["comparison"]["baseline_mode"] == "raw_prompt_luna"
     assert pair["comparison"]["candidate_mode"] == "bounded_luna"
@@ -225,8 +224,7 @@ def test_scorer_allows_execution_route_to_be_the_experimental_variable(tmp_path:
 
     result = run_score(tmp_path, [advisor_luna, solver])
     assert result.returncode == 0, result.stderr
-    summary = json.loads(result.stdout)
-    pair = summary["pairs"]["judgment-1"]
+    pair = json.loads(result.stdout)["pairs"]["judgment-1"]
     assert pair["comparison"]["baseline_execution_route"] != pair["comparison"]["candidate_execution_route"]
 
 
@@ -247,10 +245,7 @@ def test_scorer_rejects_unpaired_run(tmp_path: Path):
 
 
 def test_scorer_rejects_wrong_modes_for_declared_primary_comparison(tmp_path: Path):
-    result = run_score(
-        tmp_path,
-        [base_run("raw_prompt_luna"), base_run("adaptive_routing_v4")],
-    )
+    result = run_score(tmp_path, [base_run("raw_prompt_luna"), base_run("adaptive_routing_v4")])
     assert result.returncode != 0
     assert "must contain declared primary comparison modes" in result.stderr
 
@@ -272,14 +267,16 @@ def test_scorer_rejects_mixed_pair_control_fields(tmp_path: Path):
         assert f"controlled field '{field}'" in result.stderr
 
 
-def test_behavioral_docs_define_v4_control_and_negative_review_experiments():
+def test_behavioral_docs_state_measurement_labels_are_not_runtime_ontology():
     docs = (ROOT / "docs" / "behavioral-evals.md").read_text()
     for phrase in [
+        "paired workloads",
         "advisor_then_luna",
         "sol_solver",
         "main_judgment_coverage",
         "execution_route",
-        "Process-history negative control",
-        "Unknown coverage does not mean",
+        "measurement surface",
+        "not runtime ontology",
+        "historical measurement labels",
     ]:
         assert phrase.lower() in docs.lower()
