@@ -20,7 +20,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
-> **If you are an AI Agent, jump to README_AI.md and follow the instructions strictly.**
+> **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
 codex delegate is a Codex plugin for handing off parts of a development task when that will genuinely help. The main session first decides whether it can do the job well on its own. It only brings in another Agent when there is a clear reason.
 
@@ -33,7 +33,7 @@ Open the **Codex Plugin Marketplace**, search for `codex-delegate`, choose **Cod
 Start a new Codex thread, then use:
 
 ```text
-$codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
+/codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
 ```
 
 You can also type `/skills` to open the Skill picker.
@@ -78,7 +78,7 @@ If the current main session already has enough Sol capability, codex delegate wi
 
 ## Parallel work and safe writing
 
-A single `$codex-delegate` task can run up to two useful child Agents at the same time. Many tasks use one or none.
+A single `/codex-delegate` task can run up to two useful child Agents at the same time. Many tasks use one or none.
 
 Read-only work can run in parallel. Writing is more conservative: only one actor writes to the same physical Git checkout at a time. That writer may be the main session, Luna Worker, or Sol Solver.
 
