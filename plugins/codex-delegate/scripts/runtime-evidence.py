@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Normalize optional runtime route evidence for codex delegate.
+"""Normalize optional codex delegate runtime evidence.
 
-This helper is diagnostic. Ordinary task routing must not depend on telemetry that the
-runtime did not expose. Main-session evidence is used only to suppress a redundant Sol
-capability-uplift call when the current main route is already at least as capable as the
-policy reference. Child evidence verifies exact route, ancestry, and permission claims
-when those facts are material.
+This helper is diagnostic. Ordinary routing must not depend on telemetry that the
+runtime did not expose. Main-session evidence only suppresses a redundant Sol uplift
+when the observed main route meets the policy reference. Child evidence verifies exact
+route, ancestry, and permission claims only when those facts are material.
 """
 
 from __future__ import annotations
@@ -33,29 +32,27 @@ def fail(message: str) -> NoReturn:
 def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...]]:
     try:
         payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
-        classification = payload["classification"]
-        role = classification["main_coverage_reference_role"]
-        order = classification["reasoning_effort_order"]
+        dedup = payload["capability_dedup"]
+        role = dedup["reference_role"]
+        order = dedup["reasoning_effort_order"]
         reference = payload["roles"][role]
         model = reference["model"]
         effort = reference["effort"]
     except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
-        fail(f"invalid policy contract for main coverage: {exc}")
-    if payload.get("schema_version") != 2:
-        fail("main coverage requires policy contract schema 2")
-    if not isinstance(role, str) or not isinstance(model, str) or not model.strip():
-        fail("main coverage reference role/model is invalid")
-    if not isinstance(effort, str) or not effort.strip():
-        fail("main coverage reference effort is invalid")
+        fail(f"invalid policy contract for capability dedup: {exc}")
+    if payload.get("schema_version") != 3:
+        fail("capability dedup requires policy contract schema 3")
+    if not isinstance(model, str) or not model.strip() or not isinstance(effort, str) or not effort.strip():
+        fail("capability dedup reference route is invalid")
     if not isinstance(order, list) or not order or not all(isinstance(x, str) and x for x in order):
         fail("reasoning_effort_order must be a non-empty string list")
-    normalized_order = tuple(x.strip().lower() for x in order)
-    if effort.strip().lower() not in normalized_order or len(set(normalized_order)) != len(normalized_order):
+    normalized = tuple(x.strip().lower() for x in order)
+    if effort.strip().lower() not in normalized or len(set(normalized)) != len(normalized):
         fail("reasoning_effort_order does not contain a unique reference effort")
-    return model.strip().lower(), effort.strip().lower(), normalized_order
+    return model.strip().lower(), effort.strip().lower(), normalized
 
 
-JUDGMENT_REFERENCE_MODEL, JUDGMENT_REFERENCE_EFFORT, REASONING_EFFORT_ORDER = load_main_coverage_policy()
+REFERENCE_MODEL, REFERENCE_EFFORT, EFFORT_ORDER = load_main_coverage_policy()
 
 
 def parse_args() -> argparse.Namespace:
@@ -75,7 +72,7 @@ def load_payload(path: Path | None) -> dict[str, Any]:
     return value
 
 
-def object_or_none(value: Any, field: str) -> dict[str, Any] | None:
+def obj(value: Any, field: str) -> dict[str, Any] | None:
     if value is None:
         return None
     if not isinstance(value, dict):
@@ -104,13 +101,11 @@ def normalize(value: dict[str, Any] | None) -> dict[str, str | None] | None:
     return {key: text(value.get(key)) for key in allowed}
 
 
-def observed(observation: dict[str, str | None] | None, fields: tuple[str, ...]) -> list[str]:
-    if observation is None:
-        return []
-    return [field for field in fields if observation.get(field) is not None]
+def seen(obs: dict[str, str | None] | None, fields: tuple[str, ...]) -> list[str]:
+    return [] if obs is None else [field for field in fields if obs.get(field) is not None]
 
 
-def source(native: bool, local: bool) -> str:
+def evidence_source(native: bool, local: bool) -> str:
     if native and local:
         return "both"
     if native:
@@ -120,58 +115,46 @@ def source(native: bool, local: bool) -> str:
     return "none"
 
 
-def grade(native_complete: bool, local_complete: bool, conflict: bool) -> str:
+def grade(native: bool, local: bool, conflict: bool) -> str:
     if conflict:
         return "X0_conflicted"
-    if native_complete and local_complete:
+    if native and local:
         return "R2_runtime_reported_and_local_record_agree"
-    if native_complete:
+    if native:
         return "R1_runtime_reported"
-    if local_complete:
+    if local:
         return "L1_local_record_observed"
     return "C1_configuration_only"
 
 
-def source_conflicts(
-    native: dict[str, str | None] | None,
-    local: dict[str, str | None] | None,
-    fields: tuple[str, ...],
-) -> list[str]:
+def source_conflicts(native: dict[str, str | None] | None, local: dict[str, str | None] | None, fields: tuple[str, ...]) -> list[str]:
     if native is None or local is None:
         return []
     return [
         f"source_conflict:{field}"
         for field in fields
-        if native.get(field) is not None
-        and local.get(field) is not None
-        and native[field] != local[field]
+        if native.get(field) is not None and local.get(field) is not None and native[field] != local[field]
     ]
 
 
-def model_matches_reference(model: str) -> bool:
-    model = model.lower()
-    return model == JUDGMENT_REFERENCE_MODEL or model.startswith(JUDGMENT_REFERENCE_MODEL + "-")
+def model_matches(model: str) -> bool:
+    normalized = model.lower()
+    return normalized == REFERENCE_MODEL or normalized.startswith(REFERENCE_MODEL + "-")
 
 
 def effort_coverage(effort: str) -> str:
     normalized = effort.lower()
-    if normalized not in REASONING_EFFORT_ORDER:
+    if normalized not in EFFORT_ORDER:
         return "unknown"
-    return (
-        "covered"
-        if REASONING_EFFORT_ORDER.index(normalized)
-        >= REASONING_EFFORT_ORDER.index(JUDGMENT_REFERENCE_EFFORT)
-        else "uncovered"
-    )
+    return "covered" if EFFORT_ORDER.index(normalized) >= EFFORT_ORDER.index(REFERENCE_EFFORT) else "uncovered"
 
 
 def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
-    native = normalize(object_or_none(payload.get("native"), "native"))
-    local = normalize(object_or_none(payload.get("local"), "local"))
+    native = normalize(obj(payload.get("native"), "native"))
+    local = normalize(obj(payload.get("local"), "local"))
     violations = source_conflicts(native, local, MAIN_ROUTE_FIELDS)
-    native_seen = observed(native, MAIN_ROUTE_FIELDS)
-    local_seen = observed(local, MAIN_ROUTE_FIELDS)
-    seen = sorted(set(native_seen + local_seen))
+    native_fields, local_fields = seen(native, MAIN_ROUTE_FIELDS), seen(local, MAIN_ROUTE_FIELDS)
+    observed_fields = sorted(set(native_fields + local_fields))
     native_complete = native is not None and all(native.get(field) for field in MAIN_ROUTE_FIELDS)
     local_complete = local is not None and all(local.get(field) for field in MAIN_ROUTE_FIELDS)
     conflict = bool(violations)
@@ -180,7 +163,7 @@ def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
         status = "conflict"
     elif native_complete or local_complete:
         status = "observed"
-    elif seen:
+    elif observed_fields:
         status = "partial"
     else:
         status = "not_observed"
@@ -189,10 +172,7 @@ def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
     if native_complete and not conflict and native is not None:
         model = str(native.get("model") or "")
         effort = str(native.get("effort") or "")
-        if not model_matches_reference(model):
-            coverage = "uncovered"
-        else:
-            coverage = effort_coverage(effort)
+        coverage = "uncovered" if not model_matches(model) else effort_coverage(effort)
 
     trusted = native_complete and not conflict
     return {
@@ -202,15 +182,15 @@ def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
         "evidence_grade": grade(native_complete, local_complete, conflict),
         "route_evidence": {
             "status": status,
-            "source": source(native_complete, local_complete),
-            "observed_fields": seen,
-            "native_observed_fields": native_seen,
-            "local_observed_fields": local_seen,
+            "source": evidence_source(native_complete, local_complete),
+            "observed_fields": observed_fields,
+            "native_observed_fields": native_fields,
+            "local_observed_fields": local_fields,
         },
         "main_judgment_coverage": coverage,
         "coverage_source": "trusted_session_metadata" if trusted else "not_observed",
-        "coverage_reference_model": JUDGMENT_REFERENCE_MODEL,
-        "coverage_reference_effort": JUDGMENT_REFERENCE_EFFORT,
+        "coverage_reference_model": REFERENCE_MODEL,
+        "coverage_reference_effort": REFERENCE_EFFORT,
         "observed_main_model": native.get("model") if trusted and native is not None else None,
         "observed_main_effort": native.get("effort") if trusted and native is not None else None,
         "violations": sorted(set(violations)),
@@ -226,30 +206,30 @@ def validate_expected(expected: dict[str, Any]) -> None:
             fail(f"expected.{flag} must be boolean when present")
 
 
-def compare_expected(expected: dict[str, Any], obs: dict[str, str | None], label: str) -> list[str]:
-    out: list[str] = []
+def compare_expected(expected: dict[str, Any], observation: dict[str, str | None], label: str) -> list[str]:
+    violations: list[str] = []
     for field in (*IDENTITY_FIELDS, *CHILD_ROUTE_FIELDS):
-        wanted, got = text(expected.get(field)), obs.get(field)
+        wanted, got = text(expected.get(field)), observation.get(field)
         if wanted is not None and got is not None and wanted != got:
-            out.append(f"{label}:{field}_mismatch")
-    return out
+            violations.append(f"{label}:{field}_mismatch")
+    return violations
 
 
-def route_complete(obs: dict[str, str | None] | None, label: str, violations: list[str]) -> bool:
-    if obs is None:
+def route_complete(observation: dict[str, str | None] | None, label: str, violations: list[str]) -> bool:
+    if observation is None:
         return False
-    return all(obs.get(field) is not None for field in CHILD_ROUTE_FIELDS) and not any(
+    return all(observation.get(field) is not None for field in CHILD_ROUTE_FIELDS) and not any(
         f"{label}:{field}_mismatch" in violations for field in CHILD_ROUTE_FIELDS
     )
 
 
 def child_result(payload: dict[str, Any]) -> dict[str, Any]:
-    expected = object_or_none(payload.get("expected"), "expected")
+    expected = obj(payload.get("expected"), "expected")
     if expected is None:
         fail("expected is required for child evidence")
     validate_expected(expected)
-    native = normalize(object_or_none(payload.get("native"), "native"))
-    local = normalize(object_or_none(payload.get("local"), "local"))
+    native = normalize(obj(payload.get("native"), "native"))
+    local = normalize(obj(payload.get("local"), "local"))
 
     violations: list[str] = []
     if native is not None:
@@ -260,41 +240,37 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
 
     native_complete = route_complete(native, "native", violations)
     local_complete = route_complete(local, "local", violations)
-    native_seen = observed(native, CHILD_ROUTE_FIELDS)
-    local_seen = observed(local, CHILD_ROUTE_FIELDS)
+    native_fields, local_fields = seen(native, CHILD_ROUTE_FIELDS), seen(local, CHILD_ROUTE_FIELDS)
     route_conflict = any(item.startswith("source_conflict:") for item in violations) or any(
-        f"{label}:{field}_mismatch" in violations
-        for label in ("native", "local")
-        for field in CHILD_ROUTE_FIELDS
+        f"{label}:{field}_mismatch" in violations for label in ("native", "local") for field in CHILD_ROUTE_FIELDS
     )
-    if route_conflict:
-        route_status = "conflict"
-    elif native_complete or local_complete:
-        route_status = "matched"
-    elif native_seen or local_seen:
-        route_status = "partial"
-    else:
-        route_status = "not_observed"
+    route_status = (
+        "conflict"
+        if route_conflict
+        else "matched"
+        if native_complete or local_complete
+        else "partial"
+        if native_fields or local_fields
+        else "not_observed"
+    )
     route = {
         "status": route_status,
-        "source": source(native_complete, local_complete),
-        "observed_fields": sorted(set(native_seen + local_seen)),
-        "native_observed_fields": native_seen,
-        "local_observed_fields": local_seen,
+        "source": evidence_source(native_complete, local_complete),
+        "observed_fields": sorted(set(native_fields + local_fields)),
+        "native_observed_fields": native_fields,
+        "local_observed_fields": local_fields,
     }
 
     wanted_parent = text(expected.get("parent_thread_id"))
-    parent_conflict = "source_conflict:parent_thread_id" in violations or any(
-        "parent_thread_id_mismatch" in item for item in violations
-    )
+    parent_conflict = "source_conflict:parent_thread_id" in violations or any("parent_thread_id_mismatch" in item for item in violations)
     if parent_conflict:
-        ancestry = {"status": "conflict", "source": source(bool(native), bool(local))}
+        ancestry = {"status": "conflict", "source": evidence_source(bool(native), bool(local))}
     elif wanted_parent is None:
         ancestry = {"status": "not_required", "source": "none"}
     elif not ((native and native.get("parent_thread_id")) or (local and local.get("parent_thread_id"))):
         ancestry = {"status": "not_observed", "source": "none"}
     else:
-        ancestry = {"status": "matched", "source": source(bool(native), bool(local))}
+        ancestry = {"status": "matched", "source": evidence_source(bool(native), bool(local))}
 
     if not expected.get("requires_enforced_read_only", False):
         permission = {"status": "not_required", "source": "none"}
@@ -309,17 +285,8 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
         permission = {"status": "broader_than_required", "source": "native"}
         violations.append("permission:read_only_not_enforced")
 
-    identity_conflict = any(
-        item.endswith("thread_id_mismatch") or item.startswith("source_conflict:thread_id")
-        for item in violations
-    )
-    conflict = (
-        route["status"] == "conflict"
-        or ancestry["status"] == "conflict"
-        or permission["status"] in {"broader_than_required", "conflict"}
-        or identity_conflict
-    )
-
+    identity_conflict = any(item.endswith("thread_id_mismatch") or item.startswith("source_conflict:thread_id") for item in violations)
+    conflict = route["status"] == "conflict" or ancestry["status"] == "conflict" or permission["status"] in {"broader_than_required", "conflict"} or identity_conflict
     runtime_required = expected.get("runtime_observation_required", False)
     if conflict:
         status, decision = "mismatch", "quarantine"
