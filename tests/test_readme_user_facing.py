@@ -12,7 +12,7 @@ def test_readmes_present_same_current_product_and_ai_jump():
         for phrase in [
             "codex delegate",
             "0.9.0",
-            "/codex-delegate",
+            "$codex-delegate",
             "Luna Reader",
             "Luna Worker",
             "Sol Solver",
@@ -25,11 +25,13 @@ def test_readmes_present_same_current_product_and_ai_jump():
     assert "## Final Review" in EN
 
 
-def test_public_readmes_use_marketplace_first_installation():
+def test_public_readmes_use_marketplace_first_installation_and_official_skill_invocation():
     assert "Codex 中打开**插件市场**" in ZH
     assert "搜索 `codex-delegate`" in ZH
     assert "Open the **Codex Plugin Marketplace**" in EN
     assert "search for `codex-delegate`" in EN
+    assert "$codex-delegate" in ZH and "/skills" in ZH
+    assert "$codex-delegate" in EN and "/skills" in EN
     for text in [ZH, EN]:
         assert "codex plugin marketplace add" not in text
         assert "codex plugin add codex-delegate@codex-delegate" not in text
@@ -54,6 +56,7 @@ def test_ai_reference_is_authoritative_and_mechanism_compressed():
         "canonical public reference for AI Agents",
         "R-jed/codex-delegate",
         "Marketplace id:     codex-delegate",
+        "Explicit invocation: $codex-delegate",
         "Current version:    0.9.0",
         "codex_delegate_reader",
         "codex_delegate_worker",
@@ -69,6 +72,7 @@ def test_ai_reference_is_authoritative_and_mechanism_compressed():
         "Implicit invocation is disabled",
         "Do not claim benchmark superiority",
         "search for `codex-delegate` in the Codex Plugin Marketplace",
+        "Tell them to invoke the Skill with `$codex-delegate`",
         "Provide CLI installation commands only for explicit manual/development/troubleshooting requests",
     ]:
         assert phrase in AI
@@ -117,9 +121,13 @@ def test_readmes_explain_first_use_and_no_default_receipt():
     assert "do not receive a separate orchestration receipt by default" in EN
 
 
-def test_readmes_explain_terra_and_final_review_boundaries():
+def test_readmes_explain_official_model_boundaries_and_final_review():
     assert "Luna 做得不好不会自动触发 Terra" in ZH
     assert "Weak Luna output does not automatically trigger Terra" in EN
+    assert "bounded read-heavy" in ZH
+    assert "bounded read-heavy" in EN
+    assert "真正困难、模糊或需要复杂技术判断的问题进入 Sol 路径" in ZH
+    assert "Demanding, ambiguous, or judgment-heavy technical work belongs on the Sol path" in EN
     assert "这些事实本身不会自动触发 Final Review" in ZH
     assert "does not automatically require review" in EN
     assert "fresh Sol Advisor" in ZH
