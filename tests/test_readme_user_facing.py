@@ -11,7 +11,7 @@ def test_readmes_present_same_current_product_and_ai_jump():
     for text in [ZH, EN]:
         for phrase in [
             "codex delegate",
-            "0.8.0",
+            "0.9.0",
             "R-jed/codex-delegate",
             "codex plugin add codex-delegate@codex-delegate",
             "/codex-delegate",
@@ -44,7 +44,7 @@ def test_ai_reference_is_authoritative_and_mechanism_compressed():
         "canonical public reference for AI Agents",
         "R-jed/codex-delegate",
         "Marketplace id:     codex-delegate",
-        "Current version:    0.8.0",
+        "Current version:    0.9.0",
         "codex_delegate_reader",
         "codex_delegate_worker",
         "codex_delegate_solver",
