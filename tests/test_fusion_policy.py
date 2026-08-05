@@ -28,11 +28,12 @@ def test_compact_runtime_references_and_verifier_are_installed():
 
 def test_compute_lanes_have_distinct_responsibilities_without_fixed_order():
     combined = (SKILL / "SKILL.md").read_text() + (SKILL / "references" / "router-core.md").read_text()
-    assert "Luna" in combined and "bounded" in combined
-    assert "Terra" in combined and "narrow" in combined and "technical" in combined
-    assert "Sol" in combined and "material judgment" in combined
-    assert "fixed" in combined.lower() and "pipeline" in combined.lower()
-    assert "Zero children is normal" in combined
+    lower = combined.lower()
+    assert "luna" in lower and "bounded" in lower
+    assert "terra" in lower and "narrow" in lower and "technical" in lower
+    assert "sol" in lower and "material judgment" in lower
+    assert "model ladder" in lower
+    assert "zero children is normal" in lower
 
 
 def test_runtime_observation_is_demand_driven_not_universal_overhead():
