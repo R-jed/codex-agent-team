@@ -5,30 +5,35 @@ description: Delegate only when it improves the task, keep clear repeatable boun
 
 # codex delegate
 
-codex delegate is a thin policy layer over Codex Native Subagents. The current user-facing main session stays in control. The product exists to make everyday development more reliable without forcing users to design an Agent team or pay for unnecessary review loops.
+codex delegate is a thin policy layer over Codex Native Subagents. The current user-facing main session is the team leader. It understands the user's goal, decides what to keep, decides what to delegate, assigns the right specialist, and owns the final result.
+
+The product exists to let a strong main model use extra Agents when they add real value without forcing the user to design an Agent team or predeclare how many Agents should run.
 
 The runtime policy has three owners only:
 
-- `references/router-core.md`: delegation benefit, actor selection, child packet, reroute, scheduling, acceptance
+- `references/router-core.md`: delegation benefit, actor selection, child packet, adaptive scheduling, reroute, acceptance
 - `references/guardrails.md`: consent, writer ownership, permissions, trust boundaries, provisioning, runtime evidence
 - `references/final-review.md`: independent artifact-bound final assurance
 
-Stable role/model constants and review reason codes live in `../../policy-contract.json`.
+Stable role/model constants and hard delegation safety limits live in `../../policy-contract.json`.
 
 ## Core invariants
 
-1. Main session owns user intent, authorization, integration, acceptance, and final response.
+1. Main session owns user intent, authorization, team composition, integration, acceptance, and final response.
 2. Zero children is normal. Delegation must provide concrete value.
-3. Luna Reader gathers narrow bounded evidence. Luna Worker implements clear, repeatable behavior that is already decided.
-4. Sol Advisor handles demanding or material read-only judgment. Sol Solver handles implementation where demanding or material judgment is coupled to the write.
-5. Terra Investigator handles bounded read-heavy technical investigation and evidence synthesis after semantics are stable and no material judgment remains. Terra is not an escalation rung for hard work.
-6. Main-session Sol capability is a dedup optimization, not task taxonomy or authority. Do not buy duplicate Sol capability when trusted current-session evidence already covers it.
-7. Failure does not imply model escalation. Diagnose the remaining blocker and reroute only when the work really changed.
-8. One canonical checkout has one active writing actor inside this orchestration. Main writes, Luna Worker, and Sol Solver share that domain.
-9. Child reports are claims. Accept from actual artifact state plus relevant deterministic or reproducible evidence.
-10. Fresh independent Final Review is on demand for consequential artifacts. A Sol main does not review its own candidate independently.
-11. Children do not create project Subagents. Delegation depth is one.
-12. Do not emit orchestration ceremony when it adds no user value.
+3. There is no fixed Agent-count target or ordinary numeric child ceiling in project policy. Main chooses the smallest useful active set from work that is actually ready.
+4. Every child must own a distinct responsibility. Do not create duplicate, speculative, or low-value Agents just because native capacity is available.
+5. Luna Reader gathers narrow bounded evidence. Luna Worker implements clear, repeatable behavior that is already decided.
+6. Sol Advisor handles demanding or material read-only judgment. Sol Solver handles implementation where demanding or material judgment is coupled to the write.
+7. Terra Investigator handles bounded read-heavy technical investigation and evidence synthesis after semantics are stable and no material judgment remains. Terra is not an escalation rung for hard work.
+8. Main-session Sol capability is a dedup optimization, not task taxonomy or authority. Do not buy duplicate Sol capability when trusted current-session evidence already covers it.
+9. Failure does not imply model escalation. Diagnose the remaining blocker and reroute only when the work really changed.
+10. One canonical checkout has one active writing actor inside this orchestration. Main writes, Luna Worker, and Sol Solver share that domain.
+11. Child reports are claims. Accept from actual artifact state plus relevant deterministic or reproducible evidence.
+12. Fresh independent Final Review is on demand for consequential artifacts. A Sol main does not review its own candidate independently.
+13. Children do not create project Subagents. Delegation depth is one.
+14. Native Agent capacity is a ceiling, never a target to fill.
+15. Do not emit orchestration ceremony when it adds no user value.
 
 ## 1. Understand the task
 
@@ -68,12 +73,14 @@ Keep the task in main when delegation would mostly duplicate context or add hand
 Delegate only for concrete value such as:
 
 - useful context isolation;
-- independent read-only work;
+- independent parallel work that is ready now;
 - clear repeatable bounded implementation;
 - demanding or material Sol judgment;
 - judgment-coupled Sol implementation;
 - bounded read-heavy Terra investigation and evidence synthesis;
 - required independent final assurance.
+
+A large task can justify several children when it contains several independent valuable responsibilities. A small task can justify none. Task size never maps to an Agent count by itself.
 
 ## 3. Complete readiness before delegated execution
 
@@ -123,13 +130,25 @@ A task being large or contractable does not make it Luna work. A task being hard
 
 Consult main-session model/effort only when material judgment already needs Sol capability and trusted current-session metadata is available or worth checking. `../../scripts/runtime-evidence.py` is an optional diagnostic for that dedup decision and other runtime claims. It is not part of every routine task.
 
-## 5. Run with minimal safe coordination
+## 5. Lead the team with adaptive fan-out
 
-Compile one bounded responsibility packet using `router-core.md`.
+Compile one bounded responsibility packet per child using `router-core.md`.
 
-Use the smallest useful set of children. Explicit `/codex-delegate` permits up to two concurrently active justified children inside the ordinary consent envelope, subject to native capacity and `guardrails.md`.
+Main manages a ready frontier rather than choosing a fixed team size up front. Start a child only when the responsibility is:
 
-Read-only independent work may run concurrently. A canonical checkout has only one writing actor inside this orchestration. If Worker or Solver owns the write, main stays read-only in that checkout until ownership returns.
+- ready to make progress now;
+- distinct from work already owned or satisfied by valid evidence;
+- independent enough to benefit from parallel execution or context isolation;
+- worth the handoff, model cost, and later integration work;
+- safe under current writer, permission, scope, and external-impact boundaries.
+
+Use progressive fan-out. Start the useful responsibilities that are ready, consume exposed completions, update task truth, and add another child only when new evidence makes another responsibility ready and delegation is still worthwhile.
+
+Do not create speculative children for work that is likely to be invalidated by an unresolved dependency. Do not duplicate a responsibility merely to keep Agents busy. Do not treat available native capacity as a reason to spawn.
+
+Read-only independent work may run concurrently when native capacity allows. A canonical checkout has only one writing actor inside this orchestration. If Worker or Solver owns the write, main stays read-only in that checkout until ownership returns.
+
+Solver, Advisor, and Investigator calls must still be justified by their capability need. Empty capacity is never a reason to buy a more expensive lane. Repeated expensive parallel or serial calls that materially expand compute fall under `guardrails.md` consent rules.
 
 Process exposed child completion when useful. Do not manufacture a wave barrier, busy-poll telemetry the runtime does not expose, or repeat discovery that valid evidence already covers.
 
