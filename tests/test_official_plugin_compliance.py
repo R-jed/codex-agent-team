@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import subprocess
 import tomllib
 from pathlib import Path
@@ -15,9 +14,8 @@ PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
 MANIFEST = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 SKILL_ROOT = PLUGIN_ROOT / "skills" / "codex-delegate"
 OPENAI_YAML = SKILL_ROOT / "agents" / "openai.yaml"
-OFFICIAL_INVOCATION = "$codex-delegate"
-RETIRED_SLASH_INVOCATION = "/" + "codex-delegate"
-RETIRED_SLASH_PATTERN = re.compile(r"(?<![A-Za-z0-9_./-])/codex-delegate(?=\s|<|`|[\"']|$)")
+CANONICAL_INVOCATION = "/codex-delegate"
+RETIRED_DOLLAR_INVOCATION = "$" + "codex-delegate"
 
 
 def tracked_paths() -> list[Path]:
@@ -48,23 +46,24 @@ def test_plugin_manifest_has_public_legal_links_and_stays_skills_only():
     assert (ROOT / "TERMS.md").is_file()
 
 
-def test_plugin_starter_prompts_use_official_skill_invocation():
+def test_plugin_starter_prompts_use_project_slash_command():
     prompts = json.loads(MANIFEST.read_text())["interface"]["defaultPrompt"]
     assert 1 <= len(prompts) <= 3
-    assert all(OFFICIAL_INVOCATION in prompt for prompt in prompts)
-    assert all(RETIRED_SLASH_INVOCATION not in prompt for prompt in prompts)
+    assert all(CANONICAL_INVOCATION in prompt for prompt in prompts)
+    assert all(RETIRED_DOLLAR_INVOCATION not in prompt for prompt in prompts)
     assert all(len(prompt) <= 128 for prompt in prompts)
 
 
-def test_openai_skill_metadata_uses_explicit_dollar_invocation():
+def test_openai_skill_metadata_uses_project_slash_command():
     payload = yaml.safe_load(OPENAI_YAML.read_text())
     interface = payload["interface"]
     assert 25 <= len(interface["short_description"]) <= 64
-    assert OFFICIAL_INVOCATION in interface["default_prompt"]
+    assert CANONICAL_INVOCATION in interface["default_prompt"]
+    assert RETIRED_DOLLAR_INVOCATION not in interface["default_prompt"]
     assert payload["policy"]["allow_implicit_invocation"] is False
 
 
-def test_retired_custom_slash_invocation_is_absent_from_tracked_tree():
+def test_retired_dollar_invocation_is_absent_from_tracked_tree():
     violations = []
     for path in tracked_paths():
         if path.is_symlink():
@@ -74,9 +73,9 @@ def test_retired_custom_slash_invocation_is_absent_from_tracked_tree():
                 text = path.read_text()
             except UnicodeDecodeError:
                 continue
-        if RETIRED_SLASH_PATTERN.search(text):
+        if RETIRED_DOLLAR_INVOCATION in text:
             violations.append(path.relative_to(ROOT).as_posix())
-    assert not violations, f"Retired custom slash invocation remains: {violations}"
+    assert not violations, f"Retired dollar-style invocation remains: {violations}"
 
 
 def test_managed_agent_profiles_follow_native_custom_agent_shape():
