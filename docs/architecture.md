@@ -2,9 +2,9 @@
 
 codex delegate is a thin policy layer over Codex Native Subagents. It does not implement a second Agent runtime, persistent DAG service, background scheduler, daemon, or routing proxy.
 
-The user-facing main session remains the control plane. It owns user intent, authorization, integration, acceptance, and final response.
+The user-facing main session is the team leader. It owns user intent, authorization, team composition, integration, acceptance, and the final response.
 
-The product target is the smallest useful delegation graph that improves everyday development quality without making the user manage Agent topology.
+The product target is the smallest useful delegation graph that improves everyday development quality without making the user manage Agent topology or specify an Agent count.
 
 ## Runtime mechanism
 
@@ -13,8 +13,11 @@ The normal control loop is intentionally short:
 ```text
 understand outcome + acceptance
 -> ask whether delegation helps
--> select the capability actually needed
--> execute under one-writer / consent boundaries
+-> identify the current ready frontier
+-> assign distinct responsibilities to the capability actually needed
+-> run the smallest useful active set
+-> consume useful completions and update the ready frontier
+-> expand only when another responsibility is now ready and worth delegating
 -> verify the real artifact
 -> diagnose a blocker only when work is unresolved
 -> run fresh independent review only when the final artifact requires it
@@ -25,7 +28,7 @@ The installed Skill has three model-facing runtime references:
 
 ```text
 router-core.md
--> delegation benefit, role selection, child packet, blocker handling, scheduling, acceptance
+-> delegation benefit, role selection, child packet, adaptive scheduling, blocker handling, acceptance
 
 guardrails.md
 -> authority, explicit invocation, provisioning readiness, consent, writer ownership, trust, permissions, runtime evidence
@@ -34,7 +37,25 @@ final-review.md
 -> artifact-bound independent assurance
 ```
 
-`plugins/codex-delegate/policy-contract.json` contains only stable machine constants: role routes, delegation limits, capability-dedup reference, and Final Review reason codes.
+`plugins/codex-delegate/policy-contract.json` contains only stable machine constants: hard delegation safety limits, role routes, capability-dedup reference, and Final Review reason codes. Adaptive team size is intentionally not encoded as a numeric project constant.
+
+## Leader-led delegation
+
+Main decides how to use the team from the task in front of it.
+
+There is no product rule such as:
+
+```text
+small task -> 1 Agent
+medium task -> 2 Agents
+large task -> 4 Agents
+```
+
+There is also no rule that five roles imply five children.
+
+The five roles are a capability vocabulary. Child instances come from real unresolved responsibilities. Main may keep everything itself, start one specialist, run several independent read-only lanes in parallel, or add another specialist later when new evidence makes that work ready.
+
+A child is justified only when its responsibility is ready, distinct, non-duplicative, useful to delegate, and safe under current boundaries. Native Codex capacity is an upper bound, never a target to fill.
 
 ## Direct capability selection
 
@@ -56,7 +77,7 @@ The quality boundaries follow current Codex model guidance:
 - Terra is a read-heavy investigation/value lane when broader synthesis is useful and material semantics are already stable.
 - Sol is the judgment lane for demanding, ambiguous, multi-step reasoning and judgment-coupled implementation.
 
-A task being large, many-file, hard, or easy to describe in a contract does not by itself select a model.
+A task being large, many-file, hard, or easy to describe in a contract does not by itself select a model or an Agent count.
 
 ## Current roles
 
@@ -86,6 +107,25 @@ blocker: none | contract | judgment | investigation | stalled
 ```
 
 Add another work item only for a genuinely distinct unresolved responsibility. Valid evidence prevents repeated discovery and duplicate ownership.
+
+## Adaptive scheduling
+
+Main manages a ready frontier rather than a fixed-size team.
+
+```text
+ready responsibility
++ distinct owner
++ non-duplicative
++ delegation value
++ safe boundaries
+= eligible child work
+```
+
+Read-heavy independent work is the preferred place to exploit parallelism. Multiple Reader instances are valid when they own different evidence lanes. Investigator or Advisor can run alongside other independent read-only work when their specific capability is actually needed.
+
+Use progressive fan-out. Start useful ready work, consume useful completions, merge valid evidence, then decide whether any newly ready responsibility is worth another child. Do not spawn speculative work that is likely to be invalidated by unresolved decisions.
+
+The host decides how many child threads can physically run. codex delegate does not mirror that capacity into a permanent project limit. Spare capacity never creates a reason to spawn.
 
 ## Blocked work
 
@@ -150,6 +190,16 @@ If Worker or Solver owns the write, Main may continue read-only analysis but wai
 Multiple concurrent writers require real filesystem isolation such as separate worktrees/workspaces/repositories. File-list promises are insufficient isolation.
 
 Independent sessions, editors, hooks, and external processes remain outside this session-local scheduler. Current policy relies on isolation where practical plus drift detection and fail-closed behavior. It does not claim a cross-session lock that has not been implemented and validated.
+
+## Consent and anti-sprawl boundary
+
+Child count by itself is not a consent trigger.
+
+Several distinct low-cost read-only lanes can be an ordinary response to a large parallel task. Conversely, a smaller number of repeated Sol/Terra calls can become material compute expansion.
+
+Ask again when permissions, scope, external impact, or compute expands materially beyond what the user could reasonably expect from the requested task.
+
+Do not create duplicate, speculative, or low-value children. Do not serialize expensive calls merely to avoid admitting that the orchestration has materially expanded.
 
 ## Explicit invocation and onboarding
 
