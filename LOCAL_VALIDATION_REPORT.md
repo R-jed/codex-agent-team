@@ -166,7 +166,7 @@ FOCUSED VERIFICATION: python -m pytest tests/test_review_artifact.py -q -> exit 
 
 ```text
 TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016 (runtime product bytes)
-EVIDENCE_CLOSURE_BASE_REVISION: 6dacf9c2b25c07c43bc5a5c5465b566cfa4acef8
+CHECKPOINT_1_CLOSURE_REVISION: cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97
 RUNTIME-SENSITIVE CARRY-FORWARD: Plugin, Skill, Agent profiles, installer, policy, and runtime-reference bytes are unchanged; subsequent closure changes are public/release documentation and regression tests.
 PLATFORM: Apple Silicon macOS 27.0 (26A5388g)
 PYTHON: 3.14.5 from .venv
@@ -221,6 +221,16 @@ VALIDATOR SHA256: ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d32
 EXIT CODES: all 0
 OUTPUT: TESTED_SHA=0ca30e4125936c051ac60518fa22f6256a13f930; PINNED REVISION=7750465934d97dd3cbcb3b1655d2f622744010d3; PINNED SHA256=ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228; Plugin validation passed; PINNED EXIT_CODE=0; CURRENT REVISION=9d00bb01c0a712fb7c2f5b002bdf33bcc0fc352c; CURRENT SHA256=ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228; Plugin validation passed; CURRENT EXIT_CODE=0.
 WARNINGS / SKIPS / XFAILS: none reported.
+
+CHECKPOINT 1 CLOSURE REVALIDATION:
+TESTED_REVISION: cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97
+PYTHON / TOOL VERSION: Python 3.14.5; pinned validator revision 7750465934d97dd3cbcb3b1655d2f622744010d3; official openai/codex main revision 9d00bb01c0a712fb7c2f5b002bdf33bcc0fc352c
+COMMANDS / RESULTS: identity cleanup -> 4 passed; required deterministic set -> 88 passed; complete suite -> 140 passed; pinned validator -> PASS; then-current validator -> PASS.
+VALIDATOR SHA256: ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228 for both downloaded validator scripts.
+EXIT CODES: all 0.
+WARNINGS / SKIPS / XFAILS: none reported.
+HEAD STABILITY: every pytest and validator command started and ended at cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97.
+NOTES: the follow-up evidence-record commit changes only HEADOFF.md and LOCAL_VALIDATION_REPORT.md; runtime-sensitive bytes and the tested regression suite remain identical to the tested closure revision.
 ```
 
 Record each run as:

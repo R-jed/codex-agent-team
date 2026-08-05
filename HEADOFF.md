@@ -129,7 +129,7 @@ Do not add Checkpoint 7.
 ```text
 Status: PASS
 Runtime product bytes exercised: 55728b41592058575a6e35632adc6af75a355016
-Evidence-closure base SHA: 6dacf9c2b25c07c43bc5a5c5465b566cfa4acef8
+Checkpoint 1 closure SHA: cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97
 Carry-forward basis: Plugin, Skill, Agent profiles, installer, policy, and runtime-reference bytes are unchanged after the runtime-tested revision; post-runtime closure changes are public/release documentation and regression tests only.
 Evidence reference: LOCAL_VALIDATION_REPORT.md#checkpoint-1-plugin-discovery-command-invocation-and-five-role-readiness
 Remaining blocker: none for Checkpoint 1.
