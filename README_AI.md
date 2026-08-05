@@ -12,7 +12,7 @@ Plugin id:          codex-delegate
 Plugin directory:   plugins/codex-delegate
 Skill:              codex-delegate
 Explicit invocation: $codex-delegate
-Current version:    0.9.0
+Current version:    0.9.1
 Distribution:       Codex Plugin only
 License:            MIT
 ```
