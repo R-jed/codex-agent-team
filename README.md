@@ -30,7 +30,7 @@ codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，�
 
 在 Codex 中打开**插件市场**，搜索 `codex-delegate`，选择 **Codex Delegate** 并安装。
 
-安装后开启新的 Codex 会话，然后这样用：
+安装后开启新的 Codex 会话，然后：
 
 ```text
 /codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
