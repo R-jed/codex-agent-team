@@ -27,7 +27,7 @@ def test_handoff_requires_official_compliance_and_deterministic_execution_before
         "complete pytest suite has no failures or errors",
         "both required Plugin validator runs pass",
         "tested SHA remains unchanged after validation",
-        "$codex-delegate",
+        "/codex-delegate",
         "/skills",
         "privacy policy",
         "skills-only",
@@ -106,10 +106,10 @@ def test_handoff_keeps_exact_adversarial_consultation_target():
         assert phrase in HANDOFF
 
 
-def test_report_is_pending_evidence_ledger_for_officially_aligned_candidate():
+def test_report_is_pending_evidence_ledger_for_current_candidate():
     for phrase in [
         "Plugin version: 0.9.1",
-        "Canonical explicit invocation: $codex-delegate",
+        "Canonical explicit invocation: /codex-delegate",
         "codex_delegate_reader",
         "codex_delegate_solver",
         ".codex-delegate-agents.json",
