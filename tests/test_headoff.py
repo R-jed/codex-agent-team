@@ -42,7 +42,7 @@ def test_handoff_uses_five_roles_and_compact_policy_surface():
     ]:
         assert role in HANDOFF
     for phrase in [
-        "version: 0.8.0",
+        "version: 0.9.0",
         "router-core.md / guardrails.md / final-review.md",
         "policy-contract.json schema 3",
         "invocation: explicit only",
@@ -92,7 +92,7 @@ def test_handoff_keeps_exact_adversarial_consultation_target():
 
 def test_report_is_pending_evidence_ledger_for_compressed_candidate():
     for phrase in [
-        "Plugin version: 0.8.0",
+        "Plugin version: 0.9.0",
         "codex_delegate_reader",
         "codex_delegate_solver",
         ".codex-delegate-agents.json",
