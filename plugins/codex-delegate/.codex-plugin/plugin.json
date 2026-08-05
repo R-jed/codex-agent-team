@@ -16,15 +16,17 @@
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
     "websiteURL": "https://github.com/R-jed/codex-delegate",
+    "privacyPolicyURL": "https://github.com/R-jed/codex-delegate/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/R-jed/codex-delegate/blob/main/TERMS.md",
     "brandColor": "#2563EB",
     "composerIcon": "./assets/codex-delegate-composer-icon.svg",
     "logo": "./assets/codex-delegate-logo.svg",
     "logoDark": "./assets/codex-delegate-logo-dark.svg",
     "screenshots": [],
     "defaultPrompt": [
-      "Use /codex-delegate to complete this task and delegate only when extra native compute adds concrete value.",
-      "Use /codex-delegate to implement this change with bounded Luna execution and Sol judgment only where needed.",
-      "Use /codex-delegate to review this task and add fresh independent Sol review only when the final artifact warrants it."
+      "Use $codex-delegate to complete this development task and delegate only when extra native compute adds value.",
+      "Use $codex-delegate to implement this change with bounded execution and material judgment only where needed.",
+      "Use $codex-delegate to review this change and add independent review only when the final artifact warrants it."
     ]
   }
 }
