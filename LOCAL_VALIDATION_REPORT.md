@@ -11,7 +11,7 @@ Marketplace id: codex-delegate
 Plugin id: codex-delegate
 Skill: codex-delegate
 Canonical explicit invocation: $codex-delegate
-Plugin version: 0.9.0
+Plugin version: 0.9.1
 Current roles: codex_delegate_reader / codex_delegate_worker / codex_delegate_solver / codex_delegate_investigator / codex_delegate_advisor
 Current ownership manifest: .codex-delegate-agents.json
 Machine policy: policy-contract.json schema 3
@@ -93,7 +93,7 @@ Exact source URLs/revisions should be captured in `docs/openai-references.md` an
 | Claim | Status | Boundary |
 | --- | --- | --- |
 | repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
-| Plugin version is `0.9.0` | repository fact | current Plugin/public docs |
+| Plugin version is `0.9.1` | repository fact | current Plugin/public docs |
 | canonical explicit Skill invocation is `$codex-delegate` | implementation fact, exact-tree regression/live validation pending | manifest/openai metadata/docs/tests |
 | public privacy/terms URLs exist in Plugin manifest | implementation fact, current validator/live listing revalidation pending | manifest + root legal docs |
 | Plugin remains skills-only | repository fact, official validator revalidation pending | manifest/package |
