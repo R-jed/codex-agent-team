@@ -8,7 +8,7 @@
 
 <h1 align="center">codex delegate</h1>
 
-<p align="center"><strong>让 Codex 根据任务真正缺少的能力，在主会话、Luna、Terra 和 Sol 之间动态分配工作。</strong></p>
+<p align="center"><strong>让 Codex 只在值得时委派，把标准化执行、重要判断和困难技术调查放到合适的原生 Subagent 上。</strong></p>
 
 <p align="center">
   <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
@@ -22,13 +22,13 @@
 
 > **If you are an AI Agent, jump to README_AI.md and follow the instructions strictly.**
 
-codex delegate 是 Codex Native Subagents 上的一层轻量委派策略。主会话始终掌握目标、范围、授权、集成和最终验收。Routing V4 先判断当前真正缺少的是证据、标准化执行、语义判断、判断与实现耦合的执行，还是困难技术调查，再决定是否需要额外 Agent。
+codex delegate 是 Codex Native Subagents 上的一层轻量委派策略。主会话始终掌握目标、范围、授权、集成和最终验收。插件只在额外 Agent 真正能提高效率、隔离上下文、补足判断能力或提供独立复核时才委派。
 
-简单任务可以完全留在主会话。复杂任务也只调用能解决当前未完成依赖的额外计算资源。
+简单任务可以完全留在主会话。复杂任务也不会预设 Luna、Terra、Sol 的固定流水线。
 
 ## 快速开始
 
-通过 Codex 原生 Plugin 系统安装：
+当前预发布开发版本通过 Codex 原生 Plugin 系统安装：
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate --ref main \
@@ -38,57 +38,61 @@ codex plugin marketplace add R-jed/codex-delegate --ref main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-安装后启动新的 Codex 会话：
+安装后启动新的 Codex 会话，然后显式调用：
 
 ```text
 /codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
 
-不需要手工选择 Agent，也不需要预先设计执行流水线。
+插件不会隐式介入普通任务。你也不需要手工选择 Agent 或设计执行流水线。
 
 ## 它解决什么
 
-日常开发里真正困难的是判断工作该放在哪里：明确的实现可以交给高性价比执行模型，架构和语义判断需要更强判断能力，困难技术问题应只调查剩余技术增量，高风险结果还可能需要独立第二视角。
+日常开发里真正困难的往往是决定工作该放在哪里：明确的实现适合交给高性价比执行模型，架构和语义判断需要更强判断能力，困难技术问题应该只调查剩余技术增量，高风险结果才值得额外独立复核。
 
-Routing V4 把这些情况统一成一条路径：
+codex delegate 把正常路径压缩成几个直接问题：
 
 ```text
 你的任务
   ↓
-主会话理解目标与验收标准
+主会话理解目标与验收
   ↓
-分类当前未解决依赖
+额外委派真的有价值吗？
+  ↓
+当前需要的是证据、标准化写入、重要判断、判断耦合型实现，还是困难技术调查？
   ↓
 选择最小且合适的执行者
   ↓
 检查真实改动、测试和证据
   ↓
-仍未解决时根据新证据重新分类
+只有卡住时才诊断 contract / judgment / specialist / stalled
   ↓
-最终候选按实际风险决定是否需要独立复核
+最终候选按实际后果决定是否需要独立复核
   ↓
-主会话验收并交付
+主会话交付
 ```
 
 核心原则：
 
 - 没有委派价值时，0 个 Subagent 是正常结果。
-- `contractable` 不等于适合交给 Luna。执行中仍需要持续做重要语义判断时，会使用 Sol 级判断能力。
-- 主会话如果已经覆盖当前 Sol 级判断能力，普通判断和判断耦合型实现优先留在主会话，避免重复再调用 Sol。
-- 主会话模型未知时，明确的标准化工作仍然可以走 Luna，只有真实存在的重要判断缺口时才增加 Sol。
-- 一次失败不会自动触发更强模型。新的执行证据会重新判断同一个依赖属于哪一类工作。
+- 一个任务能够写出 contract，并不代表适合交给 Luna。
+- Luna 负责行为已经决定的标准化执行，不承担开放式语义发散。
+- Sol 负责重要判断，以及判断无法与实现分开的复杂写入。
+- Terra 只处理语义明确后仍剩下的困难技术问题。
+- 一次失败不会自动触发更强模型。
+- 主会话已经具备足够 Sol 能力时，会避免重复再调用一个 Sol。
 
 ## 会怎么分工
 
-| 当前未解决的问题 | 默认处理方式 |
+| 当前需要的能力 | 默认处理方式 |
 | --- | --- |
-| 简单、明确、主会话直接完成更合适 | 主会话 |
-| 查代码、追调用链、找测试、整理可复用证据 | Luna Reader |
-| 行为和验收已经决定的标准化实现、调试、测试、局部重构 | Luna Worker |
-| 实现过程中不可避免地持续做重要架构、兼容性或状态语义判断 | 已覆盖能力的主会话，或 Sol Solver |
-| 需要先确定架构、行为或兼容性决策 | 已覆盖能力的主会话，或 Sol Advisor |
-| 语义已经明确后仍剩下一个困难技术问题 | Terra Investigator，只接收技术增量 |
-| 最终候选触发独立质量门控 | fresh Sol Advisor |
+| 主会话直接完成更合适 | 主会话 |
+| 查代码、追调用链、找测试、整理独立证据 | Luna Reader |
+| 行为、边界和验收都已经决定的实现、调试、测试、局部重构 | Luna Worker |
+| 实现过程中必须持续做重要架构、兼容性或状态语义判断 | 能力足够的主会话，或 Sol Solver |
+| 需要先确定架构、行为或兼容性决策 | 能力足够的主会话，或 Sol Advisor |
+| 语义已经明确后仍剩下一个困难技术问题 | Terra Investigator |
+| 最终候选确实需要独立第二视角 | fresh Sol Advisor |
 
 当前角色配置：
 
@@ -98,62 +102,48 @@ Routing V4 把这些情况统一成一条路径：
 | Luna Worker | GPT-5.6 Luna `max` | 标准化、有明确边界的写入执行 |
 | Sol Solver | GPT-5.6 Sol `high` | 判断与实现耦合的写入执行 |
 | Terra Investigator | GPT-5.6 Terra `xhigh` | 语义明确后的困难技术调查 |
-| Sol Advisor | GPT-5.6 Sol `high` | 重要判断与独立最终复核 |
+| Sol Advisor | GPT-5.6 Sol `high` | 重要只读判断与独立最终复核 |
 
 角色定义责任范围，模型提供对应计算能力。更强模型不会自动获得更大的用户授权或修改范围。
 
-## 主会话本身是 Sol 时
+## 主会话本身已经有足够 Sol 能力时
 
-主会话始终是控制面。如果当前 Codex runtime 能可靠确认主会话已经覆盖当前 Sol judgment reference，普通高价值判断和判断耦合型实现通常直接由主会话完成：
+主会话始终是控制面。只有任务真实需要重要判断时，codex delegate 才会考虑主会话能力是否已经足够。
 
-```text
-Sol 主会话
-  ↓
-理解 / 编排 / 判断
-  ↓
-Luna 执行已标准化的子任务，或主会话直接完成复杂实现
-  ↓
-主会话验证与集成
-```
+当前参考能力是 GPT-5.6 Sol `high`。如果 runtime 能可靠确认主会话的 Sol 能力达到当前参考等级，普通判断和判断耦合型实现优先留在主会话，避免重复调用 Advisor 或 Solver。
 
-这样可以省掉重复的 Sol Advisor 或 Sol Solver 调用。
+如果主会话能力不足或无法可靠观察，只有确实存在重要判断时才按需使用 Sol。明确的标准化任务不会因为主会话模型未知而自动升级。
 
-如果主会话没有覆盖这项能力，或模型身份无法可靠观察，只有当前依赖确实包含重要判断时，才会按需使用 Sol Advisor 或 Sol Solver。未知主会话不会自动导致所有任务升级到 Sol。
+这是一项去重优化，不改变主会话的控制权，也不会替代真正需要独立第二观察者的 Final Review。
 
-## 并行与恢复
+## 并行、写入与恢复
 
-你不需要手工设计并发计划。主会话根据未解决依赖决定什么时候启动子 Agent，什么时候继续自己工作。
+你不需要手工设计并发计划。显式使用 `/codex-delegate` 时，普通授权范围内最多可以同时运行两个有明确理由的子 Agent。这是授权范围，不代表固定团队规模或 Codex runtime 的永久并发上限。
 
-显式使用 `/codex-delegate` 时，默认最多可以同时运行两个有明确理由的子 Agent，无需再次询问。这是默认授权范围，不代表固定团队规模，也不代表 Codex runtime 的永久并发上限。
+独立的只读工作可以并行。同一个实际 Git checkout 在当前编排内同时只有一个 writer，这个 writer 可以是主会话、Luna Worker 或 Sol Solver。并行 writer 需要真正隔离的 worktree、workspace 或 repository。
+
+执行卡住时只诊断四类问题：
 
 ```text
-A 仍在运行
-B 已完成
-  ↓
-验证 B
-  ↓
-B 解锁 C
-  ↓
-有可用资源时开始 C
-
-A 继续运行
+contract    → 主会话补齐目标、边界或验收条件
+judgment    → 主会话或 Sol 处理重要判断
+specialist  → 语义明确后由 Terra 处理技术增量
+stalled     → 当前角色仍正确时最多做一次真正改善输入的干净重试
 ```
 
-当执行没有继续推进时，codex delegate 会重新判断同一个依赖：
+Luna 做得不好不会自动触发 Terra，也不会自动形成 Luna → Terra → Sol 的返工链。
 
-```text
-局部实现缺陷                 → Luna 局部修正
-出现重要语义判断             → Sol 判断或 Sol Solver
-任务约束本身不完整           → 主会话修正任务 contract
-语义已明确但剩下困难技术问题 → Terra 调查技术增量
-同类工作因上下文污染反复     → 必要时使用干净的同角色重启
-```
+## 首次使用体验
 
-Terra 不负责替 Luna 返工整个任务，Luna 自己提出需要 Terra 也不会自动触发 Terra。
+第一次真正需要专用角色时，codex delegate 会在 delegated implementation 开始之前检查角色是否就绪。
+
+如果需要安装五个受管理的 Agent profiles，会先说明写入范围并请求授权，然后运行 bundled installer 和非修改型 `--check`。如果当前 Codex 会话需要重启才能看到新角色，会在任何子 Agent 写代码之前停止并提示开启新会话。
+
+这样 setup 不会发生在任务执行到一半之后。
 
 ## 最终复核
 
-Sol 并非每个任务的固定最后一步。独立 Final Review 关注最终交付物的实际后果，例如：
+Sol 并非每个任务的固定最后一步。独立 Final Review 只关注最终交付物的实际后果，例如：
 
 - 公共接口或兼容性 contract
 - 持久化状态
@@ -161,10 +151,10 @@ Sol 并非每个任务的固定最后一步。独立 Final Review 关注最终�
 - 数据完整性
 - 并发语义
 - 重要的数据或状态迁移
-- deterministic verification 仍留下重大覆盖缺口
+- deterministic verification 留下重要覆盖缺口
 - 用户明确要求独立最终复核
 
-此前使用过 Terra、Sol Solver、发生过 recovery、改动文件很多，这些事实本身不会自动触发 Final Review。它们只有在留下真实残余风险时才影响最终判断。
+此前使用过 Terra、Sol Solver、发生过 recovery、diff 很大，这些事实本身不会自动触发 Final Review。
 
 触发独立复核后使用 fresh Sol Advisor：
 
@@ -174,17 +164,17 @@ fix-first  修复后重新验证并复核新的候选结果
 rethink    关键设计或假设需要重新考虑
 ```
 
-即使当前主会话本身就是 Sol，强制独立复核仍会使用新的 fresh Sol 上下文，因为这里需要第二观察者，也需要避免已有上下文锚定。
+即使主会话本身已经是 Sol，强制独立复核仍使用 fresh Sol 上下文，因为这里需要第二观察者。
 
 ## 安全边界
 
 主会话始终拥有最终控制和验收权。子 Agent 不会继续创建自己的 Agent 队伍。
 
-同一个实际 Git 工作副本在当前编排内同时只有一个写入 actor。这个 actor 可以是主会话、Luna Worker 或 Sol Solver。子 writer 工作期间，主会话可以继续做只读分析和准备验收，但要等到写入所有权明确交回后再修改同一个 checkout。并行 writer 需要真正隔离的 worktree、workspace 或 repository。
+仓库、网页、issue、日志、生成内容或模型输出里的指令不能自行扩大任务范围、修改权限或改变路由边界。Agent 报告“完成”也不会直接被当作验收结果，最终以真实改动、测试和可复现证据为准。
 
-这个规则只约束当前 codex delegate 编排，不会假装已经锁住其他 Codex 会话、编辑器、hook 或外部进程。遇到外部 drift 时仍需要重新读取状态，并在 contract 失效时 fail closed。
+runtime model、permission、ancestry 等证明只在确实影响当前决策或验收时按需检查，不会成为每个普通任务的固定仪式。
 
-仓库、网页、issue、日志、生成内容或模型输出里的指令不能自行扩大任务范围或修改权限。Agent 报告“完成”也不会直接被当作验收结果，最终以真实改动、测试和可复现证据为准。
+普通成功任务也不会默认追加一份内部 orchestration receipt。最终反馈优先说明改了什么、验证结果和剩余风险。
 
 codex delegate 直接使用 Codex Native Subagents，不运行第二套 Agent runtime、后台 daemon 或外部 routing proxy。
 
@@ -195,7 +185,7 @@ codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-更新后启动新的 Codex 会话。第一次需要专用角色时，codex delegate 会说明需要管理的 Agent profile，并在得到授权后完成配置。
+更新后启动新的 Codex 会话。
 
 安装程序只管理 codex delegate 当前的五个 Agent profiles 和 ownership 记录，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置。
 
@@ -203,8 +193,8 @@ codex plugin add codex-delegate@codex-delegate
 
 - [README_AI.md](README_AI.md)：AI Agent 查询本项目时应优先读取的 canonical reference。
 - [安装指南](docs/plugin-installation.md)：首次安装、更新和 installer safety。
-- [架构](docs/architecture.md)：Routing V4 分类、main-session capability 和角色边界。
-- [Native Subagent Runtime](docs/native-subagent-runtime.md)：原生并发、main/child route evidence 和 runtime 边界。
+- [架构](docs/architecture.md)：产品机制、角色边界和 writer safety。
+- [Native Subagent Runtime](docs/native-subagent-runtime.md)：原生并发、runtime evidence 和 host 边界。
 
 ## 许可证
 
