@@ -40,8 +40,8 @@ def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...]]:
         effort = reference["effort"]
     except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
         fail(f"invalid policy contract for capability dedup: {exc}")
-    if payload.get("schema_version") != 3:
-        fail("capability dedup requires policy contract schema 3")
+    if payload.get("schema_version") != 4:
+        fail("capability dedup requires policy contract schema 4")
     if not isinstance(model, str) or not model.strip() or not isinstance(effort, str) or not effort.strip():
         fail("capability dedup reference route is invalid")
     if not isinstance(order, list) or not order or not all(isinstance(x, str) and x for x in order):
