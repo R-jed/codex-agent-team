@@ -1,7 +1,7 @@
 {
   "name": "codex-delegate",
   "version": "0.9.0",
-  "description": "Use Codex Native Subagents only when delegation improves the task, with bounded Luna execution, Sol judgment, focused Terra investigation, and selective independent review.",
+  "description": "Use Codex Native Subagents only when delegation improves the task, with clear bounded Luna execution, Sol judgment, read-heavy Terra investigation, and selective independent review.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
   "repository": "https://github.com/R-jed/codex-delegate",
@@ -11,7 +11,7 @@
   "interface": {
     "displayName": "Codex Delegate",
     "shortDescription": "Adaptive delegation for reliable everyday development.",
-    "longDescription": "Codex Delegate keeps the current session in control and uses additional native Subagents only when they add concrete value. Luna Max handles bounded evidence and implementation whose material behavior is already decided, Sol High handles material judgment and judgment-coupled writing, Terra XHigh handles only narrow difficult technical uncertainty after semantics stabilize, and a fresh Sol Advisor reviews only final artifacts that genuinely require independent assurance.",
+    "longDescription": "Codex Delegate keeps the current session in control and uses additional native Subagents only when they add concrete value. Luna Max handles clear repeatable bounded evidence and implementation whose material behavior is already decided, Sol High handles demanding material judgment and judgment-coupled writing, Terra XHigh handles bounded read-heavy technical investigation and evidence synthesis after semantics stabilize, and a fresh Sol Advisor reviews only final artifacts that genuinely require independent assurance.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
