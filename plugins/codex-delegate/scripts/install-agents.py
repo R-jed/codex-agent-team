@@ -19,7 +19,7 @@ POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
 MANIFEST_NAME = ".codex-delegate-agents.json"
 MANIFEST_SCHEMA = 1
 MANAGED_BY = "codex-delegate"
-POLICY_SCHEMA = 2
+POLICY_SCHEMA = 3
 ROLE_KEYS = {"reader", "worker", "solver", "investigator", "advisor"}
 
 
@@ -179,190 +179,156 @@ def preflight_profiles(
             fail(f"Refusing symlinked Agent profile destination: {target}")
         if not target.exists():
             if check_only:
-                fail(f"Required installed Agent profile is missing: {target}")
+                fail(f"Missing managed Agent profile: {target}")
             continue
         if not target.is_file():
             fail(f"Agent profile destination is not a regular file: {target}")
         if target.read_bytes() == source.read_bytes():
             continue
-        if not check_only and managed_hashes.get(filename) == file_hash(target):
-            upgrades.add(filename)
-            continue
-        fail(
-            "Refusing to overwrite an Agent profile that differs from the current package "
-            f"and is not proven unchanged from a previous codex delegate install: {target}"
-        )
+        prior_hash = managed_hashes.get(filename)
+        if prior_hash is None or file_hash(target) != prior_hash:
+            fail(f"Refusing to overwrite unowned or modified Agent profile: {target}")
+        if check_only:
+            fail(f"Managed Agent profile is stale: {target}")
+        upgrades.add(filename)
 
-    current_roles = {values[0] for values in EXPECTED_PROFILES.values()}
+    reserved_names = {spec["agent_type"] for spec in ROLE_SPECS.values()}
+    managed_files = set(PROFILE_FILES)
     if agents_dir.exists():
-        for existing in agents_dir.glob("*.toml"):
-            if existing.name in PROFILE_FILES or existing.is_symlink() or not existing.is_file():
+        for path in agents_dir.glob("*.toml"):
+            if path.name in managed_files:
                 continue
-            existing_name = parse_profile_name(existing)
-            if existing_name in current_roles:
-                fail(
-                    "Refusing to install because another Agent file uses the reserved current role name "
-                    f"{existing_name!r}: {existing}"
-                )
-
+            if path.is_symlink():
+                continue
+            name = parse_profile_name(path)
+            if name in reserved_names:
+                fail(f"Another Agent profile claims reserved current role name {name!r}: {path}")
     return upgrades
 
 
-def verify_profiles(agents_dir: Path) -> None:
+def build_plan(agents_dir: Path, upgrades: set[str]) -> dict[str, bytes]:
+    plan: dict[str, bytes] = {}
     for filename in PROFILE_FILES:
-        source = PROFILE_SOURCE / filename
         target = agents_dir / filename
-        if target.is_symlink() or not target.is_file() or target.read_bytes() != source.read_bytes():
-            fail(f"Installed Agent profile is missing, unsafe, or differs from shipped template: {target}")
+        if not target.exists() or filename in upgrades:
+            plan[str(target)] = (PROFILE_SOURCE / filename).read_bytes()
+    return plan
 
 
-def stage_file(directory: Path, data: bytes) -> Path:
-    fd, name = tempfile.mkstemp(prefix=".codex-delegate-agent-", dir=directory)
-    staged = Path(name)
-    with os.fdopen(fd, "wb") as handle:
-        handle.write(data)
-        handle.flush()
-        os.fsync(handle.fileno())
-    return staged
+def preflight_manifest(path: Path, *, check_only: bool, desired: dict, current: dict | None) -> None:
+    if path.is_symlink():
+        fail(f"Refusing symlinked install manifest: {path}")
+    if path.exists() and not path.is_file():
+        fail(f"Install manifest is not a regular file: {path}")
+    if check_only and current != desired:
+        fail(f"Managed Agent manifest is stale: {path}")
 
 
-def write_manifest(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    staged = stage_file(path.parent, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode())
+def write_transaction(files: dict[str, bytes], manifest_path: Path, manifest_bytes: bytes) -> None:
+    backups: dict[Path, bytes | None] = {}
+    staged: dict[Path, Path] = {}
     try:
-        os.replace(staged, path)
-    finally:
-        staged.unlink(missing_ok=True)
+        for raw_target, data in files.items():
+            target = Path(raw_target)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            backups[target] = target.read_bytes() if target.exists() else None
+            fd, raw_stage = tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tmp", dir=target.parent)
+            os.close(fd)
+            stage = Path(raw_stage)
+            stage.write_bytes(data)
+            staged[target] = stage
+        backups[manifest_path] = manifest_path.read_bytes() if manifest_path.exists() else None
+        fd, raw_stage = tempfile.mkstemp(prefix=f".{manifest_path.name}.", suffix=".tmp", dir=manifest_path.parent)
+        os.close(fd)
+        manifest_stage = Path(raw_stage)
+        manifest_stage.write_bytes(manifest_bytes)
+        staged[manifest_path] = manifest_stage
 
-
-def backup_target(target: Path) -> Path:
-    backup = target.parent / f".{target.name}.backup-{uuid.uuid4().hex}"
-    target.rename(backup)
-    return backup
-
-
-def apply_profile_changes(
-    agents_dir: Path,
-    upgrades: set[str],
-    created: list[Path],
-    backups: dict[Path, Path],
-) -> None:
-    for filename in PROFILE_FILES:
-        source = PROFILE_SOURCE / filename
-        target = agents_dir / filename
-        if target.exists() and filename not in upgrades:
-            continue
-        staged = stage_file(agents_dir, source.read_bytes())
-        try:
-            if target.exists():
-                backups[target] = backup_target(target)
-            staged.rename(target)
-            if target not in backups:
-                created.append(target)
-        except BaseException:
-            staged.unlink(missing_ok=True)
-            raise
-
-
-def rollback(
-    created: list[Path],
-    backups: dict[Path, Path],
-    manifest_path: Path,
-    previous_manifest: bytes | None,
-) -> list[str]:
-    errors: list[str] = []
-    for path in reversed(created):
-        try:
-            path.unlink(missing_ok=True)
-        except OSError as exc:
-            errors.append(f"could not remove created profile {path}: {exc}")
-    for target, backup in reversed(list(backups.items())):
-        try:
-            target.unlink(missing_ok=True)
-            backup.rename(target)
-        except OSError as exc:
-            errors.append(f"could not restore {target}: {exc}")
-    try:
-        if previous_manifest is None:
-            manifest_path.unlink(missing_ok=True)
-        else:
-            staged = stage_file(manifest_path.parent, previous_manifest)
+        for target, stage in staged.items():
+            os.replace(stage, target)
+    except BaseException:
+        for stage in staged.values():
+            if stage.exists():
+                stage.unlink()
+        for target, previous in backups.items():
             try:
-                os.replace(staged, manifest_path)
-            finally:
-                staged.unlink(missing_ok=True)
-    except OSError as exc:
-        errors.append(f"could not restore managed-profile manifest {manifest_path}: {exc}")
-    return errors
+                if previous is None:
+                    if target.exists() and not target.is_symlink():
+                        target.unlink()
+                else:
+                    target.write_bytes(previous)
+            except OSError:
+                pass
+        raise
 
 
-def install(codex_home: Path, check_only: bool) -> None:
-    codex_home = codex_home.expanduser()
-    if codex_home.is_symlink():
-        fail(f"Refusing symlinked Codex home: {codex_home}")
-    codex_home = codex_home.resolve()
+def verify_current_state(codex_home: Path) -> None:
     agents_dir = codex_home / "agents"
     manifest_path = codex_home / MANIFEST_NAME
-
-    validate_sources()
-    preflight_agents_dir(agents_dir, check_only=check_only)
+    if not agents_dir.is_dir() or agents_dir.is_symlink():
+        fail(f"Managed agents directory missing or unsafe: {agents_dir}")
     manifest = load_manifest(manifest_path)
-    upgrades = preflight_profiles(
-        agents_dir,
-        check_only=check_only,
-        managed_hashes=manifest_hashes(manifest),
-    )
-
-    if check_only:
-        verify_profiles(agents_dir)
-        if manifest != desired_manifest():
-            fail(f"Current managed-profile manifest is missing or stale: {manifest_path}")
-        print("CHECK PASSED: codex delegate managed Agent profiles and ownership state are exact.")
-        return
-
-    profiles_exact = agents_dir.is_dir() and all(
-        (agents_dir / filename).is_file()
-        and not (agents_dir / filename).is_symlink()
-        and (agents_dir / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
-        for filename in PROFILE_FILES
-    )
-    if profiles_exact and manifest == desired_manifest():
-        print("Managed Agent profiles already installed exactly; no changes made.")
-        return
-
-    codex_home.mkdir(parents=True, exist_ok=True)
-    agents_dir.mkdir(parents=True, exist_ok=True)
-    previous_manifest = manifest_path.read_bytes() if manifest_path.is_file() else None
-    created: list[Path] = []
-    backups: dict[Path, Path] = {}
-
-    try:
-        apply_profile_changes(agents_dir, upgrades, created, backups)
-        verify_profiles(agents_dir)
-        write_manifest(manifest_path, desired_manifest())
-        verify_profiles(agents_dir)
-    except BaseException as exc:
-        rollback_errors = rollback(created, backups, manifest_path, previous_manifest)
-        if rollback_errors:
-            fail(f"INSTALL FAILED: {exc}\nROLLBACK INCOMPLETE:\n- " + "\n- ".join(rollback_errors))
-        raise
-    else:
-        for backup in backups.values():
-            backup.unlink(missing_ok=True)
-
-    role_names = ", ".join(spec["agent_type"] for spec in ROLE_SPECS.values())
-    print(f"Managed Agent profiles installed under: {agents_dir}")
-    print(f"Managed profile manifest: {manifest_path}")
-    print(f"Verified roles: {role_names}")
-    print(
-        "Profile files are ready. Re-check the native spawn_agent role surface; "
-        "start a fresh Codex task only if the current task still cannot discover these roles."
-    )
+    desired = desired_manifest()
+    if manifest != desired:
+        fail(f"Managed Agent manifest does not match current project generation: {manifest_path}")
+    for filename, expected in EXPECTED_PROFILES.items():
+        target = agents_dir / filename
+        if target.is_symlink() or not target.is_file():
+            fail(f"Managed Agent profile missing or unsafe: {target}")
+        if target.read_bytes() != (PROFILE_SOURCE / filename).read_bytes():
+            fail(f"Managed Agent profile differs from current project generation: {target}")
+        data = tomllib.loads(target.read_text(encoding="utf-8"))
+        actual = (
+            str(data.get("name", "")).strip(),
+            str(data.get("model", "")).strip(),
+            str(data.get("model_reasoning_effort", "")).strip(),
+            str(data.get("sandbox_mode", "")).strip(),
+        )
+        if actual != expected:
+            fail(f"Managed Agent profile tuple mismatch: {target}")
 
 
 def main() -> None:
     args = parse_args()
-    install(args.codex_home, args.check)
+    codex_home = args.codex_home.expanduser()
+    if codex_home.is_symlink():
+        fail(f"Refusing symlinked Codex home: {codex_home}")
+    if codex_home.exists() and not codex_home.is_dir():
+        fail(f"Codex home is not a directory: {codex_home}")
+    if not args.check:
+        codex_home.mkdir(parents=True, exist_ok=True)
+
+    validate_sources()
+    agents_dir = codex_home / "agents"
+    preflight_agents_dir(agents_dir, check_only=args.check)
+    manifest_path = codex_home / MANIFEST_NAME
+    current_manifest = load_manifest(manifest_path)
+    managed_hashes = manifest_hashes(current_manifest)
+    upgrades = preflight_profiles(
+        agents_dir,
+        check_only=args.check,
+        managed_hashes=managed_hashes,
+    )
+    desired = desired_manifest()
+    preflight_manifest(
+        manifest_path,
+        check_only=args.check,
+        desired=desired,
+        current=current_manifest,
+    )
+
+    if args.check:
+        verify_current_state(codex_home)
+        print(f"codex delegate managed Agent profiles verified under {codex_home}")
+        return
+
+    agents_dir.mkdir(parents=True, exist_ok=True)
+    plan = build_plan(agents_dir, upgrades)
+    manifest_bytes = (json.dumps(desired, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    if plan or current_manifest != desired:
+        write_transaction(plan, manifest_path, manifest_bytes)
+    verify_current_state(codex_home)
+    print(f"codex delegate managed Agent profiles installed under {codex_home}")
 
 
 if __name__ == "__main__":
