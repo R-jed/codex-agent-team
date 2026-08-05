@@ -43,7 +43,7 @@ def test_plugin_brand_assets_and_supported_components():
     for field in ["composerIcon", "logo", "logoDark"]:
         asset = PLUGIN_ROOT / interface[field].removeprefix("./")
         assert asset.is_file() and "<svg" in asset.read_text()
-    for unsupported in ["agents", "hooks"]:
+    for unsupported in ["agents", "hooks", "mcpServers", "apps"]:
         assert unsupported not in payload
     for field in ["homepage", "repository"]:
         parsed = urlparse(payload[field])
@@ -67,7 +67,8 @@ def test_skill_owns_current_profile_setup_before_delegated_execution():
     assert "../../scripts/install-agents.py" in text
     assert 'python "$installer" --check' in text
     assert ".codex-delegate-agents.json" in text
-    assert "/codex-delegate" in text
+    assert "$codex-delegate" in text
+    assert "native custom-Agent TOML mechanism" in text
     assert "Complete readiness before delegated execution" in text
     assert "stop before delegated code execution" in text
     assert not (ROOT / "scripts" / "install.py").exists()
@@ -79,6 +80,7 @@ def test_install_doc_explains_marketplace_default_and_manual_five_profile_lifecy
     for phrase in [
         "Open the **Codex Plugin Marketplace**",
         "Search for `codex-delegate`",
+        "$codex-delegate",
         "Manual or development installation",
         "codex plugin marketplace add R-jed/codex-delegate --ref main",
         "--sparse plugins/codex-delegate",
@@ -103,7 +105,7 @@ def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
         assert directive in text
         assert "0.9.0" in text
         assert "Sol Solver" in text
-        assert "/codex-delegate" in text
+        assert "$codex-delegate" in text
         assert "codex plugin marketplace add" not in text
         assert "codex plugin add codex-delegate@codex-delegate" not in text
     assert "搜索 `codex-delegate`" in (ROOT / "README.md").read_text()
@@ -111,6 +113,7 @@ def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
 
     ai = (ROOT / "README_AI.md").read_text()
     assert "Current version:    0.9.0" in ai
+    assert "Explicit invocation: $codex-delegate" in ai
     assert "codex_delegate_solver" in ai
     assert "codex-delegate-solver.toml" in ai
     assert "codex_delegate_advisor" in ai
