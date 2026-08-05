@@ -5,7 +5,7 @@ import tomllib
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "codex-delegate"
 ADVISOR = PLUGIN / "agent-profiles" / "codex-delegate-advisor.toml"
-GATE = PLUGIN / "skills" / "codex-delegate" / "references" / "final-review-gate.md"
+REVIEW = PLUGIN / "skills" / "codex-delegate" / "references" / "final-review.md"
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 
 
@@ -15,12 +15,12 @@ def test_advisor_can_fail_closed_on_missing_evidence():
     assert "missing dependency" in instructions
 
 
-def test_gate_keeps_insufficient_evidence_unresolved():
-    gate = GATE.read_text()
-    assert "INSUFFICIENT_EVIDENCE" in gate
-    assert "unresolved" in gate.lower()
-    assert "not as `fix-first`" in gate
-    assert "current artifact receives `ship`" in gate
+def test_review_keeps_insufficient_evidence_unresolved():
+    review = REVIEW.read_text()
+    assert "INSUFFICIENT_EVIDENCE" in review
+    assert "Keep the candidate at review-pending" in review
+    assert "This is not completion" in review
+    assert "fresh review" in review
 
 
 def test_behavioral_schema_records_insufficient_evidence():
