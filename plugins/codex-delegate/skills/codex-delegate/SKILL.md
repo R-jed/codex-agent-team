@@ -77,7 +77,7 @@ Delegate only for concrete value such as:
 
 ## 3. Complete readiness before delegated execution
 
-This Skill is designed for explicit `$codex-delegate` use. Codex users may also select it through `/skills`.
+This Skill is designed for explicit `/codex-delegate` use. Codex users may also select it through `/skills`.
 
 Once the task actually justifies a child, check the exact required project role before delegated implementation begins. If provisioning is missing:
 
@@ -127,7 +127,7 @@ Consult main-session model/effort only when material judgment already needs Sol 
 
 Compile one bounded responsibility packet using `router-core.md`.
 
-Use the smallest useful set of children. Explicit `$codex-delegate` permits up to two concurrently active justified children inside the ordinary consent envelope, subject to native capacity and `guardrails.md`.
+Use the smallest useful set of children. Explicit `/codex-delegate` permits up to two concurrently active justified children inside the ordinary consent envelope, subject to native capacity and `guardrails.md`.
 
 Read-only independent work may run concurrently. A canonical checkout has only one writing actor inside this orchestration. If Worker or Solver owns the write, main stays read-only in that checkout until ownership returns.
 
@@ -189,6 +189,6 @@ verification performed
 remaining material risk, if any
 ```
 
-Do not append a separate orchestration receipt just because `$codex-delegate` was explicitly invoked.
+Do not append a separate orchestration receipt just because `/codex-delegate` was explicitly invoked.
 
 Mention routing only when it materially affected the result or user decision, such as additional consent, meaningful rerouting, a route/runtime limitation, required Final Review, or an explicit user request for orchestration details.
