@@ -39,7 +39,7 @@ def test_runtime_observation_is_demand_driven_not_universal_overhead():
     guardrails = (SKILL / "references" / "guardrails.md").read_text()
     router = (SKILL / "references" / "router-core.md").read_text()
     assert "Do not run runtime-evidence diagnostics for every ordinary child" in guardrails
-    assert "Routine bounded work does not inspect" in guardrails or "routine bounded" in guardrails.lower()
+    assert "routine bounded" in guardrails.lower()
     assert "Main-session Sol dedup is an optimization" in router
 
 
@@ -61,11 +61,12 @@ def test_compact_child_packet_keeps_decision_rights_acceptance_and_evidence_reus
 
 def test_sol_is_high_leverage_and_terra_is_specialist_only():
     router = (SKILL / "references" / "router-core.md").read_text()
-    assert "Material judgment before writing" in router
-    assert "Writing with judgment coupled to implementation" in router
-    assert "Narrow difficult technical uncertainty" in router
-    assert "Terra is a specialist lane" in router
-    assert "Failed Luna attempt never directly means" in router
+    lower = router.lower()
+    assert "material judgment before writing" in lower
+    assert "writing with judgment coupled to implementation" in lower
+    assert "narrow difficult technical uncertainty" in lower
+    assert "terra is a specialist lane" in lower
+    assert "failed luna attempt never directly means" in lower
 
 
 def test_behavioral_read_only_never_claims_runtime_enforcement():
