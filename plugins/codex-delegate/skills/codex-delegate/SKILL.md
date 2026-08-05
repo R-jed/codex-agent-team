@@ -1,6 +1,6 @@
 ---
 name: codex-delegate
-description: Delegate only when it improves the task, keep bounded execution on Luna, place material judgment on Sol, use Terra only for narrow specialist uncertainty, preserve one-writer safety, and apply fresh independent review only when the final artifact requires it.
+description: Delegate only when it improves the task, keep clear repeatable bounded execution on Luna, place demanding or material judgment on Sol, use Terra for bounded read-heavy technical investigation, preserve one-writer safety, and apply fresh independent review only when the final artifact requires it.
 ---
 
 # codex delegate
@@ -19,9 +19,9 @@ Stable role/model constants and review reason codes live in `../../policy-contra
 
 1. Main session owns user intent, authorization, integration, acceptance, and final response.
 2. Zero children is normal. Delegation must provide concrete value.
-3. Luna Reader gathers bounded evidence. Luna Worker implements behavior that is already decided.
-4. Sol Advisor handles material read-only judgment. Sol Solver handles implementation where material judgment is coupled to the write.
-5. Terra Investigator receives only a narrow difficult technical question after semantics are stable.
+3. Luna Reader gathers narrow bounded evidence. Luna Worker implements clear, repeatable behavior that is already decided.
+4. Sol Advisor handles demanding or material read-only judgment. Sol Solver handles implementation where demanding or material judgment is coupled to the write.
+5. Terra Investigator handles bounded read-heavy technical investigation and evidence synthesis after semantics are stable and no material judgment remains. Terra is not an escalation rung for hard work.
 6. Main-session Sol capability is a dedup optimization, not task taxonomy or authority. Do not buy duplicate Sol capability when trusted current-session evidence already covers it.
 7. Failure does not imply model escalation. Diagnose the remaining blocker and reroute only when the work really changed.
 8. One canonical checkout has one active writing actor inside this orchestration. Main writes, Luna Worker, and Sol Solver share that domain.
@@ -69,14 +69,15 @@ Delegate only for concrete value such as:
 
 - useful context isolation;
 - independent read-only work;
-- standardized bounded implementation;
-- material Sol judgment or judgment-coupled implementation;
-- narrow specialist technical investigation;
+- clear repeatable bounded implementation;
+- demanding or material Sol judgment;
+- judgment-coupled Sol implementation;
+- bounded read-heavy Terra investigation and evidence synthesis;
 - required independent final assurance.
 
 ## 3. Complete readiness before delegated execution
 
-This Skill is designed for explicit `/codex-delegate` use.
+This Skill is designed for explicit `$codex-delegate` use. Codex users may also select it through `/skills`.
 
 Once the task actually justifies a child, check the exact required project role before delegated implementation begins. If provisioning is missing:
 
@@ -91,6 +92,8 @@ python "$installer"
 python "$installer" --check
 ```
 
+The profile files use Codex's native custom-Agent TOML mechanism. The bundled installer supplies project-specific lifecycle, ownership, and fail-closed collision handling; it does not implement another Agent runtime.
+
 If the current Codex thread cannot see newly provisioned roles until restart, stop before delegated code execution and ask the user to start a fresh thread. Do not discover this halfway through a Worker/Solver implementation.
 
 Exact role mismatch fails closed. Do not substitute another role/model simply to keep moving.
@@ -100,23 +103,23 @@ Exact role mismatch fails closed. Do not substitute another role/model simply to
 The practical mapping is:
 
 ```text
-read-only factual evidence
+narrow read-only factual evidence
 -> main or codex_delegate_reader
 
-write; behavior/invariants/acceptance already decided
+write; behavior/invariants/acceptance already decided; remaining work clear/repeatable
 -> main or codex_delegate_worker
 
-material judgment before writing
+demanding/material judgment before writing
 -> capable main or codex_delegate_advisor
 
-write where material judgment cannot be separated
+write where demanding/material judgment cannot be separated
 -> capable main or codex_delegate_solver
 
-semantics stable + narrow difficult technical uncertainty
+semantics stable + bounded read-heavy technical investigation with no material judgment
 -> main or codex_delegate_investigator
 ```
 
-A task being large or contractable does not make it Luna work.
+A task being large or contractable does not make it Luna work. A task being hard or technical does not make it Terra work. Demanding, ambiguous, multi-step technical reasoning that requires material judgment belongs on the Sol path.
 
 Consult main-session model/effort only when material judgment already needs Sol capability and trusted current-session metadata is available or worth checking. `../../scripts/runtime-evidence.py` is an optional diagnostic for that dedup decision and other runtime claims. It is not part of every routine task.
 
@@ -124,7 +127,7 @@ Consult main-session model/effort only when material judgment already needs Sol 
 
 Compile one bounded responsibility packet using `router-core.md`.
 
-Use the smallest useful set of children. Explicit `/codex-delegate` permits up to two concurrently active justified children inside the ordinary consent envelope, subject to native capacity and `guardrails.md`.
+Use the smallest useful set of children. Explicit `$codex-delegate` permits up to two concurrently active justified children inside the ordinary consent envelope, subject to native capacity and `guardrails.md`.
 
 Read-only independent work may run concurrently. A canonical checkout has only one writing actor inside this orchestration. If Worker or Solver owns the write, main stays read-only in that checkout until ownership returns.
 
@@ -145,7 +148,7 @@ Use only these blocker classes in the hot path:
 ```text
 contract
 judgment
-specialist
+investigation
 stalled
 ```
 
@@ -153,8 +156,8 @@ Then:
 
 ```text
 contract -> main repairs task truth or acceptance
-judgment -> main/Sol handles the material decision
-specialist -> Terra only for a narrow technical delta after semantics are stable
+judgment -> main/Sol handles the demanding or material decision
+investigation -> Terra only for bounded read-heavy work after semantics stabilize and no material judgment remains
 stalled -> at most one clean same-role retry when the role remains correct and the packet is materially improved
 ```
 
@@ -186,6 +189,6 @@ verification performed
 remaining material risk, if any
 ```
 
-Do not append a separate orchestration receipt just because `/codex-delegate` was explicitly invoked.
+Do not append a separate orchestration receipt just because `$codex-delegate` was explicitly invoked.
 
 Mention routing only when it materially affected the result or user decision, such as additional consent, meaningful rerouting, a route/runtime limitation, required Final Review, or an explicit user request for orchestration details.
