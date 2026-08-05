@@ -45,7 +45,7 @@ Do not claim cross-session locking unless a real mechanism has been observed and
 
 ## 4. Consent is for material expansion
 
-Explicit `$codex-delegate` invocation authorizes an ordinary bounded orchestration shape:
+Explicit `/codex-delegate` invocation authorizes an ordinary bounded orchestration shape:
 
 ```text
 up to 2 concurrently active justified children
@@ -70,17 +70,17 @@ Do not evade consent by serializing a large number of expensive calls.
 
 ## 5. Explicit invocation only
 
-The product's supported user mental model follows the Codex Skill convention:
+The product's supported user entrypoint is:
 
 ```text
-$codex-delegate <task>
+/codex-delegate <task>
 ```
 
 Users may also open the Codex Skill picker with `/skills`.
 
 Do not silently add codex delegate orchestration to an unrelated task through implicit Skill invocation.
 
-Explicit Skill invocation is the signal that the user wants adaptive delegation for this task. Normal task permissions and external-impact boundaries still apply.
+Explicit invocation is the signal that the user wants adaptive delegation for this task. Normal task permissions and external-impact boundaries still apply.
 
 ## 6. First-use readiness before delegated execution
 
