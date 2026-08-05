@@ -78,9 +78,9 @@ If the current main session already has enough Sol capability, codex delegate wi
 
 ## Parallel work and safe writing
 
-A single `/codex-delegate` task can run up to two useful child Agents at the same time. Many tasks use one or none.
+A single `/codex-delegate` task can run several useful child Agents at the same time. The main session decides the number dynamically from work that is ready, independent, and worth delegating. A small task may use none; a large review may use several Readers, an Investigator, or an Advisor in parallel. Spare capacity is never a reason to create another Agent.
 
-Read-only work can run in parallel. Writing is more conservative: only one actor writes to the same physical Git checkout at a time. That writer may be the main session, Luna Worker, or Sol Solver.
+Read-only work is the preferred place to use parallelism. Writing is more conservative: only one actor writes to the same physical Git checkout at a time. That writer may be the main session, Luna Worker, or Sol Solver.
 
 If multiple Agents truly need to write at the same time, they need separate worktrees, workspaces, or repositories.
 
