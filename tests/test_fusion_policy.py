@@ -29,8 +29,8 @@ def test_compact_runtime_references_and_verifier_are_installed():
 def test_compute_lanes_have_distinct_responsibilities_without_fixed_order():
     combined = (SKILL / "SKILL.md").read_text() + (SKILL / "references" / "router-core.md").read_text()
     lower = combined.lower()
-    assert "luna" in lower and "bounded" in lower
-    assert "terra" in lower and "narrow" in lower and "technical" in lower
+    assert "luna" in lower and "clear" in lower and "repeatable" in lower and "bounded" in lower
+    assert "terra" in lower and "read-heavy" in lower and "investigation" in lower
     assert "sol" in lower and "material judgment" in lower
     assert "model ladder" in lower
     assert "zero children is normal" in lower
@@ -60,13 +60,14 @@ def test_compact_child_packet_keeps_decision_rights_acceptance_and_evidence_reus
     assert "actual artifact state" in router
 
 
-def test_sol_is_high_leverage_and_terra_is_specialist_only():
+def test_sol_is_high_leverage_and_terra_is_investigation_value_lane():
     router = (SKILL / "references" / "router-core.md").read_text()
     lower = router.lower()
-    assert "material judgment before writing" in lower
+    assert "demanding or material judgment before writing" in lower
     assert "writing with judgment coupled to implementation" in lower
-    assert "narrow difficult technical uncertainty" in lower
-    assert "terra is a specialist lane" in lower
+    assert "bounded read-heavy technical investigation" in lower
+    assert "terra is an investigation/value lane" in lower
+    assert "demanding, ambiguous, multi-step technical reasoning" in lower
     assert "failed luna attempt never directly means" in lower
 
 
