@@ -20,7 +20,7 @@ def test_handoff_requires_deterministic_execution_preflight_before_live_evidence
         "## Deterministic execution preflight",
         "python -m pytest tests/test_identity_cleanup.py -q",
         "tests/test_runtime_evidence.py",
-        "tests/test_routing_v4_main_coverage.py",
+        "tests/test_capability_dedup.py",
         "tests/test_behavioral_evals.py",
         "python -m pytest -q",
         "complete pytest suite has no failures or errors",
