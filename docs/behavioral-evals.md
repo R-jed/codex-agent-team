@@ -27,9 +27,9 @@ The live suite asks:
 3. When the main session already meets the Sol reference capability, does keeping ordinary judgment-coupled work in Main avoid redundant Sol calls without reducing quality?
 4. When main-route telemetry is unavailable, does the product avoid buying Sol for routine bounded work while still protecting genuine material judgment?
 5. When Luna encounters a material semantic blocker, does correct rerouting reduce wrong edits/rework compared with simply continuing Luna?
-6. Does Terra add value only for a genuine narrow technical uncertainty after semantics stabilize?
+6. For stable semantics and read-only work, does Terra provide useful quality/context depth at lower total cost than a Sol judgment lane, and when does narrow Luna Reader remain sufficient?
 7. Does consequence-driven Final Review catch material issues while avoiding decorative review caused only by process history?
-8. Does explicit invocation + pre-execution role readiness reduce onboarding interruption compared with discovering missing roles mid-task?
+8. Does explicit `$codex-delegate` invocation plus pre-execution role readiness reduce onboarding interruption compared with discovering missing roles mid-task?
 9. Does removing default orchestration receipts improve completion clarity without hiding consequential routing/consent/review information?
 
 These are separate questions. Do not collapse them into one global score.
@@ -50,7 +50,7 @@ adaptive_routing_v4_final_review
 external_baseline
 ```
 
-`adaptive_routing_v4` is retained as an experiment identifier. It does not mean the current Skill maintains the old V4 dependency taxonomy.
+`adaptive_routing_v4` and `terra_delta` are retained as experiment identifiers. They do not define the current runtime taxonomy or imply that Terra is an escalation rung.
 
 `execution_route` records actual primary execution placement and may differ across paired strategies by design.
 
@@ -200,21 +200,33 @@ Compare blindly continuing Luna with the current product behavior, which stops b
 
 Measure wrong edits, correction turns, repeated work, and whether the unresolved problem narrows.
 
-## Experiment F: Terra technical delta
+## Experiment F: Terra read-heavy investigation
 
-Use a workload where desired semantics are already fixed and evidence isolates one difficult technical question.
+Use a workload where desired semantics are already fixed, no material decision remains, and the task is read-only but benefits from broader technical exploration or evidence synthesis than a narrow Reader task.
 
-Compare a broad stronger restart with:
+Compare at least:
 
 ```text
-Terra receives only the technical delta
-+ current artifact
-+ valid evidence
-+ factual failure
-+ DO NOT REDO facts
+Luna Reader
+vs
+Terra Investigator
+vs
+Sol Advisor when the task is deliberately framed as judgment-heavy
 ```
 
-Also test a false-specialist case where semantics are still unresolved. Terra must not receive ambiguity merely because Luna struggled.
+The current product hypothesis is that Terra can provide a useful middle lane for intelligence/cost balance on read-heavy work. Do not assume that hypothesis is true until measured.
+
+Also test two negative controls:
+
+```text
+routine narrow factual lookup
+-> should remain Luna Reader / Main
+
+demanding, ambiguous, multi-step technical reasoning with material decisions
+-> should route to Main/Sol, not Terra
+```
+
+Weak Luna output alone must never become a Terra trigger.
 
 ## Experiment G: consequence-driven Final Review
 
@@ -233,7 +245,7 @@ For the process-history negative control, use a candidate where Terra/Solver/rec
 
 ## Experiment H: first-use readiness
 
-Measure the first explicit `/codex-delegate` experience when project Agent profiles are absent.
+Measure the first explicit `$codex-delegate` experience when project Agent profiles are absent.
 
 The current candidate should:
 
