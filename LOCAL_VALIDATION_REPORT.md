@@ -10,7 +10,7 @@ Repository: R-jed/codex-delegate
 Marketplace id: codex-delegate
 Plugin id: codex-delegate
 Skill: codex-delegate
-Canonical explicit invocation: $codex-delegate
+Canonical explicit invocation: /codex-delegate
 Plugin version: 0.9.1
 Current roles: codex_delegate_reader / codex_delegate_worker / codex_delegate_solver / codex_delegate_investigator / codex_delegate_advisor
 Current ownership manifest: .codex-delegate-agents.json
@@ -32,7 +32,7 @@ Current source inspection establishes:
 - the product keeps five exact role profiles: Reader, Worker, Solver, Investigator, Advisor;
 - runtime policy is compressed from eight model-facing reference documents to three;
 - `router-core.md` owns delegation benefit, direct capability selection, child packet, blocker handling, scheduling, and acceptance;
-- `guardrails.md` owns user authority, official explicit Skill invocation, provisioning readiness, consent, writer ownership, permissions, trust boundaries, and on-demand runtime evidence;
+- `guardrails.md` owns user authority, explicit Plugin invocation, provisioning readiness, consent, writer ownership, permissions, trust boundaries, and on-demand runtime evidence;
 - `final-review.md` owns independent artifact-bound assurance;
 - `policy-contract.json` schema `3` contains stable machine constants only: delegation limits, capability-dedup reference, role routes, and Final Review reason codes;
 - the former runtime dependency ontology is no longer encoded in the machine policy;
@@ -49,13 +49,13 @@ Current source inspection establishes:
 - complete trusted Sol `high`, `xhigh`, or `max` metadata can cover the current Sol `high` reference; Sol `medium`/`low` is insufficient; unknown/unranked/partial/local-only/conflicted evidence remains conservative;
 - one canonical checkout has one writing actor inside the current orchestration; Main writes, Worker, and Solver share that domain;
 - implicit Skill invocation is disabled;
-- official explicit Skill invocation is `$codex-delegate`; `/skills` is the Skill picker; no invented custom slash command is part of the current product contract;
+- canonical user invocation is `/codex-delegate`; `/skills` remains the Skill picker; no dollar-style codex-delegate invocation is part of the current product contract;
 - first-use role provisioning is required before delegated code execution, avoiding mid-implementation setup/restart;
 - the five managed role files use Codex's native custom-Agent TOML mechanism under the active Codex home; the bundled installer is a project-specific lifecycle/ownership safety layer, not another Agent runtime;
 - ordinary successful tasks no longer require a separate orchestration receipt;
 - Final Review remains consequence-driven and fresh when required;
 - the Plugin intentionally remains skills-only and does not declare unused MCP/apps/hooks surfaces;
-- public Plugin metadata now includes website, privacy policy, terms of use, category, brand assets, and `$codex-delegate` starter prompts;
+- public Plugin metadata now includes website, privacy policy, terms of use, category, brand assets, and `/codex-delegate` starter prompts;
 - root `PRIVACY.md` and `TERMS.md` are current public legal documents for Plugin submission metadata;
 - `main` remains a moving pre-release development ref; final v1.0.0 installation evidence must be bound to one immutable RC/tag.
 
@@ -66,8 +66,8 @@ These are repository facts only. Deterministic and live validation remain requir
 The current review is grounded in current OpenAI Codex documentation for:
 
 ```text
-Codex Skills explicit invocation: $skill-name
-Codex Skill picker: /skills
+Codex Skill metadata and /skills picker behavior
+codex delegate public command: /codex-delegate
 Plugin minimum shape and skills-only Plugins
 Plugin manifest and marketplace metadata
 public Plugin submission/listing/legal URL requirements
@@ -94,7 +94,7 @@ Exact source URLs/revisions should be captured in `docs/openai-references.md` an
 | --- | --- | --- |
 | repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
 | Plugin version is `0.9.1` | repository fact | current Plugin/public docs |
-| canonical explicit Skill invocation is `$codex-delegate` | implementation fact, exact-tree regression/live validation pending | manifest/openai metadata/docs/tests |
+| canonical explicit Plugin invocation is `/codex-delegate` | implementation fact, exact-tree regression/live validation pending | manifest/openai metadata/docs/tests |
 | public privacy/terms URLs exist in Plugin manifest | implementation fact, current validator/live listing revalidation pending | manifest + root legal docs |
 | Plugin remains skills-only | repository fact, official validator revalidation pending | manifest/package |
 | current role set is Reader/Worker/Solver/Investigator/Advisor | repository fact, deterministic revalidation pending | policy/profile/installer/tests |
@@ -128,7 +128,7 @@ Git: 2.50.1
 Codex CLI/runtime: 0.146.0
 ```
 
-This evidence predates Sol Solver, mechanism compression, official `$skill` invocation alignment, and current Terra placement. It cannot establish current routing, onboarding, profile lifecycle, capability dedup, or release readiness.
+This evidence predates Sol Solver, mechanism compression, the current `/codex-delegate` command contract, and current Terra placement. It cannot establish current routing, onboarding, profile lifecycle, capability dedup, or release readiness.
 
 ## Deterministic execution record
 
