@@ -28,21 +28,17 @@ codex delegate 是 Codex Native Subagents 上的一层轻量委派策略。主�
 
 ## 快速开始
 
-当前预发布开发版本通过 Codex 原生 Plugin 系统安装：
-
-```bash
-codex plugin marketplace add R-jed/codex-delegate --ref main \
-  --sparse .agents/plugins \
-  --sparse plugins/codex-delegate
-
-codex plugin add codex-delegate@codex-delegate
-```
+在 Codex 中打开**插件市场**，搜索 `codex-delegate`，选择 **Codex Delegate** 并安装。
 
 安装后启动新的 Codex 会话，然后显式调用：
 
 ```text
 /codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
+
+这就是普通用户的完整安装路径。你不需要注册额外 marketplace、不需要运行安装命令，也不需要手工配置 Agent profiles。
+
+如果你在做开发安装、手动安装或排障，请查看[安装指南](docs/plugin-installation.md)。
 
 插件不会隐式介入普通任务。你也不需要手工选择 Agent 或设计执行流水线。
 
@@ -178,21 +174,10 @@ runtime model、permission、ancestry 等证明只在确实影响当前决策或
 
 codex delegate 直接使用 Codex Native Subagents，不运行第二套 Agent runtime、后台 daemon 或外部 routing proxy。
 
-## 更新
-
-```bash
-codex plugin marketplace upgrade codex-delegate
-codex plugin add codex-delegate@codex-delegate
-```
-
-更新后启动新的 Codex 会话。
-
-安装程序只管理 codex delegate 当前的五个 Agent profiles 和 ownership 记录，不修改凭据、MCP、仓库、`config.toml` 或其他 Agent 配置。
-
 ## 文档
 
 - [README_AI.md](README_AI.md)：AI Agent 查询本项目时应优先读取的 canonical reference。
-- [安装指南](docs/plugin-installation.md)：首次安装、更新和 installer safety。
+- [安装指南](docs/plugin-installation.md)：插件市场安装、手动/开发安装、更新和 installer safety。
 - [架构](docs/architecture.md)：产品机制、角色边界和 writer safety。
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)：原生并发、runtime evidence 和 host 边界。
 
