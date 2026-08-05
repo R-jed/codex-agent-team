@@ -24,9 +24,9 @@
     "logoDark": "./assets/codex-delegate-logo-dark.svg",
     "screenshots": [],
     "defaultPrompt": [
-      "Use /codex-delegate to complete this development task. Act as the team leader and delegate distinct work only when it adds value.",
-      "Use /codex-delegate to implement this change, choosing the specialist roles and parallelism dynamically from the task.",
-      "Use /codex-delegate to review this change and add independent review only when the final artifact warrants it."
+      "Use /codex-delegate to complete this task. Lead the work and delegate only when it adds value.",
+      "Use /codex-delegate to implement this change with the right specialists and useful parallelism.",
+      "Use /codex-delegate to review this change and add independent review only when needed."
     ]
   }
 }
