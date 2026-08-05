@@ -5,8 +5,10 @@ This folder contains the test data used to check routing and runtime behavior. I
 - `behavioral-workloads.json`: saved task shapes for repeated live tests.
 - `behavioral-result.schema.json`: format used to store test results.
 - `LOCAL_EVAL_FIXTURE_TEMPLATE.md`: template for freezing a local test case before comparing runs.
-- `routing-cases.json`: static cases that catch obvious routing regressions.
+- `routing-cases.json`: static cases that catch obvious routing regressions, including adaptive multi-Agent fan-out.
 - `runtime-assurance-cases.json`: fixtures used by runtime-evidence tests.
+
+The adaptive-routing checks should cover both sides of the policy: several independent ready responsibilities may run together when useful, while duplicate, speculative, or low-value work should stay out of the active team. The project does not use a fixed ordinary child-Agent count as the routing target.
 
 These files do not control how the plugin routes work. The live behavior is defined by the installed Skill's `router-core.md`, `guardrails.md`, `final-review.md`, and the stable settings in `policy-contract.json`.
 
