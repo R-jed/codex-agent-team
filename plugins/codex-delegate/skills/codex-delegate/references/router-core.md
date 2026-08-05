@@ -2,13 +2,15 @@
 
 This is the single runtime routing contract for codex delegate.
 
-The product goal is simple: keep the user-facing main session in control, delegate only when doing so improves the task, use Luna for clear repeatable bounded work, use Sol where demanding or material judgment belongs, use Terra for bounded read-heavy technical investigation, and avoid repeated work.
+The main session is the team leader. It understands the user's goal, keeps work that belongs in Main, assigns distinct responsibilities to specialist Agents when that helps, and owns integration and acceptance.
 
-Do not build a model ladder or an Agent team before understanding the task.
+The product goal is simple: delegate only when doing so improves the task, use Luna for clear repeatable bounded work, use Sol where demanding or material judgment belongs, use Terra for bounded read-heavy technical investigation, and avoid repeated or decorative Agent work.
+
+Do not build a model ladder, fixed team size, or Agent pipeline before understanding the task.
 
 ## 1. Minimal task state
 
-Track one compact task state, not separate dependency, evidence, and recovery ledgers:
+Track one compact task state per genuinely distinct unresolved responsibility:
 
 ```text
 WORK ITEM
@@ -30,7 +32,7 @@ Zero children is normal.
 
 Keep work in the main session when a child would mostly duplicate context, add handoff overhead, or provide no useful isolation, parallelism, capability uplift, read-heavy investigation, or independent judgment.
 
-A task being large, many-file, expensive, or "complex" does not by itself justify delegation.
+A task being large, many-file, expensive, or "complex" does not by itself justify delegation. Likewise, project policy does not map task size to a fixed child count.
 
 ## 3. Select by capability need
 
@@ -179,15 +181,43 @@ A failed Luna attempt never directly means "use Terra" or "use a stronger model.
 
 A clean retry carries the current artifact, valid evidence, current failure, a correction hypothesis, acceptance, and explicit DO NOT REDO facts. Do not replay dead-end narration.
 
-## 8. Scheduling
+## 8. Adaptive scheduling
 
-Use the smallest useful safe set of children.
+Main manages a ready frontier. Project policy does not define an ordinary numeric child ceiling or a target team size.
 
-- Explicit `/codex-delegate` use includes up to two concurrently active justified children within the ordinary consent envelope.
-- Read-only independent work may run concurrently when native capacity allows.
-- One canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain.
-- Concurrent writers require genuinely isolated workspaces or worktrees.
-- Process an exposed completion when useful instead of imposing an artificial wave barrier.
+A responsibility belongs on the ready frontier only when it can make meaningful progress now. Start a child only when all of the following are true:
+
+```text
+ready now
++ distinct ownership
++ non-duplicative
++ delegation adds useful parallelism, isolation, capability, or independence
++ expected value exceeds handoff / compute / integration cost
++ safe under writer, permission, scope, and external-impact boundaries
+```
+
+Use the smallest useful active set, then grow it progressively when the task justifies it.
+
+```text
+understand current work
+-> start useful ready responsibilities
+-> consume an exposed completion
+-> merge valid evidence
+-> update the ready frontier
+-> start another child only if a new responsibility is now ready and still worth delegating
+```
+
+Do not speculate ahead by spawning work that depends on unresolved decisions likely to invalidate it. Do not create multiple owners for the same unchanged responsibility unless independent cross-checking is itself an explicit requirement. Do not keep Agents busy merely because the host has spare capacity.
+
+Native Codex capacity is the upper bound on concurrency, not a target. If the runtime exposes less capacity or only barrier-style completion, adapt to the observed host surface rather than simulating a scheduler with busy polling.
+
+Read-only independent work is the preferred place to exploit parallelism. Multiple Reader instances are valid when they own different evidence lanes. Investigator and Advisor may run alongside other independent read-only work when their distinct capability is genuinely needed.
+
+A canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain. Concurrent writers require genuinely isolated workspaces or worktrees.
+
+Empty capacity is never a reason to start Solver, Advisor, or Investigator. Repeated expensive parallel or serial calls that materially expand compute require consent under `guardrails.md`.
+
+Process an exposed child completion when useful instead of imposing an artificial wave barrier. Reuse valid evidence and suppress repeated discovery.
 
 ## 9. Completion
 
