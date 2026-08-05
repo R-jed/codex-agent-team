@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import os
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -6,52 +10,47 @@ RETIRED_TOKENS = (
     "codex" + "_agent_team",
     "codex" + " agent team",
 )
-SCAN_ROOTS = ("plugins", "docs", "evals", "tests", ".agents", ".github")
-ROOT_FILES = ("README.md", "README_EN.md", "README_AI.md", "HEADOFF.md", "LOCAL_VALIDATION_REPORT.md")
 
 
-def iter_text_files():
-    for root_name in SCAN_ROOTS:
-        root = ROOT / root_name
-        if root.exists():
-            for path in root.rglob("*"):
-                if path.is_file() and path.suffix.lower() in {".py", ".md", ".json", ".toml", ".yaml", ".yml"}:
-                    yield path
-    for name in ROOT_FILES:
-        path = ROOT / name
-        if path.exists():
-            yield path
+def tracked_paths() -> list[Path]:
+    result = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    )
+    paths: list[Path] = []
+    for raw in result.stdout.split(b"\0"):
+        if not raw:
+            continue
+        paths.append(ROOT / os.fsdecode(raw))
+    return paths
 
 
-def iter_project_paths():
-    for root_name in SCAN_ROOTS:
-        root = ROOT / root_name
-        if root.exists():
-            yield root
-            yield from root.rglob("*")
-    for name in ROOT_FILES:
-        path = ROOT / name
-        if path.exists():
-            yield path
+def tracked_bytes(path: Path) -> bytes:
+    if path.is_symlink():
+        return os.fsencode(os.readlink(path))
+    return path.read_bytes()
 
 
-def test_retired_identity_tokens_are_absent_from_current_tree_content():
+def test_retired_identity_tokens_are_absent_from_all_tracked_content():
+    retired = tuple(token.encode("utf-8") for token in RETIRED_TOKENS)
     violations = []
-    for path in iter_text_files():
-        text = path.read_text(errors="replace").lower()
-        matches = [token for token in RETIRED_TOKENS if token in text]
+    for path in tracked_paths():
+        data = tracked_bytes(path).lower()
+        matches = [token.decode("utf-8") for token in retired if token in data]
         if matches:
             violations.append((path.relative_to(ROOT).as_posix(), matches))
-    assert not violations, f"Retired project identity remains in current tree content: {violations}"
+    assert not violations, f"Retired project identity remains in tracked content: {violations}"
 
 
-def test_retired_identity_tokens_are_absent_from_current_tree_paths():
+def test_retired_identity_tokens_are_absent_from_all_tracked_paths():
     violations = []
-    for path in iter_project_paths():
+    for path in tracked_paths():
         rel = path.relative_to(ROOT).as_posix().lower()
         if any(token in rel for token in RETIRED_TOKENS):
             violations.append(rel)
-    assert not violations, f"Retired project identity remains in current tree paths: {violations}"
+    assert not violations, f"Retired project identity remains in tracked paths: {violations}"
 
 
 def test_current_profile_filenames_and_roles_are_single_generation():
