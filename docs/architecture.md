@@ -43,24 +43,30 @@ The router does not require a large internal taxonomy. It asks what capability t
 | Work remaining | Typical actor |
 | --- | --- |
 | no meaningful delegation benefit | Main session |
-| independent read-only factual evidence | Luna Reader |
-| writing where behavior/invariants/acceptance are already decided | Luna Worker |
-| material decision before implementation | capable Main or Sol Advisor |
-| writing where material judgment is coupled to implementation | capable Main or Sol Solver |
-| narrow difficult technical question after semantics are stable | Terra Investigator |
+| narrow independent read-only factual evidence | Luna Reader |
+| clear repeatable writing where behavior/invariants/acceptance are already decided | Luna Worker |
+| demanding/material decision before implementation | capable Main or Sol Advisor |
+| writing where demanding/material judgment is coupled to implementation | capable Main or Sol Solver |
+| bounded read-heavy technical investigation/evidence synthesis after semantics are stable | Terra Investigator |
 | independent final assurance for a consequential candidate | fresh Sol Advisor |
 
-The important quality boundary is simple: Luna Worker receives work where material behavior decisions are already made. A task being large, many-file, or easy to describe in a contract does not make it Luna-suitable.
+The quality boundaries follow current Codex model guidance:
+
+- Luna is reserved for clear, repeatable, high-volume bounded work.
+- Terra is a read-heavy investigation/value lane when broader synthesis is useful and material semantics are already stable.
+- Sol is the judgment lane for demanding, ambiguous, multi-step reasoning and judgment-coupled implementation.
+
+A task being large, many-file, hard, or easy to describe in a contract does not by itself select a model.
 
 ## Current roles
 
 | Responsibility | Agent type | Route | Intent |
 | --- | --- | --- | --- |
-| Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | bounded reusable evidence |
-| Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | standardized bounded implementation |
-| Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | judgment-coupled implementation |
-| Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | narrow difficult technical uncertainty |
-| Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | material read-only judgment or fresh independent review |
+| Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | narrow bounded reusable evidence |
+| Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | clear repeatable bounded implementation |
+| Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | demanding judgment-coupled implementation |
+| Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | bounded read-heavy technical investigation and evidence synthesis |
+| Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | demanding/material read-only judgment or fresh independent review |
 
 Role identity is separate from model identity so future route changes do not redefine responsibility semantics.
 
@@ -76,7 +82,7 @@ material judgment: none | separable | coupled
 acceptance
 valid evidence
 current failure
-blocker: none | contract | judgment | specialist | stalled
+blocker: none | contract | judgment | investigation | stalled
 ```
 
 Add another work item only for a genuinely distinct unresolved responsibility. Valid evidence prevents repeated discovery and duplicate ownership.
@@ -90,14 +96,16 @@ contract
 -> Main repairs missing task truth, scope, invariant, or acceptance
 
 judgment
--> capable Main / Advisor / Solver handles the material decision
+-> capable Main / Advisor / Solver handles the demanding or material decision
 
-specialist
--> Investigator only when semantics are stable and the remaining technical delta is narrow
+investigation
+-> Investigator only when semantics are stable, the work remains read-only, and no material judgment remains
 
 stalled
 -> at most one clean same-role retry when the role remains correct and the packet materially improves
 ```
+
+Terra is not the automatic destination for a difficult technical problem. If the remaining technical work is demanding, ambiguous, multi-step, or requires a consequential decision, route it to capable Main/Sol.
 
 If the same failure continues without new evidence or acceptance progress, stop repeating the lane and diagnose the real blocker.
 
@@ -145,15 +153,17 @@ Independent sessions, editors, hooks, and external processes remain outside this
 
 ## Explicit invocation and onboarding
 
-The supported user mental model is explicit:
+The supported user mental model follows the Codex Skill convention:
 
 ```text
-/codex-delegate <task>
+$codex-delegate <task>
 ```
 
-Implicit invocation is disabled.
+Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled.
 
 When an explicit task actually benefits from delegation, exact role readiness is checked before delegated implementation starts. If profiles must be provisioned, the Skill explains the managed scope, asks permission, runs the bundled installer plus `--check`, then verifies the role surface. If the runtime requires a fresh thread to discover new roles, execution stops before child writing begins.
+
+The five managed TOML files use Codex's native custom-Agent mechanism. The installer only provides project-specific lifecycle, ownership, and collision safety around those native profiles.
 
 This avoids discovering installation requirements midway through a development task.
 
@@ -204,6 +214,12 @@ bind exact candidate
 ```
 
 Any deliverable mutation invalidates the old verdict.
+
+## Plugin boundary
+
+The Plugin intentionally remains skills-only because the product is fully expressible through instructions, Codex Native Subagents, and native custom Agents. It does not declare MCP servers, apps, hooks, or another runtime.
+
+Public Plugin metadata includes the website, privacy policy, terms of use, category, brand assets, and starter prompts. Public user installation is marketplace-first; local repository marketplace metadata remains a development/testing surface.
 
 ## User-visible output
 
