@@ -6,7 +6,7 @@ EN = (ROOT / "README_EN.md").read_text()
 AI = (ROOT / "README_AI.md").read_text()
 EVALS = (ROOT / "evals" / "README.md").read_text()
 ALL_READMES = [path.read_text() for path in ROOT.rglob("README*.md")]
-DIRECTIVE = "If you are an AI Agent, jump to README_AI.md and follow the instructions strictly."
+DIRECTIVE = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
 
 
 def test_public_readmes_keep_current_identity_roles_and_entrypoint():
@@ -14,7 +14,7 @@ def test_public_readmes_keep_current_identity_roles_and_entrypoint():
         for phrase in [
             "codex delegate",
             "0.9.1",
-            "$codex-delegate",
+            "/codex-delegate",
             "Luna Reader",
             "Luna Worker",
             "Sol Solver",
@@ -30,8 +30,8 @@ def test_public_readmes_are_marketplace_first_and_explain_updates_simply():
     assert "搜索 `codex-delegate`" in ZH
     assert "Open the **Codex Plugin Marketplace**" in EN
     assert "search for `codex-delegate`" in EN
-    assert "$codex-delegate" in ZH and "/skills" in ZH
-    assert "$codex-delegate" in EN and "/skills" in EN
+    assert "/codex-delegate" in ZH and "/skills" in ZH
+    assert "/codex-delegate" in EN and "/skills" in EN
     assert "以后更新插件，同样直接通过 Codex 插件市场完成" in ZH
     assert "Updates are handled through the Codex Plugin Marketplace as well" in EN
     for text in [ZH, EN]:
@@ -94,7 +94,7 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
     for phrase in [
         "R-jed/codex-delegate",
         "Marketplace id:      codex-delegate",
-        "Explicit invocation: $codex-delegate",
+        "Explicit invocation: /codex-delegate",
         "Current version:     0.9.1",
         "codex_delegate_reader",
         "codex_delegate_worker",
@@ -158,6 +158,7 @@ def test_public_readmes_link_to_deeper_docs_without_exposing_maintainer_ledgers(
             "docs/native-subagent-runtime.md",
         ]:
             assert link in text
+        assert "[README_AI.md](README_AI.md)" in text
         assert "HEADOFF.md" not in text
         assert "LOCAL_VALIDATION_REPORT.md" not in text
 
