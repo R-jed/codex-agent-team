@@ -126,6 +126,13 @@ Do not add Checkpoint 7.
 
 ## Checkpoint 1: Plugin discovery, command invocation, and exact five-role readiness
 
+```text
+Status: PARTIAL
+Tested SHA: 55728b41592058575a6e35632adc6af75a355016
+Evidence reference: LOCAL_VALIDATION_REPORT.md#checkpoint-1-plugin-discovery-command-invocation-and-five-role-readiness
+Remaining blocker: codex-delegate is installed and enabled, but neither a fresh Desktop task nor a fresh CLI process exposed it in the Skill list; Review Checkpoint A also stopped with CONSULTATION_TARGET_UNRESOLVED because no exact-title R-jed/codex-delegate conversation exists.
+```
+
 Validate a fresh user path:
 
 - Plugin is discoverable from the Codex Plugin Marketplace;
@@ -140,6 +147,12 @@ Validate a fresh user path:
 ### Review Checkpoint A
 
 Send only sanitized new evidence and unresolved consequential judgment to the consultation target below.
+
+```text
+Status: BLOCKED
+Result: CONSULTATION_TARGET_UNRESOLVED
+Observed: ChatGPT exposed a conversation titled codex-delegate, but no exact-title R-jed/codex-delegate conversation. No fuzzy match, replacement conversation, or consultation submission was used.
+```
 
 ## Checkpoint 2: everyday routing quality and Sol dedup
 

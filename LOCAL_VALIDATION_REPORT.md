@@ -149,7 +149,52 @@ This evidence predates Sol Solver, mechanism compression, the current `/codex-de
 
 ## Deterministic execution record
 
-Pending for exact current candidate SHA.
+### Initial candidate failure and focused correction
+
+```text
+TESTED_REVISION: 115b5cc42c9623d6a5695a07891c955317239a94
+COMMAND: python -m pytest -q
+EXIT CODE: 1
+RESULT: FAIL — 8 failed, 131 passed
+CAUSE: tests/test_review_artifact.py used non-Conventional temporary Git commit messages; the active user commit hook rejected them before review-artifact behavior executed.
+FOCUSED REPRODUCTION: an isolated temporary repository rejected git commit -m base with the same hook error.
+CORRECTION: commit 55728b41592058575a6e35632adc6af75a355016 changes only the two fixture commit messages to test: base and test: change head.
+FOCUSED VERIFICATION: python -m pytest tests/test_review_artifact.py -q -> exit 0, 9 passed.
+```
+
+### Corrected exact candidate
+
+```text
+TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
+PLATFORM: Apple Silicon macOS 27.0 (26A5388g)
+PYTHON: 3.14.5 from .venv
+GIT: 2.50.1 (Apple Git-155)
+CODEX CLI/RUNTIME: 0.146.0
+
+COMMAND: python -m pytest tests/test_identity_cleanup.py -q
+EXIT CODE: 0
+RESULT: PASS — 4 passed
+
+COMMAND: python -m pytest tests/test_official_plugin_compliance.py tests/test_install_agents.py tests/test_installer_safety.py tests/test_plugin_packaging.py tests/test_policy.py tests/test_concurrency_policy.py tests/test_runtime_evidence.py tests/test_capability_dedup.py tests/test_runtime_truth_policy.py tests/test_behavioral_evals.py tests/test_headoff.py tests/test_readme_user_facing.py -q
+EXIT CODE: 0
+RESULT: PASS — 87 passed
+
+COMMAND: python -m pytest -q
+EXIT CODE: 0
+RESULT: PASS — 139 passed
+
+WARNINGS / SKIPS / XFAILS: none reported by the three pytest runs.
+
+PINNED OFFICIAL VALIDATOR REVISION: 7750465934d97dd3cbcb3b1655d2f622744010d3
+VALIDATOR SHA256: ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228
+EXIT CODE: 0
+RESULT: Plugin validation passed.
+
+THEN-CURRENT OFFICIAL OPENAI CODEX MAIN REVISION: 2707dfc219b9bc9d38d7d37d1f691855f7b44c1e
+VALIDATOR SHA256: ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228
+EXIT CODE: 0
+RESULT: Plugin validation passed.
+```
 
 Record each run as:
 
@@ -166,6 +211,34 @@ NOTES
 ```
 
 Do not mark the deterministic gate passed until the complete preflight in `HEADOFF.md` succeeds on one unchanged SHA, including official compliance tests and both required Plugin validator runs.
+
+## Checkpoint 1: Plugin discovery, command invocation, and five-role readiness
+
+```text
+TEST_ID: CP1-2026-08-05
+CHECKPOINT: 1
+TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
+RUNTIME_VERSION / PLATFORM: Codex 0.146.0 / Apple Silicon macOS 27.0 (26A5388g)
+RESULT: PARTIAL
+```
+
+Observed evidence:
+
+- The Git marketplace registered from `R-jed/codex-delegate` at exact revision `55728b41592058575a6e35632adc6af75a355016`.
+- Plugin `codex-delegate@codex-delegate` version `0.9.1` installed and was enabled. Installed manifest and Skill bytes matched the tested repository.
+- Before provisioning, the exact `codex_delegate_reader` role failed closed as unavailable.
+- Owner authorization covered provisioning. The installed Plugin's lifecycle installer wrote the five exact profiles and `.codex-delegate-agents.json`; `--check` passed.
+- The unrelated Agent-directory digest remained `c5f8f754def8297609722d37fdb95fd7f2b5f7e63090eb46156f48d01a28f8ec` before and after provisioning.
+- All five managed profile bytes matched the repository source.
+- The pre-existing task still rejected `codex_delegate_reader`, establishing the documented refresh boundary.
+- A fresh Desktop task and a separate fresh CLI process both exposed all five exact Agent types. Each successfully ran one `codex_delegate_reader` with `fork_turns="none"`; both Readers reported HEAD `55728b41592058575a6e35632adc6af75a355016` on `main` without modifying the repository.
+- `allow_implicit_invocation: false` is confirmed configuration evidence only; implicit behavior was not independently exercised.
+
+Remaining issue:
+
+- Neither fresh runtime included `codex-delegate` in its Skill list, so `/skills` discovery is not validated even though the Plugin is installed/enabled and the explicit slash prompt was accepted.
+- Review Checkpoint A stopped with `CONSULTATION_TARGET_UNRESOLVED`: ChatGPT exposed `codex-delegate`, but no exact-title `R-jed/codex-delegate` conversation. No evidence was sent to a fuzzy or substitute target.
+- Checkpoint 2 was not started.
 
 ## Live validation record format
 
