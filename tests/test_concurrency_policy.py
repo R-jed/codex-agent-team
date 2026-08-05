@@ -16,34 +16,53 @@ def policy():
 def test_scheduler_is_completion_driven_without_product_hard_child_count():
     text = (ROUTER.read_text() + (SKILL / "SKILL.md").read_text()).lower()
     for phrase in [
-        "smallest useful safe set",
-        "native capacity",
-        "process exposed child completion",
+        "smallest useful active set",
+        "ready frontier",
+        "progressive fan-out",
+        "native codex capacity",
+        "process an exposed child completion",
         "artificial wave barrier",
     ]:
         assert phrase in text
-    assert "fixed team" not in text
+    assert "fixed team size" in text
+    assert "ordinary numeric child ceiling" in text
 
 
-def test_two_children_is_consent_envelope_not_scheduler_target():
-    assert policy()["delegation"]["baseline_concurrent_children"] == 2
-    text = (GUARDRAILS.read_text() + ROUTER.read_text()).lower()
-    assert "up to 2 concurrently active justified children" in text
-    assert "envelope, not a target" in text
+def test_machine_contract_keeps_only_hard_delegation_limits():
+    delegation = policy()["delegation"]
+    assert delegation == {
+        "max_depth": 1,
+        "max_active_writers_per_workspace": 1,
+    }
+    assert "baseline_concurrent_children" not in delegation
+    assert "max_concurrent_children" not in delegation
 
 
-def test_static_eval_keeps_parallel_readers_and_consent_boundary():
+def test_static_eval_allows_parallel_readers_and_cost_based_consent():
     payload = json.loads((ROOT / "evals" / "routing-cases.json").read_text())
     by_id = {case["id"]: case for case in payload["evals"]}
 
-    parallel = by_id["two-independent-readers"]
+    parallel = by_id["three-independent-readers-can-fanout"]
     assert parallel["expected"]["action"] == "delegate"
-    assert len(parallel["expected"]["nodes"]) == 2
+    assert len(parallel["expected"]["nodes"]) == 3
     assert all(node["agent_type"] == "codex_delegate_reader" for node in parallel["expected"]["nodes"])
 
-    consent = by_id["three-agent-fanout-needs-consent"]
+    consent = by_id["material-compute-expansion-needs-consent"]
     assert consent["expected"]["action"] == "ask_consent"
-    assert consent["expected"]["consent_reason"] == "larger_simultaneous_fanout"
+    assert consent["expected"]["consent_reason"] == "material_compute_expansion"
+
+
+def test_guardrails_prevent_agent_sprawl_without_count_threshold():
+    text = GUARDRAILS.read_text().lower()
+    for phrase in [
+        "native capacity is a ceiling, never a reason to fill slots",
+        "another active owner already covers the same unchanged responsibility",
+        "the work is speculative",
+        "child count by itself is not a consent trigger",
+        "materially expanding",
+    ]:
+        assert phrase in text
+    assert "more than two simultaneous children" not in text
 
 
 def test_writer_safety_is_workspace_scoped_and_depth_one():
