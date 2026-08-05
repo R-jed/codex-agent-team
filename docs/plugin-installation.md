@@ -2,7 +2,22 @@
 
 codex delegate uses the native Codex Plugin system as its only supported distribution path.
 
-Plugin packaging and custom Agent profiles are separate Codex surfaces. The Plugin distributes the Skill and bundled project files. Exact model-specific roles are provisioned, after explicit user approval, into the active Codex-home `agents` directory. The default personal location is `~/.codex/agents`.
+## Recommended user installation
+
+For ordinary users, installation is intentionally simple:
+
+1. Open the **Codex Plugin Marketplace**.
+2. Search for `codex-delegate`.
+3. Select **Codex Delegate** and install or enable it.
+4. Start a new Codex thread and run:
+
+```text
+/codex-delegate <task>
+```
+
+That is the normal supported installation path. Ordinary users do not need to register the repository as another marketplace, run CLI installation commands, edit `config.toml`, or configure Agent profiles manually.
+
+Implicit invocation is disabled, so use `/codex-delegate` explicitly when you want the Plugin to orchestrate a task.
 
 ## Current identity
 
@@ -13,6 +28,8 @@ Plugin id:        codex-delegate
 Skill/command:   codex-delegate / /codex-delegate
 Version:         0.9.0
 ```
+
+Plugin packaging and custom Agent profiles are separate Codex surfaces. The Plugin distributes the Skill and bundled project files. Exact model-specific roles are provisioned, after explicit user approval, into the active Codex-home `agents` directory. The default personal location is `~/.codex/agents`.
 
 Current managed Agent state:
 
@@ -25,9 +42,11 @@ codex-delegate-advisor.toml       -> codex_delegate_advisor      -> GPT-5.6 Sol 
 .codex-delegate-agents.json       -> project ownership receipt
 ```
 
-These are the only project-managed role/profile/ownership identities.
+These are implementation details of the current managed role set. Ordinary users do not need to install or edit them manually.
 
-## Current pre-release install
+## Manual or development installation
+
+Use the CLI path only when you are developing the Plugin, testing a specific repository revision, troubleshooting marketplace discovery, or explicitly need a manual installation path.
 
 Before v1.0.0, `main` is the development channel:
 
@@ -45,20 +64,20 @@ Start a new Codex thread, then invoke explicitly:
 /codex-delegate <task>
 ```
 
-Implicit invocation is disabled.
-
 Do not manually edit `config.toml`, marketplace state, Plugin cache state, or Agent profiles to simulate installation.
 
-Because `main` moves during pre-release development, deterministic/live evidence applies only to the exact SHA tested. After v1.0.0 is cut, the recommended stable user-install channel should use the immutable release ref/tag validated for that release.
+Because `main` moves during pre-release development, deterministic/live evidence applies only to the exact SHA tested. After v1.0.0 is cut, release validation should use the immutable release ref/tag validated for that release.
 
-## Update or reinstall
+## Manual update or reinstall
+
+For normal use, prefer the Plugin Marketplace UI. If you are deliberately using the manual/development path, the CLI update flow is:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread after an update.
+Start a new Codex thread after a manual update.
 
 ## First-use Agent readiness
 
@@ -102,7 +121,7 @@ Each fixed release candidate must:
 2. run the repository-pinned official Plugin validator used by maintained CI;
 3. run the then-current official OpenAI Plugin validator against `plugins/codex-delegate` and record its revision;
 4. verify marketplace metadata points to `./plugins/codex-delegate`;
-5. perform a real fresh marketplace install from the fixed candidate;
+5. perform a real fresh Plugin Marketplace install from the fixed candidate;
 6. start a new thread and confirm explicit `/codex-delegate` discovery and version `0.9.0`;
 7. prove implicit invocation remains disabled;
 8. verify first-use five-role provisioning/readiness before delegated execution;
@@ -114,4 +133,4 @@ Static Plugin validation remains separate from live product behavior. It cannot 
 
 ## Failure behavior
 
-If marketplace registration/update, Plugin installation, profile provisioning, validation, exactness verification, or a required review dependency fails, stop and report the actual failure. Do not patch user configuration manually to make the supported path appear successful.
+If Plugin Marketplace installation, manual registration/update, profile provisioning, validation, exactness verification, or a required review dependency fails, stop and report the actual failure. Do not patch user configuration manually to make the supported path appear successful.
