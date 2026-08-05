@@ -49,10 +49,7 @@ def test_consent_writer_and_explicit_invocation_are_one_guardrail_surface():
         "One writer per canonical checkout",
         "main session when mutating the checkout",
         "Explicit invocation only",
-        "allow_implicit_invocation",
     ]:
-        if phrase == "allow_implicit_invocation":
-            continue
         assert phrase in guardrails
 
     openai = (SKILL / "agents" / "openai.yaml").read_text()
@@ -91,6 +88,12 @@ def test_process_history_is_not_a_final_review_trigger():
 
 
 def test_behavioral_evals_remain_measurement_not_runtime_policy():
-    docs = (ROOT / "docs" / "behavioral-evals.md").read_text()
-    for phrase in ["paired live workloads", "raw_prompt_luna", "sol_solver"]:
-        assert phrase.lower() in docs.lower()
+    docs = (ROOT / "docs" / "behavioral-evals.md").read_text().lower()
+    for phrase in [
+        "controlled paired workloads",
+        "raw_prompt_luna",
+        "sol_solver",
+        "measurement surface",
+        "experiment labels only",
+    ]:
+        assert phrase in docs
