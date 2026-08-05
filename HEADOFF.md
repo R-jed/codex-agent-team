@@ -130,7 +130,7 @@ Do not add Checkpoint 7.
 Status: PARTIAL
 Tested SHA: 55728b41592058575a6e35632adc6af75a355016
 Evidence reference: LOCAL_VALIDATION_REPORT.md#checkpoint-1-plugin-discovery-command-invocation-and-five-role-readiness
-Remaining blocker: codex-delegate is installed and enabled, but neither a fresh Desktop task nor a fresh CLI process exposed it in the Skill list; Review Checkpoint A also stopped with CONSULTATION_TARGET_UNRESOLVED because no exact-title R-jed/codex-delegate conversation exists.
+Remaining blocker: codex-delegate is installed and enabled, but neither a fresh Desktop task nor a fresh CLI process exposed it in the Skill list; ordinary-task non-implicit behavior is configuration-only and was not independently exercised; Review Checkpoint A also stopped with CONSULTATION_TARGET_UNRESOLVED because no exact-title R-jed/codex-delegate conversation exists.
 ```
 
 Validate a fresh user path:

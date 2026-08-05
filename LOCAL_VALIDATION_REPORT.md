@@ -185,15 +185,40 @@ RESULT: PASS — 139 passed
 
 WARNINGS / SKIPS / XFAILS: none reported by the three pytest runs.
 
-PINNED OFFICIAL VALIDATOR REVISION: 7750465934d97dd3cbcb3b1655d2f622744010d3
+TEST_ID: VALIDATOR-PINNED-2026-08-05
+TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
+PYTHON / TOOL VERSION: Python 3.14.5; official validator revision 7750465934d97dd3cbcb3b1655d2f622744010d3
+COMMAND: validator_ref=7750465934d97dd3cbcb3b1655d2f622744010d3; validator_file=$(mktemp); curl --fail --location --silent --show-error "https://raw.githubusercontent.com/openai/codex/${validator_ref}/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py" --output "$validator_file" && PATH="$PWD/.venv/bin:$PATH" python "$validator_file" plugins/codex-delegate
 VALIDATOR SHA256: ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228
 EXIT CODE: 0
-RESULT: Plugin validation passed.
+RESULT: PASS — Plugin validation passed.
+OUTPUT: Plugin validation passed: /Users/qunqing/2026-Project-Agent/codex-delegate/plugins/codex-delegate
+WARNINGS / SKIPS / XFAILS: none reported.
+DEPENDENCIES: GitHub raw content for the immutable openai/codex revision; local .venv.
+NOTES: validator revision is pinned by .github/workflows/ci.yml.
 
-THEN-CURRENT OFFICIAL OPENAI CODEX MAIN REVISION: 2707dfc219b9bc9d38d7d37d1f691855f7b44c1e
+TEST_ID: VALIDATOR-CURRENT-2026-08-05
+TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
+PYTHON / TOOL VERSION: Python 3.14.5; official openai/codex main revision 2707dfc219b9bc9d38d7d37d1f691855f7b44c1e
+COMMAND: validator_ref=$(git ls-remote https://github.com/openai/codex.git refs/heads/main | awk '{print $1}'); validator_file=$(mktemp); curl --fail --location --silent --show-error "https://raw.githubusercontent.com/openai/codex/${validator_ref}/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py" --output "$validator_file" && PATH="$PWD/.venv/bin:$PATH" python "$validator_file" plugins/codex-delegate
 VALIDATOR SHA256: ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228
 EXIT CODE: 0
-RESULT: Plugin validation passed.
+RESULT: PASS — Plugin validation passed.
+OUTPUT: Plugin validation passed: /Users/qunqing/2026-Project-Agent/codex-delegate/plugins/codex-delegate
+WARNINGS / SKIPS / XFAILS: none reported.
+DEPENDENCIES: official https://github.com/openai/codex.git main and GitHub raw content; local .venv.
+NOTES: 2707dfc219b9bc9d38d7d37d1f691855f7b44c1e was the observed main revision for this run.
+
+POST-DOCUMENTATION REVALIDATION:
+TESTED_REVISION: 0ca30e4125936c051ac60518fa22f6256a13f930
+PYTHON / TOOL VERSION: Python 3.14.5; pinned validator revision 7750465934d97dd3cbcb3b1655d2f622744010d3; official openai/codex main revision 9d00bb01c0a712fb7c2f5b002bdf33bcc0fc352c
+COMMANDS / RESULTS: identity cleanup -> 4 passed; required deterministic set -> 87 passed; complete suite -> 139 passed; pinned validator -> PASS; then-current validator -> PASS.
+THEN-CURRENT OFFICIAL OPENAI CODEX MAIN REVISION: 9d00bb01c0a712fb7c2f5b002bdf33bcc0fc352c
+VALIDATOR COMMAND: run_validator() { validator_ref="$1"; label="$2"; validator_file=$(mktemp); curl --fail --location --silent --show-error "https://raw.githubusercontent.com/openai/codex/${validator_ref}/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py" --output "$validator_file" || return $?; log_file=$(mktemp); PATH="$PWD/.venv/bin:$PATH" python "$validator_file" plugins/codex-delegate >"$log_file" 2>&1; exit_code=$?; echo "$label REVISION=$validator_ref"; echo "$label SHA256=$(shasum -a 256 "$validator_file" | awk '{print $1}')"; tail -10 "$log_file"; echo "$label EXIT_CODE=$exit_code"; return "$exit_code"; }; pinned_ref=7750465934d97dd3cbcb3b1655d2f622744010d3; current_ref=$(git ls-remote https://github.com/openai/codex.git refs/heads/main | awk '{print $1}'); echo "TESTED_SHA=$(git rev-parse HEAD)"; run_validator "$pinned_ref" PINNED && run_validator "$current_ref" CURRENT
+VALIDATOR SHA256: ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228
+EXIT CODES: all 0
+OUTPUT: TESTED_SHA=0ca30e4125936c051ac60518fa22f6256a13f930; PINNED REVISION=7750465934d97dd3cbcb3b1655d2f622744010d3; PINNED SHA256=ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228; Plugin validation passed; PINNED EXIT_CODE=0; CURRENT REVISION=9d00bb01c0a712fb7c2f5b002bdf33bcc0fc352c; CURRENT SHA256=ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228; Plugin validation passed; CURRENT EXIT_CODE=0.
+WARNINGS / SKIPS / XFAILS: none reported.
 ```
 
 Record each run as:
@@ -219,17 +244,40 @@ TEST_ID: CP1-2026-08-05
 CHECKPOINT: 1
 TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
 RUNTIME_VERSION / PLATFORM: Codex 0.146.0 / Apple Silicon macOS 27.0 (26A5388g)
+WORKLOAD / FIXTURE: Fresh Git Marketplace install, first-use provisioning, task-refresh boundary, and one bounded read-only Reader run in each of a fresh Desktop task and a fresh CLI process.
+EXPECTED USER OUTCOME: /codex-delegate and /skills discover the Skill; ordinary tasks do not invoke it implicitly; missing exact roles fail closed before delegated implementation; authorized provisioning writes only five managed profiles plus the ownership manifest; a fresh task can use the exact roles.
+EXPECTED ACTOR / INVARIANT: codex_delegate_reader for the bounded Git identity read; exactly five policy-contract.json schema 4 roles; fork_turns="none"; no repository write; no unrelated Agent-directory mutation.
+OBSERVED ROUTING / RESOURCE STATE: The pre-provision task rejected codex_delegate_reader. After provisioning it still rejected the role. A fresh Desktop task and fresh CLI process exposed all five exact types and accepted one codex_delegate_reader each. Neither fresh runtime exposed codex-delegate in its Skill list.
+OBSERVED RUNTIME EVIDENCE: Desktop task 019fd2af-68c3-71a2-8d34-868614c64248 and the fresh CLI Reader both returned main at 55728b41592058575a6e35632adc6af75a355016 without modifying the repository.
 RESULT: PARTIAL
+EVIDENCE CLASS: Marketplace and installed-cache bytes; installer output; exact profile hashes; native role-surface acceptance; fresh Desktop task output; separate fresh-process output; configuration-only evidence for implicit invocation.
+UNRESOLVED: /skills discovery failed; ordinary-task non-implicit behavior was not independently exercised; Review Checkpoint A is CONSULTATION_TARGET_UNRESOLVED.
+```
+
+Commands and verification:
+
+```text
+codex plugin marketplace add R-jed/codex-delegate --ref main --sparse .agents/plugins --sparse plugins/codex-delegate --json
+codex plugin add codex-delegate@codex-delegate --json
+codex plugin list --json
+codex plugin marketplace list --json
+git -C /Users/qunqing/.codex/.tmp/marketplaces/codex-delegate rev-parse HEAD
+shasum -a 256 repository-and-cache plugin.json and SKILL.md pairs
+python3 /Users/qunqing/.codex/plugins/cache/codex-delegate/codex-delegate/0.9.1/scripts/install-agents.py
+python3 /Users/qunqing/.codex/plugins/cache/codex-delegate/codex-delegate/0.9.1/scripts/install-agents.py --check
+create_thread(project=codex-delegate, environment=local, title="codex-delegate CP1 fresh-thread probe")
+codex exec --ephemeral --sandbox read-only -C /Users/qunqing/2026-Project-Agent/codex-delegate --json -o "$last_message" '<Checkpoint 1 fresh-process probe>'
+python3 /Users/qunqing/.codex/skills/codex-skill-admin/scripts/codex_skill_admin.py list --cwd "$PWD" --force-reload
 ```
 
 Observed evidence:
 
 - The Git marketplace registered from `R-jed/codex-delegate` at exact revision `55728b41592058575a6e35632adc6af75a355016`.
-- Plugin `codex-delegate@codex-delegate` version `0.9.1` installed and was enabled. Installed manifest and Skill bytes matched the tested repository.
+- Plugin `codex-delegate@codex-delegate` version `0.9.1` installed and was enabled. Repository/cache SHA256 pairs matched: manifest `d5907002d2ed482114d62dc6c8edb2cfdacd9646122cb3f6122cad64ff7598ff`; Skill `15455ecf073b7845c12ba1075324acad97ad92e58cdef8b9ceb9f2094c27054f`.
 - Before provisioning, the exact `codex_delegate_reader` role failed closed as unavailable.
 - Owner authorization covered provisioning. The installed Plugin's lifecycle installer wrote the five exact profiles and `.codex-delegate-agents.json`; `--check` passed.
 - The unrelated Agent-directory digest remained `c5f8f754def8297609722d37fdb95fd7f2b5f7e63090eb46156f48d01a28f8ec` before and after provisioning.
-- All five managed profile bytes matched the repository source.
+- All five managed profile bytes matched the repository source: advisor `6063fd6d34479f545e8f04ea02d6b6d04082d2df4d33e1ee47f89ab5be3dfb0e`; investigator `b02fab6d82f84c3a40615d5e4d535a986a01d80eabb6eb06f6b72cd97a7111d6`; reader `127954d74f2604437199af9a75e712d4c04f00902bba8fee56f9b531cadd248a`; solver `49a7c5106cf8f99029b7fbd066af3f7e0185b06467f79159fbad70d37e877b7f`; worker `491fa574aac0e8110e81819701f57079c7d3643f11bd46447f7f68049e1ae17a`.
 - The pre-existing task still rejected `codex_delegate_reader`, establishing the documented refresh boundary.
 - A fresh Desktop task and a separate fresh CLI process both exposed all five exact Agent types. Each successfully ran one `codex_delegate_reader` with `fork_turns="none"`; both Readers reported HEAD `55728b41592058575a6e35632adc6af75a355016` on `main` without modifying the repository.
 - `allow_implicit_invocation: false` is confirmed configuration evidence only; implicit behavior was not independently exercised.
@@ -237,6 +285,7 @@ Observed evidence:
 Remaining issue:
 
 - Neither fresh runtime included `codex-delegate` in its Skill list, so `/skills` discovery is not validated even though the Plugin is installed/enabled and the explicit slash prompt was accepted.
+- Ordinary-task non-implicit behavior was not independently exercised; `allow_implicit_invocation: false` remains configuration evidence only.
 - Review Checkpoint A stopped with `CONSULTATION_TARGET_UNRESOLVED`: ChatGPT exposed `codex-delegate`, but no exact-title `R-jed/codex-delegate` conversation. No evidence was sent to a fuzzy or substitute target.
 - Checkpoint 2 was not started.
 
