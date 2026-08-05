@@ -13,7 +13,7 @@ product: codex delegate
 repository: R-jed/codex-delegate
 marketplace/plugin id: codex-delegate
 command: /codex-delegate
-version: 0.8.0
+version: 0.9.0
 current roles: codex_delegate_reader / worker / solver / investigator / advisor
 current ownership manifest: .codex-delegate-agents.json
 runtime policy surface: router-core.md / guardrails.md / final-review.md
@@ -277,7 +277,7 @@ For the selected fixed RC:
 1. record one immutable candidate SHA/ref;
 2. run maintained CI and both required Plugin validators;
 3. perform a real fresh Plugin installation from that fixed candidate, not from a subsequently moving `main`;
-4. start a new thread and confirm `/codex-delegate` discovery and version `0.8.0`;
+4. start a new thread and confirm `/codex-delegate` discovery and version `0.9.0`;
 5. prove implicit invocation is disabled;
 6. prove first-use five-profile provisioning/readiness behavior;
 7. verify repeat install is idempotent and `--check` is strictly non-mutating;
