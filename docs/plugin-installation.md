@@ -29,7 +29,7 @@ Marketplace id:  codex-delegate
 Plugin id:        codex-delegate
 Skill:            codex-delegate
 Invocation:       $codex-delegate
-Version:          0.9.0
+Version:          0.9.1
 ```
 
 Plugin packaging and custom Agent profiles are separate Codex surfaces. The Plugin distributes the Skill and bundled project files. Exact model-specific roles use Codex's native custom-Agent TOML mechanism and, after explicit user approval, are provisioned into the active Codex-home `agents` directory. The default personal location is `~/.codex/agents`.
@@ -137,7 +137,7 @@ Each fixed release candidate must:
 4. verify the Plugin remains the smallest required skills-only shape and public legal/listing metadata is valid;
 5. verify marketplace metadata points to `./plugins/codex-delegate`;
 6. perform a real fresh Plugin Marketplace install from the fixed candidate;
-7. start a new thread and confirm `$codex-delegate` discovery, `/skills` discovery, version `0.9.0`, and implicit invocation disabled;
+7. start a new thread and confirm `$codex-delegate` discovery, `/skills` discovery, version `0.9.1`, and implicit invocation disabled;
 8. verify first-use five-role provisioning/readiness before delegated execution;
 9. verify installer idempotence, managed-profile update/addition, unrelated-profile preservation, and non-mutating `--check`;
 10. exercise same-Codex-home installer concurrency cases owned by `HEADOFF.md`;
