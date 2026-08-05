@@ -43,7 +43,7 @@ Required deterministic execution:
 
 ```bash
 python -m pytest tests/test_identity_cleanup.py -q
-python -m pytest tests/test_install_agents.py tests/test_installer_safety.py tests/test_plugin_packaging.py tests/test_policy.py tests/test_runtime_evidence.py tests/test_routing_v4_main_coverage.py tests/test_runtime_truth_policy.py tests/test_behavioral_evals.py tests/test_headoff.py tests/test_readme_user_facing.py -q
+python -m pytest tests/test_install_agents.py tests/test_installer_safety.py tests/test_plugin_packaging.py tests/test_policy.py tests/test_runtime_evidence.py tests/test_capability_dedup.py tests/test_runtime_truth_policy.py tests/test_behavioral_evals.py tests/test_headoff.py tests/test_readme_user_facing.py -q
 python -m pytest -q
 ```
 
