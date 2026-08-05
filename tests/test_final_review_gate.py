@@ -14,22 +14,22 @@ def contract():
     return json.loads(POLICY.read_text())
 
 
-def test_final_review_gate_is_linked_and_semantically_triggered():
+def test_final_review_is_linked_and_semantically_triggered():
     skill = (SKILL / "SKILL.md").read_text()
-    gate = (REFS / "final-review-gate.md").read_text()
-    assert "references/final-review-gate.md" in skill
-    assert "Candidate Ready" in gate
-    assert "numeric risk" in gate
+    review = (REFS / "final-review.md").read_text()
+    assert "references/final-review.md" in skill
+    assert "Candidate Ready" in review
+    assert "Process history" in review
     for trigger in contract()["final_review"]["trigger_codes"]:
-        assert trigger in gate
+        assert trigger in review
 
 
 def test_current_advisor_route_matches_policy_and_is_fresh():
     spec = contract()["roles"]["advisor"]
     advisor = tomllib.loads((PROFILES / spec["profile_file"]).read_text())
-    gate = (REFS / "final-review-gate.md").read_text()
-    assert "agent_type: codex_delegate_advisor" in gate
-    assert "fork_turns: none" in gate
+    review = (REFS / "final-review.md").read_text()
+    assert "agent_type: codex_delegate_advisor" in review
+    assert "fork_turns: none" in review
     assert advisor["name"] == spec["agent_type"]
     assert advisor["model"] == spec["model"]
     assert advisor["model_reasoning_effort"] == spec["effort"]
@@ -37,7 +37,7 @@ def test_current_advisor_route_matches_policy_and_is_fresh():
 
 
 def test_review_lifecycle_remains_fail_closed_and_artifact_bound():
-    gate = (REFS / "final-review-gate.md").read_text()
+    review = (REFS / "final-review.md").read_text()
     for phrase in [
         "review_artifact_id",
         "review-artifact.py",
@@ -45,14 +45,16 @@ def test_review_lifecycle_remains_fail_closed_and_artifact_bound():
         "fix-first",
         "rethink",
         "INSUFFICIENT_EVIDENCE",
-        "Any deliverable mutation after a `ship` verdict invalidates that verdict",
+        "Any deliverable mutation after review invalidates the old verdict",
     ]:
-        assert phrase in gate
+        assert phrase in review
     assert contract()["final_review"]["completion_verdicts"] == ["ship", "fix-first", "rethink"]
     assert contract()["final_review"]["unresolved_verdict"] == "insufficient_evidence"
 
 
-def test_sol_is_selective_outside_required_gate():
-    routing = (REFS / "routing-policy.md").read_text()
-    assert "Sol" in routing and "not globally mandatory" in routing
-    assert "final-review-gate.md" in routing
+def test_sol_review_is_selective_outside_required_assurance():
+    router = (REFS / "router-core.md").read_text()
+    review = (REFS / "final-review.md").read_text()
+    assert "Final Review" in router
+    assert "only when the final artifact's consequences require" in router
+    assert "is not a trigger by itself" in review
