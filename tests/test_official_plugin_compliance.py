@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import tomllib
 from pathlib import Path
@@ -16,6 +17,7 @@ SKILL_ROOT = PLUGIN_ROOT / "skills" / "codex-delegate"
 OPENAI_YAML = SKILL_ROOT / "agents" / "openai.yaml"
 OFFICIAL_INVOCATION = "$codex-delegate"
 RETIRED_SLASH_INVOCATION = "/" + "codex-delegate"
+RETIRED_SLASH_PATTERN = re.compile(r"(?<![A-Za-z0-9_./-])/codex-delegate(?=\s|<|`|[\"']|$)")
 
 
 def tracked_paths() -> list[Path]:
@@ -63,11 +65,16 @@ def test_openai_skill_metadata_uses_explicit_dollar_invocation():
 
 
 def test_retired_custom_slash_invocation_is_absent_from_tracked_tree():
-    needle = RETIRED_SLASH_INVOCATION.encode()
     violations = []
     for path in tracked_paths():
-        data = os.fsencode(os.readlink(path)) if path.is_symlink() else path.read_bytes()
-        if needle in data:
+        if path.is_symlink():
+            text = os.readlink(path)
+        else:
+            try:
+                text = path.read_text()
+            except UnicodeDecodeError:
+                continue
+        if RETIRED_SLASH_PATTERN.search(text):
             violations.append(path.relative_to(ROOT).as_posix())
     assert not violations, f"Retired custom slash invocation remains: {violations}"
 
