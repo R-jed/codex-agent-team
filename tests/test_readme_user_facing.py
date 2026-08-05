@@ -11,7 +11,7 @@ def test_readmes_present_same_current_product_and_ai_jump():
     for text in [ZH, EN]:
         for phrase in [
             "codex delegate",
-            "0.9.0",
+            "0.9.1",
             "$codex-delegate",
             "Luna Reader",
             "Luna Worker",
@@ -57,7 +57,7 @@ def test_ai_reference_is_authoritative_and_mechanism_compressed():
         "R-jed/codex-delegate",
         "Marketplace id:     codex-delegate",
         "Explicit invocation: $codex-delegate",
-        "Current version:    0.9.0",
+        "Current version:    0.9.1",
         "codex_delegate_reader",
         "codex_delegate_worker",
         "codex_delegate_solver",
