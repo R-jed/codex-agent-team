@@ -2,7 +2,7 @@
 
 This is the finite deterministic/live-validation and v1.0.0 release checklist for the mechanism-compressed, official-Codex-aligned codex delegate candidate.
 
-The product goal remains small: explicit Skill invocation, main-session control, delegation only when useful, Luna for clear repeatable bounded work, Sol for demanding/material judgment, Terra for bounded read-heavy investigation, one-writer safety, and independent review only when the final artifact warrants it.
+The product goal remains small: explicit Plugin invocation, main-session control, delegation only when useful, Luna for clear repeatable bounded work, Sol for demanding/material judgment, Terra for bounded read-heavy investigation, one-writer safety, and independent review only when the final artifact warrants it.
 
 Do not add routing ceremony during validation. Change the mechanism only when deterministic or controlled live evidence establishes a real user-facing defect or falsifies a product hypothesis.
 
@@ -13,7 +13,7 @@ product: codex delegate
 repository: R-jed/codex-delegate
 marketplace/plugin id: codex-delegate
 skill: codex-delegate
-explicit invocation: $codex-delegate
+explicit invocation: /codex-delegate
 version: 0.9.1
 current roles: codex_delegate_reader / worker / solver / investigator / advisor
 current ownership manifest: .codex-delegate-agents.json
@@ -61,7 +61,7 @@ The deterministic gate passes only when:
 - the complete pytest suite has no failures or errors;
 - release-relevant skips, xfails, and warnings are reviewed explicitly;
 - the retired-identity guard passes on the exact tree;
-- the retired custom slash-style invocation guard passes, with `$codex-delegate` as canonical explicit Skill invocation and `/skills` reserved for the Codex Skill picker;
+- the canonical invocation guard passes, with `/codex-delegate` as the project user command and no stale dollar-style codex-delegate invocation references;
 - public Plugin metadata includes current website, privacy policy, terms, category, brand assets, and valid starter prompts;
 - the Plugin remains the smallest required skills-only shape, without unused MCP/apps/hooks surfaces;
 - policy schema `3` validates and exactly five managed native custom-Agent profiles match it;
@@ -105,9 +105,9 @@ Do not change these principles merely to make one workload pass:
 
 Do not add Checkpoint 7.
 
-## Checkpoint 1: Plugin discovery, Skill invocation, and exact five-role readiness
+## Checkpoint 1: Plugin discovery, command invocation, and exact five-role readiness
 
-Validate fresh Plugin discovery, official Skill invocation, and the first-use readiness boundary.
+Validate fresh Plugin discovery, `/codex-delegate` invocation, and the first-use readiness boundary.
 
 Exact project roles:
 
@@ -122,8 +122,8 @@ codex_delegate_advisor
 Required behaviors:
 
 - the Plugin is discoverable from the Codex Plugin Marketplace;
-- a new thread exposes `$codex-delegate` and `/skills` can discover/select the Skill;
-- no invented custom slash command is required for Skill invocation;
+- a new thread exposes `/codex-delegate` and `/skills` can discover/select the Skill;
+- no dollar-style Skill mention is required for the project user command;
 - an ordinary task does not implicitly invoke codex delegate;
 - first explicit invocation that needs delegation detects missing roles before delegated implementation starts;
 - provisioning asks permission and installs only the five native custom-Agent TOML profiles + ownership receipt;
@@ -291,7 +291,7 @@ For the selected fixed RC:
 2. run maintained CI and both required Plugin validators;
 3. verify public website/privacy/terms/support path and Plugin listing metadata remain valid;
 4. perform a real fresh Plugin installation from that fixed candidate, not from a subsequently moving `main`;
-5. start a new thread and confirm `$codex-delegate` discovery through direct mention and `/skills`, plus candidate version;
+5. start a new thread and confirm `/codex-delegate` command discovery through the Plugin plus `/skills`, and confirm the candidate version;
 6. prove implicit invocation is disabled;
 7. prove first-use five-profile native custom-Agent provisioning/readiness behavior;
 8. verify repeat install is idempotent and `--check` is strictly non-mutating;
@@ -317,7 +317,7 @@ Release only when one immutable RC passes:
 - complete official Plugin/Skill compliance + deterministic preflight;
 - maintained CI and then-current official Plugin validation;
 - fresh marketplace install/update/five-profile lifecycle;
-- official `$codex-delegate` invocation and onboarding behavior;
+- `/codex-delegate` invocation and onboarding behavior;
 - representative daily routing and capability-dedup cases;
 - blocker/retry/Terra-investigation/writer safety cases;
 - controlled product-value experiments;
