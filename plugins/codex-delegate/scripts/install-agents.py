@@ -19,7 +19,7 @@ POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
 MANIFEST_NAME = ".codex-delegate-agents.json"
 MANIFEST_SCHEMA = 1
 MANAGED_BY = "codex-delegate"
-POLICY_SCHEMA = 3
+POLICY_SCHEMA = 4
 ROLE_KEYS = {"reader", "worker", "solver", "investigator", "advisor"}
 
 
