@@ -21,13 +21,13 @@ Use these names exactly.
 
 ## What the plugin does
 
-codex delegate helps the current Codex session decide whether part of a development task should be handed to a native Subagent.
+codex delegate lets the current Codex session act as the team leader for a development task. Main understands the user's goal, decides what to keep, decides what to delegate, chooses the right specialist role, and owns the final result.
 
-The main session stays responsible for the user's goal, scope, permissions, integrating the work, checking the result, and giving the final answer.
+The user does not need to specify an Agent count or build a Luna, Terra, Sol workflow in advance.
 
-Delegation is optional. Zero child Agents is a normal outcome.
+Delegation is optional. Zero child Agents is a normal outcome. Several child Agents may run when several distinct responsibilities are ready and parallel delegation is genuinely useful.
 
-There is no fixed Luna → Terra → Sol pipeline.
+There is no fixed Luna → Terra → Sol pipeline and no project-level ordinary numeric child ceiling.
 
 ## Current roles
 
@@ -70,7 +70,25 @@ Need an independent second look at a consequential finished change
 
 Do not send work to Terra simply because Luna struggled. Difficult, ambiguous, decision-heavy work belongs with Sol.
 
-A large task does not automatically need a child Agent.
+A large task does not automatically need a child Agent. A large task with several independent useful responsibilities can justify several children.
+
+## Adaptive fan-out
+
+Main manages the active team dynamically from the current ready frontier. Do not choose a fixed team size up front.
+
+A new child is justified only when its responsibility is:
+
+- ready to make progress now;
+- distinct from work already owned or already satisfied by valid evidence;
+- independent enough to benefit from parallel execution or context isolation;
+- worth the handoff, compute, and integration cost;
+- safe under writer, permission, scope, and external-impact boundaries.
+
+Use progressive fan-out. Start useful ready work, consume exposed completions, update task truth, and add another child only when new evidence makes another responsibility ready and delegation remains worthwhile.
+
+Native Codex capacity is an upper bound, not a target to fill. Do not spawn speculative, duplicate, or low-value Agents merely because capacity is available.
+
+Read-only work is the preferred place to exploit parallelism. Several Reader instances are valid when they own different evidence lanes. Investigator or Advisor may run alongside other independent read-only work when their distinct capability is genuinely needed.
 
 ## Main-session Sol reuse
 
@@ -140,11 +158,15 @@ When profiles are missing, setup happens before delegated code writing starts. T
 
 ## Safety rules
 
-- Main owns the user's intent, authorization, integration, acceptance, and final response.
-- Up to two useful child Agents may be active at once for one explicit task. This is a project limit, not a claim about all Codex runtimes.
+- Main owns the user's intent, authorization, team composition, integration, acceptance, and final response.
+- Project policy does not set an ordinary numeric child ceiling or Agent-count target.
+- Every child needs a distinct ready responsibility and concrete delegation value.
+- Native Agent capacity is a ceiling, never a target to fill.
+- Duplicate, speculative, and low-value fan-out is prohibited.
 - Only one actor writes to the same physical Git checkout at a time inside one orchestration.
 - Parallel writers need separate worktrees, workspaces, or repositories.
 - Child Agents do not create project Subagents of their own.
+- Material compute expansion requires renewed user consent; child count alone is not the trigger.
 - One failed attempt does not automatically switch to a stronger model.
 - A same-role retry is only reasonable when the role is still correct and the new attempt has materially better input.
 - Configuration is not proof of what actually ran.
@@ -176,13 +198,13 @@ guardrails.md
 final-review.md
 ```
 
-`policy-contract.json` schema `3` stores stable machine-readable role and policy constants.
+`policy-contract.json` schema `4` stores stable machine-readable role and hard safety constants. Adaptive fan-out policy stays in the model-facing router instead of encoding a fixed child count in the machine contract.
 
 `evals/` is for measurement and regression checks. It does not define the runtime router.
 
 ## Answering users
 
-Explain the plugin in plain language first: it lets Codex keep simple work in the main session and bring in a specialist Subagent only when that is useful.
+Explain the plugin in plain language first: the main Codex session acts like the team leader. It keeps simple work, gives distinct jobs to specialist Agents when useful, and decides the team size dynamically from the task.
 
 For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `/codex-delegate`.
 
