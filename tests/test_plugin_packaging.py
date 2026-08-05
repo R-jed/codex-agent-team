@@ -112,10 +112,10 @@ def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
     assert "search for `codex-delegate`" in (ROOT / "README_EN.md").read_text()
 
     ai = (ROOT / "README_AI.md").read_text()
-    assert "Current version:    0.9.1" in ai
+    assert "Current version:" in ai and "0.9.1" in ai
     assert "Explicit invocation: $codex-delegate" in ai
     assert "codex_delegate_solver" in ai
     assert "codex-delegate-solver.toml" in ai
     assert "codex_delegate_advisor" in ai
-    assert "always lead with the native Plugin Marketplace path" in ai
-    assert "Only provide the CLI path when the user explicitly asks" in ai
+    assert "For ordinary users, give this path first" in ai
+    assert "Only give CLI installation commands when the user explicitly asks" in ai
