@@ -53,8 +53,9 @@ def test_review_lifecycle_remains_fail_closed_and_artifact_bound():
 
 
 def test_sol_review_is_selective_outside_required_assurance():
-    router = (REFS / "router-core.md").read_text()
-    review = (REFS / "final-review.md").read_text()
-    assert "Final Review" in router
-    assert "only when the final artifact's consequences require" in router
-    assert "is not a trigger by itself" in review
+    router = (REFS / "router-core.md").read_text().lower()
+    review = (REFS / "final-review.md").read_text().lower()
+    assert "final review" in router
+    assert "candidate" in router and "independent second judgment" in router
+    assert "process history" in review
+    assert "not a trigger by itself" in review
