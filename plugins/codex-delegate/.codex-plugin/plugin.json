@@ -1,7 +1,7 @@
 {
   "name": "codex-delegate",
   "version": "0.8.0",
-  "description": "Codex Delegate classifies unresolved dependencies and places evidence, bounded execution, judgment-coupled execution, difficult technical investigation, and independent review on the smallest useful Codex compute graph.",
+  "description": "Use Codex Native Subagents only when delegation improves the task, with bounded Luna execution, Sol judgment, focused Terra investigation, and selective independent review.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
   "repository": "https://github.com/R-jed/codex-delegate",
@@ -10,8 +10,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Delegate",
-    "shortDescription": "Capability-aware adaptive delegation with independent final review.",
-    "longDescription": "Codex Delegate keeps the current session in control and routes by unresolved responsibility rather than a model ladder. Luna Max handles reusable evidence and standardized bounded execution, Sol High supplies judgment-coupled execution or bounded judgment when the main session does not already cover that capability, Terra XHigh investigates only narrow difficult technical uncertainty after semantics stabilize, and a fresh Sol Advisor provides independent artifact-bound review only when the deliverable's material consequences require it.",
+    "shortDescription": "Adaptive delegation for reliable everyday development.",
+    "longDescription": "Codex Delegate keeps the current session in control and uses additional native Subagents only when they add concrete value. Luna Max handles bounded evidence and implementation whose material behavior is already decided, Sol High handles material judgment and judgment-coupled writing, Terra XHigh handles only narrow difficult technical uncertainty after semantics stabilize, and a fresh Sol Advisor reviews only final artifacts that genuinely require independent assurance.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
@@ -22,9 +22,9 @@
     "logoDark": "./assets/codex-delegate-logo-dark.svg",
     "screenshots": [],
     "defaultPrompt": [
-      "Use /codex-delegate to classify the unresolved dependencies and choose the smallest useful compute graph.",
-      "Use /codex-delegate to implement this change with capability-aware routing, evidence reuse, and deterministic verification.",
-      "Use /codex-delegate to review this task and apply fresh independent Sol review only when the final artifact requires it."
+      "Use /codex-delegate to complete this task and delegate only when extra native compute adds concrete value.",
+      "Use /codex-delegate to implement this change with bounded Luna execution and Sol judgment only where needed.",
+      "Use /codex-delegate to review this task and add fresh independent Sol review only when the final artifact warrants it."
     ]
   }
 }
