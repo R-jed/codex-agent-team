@@ -152,6 +152,8 @@ def test_public_readmes_cover_first_use_parallel_writing_and_independent_review(
         "第一次需要子 Agent 时",
         "同一个实际 Git checkout 里，同一时间只允许一个写入者",
         "什么时候会再做一次独立复核",
+        "必须再找一个新的 Sol Advisor 做独立复核",
+        "实质验证缺口",
         "Luna 做得不好不会自动升级到 Terra",
     ]:
         assert phrase in ZH
@@ -159,6 +161,8 @@ def test_public_readmes_cover_first_use_parallel_writing_and_independent_review(
         "First time a child Agent is needed",
         "only one actor writes to the same physical Git checkout at a time",
         "When it asks for one more review",
+        "A fresh Sol Advisor is required",
+        "a meaningful verification gap",
         "Weak Luna output does not automatically send the task to Terra",
     ]:
         assert phrase in EN

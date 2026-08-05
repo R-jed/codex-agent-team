@@ -120,7 +120,7 @@ This keeps setup from interrupting a change halfway through.
 
 Most tasks can be delivered once the change is complete and the relevant tests pass. Sol is not a mandatory last step.
 
-A fresh Sol Advisor is more useful when the final change affects things such as:
+A fresh Sol Advisor is required when the final change materially affects:
 
 - public APIs or compatibility
 - persistent data or state
@@ -128,7 +128,7 @@ A fresh Sol Advisor is more useful when the final change affects things such as:
 - data integrity
 - concurrency behavior
 - an important migration
-- a meaningful gap in test coverage
+- a meaningful verification gap that deterministic checks cannot close
 - an explicit request for an independent review
 
 A large diff, earlier Terra use, or some rework along the way does not by itself trigger another review.

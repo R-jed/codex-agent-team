@@ -3,7 +3,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 HANDOFF = (ROOT / "HEADOFF.md").read_text()
 REPORT = (ROOT / "LOCAL_VALIDATION_REPORT.md").read_text()
-CONSULTATION_TARGET = "R-jed/codex-delegate"
+CONSULTATION_TARGET = "codex-delegate"
 
 
 def test_handoff_is_finite_six_checkpoint_release_contract():
@@ -114,13 +114,30 @@ def test_handoff_requires_immutable_release_candidate_for_release_evidence():
 
 def test_handoff_keeps_exact_adversarial_consultation_target():
     for phrase in [
-        "/gpt56-sol-pro-consult",
+        "CONSULTATION_ENTRYPOINT: /webgpt-consult",
         f"TARGET_CHATGPT_CONVERSATION_TITLE: {CONSULTATION_TARGET}",
         "TARGET_MODE: continue_existing_conversation",
         "MATCH_POLICY: exact_title_unique_match",
         "CONSULTATION_TARGET_UNRESOLVED",
     ]:
         assert phrase in HANDOFF
+
+
+def test_checkpoint_one_records_direct_discovery_and_non_implicit_runtime_evidence():
+    checkpoint = HANDOFF.split("## Checkpoint 1:", 1)[1].split("## Checkpoint 2:", 1)[0]
+    assert "Status: PASS" in checkpoint
+    for phrase in [
+        "Codex Delegate",
+        "@Codex-Delegate",
+        "SKILL_OR_DELEGATE_ACTIVATION_MATCHES=0",
+        "TOOL_OR_SKILL_EVENTS=0",
+        "SKILL-AFFINE NON-IMPLICIT CONTROL: PASS",
+        "graphify / ponytail",
+        "wgpt-a508773eef17481d",
+        "P2 public Final Review contract drift",
+        "UNRESOLVED: none for Checkpoint 1",
+    ]:
+        assert phrase in REPORT
 
 
 def test_report_is_pending_evidence_ledger_for_current_candidate():

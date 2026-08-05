@@ -127,10 +127,13 @@ Do not add Checkpoint 7.
 ## Checkpoint 1: Plugin discovery, command invocation, and exact five-role readiness
 
 ```text
-Status: PARTIAL
-Tested SHA: 55728b41592058575a6e35632adc6af75a355016
+Status: PASS
+Runtime product bytes exercised: 55728b41592058575a6e35632adc6af75a355016
+Evidence-closure base SHA: 6dacf9c2b25c07c43bc5a5c5465b566cfa4acef8
+Carry-forward basis: Plugin, Skill, Agent profiles, installer, policy, and runtime-reference bytes are unchanged after the runtime-tested revision; post-runtime closure changes are public/release documentation and regression tests only.
 Evidence reference: LOCAL_VALIDATION_REPORT.md#checkpoint-1-plugin-discovery-command-invocation-and-five-role-readiness
-Remaining blocker: codex-delegate is installed and enabled, but neither a fresh Desktop task nor a fresh CLI process exposed it in the Skill list; ordinary-task non-implicit behavior is configuration-only and was not independently exercised; Review Checkpoint A also stopped with CONSULTATION_TARGET_UNRESOLVED because no exact-title R-jed/codex-delegate conversation exists.
+Remaining blocker: none for Checkpoint 1.
+Closure: Codex 0.146.0 `/skills` displayed and selected `Codex Delegate`, inserting `@Codex-Delegate`; unrelated and Skill-affine ordinary-task controls completed without observed Codex Delegate activation. The Skill-affine control visibly used other applicable Skills, providing a positive control for activation evidence.
 ```
 
 Validate a fresh user path:
@@ -149,9 +152,11 @@ Validate a fresh user path:
 Send only sanitized new evidence and unresolved consequential judgment to the consultation target below.
 
 ```text
-Status: BLOCKED
-Result: CONSULTATION_TARGET_UNRESOLVED
-Observed: ChatGPT exposed a conversation titled codex-delegate, but no exact-title R-jed/codex-delegate conversation. No fuzzy match, replacement conversation, or consultation submission was used.
+Status: PASS
+Result: REVIEW_COMPLETED
+Request-ID: wgpt-a508773eef17481d
+Evidence reference: LOCAL_VALIDATION_REPORT.md#adversarial-consultation
+Finding: Checkpoint 1 PASS; the remaining `/skills` and non-implicit-invocation runtime gaps were closed. No reproducible project-side P0/P1 was established. One P2 public Final Review contract drift was corrected without changing runtime policy.
 ```
 
 ## Checkpoint 2: everyday routing quality and Sol dedup
@@ -331,10 +336,11 @@ Then tag `v1.0.0`, publish the GitHub Release, and make the immutable release re
 
 ## Required project consultation target
 
-Use `/gpt56-sol-pro-consult` at Review Checkpoints A-E, any P0/P1 candidate, and RC closure.
+Use `/webgpt-consult` at Review Checkpoints A-E, any P0/P1 candidate, and RC closure.
 
 ```text
-TARGET_CHATGPT_CONVERSATION_TITLE: R-jed/codex-delegate
+CONSULTATION_ENTRYPOINT: /webgpt-consult
+TARGET_CHATGPT_CONVERSATION_TITLE: codex-delegate
 TARGET_MODE: continue_existing_conversation
 MATCH_POLICY: exact_title_unique_match
 FAILURE: CONSULTATION_TARGET_UNRESOLVED

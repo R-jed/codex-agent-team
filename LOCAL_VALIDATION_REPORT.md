@@ -165,7 +165,9 @@ FOCUSED VERIFICATION: python -m pytest tests/test_review_artifact.py -q -> exit 
 ### Corrected exact candidate
 
 ```text
-TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
+TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016 (runtime product bytes)
+EVIDENCE_CLOSURE_BASE_REVISION: 6dacf9c2b25c07c43bc5a5c5465b566cfa4acef8
+RUNTIME-SENSITIVE CARRY-FORWARD: Plugin, Skill, Agent profiles, installer, policy, and runtime-reference bytes are unchanged; subsequent closure changes are public/release documentation and regression tests.
 PLATFORM: Apple Silicon macOS 27.0 (26A5388g)
 PYTHON: 3.14.5 from .venv
 GIT: 2.50.1 (Apple Git-155)
@@ -244,14 +246,14 @@ TEST_ID: CP1-2026-08-05
 CHECKPOINT: 1
 TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
 RUNTIME_VERSION / PLATFORM: Codex 0.146.0 / Apple Silicon macOS 27.0 (26A5388g)
-WORKLOAD / FIXTURE: Fresh Git Marketplace install, first-use provisioning, task-refresh boundary, and one bounded read-only Reader run in each of a fresh Desktop task and a fresh CLI process.
+WORKLOAD / FIXTURE: Fresh Git Marketplace install, first-use provisioning, task-refresh boundary, one bounded read-only Reader run in each of a fresh Desktop task and a fresh CLI process, direct `/skills` selection, one unrelated ephemeral ordinary task, and one Skill-affine ordinary repository-review task.
 EXPECTED USER OUTCOME: /codex-delegate and /skills discover the Skill; ordinary tasks do not invoke it implicitly; missing exact roles fail closed before delegated implementation; authorized provisioning writes only five managed profiles plus the ownership manifest; a fresh task can use the exact roles.
 EXPECTED ACTOR / INVARIANT: codex_delegate_reader for the bounded Git identity read; exactly five policy-contract.json schema 4 roles; fork_turns="none"; no repository write; no unrelated Agent-directory mutation.
-OBSERVED ROUTING / RESOURCE STATE: The pre-provision task rejected codex_delegate_reader. After provisioning it still rejected the role. A fresh Desktop task and fresh CLI process exposed all five exact types and accepted one codex_delegate_reader each. Neither fresh runtime exposed codex-delegate in its Skill list.
-OBSERVED RUNTIME EVIDENCE: Desktop task 019fd2af-68c3-71a2-8d34-868614c64248 and the fresh CLI Reader both returned main at 55728b41592058575a6e35632adc6af75a355016 without modifying the repository.
-RESULT: PARTIAL
-EVIDENCE CLASS: Marketplace and installed-cache bytes; installer output; exact profile hashes; native role-surface acceptance; fresh Desktop task output; separate fresh-process output; configuration-only evidence for implicit invocation.
-UNRESOLVED: /skills discovery failed; ordinary-task non-implicit behavior was not independently exercised; Review Checkpoint A is CONSULTATION_TARGET_UNRESOLVED.
+OBSERVED ROUTING / RESOURCE STATE: The pre-provision task rejected codex_delegate_reader. After provisioning it still rejected the role. A fresh Desktop task and fresh CLI process exposed all five exact types and accepted one codex_delegate_reader each. In fresh CLI task 019fd2e5-74f5-7412-9915-e98c24f3c169, `/skills` displayed `Codex Delegate`; selecting it inserted `@Codex-Delegate` without a discovery or load error.
+OBSERVED RUNTIME EVIDENCE: Desktop task 019fd2af-68c3-71a2-8d34-868614c64248 and the fresh CLI Reader both returned main at 55728b41592058575a6e35632adc6af75a355016 without modifying the repository. A separate unrelated ephemeral task exited 0, returned `4`, emitted five JSON events, and recorded `SKILL_OR_DELEGATE_ACTIVATION_MATCHES=0` and `TOOL_OR_SKILL_EVENTS=0`. A Skill-affine ordinary repository-review task exited 0 with 48 JSON events; it explicitly loaded and declared graphify / ponytail as positive controls while showing no installed Codex Delegate Skill load, selection, invocation, activation record, or use declaration.
+RESULT: PASS
+EVIDENCE CLASS: Marketplace and installed-cache bytes; installer output; exact profile hashes; native role-surface acceptance; fresh Desktop task output; separate fresh-process output; direct `/skills` selector behavior; unrelated-task and Skill-affine-task JSON event streams with other-Skill positive controls.
+UNRESOLVED: none for Checkpoint 1.
 ```
 
 Commands and verification:
@@ -267,6 +269,9 @@ python3 /Users/qunqing/.codex/plugins/cache/codex-delegate/codex-delegate/0.9.1/
 python3 /Users/qunqing/.codex/plugins/cache/codex-delegate/codex-delegate/0.9.1/scripts/install-agents.py --check
 create_thread(project=codex-delegate, environment=local, title="codex-delegate CP1 fresh-thread probe")
 codex exec --ephemeral --sandbox read-only -C /Users/qunqing/2026-Project-Agent/codex-delegate --json -o "$last_message" '<Checkpoint 1 fresh-process probe>'
+codex --sandbox read-only -C /Users/qunqing/2026-Project-Agent/codex-delegate # then `/skills`, List skills, select `Codex Delegate`
+codex exec --ephemeral --sandbox read-only --json -C /Users/qunqing/2026-Project-Agent/codex-delegate 'What is 2 + 2? Reply with exactly the single character 4.'
+codex exec --ephemeral --sandbox read-only --json -C /Users/qunqing/2026-Project-Agent/codex-delegate "Review this repository's README and identify one concrete inconsistency or ambiguity. Do not edit any files. Reply concisely."
 python3 /Users/qunqing/.codex/skills/codex-skill-admin/scripts/codex_skill_admin.py list --cwd "$PWD" --force-reload
 ```
 
@@ -280,13 +285,18 @@ Observed evidence:
 - All five managed profile bytes matched the repository source: advisor `6063fd6d34479f545e8f04ea02d6b6d04082d2df4d33e1ee47f89ab5be3dfb0e`; investigator `b02fab6d82f84c3a40615d5e4d535a986a01d80eabb6eb06f6b72cd97a7111d6`; reader `127954d74f2604437199af9a75e712d4c04f00902bba8fee56f9b531cadd248a`; solver `49a7c5106cf8f99029b7fbd066af3f7e0185b06467f79159fbad70d37e877b7f`; worker `491fa574aac0e8110e81819701f57079c7d3643f11bd46447f7f68049e1ae17a`.
 - The pre-existing task still rejected `codex_delegate_reader`, establishing the documented refresh boundary.
 - A fresh Desktop task and a separate fresh CLI process both exposed all five exact Agent types. Each successfully ran one `codex_delegate_reader` with `fork_turns="none"`; both Readers reported HEAD `55728b41592058575a6e35632adc6af75a355016` on `main` without modifying the repository.
-- `allow_implicit_invocation: false` is confirmed configuration evidence only; implicit behavior was not independently exercised.
+- A fresh interactive Codex 0.146.0 CLI opened `/skills`, listed `Codex Delegate` as a Plugin Skill, and selected it successfully; the composer inserted `@Codex-Delegate` with no discovery or load error.
+- A separate fresh ephemeral read-only task received an unrelated arithmetic prompt that did not name or select codex delegate. It exited 0 and returned exactly `4`; its complete JSON stream contained five events, no Skill/Delegate activation match, and no tool or Skill event. This independently confirms the configured non-implicit behavior for the exercised ordinary path.
+- The Skill-affine ordinary repository-review control also avoided every explicit codex delegate reference. It exited 0 after 48 JSON events and returned one concrete README ambiguity without modifying files. Its event stream loaded and declared graphify / ponytail and used context-mode, but did not load the installed Codex Delegate `SKILL.md`, select `@Codex-Delegate`, invoke `/codex-delegate`, emit a Codex Delegate activation record, or declare Codex Delegate use. Repository paths and target-file content containing the project name were classified as inspected data, not activation evidence.
+- The Skill-affine control found a real P2 public Final Review contract drift: `README.md` and `README_EN.md` described required semantic review triggers as optional. The minimal fix restores `required` plus `materially` wording in both public READMEs, with a red-then-green regression assertion in `tests/test_readme_user_facing.py`; runtime policy is unchanged.
+- An earlier unrelated deep-review probe exceeded the 300-second context-mode RPC window and its two exact Codex processes were terminated. It produced no verdict and is excluded from Checkpoint 1 evidence.
 
-Remaining issue:
+Checkpoint 1 closure:
 
-- Neither fresh runtime included `codex-delegate` in its Skill list, so `/skills` discovery is not validated even though the Plugin is installed/enabled and the explicit slash prompt was accepted.
-- Ordinary-task non-implicit behavior was not independently exercised; `allow_implicit_invocation: false` remains configuration evidence only.
-- Review Checkpoint A stopped with `CONSULTATION_TARGET_UNRESOLVED`: ChatGPT exposed `codex-delegate`, but no exact-title `R-jed/codex-delegate` conversation. No evidence was sent to a fuzzy or substitute target.
+- The initial model-visible Skill list omitted `codex-delegate`, but that surface is not the `/skills` selector. Direct `/skills` discovery and selection passed.
+- Configuration, an unrelated ordinary control, and a Skill-affine ordinary control now agree that ordinary tasks do not invoke the Skill implicitly on the exercised paths.
+- Review Checkpoint A passed through `/webgpt-consult` in the exact existing `codex-delegate` conversation. Verified GPT-5.6 Sol High first kept Checkpoint 1 PARTIAL under Request-ID `wgpt-e54de2858e9550a3`, required the Skill-affine boundary control under `wgpt-f078b6dc93df46ef`, and accepted final closure under `wgpt-a508773eef17481d`.
+- Checkpoint 1 is PASS. Release remains HOLD.
 - Checkpoint 2 was not started.
 
 ## Live validation record format
@@ -311,4 +321,15 @@ For adaptive fan-out cases record the ready responsibilities, assigned owners, w
 
 ## Adversarial consultation
 
-Use `/gpt56-sol-pro-consult` with exact target conversation `R-jed/codex-delegate`. Exact-title unique-match is fail-closed. Consultation is model judgment only and never counts as deterministic, runtime, install, or behavioral product evidence.
+Use `/webgpt-consult` with exact target conversation `codex-delegate`. Exact-title unique-match is fail-closed. Consultation is model judgment only and never counts as deterministic, runtime, install, or behavioral product evidence.
+
+```text
+REVIEW CHECKPOINT A: PASS
+INITIAL REQUEST-ID: wgpt-e54de2858e9550a3
+BOUNDARY-REVIEW REQUEST-ID: wgpt-f078b6dc93df46ef
+CLOSURE REQUEST-ID: wgpt-a508773eef17481d
+WEB MODEL: GPT-5.6 Sol High (Pro was not exposed)
+VERDICT: Checkpoint 1 PASS; `/skills` discovery/selection, unrelated non-implicit control, and Skill-affine non-implicit control PASS; no reproducible project-side P0/P1 was established; one P2 public Final Review contract drift was corrected without changing runtime policy; release remains HOLD.
+SKILL-AFFINE NON-IMPLICIT CONTROL: PASS
+RESOLVED FINDING: P2 public Final Review contract drift
+```
