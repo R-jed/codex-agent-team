@@ -11,7 +11,7 @@ Marketplace id:     codex-delegate
 Plugin id:          codex-delegate
 Plugin directory:   plugins/codex-delegate
 Skill / command:    codex-delegate / /codex-delegate
-Current version:    0.8.0
+Current version:    0.9.0
 Distribution:       Codex Plugin only
 License:            MIT
 ```
