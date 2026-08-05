@@ -32,7 +32,7 @@ def test_skill_and_openai_interface_keep_one_explicit_product_entrypoint():
 
     data = yaml.safe_load((SKILL / "agents" / "openai.yaml").read_text())
     assert data["interface"]["display_name"] == "Codex Delegate"
-    assert "$codex-delegate" in data["interface"]["default_prompt"]
+    assert "/codex-delegate" in data["interface"]["default_prompt"]
     assert data["policy"]["allow_implicit_invocation"] is False
 
 
@@ -145,7 +145,7 @@ def test_guardrails_keep_safety_without_hot_path_runtime_ceremony():
         "One writer per canonical checkout",
         "main session when mutating the checkout",
         "Explicit invocation only",
-        "$codex-delegate <task>",
+        "/codex-delegate <task>",
         "First-use readiness before delegated execution",
         "Runtime evidence is on demand",
         "Do not emit a separate orchestration receipt",
@@ -174,11 +174,11 @@ def test_public_docs_keep_product_identity_and_five_profiles():
     en = read("README_EN.md")
     ai = read("README_AI.md")
     installation = read("docs/plugin-installation.md")
-    directive = "If you are an AI Agent, jump to README_AI.md and follow the instructions strictly."
+    directive = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
 
     for text in [zh, en]:
         assert directive in text
-        assert "$codex-delegate" in text
+        assert "/codex-delegate" in text
         assert "0.9.1" in text
         assert "Sol Solver" in text
         assert "HEADOFF.md" not in text
