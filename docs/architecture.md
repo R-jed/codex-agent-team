@@ -153,10 +153,10 @@ Independent sessions, editors, hooks, and external processes remain outside this
 
 ## Explicit invocation and onboarding
 
-The supported user mental model follows the Codex Skill convention:
+The supported user command is:
 
 ```text
-$codex-delegate <task>
+/codex-delegate <task>
 ```
 
 Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled.
