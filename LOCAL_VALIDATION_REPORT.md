@@ -10,7 +10,7 @@ Repository: R-jed/codex-delegate
 Marketplace id: codex-delegate
 Plugin id: codex-delegate
 Canonical command: /codex-delegate
-Plugin version: 0.8.0
+Plugin version: 0.9.0
 Current roles: codex_delegate_reader / codex_delegate_worker / codex_delegate_solver / codex_delegate_investigator / codex_delegate_advisor
 Current ownership manifest: .codex-delegate-agents.json
 Machine policy: policy-contract.json schema 3
@@ -68,7 +68,7 @@ These are repository facts only. Deterministic and live validation remain requir
 | Claim | Status | Boundary |
 | --- | --- | --- |
 | repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
-| Plugin version is `0.8.0` | repository fact | current Plugin/public docs |
+| Plugin version is `0.9.0` | repository fact | current Plugin/public docs |
 | current role set is Reader/Worker/Solver/Investigator/Advisor | repository fact, deterministic revalidation pending | policy/profile/installer/tests |
 | current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer lifecycle |
 | policy schema 3 is internally valid | implementation fact, deterministic suite pending | policy/runtime/tests |
