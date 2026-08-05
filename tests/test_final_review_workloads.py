@@ -3,7 +3,6 @@ from pathlib import Path
 
 import jsonschema
 
-
 ROOT = Path(__file__).resolve().parents[1]
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
 RESULT_SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
@@ -11,13 +10,12 @@ RESULT_SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 
 def cases() -> dict[str, dict]:
     payload = json.loads(WORKLOADS.read_text())
-    assert payload["schema_version"] == "3.0"
+    assert payload["schema_version"] == "4.0"
     return {item["id"]: item for item in payload["workloads"]}
 
 
-def test_behavioral_suite_distinguishes_optional_and_required_final_review():
+def test_behavioral_suite_covers_required_final_review_and_process_history_negative_control():
     by_id = cases()
-    assert by_id["selective-sol-review"]["expected"]["review_requirement"] == "not_required"
 
     public = by_id["public-contract-final-review-required"]["expected"]
     assert public["review_requirement"] == "required"
@@ -25,43 +23,32 @@ def test_behavioral_suite_distinguishes_optional_and_required_final_review():
     assert public["fresh_sol_required"] is True
     assert public["ship_required"] is True
 
+    negative = by_id["process-history-does-not-force-review"]["expected"]
+    assert negative["review_requirement"] == "not_required"
 
-def test_behavioral_suite_covers_dynamic_review_escalation():
+
+def test_behavioral_suite_covers_verification_gap_and_sol_main_independence():
     by_id = cases()
-    terra = by_id["terra-escalation-final-review-required"]["expected"]
-    recovery = by_id["material-recovery-final-review-required"]["expected"]
-    assert terra["review_reason"] == "terra_escalation"
-    assert terra["artifact_binding_required"] is True
-    assert recovery["review_reason"] == "material_recovery"
-    assert recovery["fresh_sol_required"] is True
+    gap = by_id["verification-gap-final-review-required"]["expected"]
+    sol_main = by_id["sol-main-still-needs-independent-review"]["expected"]
+    assert gap["review_requirement"] == "required"
+    assert gap["review_reason"] == "verification_gap"
+    assert gap["fresh_sol_required"] is True
+    assert sol_main["main_judgment_coverage"] == "covered"
+    assert sol_main["fresh_sol_required"] is True
+    assert sol_main["independence_required"] is True
 
 
 def test_behavioral_suite_covers_verdict_invalidation_lifecycle():
     by_id = cases()
     fix_first = by_id["fix-first-invalidates-old-review"]["expected"]
     mutation = by_id["post-review-mutation-invalidates-ship"]["expected"]
-    rethink = by_id["rethink-invalidates-plan"]["expected"]
 
     assert fix_first["old_verdict_valid"] is False
     assert fix_first["fresh_rereview_required"] is True
-    assert fix_first["completion_before_rereview"] is False
-
     assert mutation["old_verdict_valid"] is False
     assert mutation["artifact_verify_must_fail"] is True
-    assert mutation["completion_allowed"] is False
-
-    assert rethink["local_patch_only_forbidden"] is True
-    assert rethink["dependency_invalidation_required"] is True
-    assert rethink["shared_evidence_invalidation_required"] is True
-
-
-def test_behavioral_suite_covers_declined_required_review():
-    expected = cases()["implicit-required-review-declined"]["expected"]
-    assert expected["review_requirement"] == "required"
-    assert expected["sol_spawned"] is False
-    assert expected["gate_satisfied"] is False
-    assert expected["candidate_ready"] is True
-    assert expected["ship_must_not_be_claimed"] is True
+    assert mutation["fresh_rereview_required"] is True
 
 
 def test_behavioral_result_schema_supports_final_review_metrics():
@@ -80,7 +67,7 @@ def test_behavioral_result_schema_supports_final_review_metrics():
     ]:
         assert field in props
 
-    assert "contract_luna_final_review_gate" in props["mode"]["enum"]
+    assert "adaptive_routing_v4_final_review" in props["mode"]["enum"]
     assert props["final_review_requirement"]["enum"] == [None, "not_required", "required"]
     assert props["final_review_verdict"]["enum"] == [
         None,
