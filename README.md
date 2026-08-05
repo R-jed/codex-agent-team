@@ -20,7 +20,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
-> **If you are an AI Agent, jump to README_AI.md and follow the instructions strictly.**
+> **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
 codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，它会先判断主会话自己完成是否更合适。只有额外 Agent 确实能帮上忙时，它才会把一部分工作交出去。
 
@@ -33,7 +33,7 @@ codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，�
 安装后开启新的 Codex 会话，然后这样用：
 
 ```text
-$codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
+/codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
 
 你也可以输入 `/skills` 打开 Skill 选择器。
@@ -78,7 +78,7 @@ $codex-delegate 深度检查这个改动，修复发现的问题并运行相关�
 
 ## 并行和写代码时的安全规则
 
-一次 `$codex-delegate` 任务里，最多可以同时运行两个确实有用的子 Agent。很多任务只会用一个，或者一个都不用。
+一次 `/codex-delegate` 任务里，最多可以同时运行两个确实有用的子 Agent。很多任务只会用一个，或者一个都不用。
 
 读代码的工作可以并行。写代码时更保守：同一个实际 Git checkout 里，同一时间只允许一个写入者。这个写入者可能是主会话、Luna Worker 或 Sol Solver。
 
