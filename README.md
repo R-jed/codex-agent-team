@@ -8,7 +8,7 @@
 
 <h1 align="center">codex delegate</h1>
 
-<p align="center"><strong>让 Codex 只在值得时委派，把标准化执行、重要判断和困难技术调查放到合适的原生 Subagent 上。</strong></p>
+<p align="center"><strong>让 Codex 只在值得时委派，把标准化执行、重要判断和只读技术调查放到合适的原生 Subagent 上。</strong></p>
 
 <p align="center">
   <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
@@ -30,11 +30,13 @@ codex delegate 是 Codex Native Subagents 上的一层轻量委派策略。主�
 
 在 Codex 中打开**插件市场**，搜索 `codex-delegate`，选择 **Codex Delegate** 并安装。
 
-安装后启动新的 Codex 会话，然后显式调用：
+安装后启动新的 Codex 会话，然后显式调用 Skill：
 
 ```text
-/codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
+$codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
+
+Codex 也可以通过 `/skills` 打开 Skill 选择器。
 
 这就是普通用户的完整安装路径。你不需要注册额外 marketplace、不需要运行安装命令，也不需要手工配置 Agent profiles。
 
@@ -44,7 +46,7 @@ codex delegate 是 Codex Native Subagents 上的一层轻量委派策略。主�
 
 ## 它解决什么
 
-日常开发里真正困难的往往是决定工作该放在哪里：明确的实现适合交给高性价比执行模型，架构和语义判断需要更强判断能力，困难技术问题应该只调查剩余技术增量，高风险结果才值得额外独立复核。
+日常开发里真正困难的往往是决定工作该放在哪里：明确且可重复的实现适合交给高性价比执行模型，架构和语义判断需要更强判断能力，大量只读技术调查可以交给平衡质量与成本的模型，高风险结果才值得额外独立复核。
 
 codex delegate 把正常路径压缩成几个直接问题：
 
@@ -55,13 +57,13 @@ codex delegate 把正常路径压缩成几个直接问题：
   ↓
 额外委派真的有价值吗？
   ↓
-当前需要的是证据、标准化写入、重要判断、判断耦合型实现，还是困难技术调查？
+当前需要的是证据、标准化写入、重要判断、判断耦合型实现，还是只读技术调查？
   ↓
 选择最小且合适的执行者
   ↓
 检查真实改动、测试和证据
   ↓
-只有卡住时才诊断 contract / judgment / specialist / stalled
+只有卡住时才诊断 contract / judgment / investigation / stalled
   ↓
 最终候选按实际后果决定是否需要独立复核
   ↓
@@ -72,9 +74,9 @@ codex delegate 把正常路径压缩成几个直接问题：
 
 - 没有委派价值时，0 个 Subagent 是正常结果。
 - 一个任务能够写出 contract，并不代表适合交给 Luna。
-- Luna 负责行为已经决定的标准化执行，不承担开放式语义发散。
-- Sol 负责重要判断，以及判断无法与实现分开的复杂写入。
-- Terra 只处理语义明确后仍剩下的困难技术问题。
+- Luna 负责行为已经决定、清晰且可重复的标准化执行，不承担开放式语义发散。
+- Sol 负责 demanding、ambiguous、multi-step 的重要判断，以及判断无法与实现分开的复杂写入。
+- Terra 负责语义已经稳定、无需 material judgment 的 bounded read-heavy technical investigation 和 evidence synthesis。
 - 一次失败不会自动触发更强模型。
 - 主会话已经具备足够 Sol 能力时，会避免重复再调用一个 Sol。
 
@@ -83,21 +85,21 @@ codex delegate 把正常路径压缩成几个直接问题：
 | 当前需要的能力 | 默认处理方式 |
 | --- | --- |
 | 主会话直接完成更合适 | 主会话 |
-| 查代码、追调用链、找测试、整理独立证据 | Luna Reader |
+| 窄范围查代码、追调用链、找测试、收集事实 | Luna Reader |
 | 行为、边界和验收都已经决定的实现、调试、测试、局部重构 | Luna Worker |
 | 实现过程中必须持续做重要架构、兼容性或状态语义判断 | 能力足够的主会话，或 Sol Solver |
-| 需要先确定架构、行为或兼容性决策 | 能力足够的主会话，或 Sol Advisor |
-| 语义已经明确后仍剩下一个困难技术问题 | Terra Investigator |
+| 需要先确定架构、行为、兼容性或复杂技术决策 | 能力足够的主会话，或 Sol Advisor |
+| 语义已经稳定，需要更深入的只读技术调查、较大范围扫描或证据综合 | Terra Investigator |
 | 最终候选确实需要独立第二视角 | fresh Sol Advisor |
 
 当前角色配置：
 
 | 角色 | 当前模型 | 责任范围 |
 | --- | --- | --- |
-| Luna Reader | GPT-5.6 Luna `max` | 只读证据收集 |
-| Luna Worker | GPT-5.6 Luna `max` | 标准化、有明确边界的写入执行 |
-| Sol Solver | GPT-5.6 Sol `high` | 判断与实现耦合的写入执行 |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | 语义明确后的困难技术调查 |
+| Luna Reader | GPT-5.6 Luna `max` | 窄范围只读证据收集 |
+| Luna Worker | GPT-5.6 Luna `max` | 清晰、可重复、有明确边界的写入执行 |
+| Sol Solver | GPT-5.6 Sol `high` | 判断与实现耦合的复杂写入执行 |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | bounded read-heavy 技术调查与证据综合 |
 | Sol Advisor | GPT-5.6 Sol `high` | 重要只读判断与独立最终复核 |
 
 角色定义责任范围，模型提供对应计算能力。更强模型不会自动获得更大的用户授权或修改范围。
@@ -114,26 +116,26 @@ codex delegate 把正常路径压缩成几个直接问题：
 
 ## 并行、写入与恢复
 
-你不需要手工设计并发计划。显式使用 `/codex-delegate` 时，普通授权范围内最多可以同时运行两个有明确理由的子 Agent。这是授权范围，不代表固定团队规模或 Codex runtime 的永久并发上限。
+你不需要手工设计并发计划。显式使用 `$codex-delegate` 时，普通授权范围内最多可以同时运行两个有明确理由的子 Agent。这是授权范围，不代表固定团队规模或 Codex runtime 的永久并发上限。
 
 独立的只读工作可以并行。同一个实际 Git checkout 在当前编排内同时只有一个 writer，这个 writer 可以是主会话、Luna Worker 或 Sol Solver。并行 writer 需要真正隔离的 worktree、workspace 或 repository。
 
 执行卡住时只诊断四类问题：
 
 ```text
-contract    → 主会话补齐目标、边界或验收条件
-judgment    → 主会话或 Sol 处理重要判断
-specialist  → 语义明确后由 Terra 处理技术增量
-stalled     → 当前角色仍正确时最多做一次真正改善输入的干净重试
+contract       → 主会话补齐目标、边界或验收条件
+judgment       → 主会话或 Sol 处理重要判断
+investigation  → 语义稳定且无需 material judgment 时由 Terra 做 bounded read-heavy 调查
+stalled        → 当前角色仍正确时最多做一次真正改善输入的干净重试
 ```
 
-Luna 做得不好不会自动触发 Terra，也不会自动形成 Luna → Terra → Sol 的返工链。
+Luna 做得不好不会自动触发 Terra，也不会自动形成 Luna → Terra → Sol 的返工链。真正困难、模糊或需要复杂技术判断的问题进入 Sol 路径。
 
 ## 首次使用体验
 
 第一次真正需要专用角色时，codex delegate 会在 delegated implementation 开始之前检查角色是否就绪。
 
-如果需要安装五个受管理的 Agent profiles，会先说明写入范围并请求授权，然后运行 bundled installer 和非修改型 `--check`。如果当前 Codex 会话需要重启才能看到新角色，会在任何子 Agent 写代码之前停止并提示开启新会话。
+如果需要安装五个受管理的 Agent profiles，会先说明写入范围并请求授权，然后运行 bundled installer 和非修改型 `--check`。这些 profile 使用 Codex 官方 custom Agent TOML 机制。如果当前 Codex 会话需要重启才能看到新角色，会在任何子 Agent 写代码之前停止并提示开启新会话。
 
 这样 setup 不会发生在任务执行到一半之后。
 
@@ -180,6 +182,7 @@ codex delegate 直接使用 Codex Native Subagents，不运行第二套 Agent ru
 - [安装指南](docs/plugin-installation.md)：插件市场安装、手动/开发安装、更新和 installer safety。
 - [架构](docs/architecture.md)：产品机制、角色边界和 writer safety。
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)：原生并发、runtime evidence 和 host 边界。
+- [Privacy Policy](PRIVACY.md) · [Terms of Use](TERMS.md)
 
 ## 许可证
 
