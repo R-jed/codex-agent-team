@@ -49,7 +49,7 @@ Current source inspection establishes:
 - complete trusted Sol `high`, `xhigh`, or `max` metadata can cover the current Sol `high` reference; Sol `medium`/`low` is insufficient; unknown/unranked/partial/local-only/conflicted evidence remains conservative;
 - one canonical checkout has one writing actor inside the current orchestration; Main writes, Worker, and Solver share that domain;
 - implicit Skill invocation is disabled;
-- official explicit Skill invocation is `$codex-delegate`; `/skills` is the Skill picker; the retired custom `/codex-delegate` invocation is prohibited in the current tracked tree;
+- official explicit Skill invocation is `$codex-delegate`; `/skills` is the Skill picker; no invented custom slash command is part of the current product contract;
 - first-use role provisioning is required before delegated code execution, avoiding mid-implementation setup/restart;
 - the five managed role files use Codex's native custom-Agent TOML mechanism under the active Codex home; the bundled installer is a project-specific lifecycle/ownership safety layer, not another Agent runtime;
 - ordinary successful tasks no longer require a separate orchestration receipt;
