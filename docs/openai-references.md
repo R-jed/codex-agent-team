@@ -27,21 +27,20 @@ Used for:
 
 - `SKILL.md` as the Skill entry point with `name` and `description` frontmatter;
 - progressive disclosure through optional `scripts/`, `references/`, `assets/`, and `agents/openai.yaml`;
-- explicit Codex invocation by mentioning a Skill with `$skill-name`;
 - `/skills` as the Codex CLI/IDE Skill picker;
-- `policy.allow_implicit_invocation: false` disabling implicit matching while preserving explicit `$skill` invocation;
+- `policy.allow_implicit_invocation: false` disabling implicit matching;
 - restart/reload expectations when newly installed Skill state is not visible;
 - preferring plugins for reusable distribution beyond local/repository-scoped Skill authoring.
 
 Current codex delegate consequence:
 
 ```text
-canonical explicit invocation: $codex-delegate
+canonical user command: /codex-delegate
 Skill picker: /skills
 implicit invocation: disabled
 ```
 
-The project does not define or rely on an invented custom slash command for its Skill.
+The project keeps `/codex-delegate` consistent across its Plugin starter prompts, Skill metadata, public docs, and regression tests.
 
 ## Plugin architecture and packaging
 
@@ -218,7 +217,7 @@ The following are codex delegate choices, not OpenAI requirements:
 
 - Main session owns user intent, authorization, integration, acceptance, and final response.
 - Zero children is normal.
-- Explicit `$codex-delegate` use has a project ordinary-consent envelope of up to two justified concurrent children.
+- Explicit `/codex-delegate` use has a project ordinary-consent envelope of up to two justified concurrent children.
 - One canonical checkout has one active writing actor inside the current orchestration.
 - Main, Luna Worker, and Sol Solver share that writer domain.
 - Delegation depth is one.
