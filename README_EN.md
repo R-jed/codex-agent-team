@@ -8,7 +8,7 @@
 
 <h1 align="center">codex delegate</h1>
 
-<p align="center"><strong>Let Codex decide when extra help is actually useful. Simple work stays in the main session; harder work can use Luna, Terra, or Sol.</strong></p>
+<p align="center"><strong>You set the goal. The main Codex session leads the team and brings in Luna, Terra, or Sol only where they genuinely help.</strong></p>
 
 <p align="center">
   <a href="README.md">中文</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">Installation</a> · <a href="docs/architecture.md">Architecture</a> · <a href="LICENSE">MIT License</a>
@@ -22,15 +22,15 @@
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-codex delegate is a Codex plugin for handing off parts of a development task when that will genuinely help. The main session first decides whether it can do the job well on its own. It only brings in another Agent when there is a clear reason.
+codex delegate is a Codex plugin that lets the current main session act like the lead of a small specialist team. You give it the development goal. Main works out what it should handle itself, what is worth handing off, and which specialist is right for each job.
 
-You do not need to pick models yourself, build an Agent team, or decide a Luna, Terra, Sol workflow in advance.
+You do not need to pick models yourself, decide how many Agents should run, or design a Luna, Terra, Sol workflow in advance. Main adapts the team as the task develops and remains responsible for the final result.
 
 ## Quickstart
 
 Open the **Codex Plugin Marketplace**, search for `codex-delegate`, choose **Codex Delegate**, and install it.
 
-Start a new Codex thread, then use:
+Start a new Codex thread, then give it the task directly:
 
 ```text
 /codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
@@ -42,21 +42,21 @@ Updates are handled through the Codex Plugin Marketplace as well. After an updat
 
 Most users never need installation scripts or manual Agent setup. For development installs, manual installs, or troubleshooting, see [Installation](docs/plugin-installation.md).
 
-## What it does
+## You give the goal, Main runs the team
 
-Think of codex delegate as a small task dispatcher. It does not call extra Agents just to make a task look more sophisticated.
+Think of codex delegate as a small set of team-leading rules for the main Codex session. You describe the outcome. Main decides how to get there.
 
 | Situation | Typical choice |
 | --- | --- |
-| Small change, simple fix, or work the main session can handle well | Main session |
+| Main can handle the work well on its own | Main session |
 | Search the codebase, trace calls, find tests, or collect facts | Luna Reader |
 | Write code when the requirements and boundaries are already clear | Luna Worker |
 | Make an important architecture, compatibility, or technical decision | Main session or Sol Advisor |
 | Write code while continuing to make important technical decisions | Main session or Sol Solver |
 | Read a larger part of the codebase and put technical evidence together without editing files | Terra Investigator |
-| Give a risky final change an independent second look | fresh Sol Advisor |
+| Give a consequential final change an independent second look | fresh Sol Advisor |
 
-Some tasks use no child Agents at all. That is expected. A large task also does not automatically need delegation.
+Some tasks use no child Agents at all. That is expected. A large task also does not automatically need delegation. What matters is whether another Agent has a clear job that improves the work.
 
 ## The five roles
 
@@ -68,21 +68,43 @@ Some tasks use no child Agents at all. That is expected. A large task also does 
 | Terra Investigator | GPT-5.6 Terra `xhigh` | does deeper, broader read-only technical investigation |
 | Sol Advisor | GPT-5.6 Sol `high` | makes important technical judgments or reviews the finished result independently |
 
-A role controls what an Agent is allowed to do. A stronger model does not automatically get broader permissions.
+A role controls what an Agent is responsible for. A stronger model does not automatically get broader permissions.
+
+## Team size changes with the task
+
+A `/codex-delegate` task does not have a fixed child-Agent count.
+
+Main looks at the work that can actually move forward now and delegates only the parts that are distinct, useful, and ready. It does not open another Agent for work that is already owned, already answered by good evidence, or still blocked by an unresolved decision.
+
+That means one task may look like:
+
+```text
+Main only
+```
+
+while another may look like:
+
+```text
+Main
+├─ Luna Reader: trace the call path
+├─ Luna Reader: inspect test coverage
+├─ Terra Investigator: assemble broader technical evidence
+└─ Sol Advisor: judge architecture or compatibility risk
+```
+
+When one job finishes and unlocks another independent job, Main can add the right specialist then. The number of Agents the Codex runtime can support is a ceiling, not a target to fill.
+
+Read-only work is the preferred place to use parallelism. Writing is more conservative: only one actor writes to the same physical Git checkout at a time. That writer may be the main session, Luna Worker, or Sol Solver.
+
+If multiple Agents truly need to write at the same time, they need separate worktrees, workspaces, or repositories.
+
+A material expansion in permissions, scope, external impact, or compute still requires fresh user consent. Crossing an arbitrary child count does not.
 
 ## When the main session is already strong enough
 
 The main session always owns the final decision and final answer.
 
 If the current main session already has enough Sol capability, codex delegate will usually keep judgment-heavy work there instead of opening another Sol unnecessarily. A fresh Sol Advisor is still used when the point is to get an independent second opinion.
-
-## Parallel work and safe writing
-
-A single `/codex-delegate` task can run several useful child Agents at the same time. The main session decides the number dynamically from work that is ready, independent, and worth delegating. A small task may use none; a large review may use several Readers, an Investigator, or an Advisor in parallel. Spare capacity is never a reason to create another Agent.
-
-Read-only work is the preferred place to use parallelism. Writing is more conservative: only one actor writes to the same physical Git checkout at a time. That writer may be the main session, Luna Worker, or Sol Solver.
-
-If multiple Agents truly need to write at the same time, they need separate worktrees, workspaces, or repositories.
 
 When something goes wrong, the plugin first works out why before changing models. Weak Luna output does not automatically send the task to Terra, and there is no fixed Luna → Terra → Sol ladder. Work that is genuinely difficult, ambiguous, or decision-heavy goes to Sol.
 
@@ -113,7 +135,7 @@ A large diff, earlier Terra use, or some rework along the way does not by itself
 
 ## Safety
 
-The main session always owns your request, scope, permissions, acceptance, and final response. Child Agents cannot create their own Agent teams.
+The main session always owns your request, scope, permissions, team composition, acceptance, and final response. Child Agents cannot create their own Agent teams.
 
 Text found in a repository, webpage, issue, log, or another model response cannot silently widen permissions or change the task scope.
 
