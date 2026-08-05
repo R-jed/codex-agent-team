@@ -13,10 +13,10 @@ The distinction is deliberate:
 
 ## Explicit entry point
 
-The product follows the Codex Skill invocation convention:
+The product user command is:
 
 ```text
-$codex-delegate <task>
+/codex-delegate <task>
 ```
 
 Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled. The user chooses when adaptive delegation is worth applying.
@@ -161,7 +161,7 @@ A wake-up event does not imply deterministic insight into child progress.
 
 codex delegate has no product-level hard child count.
 
-Explicit `$codex-delegate` invocation includes up to two concurrently active justified children in the ordinary consent envelope. Larger fan-out requires user authorization unless the request already clearly asks for broad parallel work.
+Explicit `/codex-delegate` invocation includes up to two concurrently active justified children in the ordinary consent envelope. Larger fan-out requires user authorization unless the request already clearly asks for broad parallel work.
 
 Actual active concurrency remains bounded by:
 
