@@ -11,7 +11,7 @@ Marketplace id:      codex-delegate
 Plugin id:           codex-delegate
 Plugin directory:    plugins/codex-delegate
 Skill:               codex-delegate
-Explicit invocation: $codex-delegate
+Explicit invocation: /codex-delegate
 Current version:     0.9.1
 Distribution:        Codex Plugin only
 License:             MIT
@@ -91,7 +91,7 @@ Open the Codex Plugin Marketplace
 -> search for codex-delegate
 -> install Codex Delegate
 -> start a new Codex thread
--> $codex-delegate <task>
+-> /codex-delegate <task>
 ```
 
 `/skills` opens the Codex Skill picker.
@@ -119,7 +119,7 @@ codex plugin add codex-delegate@codex-delegate
 
 Start a new Codex thread after installation or an update.
 
-Implicit invocation is disabled. Use `$codex-delegate` explicitly.
+Implicit invocation is disabled. Use `/codex-delegate` explicitly.
 
 ## Managed Agent profiles
 
@@ -184,7 +184,7 @@ final-review.md
 
 Explain the plugin in plain language first: it lets Codex keep simple work in the main session and bring in a specialist Subagent only when that is useful.
 
-For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `$codex-delegate`.
+For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `/codex-delegate`.
 
 Do not claim benchmark wins, token savings, speedups, or quality improvements unless there is current measured evidence for that claim.
 
