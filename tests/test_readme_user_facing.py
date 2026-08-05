@@ -39,7 +39,7 @@ def test_public_readmes_are_marketplace_first_and_explain_updates_simply():
         assert "codex plugin add codex-delegate@codex-delegate" not in text
 
 
-def test_public_readmes_use_plain_language_instead_of_internal_policy_jargon():
+def test_public_readmes_use_plain_language_and_leader_model():
     forbidden = [
         "material judgment",
         "judgment-coupled",
@@ -57,10 +57,14 @@ def test_public_readmes_use_plain_language_instead_of_internal_policy_jargon():
         for phrase in forbidden:
             assert phrase not in lowered
 
-    assert "可以把它理解成一个很轻的“任务分配器”" in ZH
-    assert "Think of codex delegate as a small task dispatcher" in EN
+    assert "给主会话的一套“带团队规则”" in ZH
+    assert "small set of team-leading rules" in EN
     assert "你不需要自己挑模型" in ZH
     assert "You do not need to pick models yourself" in EN
+    assert "没有固定的子 Agent 数量" in ZH
+    assert "does not have a fixed child-Agent count" in EN
+    assert "不是需要填满的目标" in ZH
+    assert "not a target to fill" in EN
 
 
 def test_all_readmes_are_product_or_reference_docs_not_release_status_ledgers():
@@ -113,6 +117,15 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
     ]:
         assert phrase in AI
 
+    for phrase in [
+        "Treat the current Codex main session as the team leader",
+        "Do not ask the user to design the Agent team",
+        "Main manages a ready frontier and uses progressive fan-out",
+        "Spare capacity is never a reason to spawn",
+        "Child count alone is not a consent trigger",
+    ]:
+        assert phrase in AI
+
 
 def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
     for phrase in [
@@ -123,6 +136,8 @@ def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
         "LOCAL_EVAL_FIXTURE_TEMPLATE.md",
         "routing-cases.json",
         "runtime-assurance-cases.json",
+        "adaptive multi-Agent fan-out",
+        "does not use a fixed ordinary child-Agent count",
         "router-core.md",
         "guardrails.md",
         "final-review.md",
