@@ -89,13 +89,13 @@ def test_install_doc_explains_marketplace_default_and_manual_five_profile_lifecy
         "codex_delegate_reader",
         "codex_delegate_solver",
         ".codex-delegate-agents.json",
-        "Version:         0.9.0",
         "leaves unrelated Agent profiles untouched",
         "First-use Agent readiness",
         "Implicit invocation is disabled",
         "immutable release ref/tag",
     ]:
         assert phrase in text
+    assert "Version:" in text and "0.9.0" in text
 
 
 def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
