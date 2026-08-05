@@ -1,6 +1,6 @@
 {
   "name": "codex-delegate",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Use Codex Native Subagents only when delegation improves the task, with clear bounded Luna execution, Sol judgment, read-heavy Terra investigation, and selective independent review.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
