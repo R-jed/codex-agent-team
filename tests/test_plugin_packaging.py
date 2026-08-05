@@ -52,7 +52,7 @@ def test_plugin_brand_assets_and_supported_components():
 
 def test_only_current_five_profiles_are_packaged():
     policy = json.loads(POLICY.read_text())
-    assert policy["schema_version"] == 3
+    assert policy["schema_version"] == 4
     assert set(policy["roles"]) == {"reader", "worker", "solver", "investigator", "advisor"}
     expected = {spec["profile_file"] for spec in policy["roles"].values()}
     assert len(expected) == 5
@@ -119,3 +119,4 @@ def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
     assert "codex_delegate_advisor" in ai
     assert "For ordinary users, give this path first" in ai
     assert "Only give CLI installation commands when the user explicitly asks" in ai
+    assert "no project-level ordinary numeric child ceiling" in ai
