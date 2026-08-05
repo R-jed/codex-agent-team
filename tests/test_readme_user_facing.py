@@ -12,8 +12,6 @@ def test_readmes_present_same_current_product_and_ai_jump():
         for phrase in [
             "codex delegate",
             "0.9.0",
-            "R-jed/codex-delegate",
-            "codex plugin add codex-delegate@codex-delegate",
             "/codex-delegate",
             "Luna Reader",
             "Luna Worker",
@@ -25,6 +23,18 @@ def test_readmes_present_same_current_product_and_ai_jump():
             assert phrase in text
     assert "## 最终复核" in ZH
     assert "## Final Review" in EN
+
+
+def test_public_readmes_use_marketplace_first_installation():
+    assert "Codex 中打开**插件市场**" in ZH
+    assert "搜索 `codex-delegate`" in ZH
+    assert "Open the **Codex Plugin Marketplace**" in EN
+    assert "search for `codex-delegate`" in EN
+    for text in [ZH, EN]:
+        assert "codex plugin marketplace add" not in text
+        assert "codex plugin add codex-delegate@codex-delegate" not in text
+    assert "开发安装、手动安装或排障" in ZH
+    assert "development installs, manual installs, or troubleshooting" in EN
 
 
 def test_public_readmes_do_not_expose_internal_release_management():
@@ -58,6 +68,8 @@ def test_ai_reference_is_authoritative_and_mechanism_compressed():
         "policy-contract.json` schema `3`",
         "Implicit invocation is disabled",
         "Do not claim benchmark superiority",
+        "search for `codex-delegate` in the Codex Plugin Marketplace",
+        "Provide CLI installation commands only for explicit manual/development/troubleshooting requests",
     ]:
         assert phrase in AI
 
