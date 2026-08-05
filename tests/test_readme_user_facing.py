@@ -24,7 +24,7 @@ def test_readmes_present_same_current_product_and_ai_jump():
         ]:
             assert phrase in text
     assert "## 最终复核" in ZH
-    assert "## Final Review Gate" in EN
+    assert "## Final Review" in EN
 
 
 def test_public_readmes_do_not_expose_internal_release_management():
@@ -39,7 +39,7 @@ def test_public_readmes_do_not_expose_internal_release_management():
             assert forbidden not in text
 
 
-def test_ai_reference_is_authoritative_and_current_v4():
+def test_ai_reference_is_authoritative_and_mechanism_compressed():
     for phrase in [
         "canonical public reference for AI Agents",
         "R-jed/codex-delegate",
@@ -52,8 +52,11 @@ def test_ai_reference_is_authoritative_and_current_v4():
         "codex_delegate_advisor",
         ".codex-delegate-agents.json",
         "Codex Plugin only",
-        "contractable does not imply Luna-suitable",
-        "main_judgment_coverage",
+        "router-core.md",
+        "guardrails.md",
+        "final-review.md",
+        "policy-contract.json` schema `3`",
+        "Implicit invocation is disabled",
         "Do not claim benchmark superiority",
     ]:
         assert phrase in AI
@@ -64,9 +67,9 @@ def test_readmes_lead_with_quickstart_and_user_value_before_deeper_mechanics():
     assert EN.index(DIRECTIVE) < EN.index("## Quickstart")
     assert ZH.index("## 快速开始") < ZH.index("## 会怎么分工")
     assert EN.index("## Quickstart") < EN.index("## How work is divided")
-    for phrase in ["## 它解决什么", "## 主会话本身是 Sol 时", "## 文档"]:
+    for phrase in ["## 它解决什么", "## 主会话本身已经有足够 Sol 能力时", "## 文档"]:
         assert phrase in ZH
-    for phrase in ["## What it solves", "## When the main session is already Sol", "## Documentation"]:
+    for phrase in ["## What it solves", "## When the main session already has sufficient Sol capability", "## Documentation"]:
         assert phrase in EN
     for text in [ZH, EN]:
         for link in [
@@ -78,11 +81,11 @@ def test_readmes_lead_with_quickstart_and_user_value_before_deeper_mechanics():
             assert link in text
 
 
-def test_readmes_explain_capability_aware_routing_parallelism_and_recovery():
-    assert "contractable` 不等于适合交给 Luna" in ZH
-    assert "`contractable` does not mean Luna-suitable" in EN
-    assert "主会话如果已经是可验证的 Sol 会话" in ZH
-    assert "main session is already Sol" in EN
+def test_readmes_explain_explicit_capability_aware_routing_and_recovery():
+    assert "插件不会隐式介入普通任务" in ZH
+    assert "does not implicitly enter ordinary tasks" in EN
+    assert "一个任务能够写出 contract，并不代表适合交给 Luna" in ZH
+    assert "A task being contractable does not make it Luna-suitable" in EN
     assert "你不需要手工设计并发计划" in ZH
     assert "You do not need to design the concurrency plan yourself" in EN
     assert "两个有明确理由的子 Agent" in ZH
@@ -93,11 +96,20 @@ def test_readmes_explain_capability_aware_routing_parallelism_and_recovery():
     assert "Sol is not a mandatory final step for every task" in EN
 
 
+def test_readmes_explain_first_use_and_no_default_receipt():
+    assert "## 首次使用体验" in ZH
+    assert "## First-use experience" in EN
+    assert "任何子 Agent 写代码之前" in ZH
+    assert "before any child starts writing" in EN
+    assert "不会默认追加一份内部 orchestration receipt" in ZH
+    assert "do not receive a separate orchestration receipt by default" in EN
+
+
 def test_readmes_explain_terra_and_final_review_boundaries():
-    assert "Terra 不负责替 Luna 返工整个任务" in ZH
-    assert "Terra is not a generic rework lane for weak Luna output" in EN
-    assert "此前使用过 Terra、Sol Solver、发生过 recovery、改动文件很多" in ZH
-    assert "Earlier Terra use, Solver use, recovery, or a large diff does not automatically require Final Review" in EN
+    assert "Luna 做得不好不会自动触发 Terra" in ZH
+    assert "Weak Luna output does not automatically trigger Terra" in EN
+    assert "这些事实本身不会自动触发 Final Review" in ZH
+    assert "does not automatically require review" in EN
     assert "fresh Sol Advisor" in ZH
     assert "fresh Sol Advisor" in EN
 
