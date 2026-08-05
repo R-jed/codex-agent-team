@@ -179,7 +179,7 @@ def test_public_docs_keep_product_identity_and_five_profiles():
     for text in [zh, en]:
         assert directive in text
         assert "$codex-delegate" in text
-        assert "0.9.0" in text
+        assert "0.9.1" in text
         assert "Sol Solver" in text
         assert "HEADOFF.md" not in text
         assert "LOCAL_VALIDATION_REPORT.md" not in text
