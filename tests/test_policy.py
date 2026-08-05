@@ -38,7 +38,7 @@ def test_skill_and_openai_interface_keep_one_explicit_product_entrypoint():
 
 def test_policy_contract_is_machine_constants_not_runtime_ontology():
     payload = contract()
-    assert payload["schema_version"] == 3
+    assert payload["schema_version"] == 4
     assert set(payload) == {
         "schema_version",
         "delegation",
@@ -48,9 +48,10 @@ def test_policy_contract_is_machine_constants_not_runtime_ontology():
     }
     assert payload["delegation"] == {
         "max_depth": 1,
-        "baseline_concurrent_children": 2,
         "max_active_writers_per_workspace": 1,
     }
+    assert "baseline_concurrent_children" not in payload["delegation"]
+    assert "max_concurrent_children" not in payload["delegation"]
     assert "classification" not in payload
     assert "dependency_kinds" not in json.dumps(payload)
 
@@ -122,6 +123,9 @@ def test_router_core_uses_direct_capability_questions_and_one_task_state():
         "Main-session Sol dedup is an optimization",
         "blocked_by: none | contract | judgment | investigation | stalled",
         "at most one clean retry",
+        "ready frontier",
+        "progressive fan-out",
+        "Native Codex capacity is the upper bound on concurrency, not a target",
     ]:
         assert phrase.lower() in router.lower()
     assert "Dependency Ledger" not in skill
@@ -144,6 +148,8 @@ def test_guardrails_keep_safety_without_hot_path_runtime_ceremony():
     for phrase in [
         "One writer per canonical checkout",
         "main session when mutating the checkout",
+        "Adaptive fan-out still requires discipline",
+        "Child count by itself is not a consent trigger",
         "Explicit invocation only",
         "/codex-delegate <task>",
         "First-use readiness before delegated execution",
