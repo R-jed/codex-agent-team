@@ -7,7 +7,7 @@ REFERENCES = ROOT / "plugins" / "codex-delegate" / "skills" / "codex-delegate" /
 def test_explicit_invocation_can_cover_first_required_final_review():
     final_review = (REFERENCES / "final-review.md").read_text().lower()
     guardrails = (REFERENCES / "guardrails.md").read_text().lower()
-    assert "fresh review after explicit `$codex-delegate`" in final_review
+    assert "fresh review after explicit `/codex-delegate`" in final_review
     assert "normal bounded orchestration envelope" in final_review
     assert "up to 2 concurrently active justified children" in guardrails
 
@@ -24,7 +24,7 @@ def test_implicit_invocation_is_disabled_instead_of_needing_extra_consent_policy
     ).read_text()
     guardrails = (REFERENCES / "guardrails.md").read_text()
     assert "allow_implicit_invocation: false" in openai
-    assert "$codex-delegate <task>" in guardrails
+    assert "/codex-delegate <task>" in guardrails
     assert "Explicit invocation only" in guardrails
 
 
