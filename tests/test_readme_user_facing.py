@@ -123,21 +123,34 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
         "Main manages a ready frontier and uses progressive fan-out",
         "Spare capacity is never a reason to spawn",
         "Child count alone is not a consent trigger",
+        "preserve that workflow as task truth",
+        "Filesystem isolation is necessary for simultaneous writers and does not by itself prove semantic independence",
+        "MUTATION AUTHORITY: none | declared-output-only | bounded-source-write",
+        "INTEGRATION AFTER",
+        "Requested is not accepted. Accepted is not observed",
+        "evals/coordination-cases.json",
     ]:
         assert phrase in AI
 
 
 def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
     for phrase in [
-        "test data used to check routing and runtime behavior",
+        "test data used to check routing, coordination, and runtime behavior",
         "not part of the normal user setup",
         "behavioral-workloads.json",
         "behavioral-result.schema.json",
         "LOCAL_EVAL_FIXTURE_TEMPLATE.md",
         "routing-cases.json",
+        "coordination-cases.json",
         "runtime-assurance-cases.json",
         "adaptive multi-Agent fan-out",
         "does not use a fixed ordinary child-Agent count",
+        "upstream workflow ownership",
+        "semantic independence",
+        "mutation authority",
+        "integration ordering",
+        "requested/accepted/observed route truth",
+        "do not control how the plugin routes or coordinates work",
         "router-core.md",
         "guardrails.md",
         "final-review.md",
