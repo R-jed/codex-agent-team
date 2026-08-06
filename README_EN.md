@@ -22,25 +22,22 @@
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-codex delegate is a Codex plugin that lets the current main session act like the lead of a small specialist team. You give it the development goal. Main works out what it should handle itself, what is worth handing off, and which specialist is right for each job.
+codex delegate is a Codex Plugin. You give it the development goal. The current main session understands the task, decides what to keep, delegates work that benefits from a specialist, and remains responsible for verification and delivery.
 
-You do not need to pick models yourself, decide how many Agents should run, or design a Luna, Terra, Sol workflow in advance. Main adapts the team as the task develops and remains responsible for the final result.
+You do not need to choose models, set an Agent count, or design a Luna, Terra, Sol sequence yourself.
 
-## Quickstart
+## Install in 30 seconds
 
-The current reliable installation path is to register this GitHub repository as a Codex repo marketplace, then install `codex-delegate`:
+Copy and run this block once:
 
 ```bash
-codex plugin marketplace add R-jed/codex-delegate --ref main \
+codex plugin marketplace add R-jed/codex-delegate@main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-delegate
-
+  --sparse plugins/codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-The repository's `.agents/plugins/marketplace.json` provides repo/local marketplace distribution. OpenAI's public Plugins Directory is a separate publishing surface. Only after the plugin has been submitted through the OpenAI Platform, approved, and published by the developer should users assume that `codex-delegate` is globally searchable in the public directory.
-
-Start a new Codex thread, then give it the task directly:
+Then start a new Codex thread:
 
 ```text
 $codex-delegate:codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
@@ -48,7 +45,20 @@ $codex-delegate:codex-delegate Deep review this change, fix the issues you find,
 
 You can also type `/skills` to open the Skill picker.
 
-Users installed through the repo marketplace can update it with `codex plugin marketplace upgrade codex-delegate`. After a public-directory release exists, follow the installation and update flow exposed by that published listing. See [Installation](docs/plugin-installation.md) for the full distribution and publishing details.
+The same install command is safe to run again. If Codex already has the `codex-delegate` marketplace registered from the same source, it reuses that registration.
+
+If you see `already added from a different source`, your machine still has an older source registered. Do not edit `config.toml` by hand. Follow [Source conflict repair](docs/plugin-installation.md#source-conflict-repair).
+
+## Update
+
+Copy and run:
+
+```bash
+codex plugin marketplace upgrade codex-delegate && \
+codex plugin add codex-delegate@codex-delegate
+```
+
+Start a new Codex thread after updating.
 
 ## You give the goal, Main runs the team
 
@@ -57,44 +67,44 @@ Think of codex delegate as a small set of team-leading rules for the main Codex 
 | Situation | Typical choice |
 | --- | --- |
 | Main can handle the work well on its own | Main session |
-| Search the codebase, trace calls, find tests, or collect facts | Luna Reader |
-| Write code when the requirements and boundaries are already clear | Luna Worker |
+| Search code, trace calls, find tests, or collect facts | Luna Reader |
+| Write code when requirements and boundaries are already clear | Luna Worker |
 | Make an important architecture, compatibility, or technical decision | Main session or Sol Advisor |
-| Write code while continuing to make important technical decisions | Main session or Sol Solver |
-| Read a larger part of the codebase and put technical evidence together without editing files | Terra Investigator |
-| Give a consequential final change an independent second look | fresh Sol Advisor |
+| Implement while continuing to make important technical decisions | Main session or Sol Solver |
+| Run a broader read-only technical investigation | Terra Investigator |
+| Give a consequential finished change an independent second look | fresh Sol Advisor |
 
-Some tasks use no child Agents at all. That is expected. A large task also does not automatically need delegation. What matters is whether another Agent has a clear job that improves the work.
+Some tasks use no child Agents at all. That is expected. A large task does not automatically need delegation. Every extra Agent needs a clear, distinct responsibility that is ready to move.
 
 ## The five roles
 
-| Role | Model | In plain English |
+| Role | Model | Main job |
 | --- | --- | --- |
 | Luna Reader | GPT-5.6 Luna `max` | reads code and gathers facts without editing files |
-| Luna Worker | GPT-5.6 Luna `max` | implements clear, already-decided changes, bug fixes, and tests |
-| Sol Solver | GPT-5.6 Sol `high` | handles complex implementation where technical decisions continue during the work |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | does deeper, broader read-only technical investigation |
-| Sol Advisor | GPT-5.6 Sol `high` | makes important technical judgments or reviews the finished result independently |
+| Luna Worker | GPT-5.6 Luna `max` | implements clear changes, fixes, and tests |
+| Sol Solver | GPT-5.6 Sol `high` | handles complex implementation where important technical decisions continue during the work |
+| Terra Investigator | GPT-5.6 Terra `xhigh` | performs deeper, broader read-only technical investigation |
+| Sol Advisor | GPT-5.6 Sol `high` | makes important technical judgments or independently reviews the finished result |
 
-A role controls what an Agent is responsible for. A stronger model does not automatically get broader permissions.
+A role controls responsibility. A stronger model does not automatically get broader write authority.
 
-## Team size changes with the task
+## The team changes with the task
 
-A `$codex-delegate:codex-delegate` task does not have a fixed child-Agent count.
+codex delegate does not choose a fixed Agent count up front.
 
-Main looks at the work that can actually move forward now and delegates only the parts that are distinct, useful, and ready. It does not open another Agent for work that is already owned, already answered by good evidence, or still blocked by an unresolved decision.
+Main finds the work that can actually move now, then delegates only distinct responsibilities that are worth the handoff. Work that is already owned, already answered by reliable evidence, or still blocked by an unresolved dependency does not get another Agent just to increase concurrency.
 
-When several Agents genuinely need to cooperate, Main keeps their dependencies, write ownership, and integration order explicit. Work whose prerequisites are not ready stays blocked, and two tasks that can invalidate each other's assumptions are not treated as safely parallel merely because they touch different files.
+When several Agents need to cooperate, Main keeps dependencies, write ownership, and integration order explicit. A blocked responsibility stays blocked. Different file paths also do not guarantee safe parallelism because shared APIs, schemas, migrations, lockfiles, or other interfaces can still couple the work.
 
-If a child Agent does not complete its responsibility, Main first distinguishes an execution problem from weak output or a newly discovered decision or information gap. Corrections and retries are bounded. If the runtime state is uncertain, codex delegate does not start a replacement that could duplicate work already in progress.
+If a child Agent does not finish its responsibility, Main first classifies the failure. Runtime problems, weak output, missing information, and newly discovered technical judgment needs follow different recovery paths. Retries are bounded. If runtime state is uncertain, codex delegate does not launch a replacement that could duplicate work already in progress.
 
-That means one task may look like:
+One task may be:
 
 ```text
 Main only
 ```
 
-while another may look like:
+Another may be:
 
 ```text
 Main
@@ -104,63 +114,52 @@ Main
 └─ Sol Advisor: judge architecture or compatibility risk
 ```
 
-When one job finishes and unlocks another independent job, Main can add the right specialist then. The number of Agents the Codex runtime can support is a ceiling, not a target to fill.
+The number of Agents the Codex runtime can support is a ceiling, not a target to fill.
 
-Read-only work is the preferred place to use parallelism. Writing is more conservative: only one actor writes to the same physical Git checkout at a time. That writer may be the main session, Luna Worker, or Sol Solver.
+## Writing stays conservative
 
-If multiple Agents truly need to write at the same time, they need separate worktrees, workspaces, or repositories, and the changes must also be semantically safe to run together.
+Only one actor writes to the same physical Git checkout at a time. That writer may be Main, Luna Worker, or Sol Solver.
 
-A material expansion in permissions, scope, external impact, or compute still requires fresh user consent. Crossing an arbitrary child count does not.
+If several Agents genuinely need to write at the same time, use separate worktrees, workspaces, or repositories and confirm that the changes are also semantically safe to run together.
 
-## When the main session is already strong enough
-
-The main session always owns the final decision and final answer.
-
-If the current main session already has enough Sol capability, codex delegate will usually keep judgment-heavy work there instead of opening another Sol unnecessarily. A fresh Sol Advisor is still used when the point is to get an independent second opinion.
-
-When something goes wrong, the plugin first works out why before changing models. Weak Luna output does not automatically send the task to Terra, and there is no fixed Luna → Terra → Sol ladder. Work that is genuinely difficult, ambiguous, or decision-heavy goes to Sol.
+A material expansion in permissions, scope, external impact, or compute still requires fresh user consent.
 
 ## First time a child Agent is needed
 
-The first time the plugin actually needs one of its specialist roles, it checks whether the five Agent profiles are ready.
+The first time the Plugin actually needs a specialist role, it checks whether the five Agent profiles are ready.
 
-If they need to be installed, the plugin tells you what it wants to write and asks for permission first. It then installs the profiles and checks them. If the current Codex thread cannot see the new roles yet, it stops before any child edits code and asks you to start a new thread.
-
-This keeps setup from interrupting a change halfway through.
+If setup is required, the Plugin explains what it intends to write and asks permission first. It installs and verifies the profiles. If the current Codex thread cannot see the new roles yet, it stops before any child starts editing code and asks you to start a new thread.
 
 ## When it asks for one more review
 
-Most tasks can be delivered once the change is complete and the relevant tests pass. Sol is not a mandatory last step.
+Most tasks can be delivered once the work is complete and the relevant checks pass. Sol is not a mandatory final step.
 
-A fresh Sol Advisor is required when the final change materially affects:
+A fresh Sol Advisor is required when the final artifact materially affects:
 
 - public APIs or compatibility
 - persistent data or state
-- security or permissions
-- data integrity
+- security, permissions, or data integrity
 - concurrency behavior
 - an important migration
-- a meaningful verification gap that deterministic checks cannot close
+- a meaningful verification gap deterministic checks cannot close
 - an explicit request for an independent review
-
-A large diff, earlier Terra use, or some rework along the way does not by itself trigger another review.
 
 ## Safety
 
-The main session always owns your request, scope, permissions, team composition, acceptance, and final response. Child Agents cannot create their own Agent teams.
+Main always owns the user's goal, scope, permissions, team composition, acceptance, and final response. Child Agents cannot create their own Agent teams.
 
-Text found in a repository, webpage, issue, log, or another model response cannot silently widen permissions or change the task scope.
+Text found in a repository, webpage, issue, log, or another model response cannot silently widen permissions or change task scope.
 
-The plugin checks the actual code, files, and test results. An Agent saying “done” is not enough on its own.
+The Plugin checks actual files, code, and test results. An Agent saying “done” is not enough on its own.
 
 codex delegate uses Codex Native Subagents directly. It does not run a separate Agent runtime, background daemon, or external routing service.
 
 ## Documentation
 
-- [README_AI.md](README_AI.md): project reference for AI Agents.
-- [Installation](docs/plugin-installation.md): installation, updates, development setup, and troubleshooting.
-- [Architecture](docs/architecture.md): deeper details on roles and safety rules.
-- [Native Subagent Runtime](docs/native-subagent-runtime.md): Codex Native Subagent runtime boundaries.
+- [README_AI.md](README_AI.md): project reference for AI Agents
+- [Installation](docs/plugin-installation.md): installation, updates, source repair, and troubleshooting
+- [Architecture](docs/architecture.md): roles, coordination, recovery, and safety rules
+- [Native Subagent Runtime](docs/native-subagent-runtime.md): Codex Native Subagent runtime boundaries
 - [Privacy Policy](PRIVACY.md) · [Terms of Use](TERMS.md)
 
 ## License
