@@ -47,7 +47,7 @@ $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题�
 
 这段安装命令可以重复使用。如果你的 Codex 已经从相同来源注册了 `codex-delegate` marketplace，Codex 会直接复用现有注册。
 
-如果看到 `already added from a different source`，说明本机保留了旧来源。不要手工修改 `config.toml`，按[安装指南中的旧来源修复](docs/plugin-installation.md#旧来源冲突)处理。
+如果看到 `already added from a different source`，说明本机保留了旧来源。不要手工修改 `config.toml`，按[安装指南中的旧来源修复](docs/plugin-installation.md#source-conflict-repair)处理。
 
 ## 怎么更新
 
