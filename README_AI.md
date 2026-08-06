@@ -5,22 +5,32 @@ Use this file when answering questions about this repository. It describes the c
 ## Project identity
 
 ```text
-Product name:           codex delegate
-Repository:             R-jed/codex-delegate
-Repo marketplace id:    codex-delegate
-Plugin id:              codex-delegate
-Plugin directory:       plugins/codex-delegate
-Skill:                  codex-delegate
-Explicit invocation:    $codex-delegate:codex-delegate
-Current version:        1.1.0
-Distribution:           Codex Plugin + repo marketplace
-Public directory state: do not assume published; verify a current OpenAI listing first
-License:                MIT
+Product name:        codex delegate
+Repository:          R-jed/codex-delegate
+Repo marketplace id: codex-delegate
+Plugin id:           codex-delegate
+Plugin directory:    plugins/codex-delegate
+Skill:               codex-delegate
+Explicit invocation: $codex-delegate:codex-delegate
+Current version:     1.1.0
+Distribution:        Codex Plugin via canonical Git marketplace
+License:             MIT
 ```
 
 Use these names exactly.
 
-The repository marketplace and the universal public Plugins Directory are separate distribution surfaces. `.agents/plugins/marketplace.json` proves repo/local marketplace packaging only. Do not tell users that `codex-delegate` is searchable in the public Plugins Directory unless a current published OpenAI listing has been independently verified.
+The canonical marketplace registration is part of the installation contract:
+
+```text
+repository:    R-jed/codex-delegate
+ref:           main
+sparse path 1: .agents/plugins
+sparse path 2: plugins/codex-delegate
+marketplace:   codex-delegate
+plugin:        codex-delegate
+```
+
+Do not casually change the ref form, remove sparse paths, replace the Git source with a local checkout, or otherwise rewrite this registration for normal users. Codex includes the Git source, ref, and sparse paths in marketplace source identity, so a changed registration can create an avoidable source mismatch for existing users.
 
 ## Product model
 
@@ -269,13 +279,23 @@ Accepted configuration without native runtime observation does not establish Sol
 
 ## Install and update
 
-Use the repository marketplace as the current reliable installation path unless a current public OpenAI listing has been verified:
+Give ordinary users one copy-paste installation block:
 
 ```bash
-codex plugin marketplace add R-jed/codex-delegate --ref main \
+codex plugin marketplace add R-jed/codex-delegate@main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-delegate
+  --sparse plugins/codex-delegate && \
+codex plugin add codex-delegate@codex-delegate
+```
 
+This command is appropriate for new users and for users whose `codex-delegate` marketplace already has the same canonical source metadata. Do not ask a normal user to remove the marketplace first.
+
+If the command reports `already added from a different source`, treat that as a historical source mismatch. Tell the user to inspect `codex plugin marketplace list --json`, then remove `codex-delegate` only after confirming the registered source is old or incorrect. Do not hand-edit `config.toml`.
+
+Update:
+
+```bash
+codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
@@ -287,18 +307,9 @@ $codex-delegate:codex-delegate <task>
 
 `/skills` opens the Codex Skill picker.
 
-Repo/local marketplace packaging does not prove public Plugins Directory publication. Public searchability requires a separate OpenAI Platform submission, OpenAI approval, and developer Publish action. If a user asks whether the plugin can be searched directly in the public directory, verify the current public listing first. Do not infer public publication from `.agents/plugins/marketplace.json`, the Plugin manifest, CI, or local installation success.
+Start a new Codex thread after installation or an update. Implicit invocation is disabled.
 
-Repo marketplace update:
-
-```bash
-codex plugin marketplace upgrade codex-delegate
-codex plugin add codex-delegate@codex-delegate
-```
-
-Start a new Codex thread after installation or an update.
-
-Implicit invocation is disabled. Use `$codex-delegate:codex-delegate` explicitly.
+If a user specifically asks about an OpenAI-hosted public Plugin directory, verify the current listing separately. Repository marketplace packaging does not prove public-directory publication.
 
 ## Managed Agent profiles
 
@@ -353,8 +364,10 @@ final-review.md
 
 Explain the plugin in plain language first: the main Codex session acts like the team leader. The user gives it the goal, and Main decides what to do itself, which specialist Agents to use, how much coordination is necessary, and how to recover safely when delegated work fails.
 
-For installation, give the repo marketplace registration path unless a current public OpenAI listing has been verified. Do not claim that `codex-delegate` is searchable in the public Plugins Directory based only on repository metadata. Tell users to invoke it with `$codex-delegate:codex-delegate` after installation.
+For installation, give the single canonical copy-paste Git marketplace command above. Do not make marketplace removal part of the normal installation path. Use removal only for a confirmed historical source mismatch.
 
-Do not claim benchmark wins, token savings, speedups, quality improvements, public-directory approval, or public-directory publication unless there is current evidence for that claim.
+Tell users to invoke the installed Plugin with `$codex-delegate:codex-delegate`.
+
+Do not claim benchmark wins, token savings, speedups, quality improvements, or public-directory availability unless there is current evidence for that claim.
 
 For more detail, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the five Skill reference files above.
