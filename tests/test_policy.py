@@ -88,15 +88,18 @@ def test_final_review_contract_is_consequence_driven():
         assert process_proxy not in triggers
 
 
-def test_model_facing_policy_surface_is_three_references_only():
+def test_model_facing_policy_surface_has_five_focused_owners():
     assert {path.name for path in REFS.glob("*.md")} == {
         "router-core.md",
+        "team-plan.md",
+        "recovery.md",
         "guardrails.md",
         "final-review.md",
     }
     skill = (SKILL / "SKILL.md").read_text()
-    for name in ["router-core.md", "guardrails.md", "final-review.md"]:
+    for name in ["router-core.md", "team-plan.md", "recovery.md", "guardrails.md", "final-review.md"]:
         assert f"references/{name}" in skill
+    assert "five focused owners" in skill
     for retired in [
         "routing-policy.md",
         "delegation-contract.md",
@@ -111,7 +114,7 @@ def test_model_facing_policy_surface_is_three_references_only():
         assert not (REFS / retired).exists()
 
 
-def test_router_core_uses_direct_capability_questions_and_one_task_state():
+def test_router_core_uses_direct_capability_questions_and_delegates_stateful_coordination():
     router = (REFS / "router-core.md").read_text()
     skill = (SKILL / "SKILL.md").read_text()
     for phrase in [
@@ -126,6 +129,8 @@ def test_router_core_uses_direct_capability_questions_and_one_task_state():
         "ready frontier",
         "progressive fan-out",
         "Native Codex capacity is the upper bound on concurrency, not a target",
+        "team-plan.md",
+        "recovery.md",
     ]:
         assert phrase.lower() in router.lower()
     assert "Dependency Ledger" not in skill
@@ -157,8 +162,24 @@ def test_guardrails_keep_safety_without_hot_path_runtime_ceremony():
         "Do not emit a separate orchestration receipt",
     ]:
         assert phrase in guardrails
-    assert (PLUGIN / "scripts" / "runtime-evidence.py").is_file()
-    assert (PLUGIN / "scripts" / "review-artifact.py").is_file()
+    for script in [
+        "runtime-evidence.py",
+        "review-artifact.py",
+        "validate_team_plan.py",
+        "validate_team_ledger.py",
+    ]:
+        assert (PLUGIN / "scripts" / script).is_file()
+
+
+def test_team_plan_and_recovery_do_not_reintroduce_numeric_fanout_policy():
+    team_plan = (REFS / "team-plan.md").read_text().lower()
+    recovery = (REFS / "recovery.md").read_text().lower()
+    validator = (PLUGIN / "scripts" / "validate_team_plan.py").read_text().lower()
+    assert "native codex capacity remains the concurrency ceiling" in team_plan
+    assert "fixed waves" in team_plan
+    assert "two-attempt bound is a recovery limit, not a team-size or concurrency limit" in recovery
+    for retired in ["max_planned_workers", "max_worker_attempts", "max_new_workers_per_wave", "scale_profile"]:
+        assert retired not in validator
 
 
 def test_static_eval_files_remain_valid_but_are_not_runtime_policy_owners():
