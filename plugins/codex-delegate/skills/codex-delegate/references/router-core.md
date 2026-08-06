@@ -211,10 +211,15 @@ A responsibility belongs on the ready frontier only when it can make meaningful 
 ready now
 + distinct ownership
 + non-duplicative
++ semantically independent from concurrently active work, or dependency order is explicit
 + delegation adds useful parallelism, isolation, capability, or independence
 + expected value exceeds handoff / compute / integration cost
 + safe under writer, permission, scope, and external-impact boundaries
 ```
+
+Filesystem isolation is necessary for simultaneous writers, but it is not sufficient to prove safe parallel work. Main must also establish semantic independence or an explicit dependency and integration order.
+
+Treat responsibilities as semantically coupled when they can invalidate each other's assumptions through a shared API or schema, migration order, lockfile, generated artifact, build output, persistent state, external service, or another shared interface. Different intended file paths do not erase these dependencies.
 
 Use progressive fan-out. Start with the smallest useful active set, then grow it only when the task justifies another ready responsibility.
 
@@ -233,7 +238,7 @@ Native Codex capacity is the upper bound on concurrency, not a target. If the ru
 
 Read-only independent work is the preferred place to exploit parallelism. Multiple Reader instances are valid when they own different evidence lanes. Investigator and Advisor may run alongside other independent read-only work when their distinct capability is genuinely needed.
 
-A canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain. Concurrent writers require genuinely isolated workspaces or worktrees.
+A canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain. Concurrent writers require genuinely isolated workspaces or worktrees and established semantic independence, or an explicit dependency and integration order that prevents unsafe simultaneous mutation.
 
 Empty capacity is never a reason to start Solver, Advisor, or Investigator. Repeated expensive parallel or serial calls that materially expand compute require consent under `guardrails.md`.
 
