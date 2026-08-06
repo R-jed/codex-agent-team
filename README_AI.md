@@ -23,11 +23,11 @@ Use these names exactly.
 
 Treat the current Codex main session as the team leader.
 
-The user supplies the goal. Main understands the task, keeps work it can handle well, delegates distinct responsibilities when another Agent adds value, chooses the specialist role, adapts the active team as evidence changes, verifies the result, and owns the final response.
+The user supplies the goal. Main understands the task, keeps work it can handle well, delegates distinct responsibilities when another Agent adds value, chooses the specialist role, coordinates multi-Agent work when coordination becomes real, recovers bounded failures, verifies the result, and owns the final response.
 
-Do not ask the user to design the Agent team for an ordinary `$codex-delegate:codex-delegate` task. The user does not need to specify an Agent count, choose models, or define a Luna, Terra, Sol sequence.
+Do not ask the user to design the Agent team for an ordinary `$codex-delegate:codex-delegate` task. The user does not need to specify an Agent count, choose models, define a Luna, Terra, Sol sequence, or manage retries.
 
-Zero child Agents is a normal outcome. Several child Agents may run together when several distinct responsibilities are ready and parallel delegation is genuinely useful.
+Zero child Agents is normal. Several child Agents may run together when several distinct responsibilities are ready and parallel delegation is genuinely useful.
 
 There is no fixed Luna → Terra → Sol pipeline and no project-level ordinary numeric child ceiling.
 
@@ -76,30 +76,54 @@ Do not route by task size alone. Do not send work to Terra simply because Luna s
 
 Main manages a ready frontier and uses progressive fan-out. Do not choose a fixed team size up front.
 
-A new child is justified only when its responsibility is:
+A new child is justified only when its responsibility is ready, distinct, non-duplicative, semantically safe to run now, useful to delegate, worth the handoff and integration cost, and within current authority boundaries.
 
-- ready to make progress now;
-- distinct from work already owned or already satisfied by valid evidence;
-- semantically independent enough to run alongside current work, or governed by an explicit dependency order;
-- useful for parallel execution, context isolation, specialist capability, or independent judgment;
-- worth the handoff, compute, and integration cost;
-- safe under writer, mutation-authority, permission, scope, and external-impact boundaries.
-
-Start the smallest useful active set. When a completion or new evidence changes what is ready, reassess the frontier and add another child only if that new responsibility is still worth delegating.
+Start the smallest useful active set. When a completion or new evidence changes what is ready, reassess the frontier and add another child only if the new responsibility is still worth delegating.
 
 Native Codex Agent capacity is an upper bound, not a target to fill. Spare capacity is never a reason to spawn. Do not create speculative, duplicate, decorative, or low-value Agents.
 
-Several Reader instances are valid when they own different evidence lanes. Investigator or Advisor may run alongside other independent read-only work when their distinct capability is genuinely needed.
-
 Child count alone is not a consent trigger. Ask again when the orchestration materially expands permissions, scope, external impact, or compute beyond what the user could reasonably expect from the task.
 
-## Coordination correctness
+## Upstream workflow ownership
 
-When another active Skill, an accepted user plan, or a trusted upstream workflow already owns the goal, decomposition, stage order, dependencies, required outputs, business acceptance, or quality gates, preserve that workflow as task truth. codex delegate may assign owners, roles, useful concurrency, write isolation, and integration timing around it. Do not silently replace the domain workflow with a second plan.
+When another active Skill, an accepted user plan, or a trusted upstream workflow already owns the goal, decomposition, stage order, dependencies, required outputs, business acceptance, or quality gates, preserve that workflow as task truth. codex delegate coordinates around it instead of silently replacing the domain workflow.
 
 If the upstream workflow already has a useful plan or ledger, reuse it. Do not create another persistent coordination source simply for delegation.
 
-Filesystem isolation is necessary for simultaneous writers and does not by itself prove semantic independence. Separate worktrees or repositories can still be coupled through a shared API, schema, migration, lockfile, generated artifact, persistent state, external system, or other shared interface. Main must establish semantic independence or an explicit dependency and integration order before allowing concurrent writers.
+## TeamPlan
+
+Zero or one delegated responsibility stays on the lightweight path. A single child still gets a stable `UNIT ID` and unique `TASK ID`, but no TeamPlan ceremony is required.
+
+Before two or more delegated responsibilities are concurrently unresolved, or when delegated outputs require non-trivial machine-checkable dependency/integration order, Main compiles a lightweight TeamPlan.
+
+TeamPlan records:
+
+```text
+revision
+planning source
+root goal
+
+units:
+  unit_id
+  role
+  goal
+  output
+  depends_on
+  ownership
+  done_when
+
+integration_owner = main
+integration_order
+final_verification
+```
+
+TeamPlan does not choose models, impose a fixed child count, or replace Main. `plugins/codex-delegate/scripts/validate_team_plan.py` validates identity, dependencies, cycles, declared ownership paths, same-ready-layer write conflicts, revision shape, and integration order.
+
+The validated DAG supplies structural readiness. Main still decides semantic independence, delegation value, capability need, compute value, and user authority.
+
+## Coordination correctness
+
+Filesystem isolation is necessary for simultaneous writers and does not by itself prove semantic independence. Separate worktrees or repositories can still be coupled through a shared API, schema, migration, lockfile, generated artifact, persistent state, external system, or other shared interface.
 
 A child packet separates work intent from mutation authority:
 
@@ -108,23 +132,110 @@ INTENT: inspect | implement | verify | review
 MUTATION AUTHORITY: none | declared-output-only | bounded-source-write
 ```
 
-A broad sandbox or writable filesystem does not grant source-write authority. Inspect, verify, review, Reader, Investigator, and Advisor responsibilities do not mutate source unless the task is explicitly reauthorized and rerouted. `declared-output-only` allows only the named output. Worker and Solver may use `bounded-source-write` only inside Main's granted scope and decision rights.
+A broad sandbox or writable filesystem does not grant source-write authority. Worker and Solver may use `bounded-source-write` only inside Main's granted scope and decision rights.
 
 When execution can safely overlap but accepted outputs must be integrated in a specific order, the packet may include `INTEGRATION AFTER`. This field controls integration timing. It cannot make work ready when unresolved semantics or missing evidence still block safe execution. Main remains the integration owner and verifies the final combined artifact.
 
+## Responsibility and attempt identity
+
+A child packet may include:
+
+```text
+TEAM PLAN REVISION, when applicable
+UNIT ID
+TASK ID
+OUTCOME
+ROLE
+INTENT
+READ / WRITE SCOPE
+MUTATION AUTHORITY
+DECISION RIGHTS
+DEPENDS ON
+INTEGRATION AFTER
+INTERFACES AND INVARIANTS
+ACCEPTANCE
+VALID EVIDENCE / DO NOT REDO
+CURRENT FAILURE
+STOP WHEN
+```
+
+`UNIT ID` is the stable responsibility identity. `TASK ID` identifies one concrete Agent attempt. A retry keeps the same unit and receives a new task id.
+
+## Bounded recovery
+
+Do not build an escalation ladder from model failure.
+
+Recovery has a Native-only lifecycle:
+
+```text
+PLANNED
+SPAWN_PENDING
+RUNNING
+COMPLETED
+FAILED
+UNKNOWN
+CLOSED
+```
+
+UNKNOWN is not FAILED. When creation, identity, completion, or current state cannot be established from host evidence, do not create a replacement Agent, retry, semantically reroute, or reassign conflicting ownership until the ambiguity is resolved.
+
+Confirmed failure keeps two facts separate:
+
+```text
+failure_origin:
+none | runtime_unavailable | permission_failure | tool_failure | timeout | quality_failure | runtime_ambiguous
+
+task_blocker:
+none | contract | judgment | investigation | stalled
+```
+
+The first explains what happened to execution. The second explains what capability or task truth remains.
+
+One unchanged unit gets at most two Agent attempts and one focused same-Agent follow-up. The two-attempt limit is a recovery bound, not a team-size or concurrency ceiling.
+
+Allowed recovery actions are:
+
+```text
+same_agent_followup
+same_role_retry
+semantic_reroute
+main_takeover
+```
+
+Semantic reroute remains blocker-driven:
+
+```text
+contract -> Main repairs task truth
+judgment -> capable Main / Advisor / Solver
+investigation -> Investigator only after semantics are stable and read-only
+stalled -> one policy-compatible retry if the role remains correct, otherwise Main
+```
+
+One failed Luna attempt does not automatically switch to Terra or Sol.
+
+`plugins/codex-delegate/scripts/validate_team_ledger.py` can validate TeamPlan binding, unique task/Agent identity, attempt sequence, follow-up bounds, UNKNOWN replacement suppression, and lifecycle/adoption consistency when machine-checkable recovery state is useful.
+
+Ordinary short tasks do not need a persistent ledger. Persist state only when cross-session recovery, multiple long-lived worktrees, strict audit, or another real recovery need justifies it. Reuse an upstream state source when one already exists.
+
+## TeamPlan revision
+
+Create a new TeamPlan revision only when structure changes materially, such as dependency, ownership, deliverable, scope, or acceptance.
+
+Ordinary new evidence does not require a revision. A running responsibility stays bound to the plan truth it received. New dispatch waits for a safe structural transition when a revision affects active work.
+
 ## Hard safety boundaries
 
-These are hard project boundaries even when Main is a strong model:
+These remain hard project boundaries:
 
-- Main owns the user's intent, authorization, team composition, integration, acceptance, and final response.
-- Delegation depth is one. Child Agents do not create project Subagents of their own.
+- Main owns user intent, authorization, team composition, integration, acceptance, and final response.
+- Delegation depth is one. Child Agents do not create project Subagents.
 - Only one actor writes to the same physical Git checkout at a time inside one orchestration.
 - Main writes, Luna Worker, and Sol Solver share that writer domain.
 - Parallel writers require separate physical checkouts plus semantic independence or explicit dependency and integration ordering.
 - Children do not widen permissions, mutation authority, scope, external impact, or user intent.
 - Duplicate, speculative, and low-value fan-out is prohibited.
 - Configuration is not proof of what actually ran.
-- Child output is a claim until the actual artifact and relevant checks support it.
+- Child output is a claim until actual artifact state and relevant checks support it.
 
 ## Runtime truth layers
 
@@ -143,9 +254,7 @@ observed
 
 Requested is not accepted. Accepted is not observed. Do not copy configured or accepted model, effort, sandbox, ancestry, or identity values into missing runtime fields.
 
-`plugins/codex-delegate/scripts/runtime-evidence.py` can normalize these layers when exact runtime proof matters. Missing acceptance stays `not_reported`; missing native runtime evidence stays `not_observed`. Accepted/runtime drift is a conflict and must be quarantined rather than guessed through.
-
-Ordinary bounded work does not need runtime diagnostics when route proof is not part of acceptance.
+`plugins/codex-delegate/scripts/runtime-evidence.py` normalizes these layers when exact runtime proof matters. Ordinary bounded work does not need runtime diagnostics when route proof is not part of acceptance.
 
 ## Main-session Sol reuse
 
@@ -153,31 +262,7 @@ The Solver reference route is GPT-5.6 Sol `high`.
 
 If trusted current-session observation shows that Main is already Sol `high`, `xhigh`, or `max`, ordinary Sol-level work can stay in Main instead of opening another Sol unnecessarily.
 
-Accepted configuration without native runtime observation does not establish Sol coverage. If Main's actual model or reasoning effort remains unobserved, keep that fact unknown.
-
-A fresh Advisor is still required when the purpose of the review is independence.
-
-## Blocked work
-
-Do not build an escalation ladder from model failure.
-
-Use the actual blocker:
-
-```text
-missing or unclear task truth
--> Main repairs the contract
-
-important judgment remains
--> capable Main / Advisor / Solver
-
-broader read-only investigation remains after semantics are stable
--> Investigator
-
-same role still correct but execution stalled
--> at most one materially improved same-role retry
-```
-
-One failed Luna attempt does not automatically switch to Terra or Sol.
+Accepted configuration without native runtime observation does not establish Sol coverage. A fresh Advisor is still required when independence itself is part of acceptance.
 
 ## Install and update
 
@@ -192,8 +277,6 @@ Open the Codex Plugin Marketplace
 ```
 
 `/skills` opens the Codex Skill picker.
-
-Do not tell ordinary users to edit `config.toml`, Agent profiles, marketplace state, or plugin cache files.
 
 Only give CLI installation commands when the user explicitly asks for a manual/development setup or is troubleshooting marketplace discovery.
 
@@ -232,15 +315,13 @@ The plugin manages these files under the active Codex home:
 <CODEX_HOME>/.codex-delegate-agents.lock
 ```
 
-The TOML files use Codex's native custom-Agent format. The bundled installer only manages those five profiles, the ownership receipt, and the installer lock. It does not create a second Agent runtime and does not edit credentials, MCP settings, repositories, `config.toml`, or unrelated Agent profiles.
-
-When profiles are missing, setup happens before delegated code writing starts. The plugin explains the write scope and asks for permission first. If the new roles require a fresh thread to appear, stop before child writing and ask the user to restart in a new thread.
+The TOML files use Codex's native custom-Agent format. The bundled installer only manages those five profiles, the ownership receipt, and the installer lock.
 
 ## Independent final review
 
 A fresh `codex_delegate_advisor` is required when the final artifact materially involves one of the configured Final Review triggers, including public compatibility, persistent state, security or authorization boundaries, data integrity, concurrency semantics, migration, meaningful verification gaps, or an explicit user request.
 
-Earlier Terra use, Solver use, a large diff, or rework during the task does not automatically trigger another review.
+Earlier TeamPlan use, recovery, Terra use, Solver use, a large diff, or rework during the task does not automatically trigger another review.
 
 Review outcomes are:
 
@@ -255,24 +336,26 @@ If the deliverable changes after review, the previous review no longer applies.
 
 ## Internal source of truth
 
-The installed Skill uses three runtime reference files:
+The installed Skill uses five focused runtime reference files:
 
 ```text
 router-core.md
+team-plan.md
+recovery.md
 guardrails.md
 final-review.md
 ```
 
-`policy-contract.json` schema `4` stores stable machine-readable role constants and hard safety limits. It intentionally does not encode an ordinary numeric child ceiling. Adaptive fan-out and coordination semantics stay in the model-facing router/guardrails so a capable Main can size and coordinate the team from the actual task.
+`policy-contract.json` schema `4` stores stable machine-readable role constants and hard safety limits. It intentionally does not encode an ordinary numeric child ceiling.
 
-`evals/routing-cases.json` protects routing cases. `evals/coordination-cases.json` protects coordination semantics such as upstream workflow ownership, semantic independence, mutation authority, integration ordering, and route truth layering. `evals/` remains a measurement/regression surface and does not define runtime policy.
+`evals/routing-cases.json` protects routing cases. `evals/coordination-cases.json` protects coordination semantics such as upstream workflow ownership, semantic independence, mutation authority, integration ordering, and requested/accepted/observed route truth. Deterministic TeamPlan and recovery validators protect graph and lifecycle invariants. `evals/` remains a measurement/regression surface and does not define runtime policy.
 
 ## Answering users
 
-Explain the plugin in plain language first: the main Codex session acts like the team leader. The user gives it the goal, and Main decides what to do itself, which specialist Agents to use, and how many are useful at that point in the task.
+Explain the plugin in plain language first: the main Codex session acts like the team leader. The user gives it the goal, and Main decides what to do itself, which specialist Agents to use, how much coordination is necessary, and how to recover safely when delegated work fails.
 
 For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `$codex-delegate:codex-delegate`.
 
 Do not claim benchmark wins, token savings, speedups, or quality improvements unless there is current measured evidence for that claim.
 
-For more detail, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the three Skill reference files above.
+For more detail, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the five Skill reference files above.
