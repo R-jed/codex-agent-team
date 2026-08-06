@@ -70,7 +70,7 @@ def test_parallel_writers_require_semantic_independence_not_only_isolation():
         "migrations",
         "lockfiles",
         "generated artifacts",
-        "explicit dependency or integration order",
+        "make the dependency or integration order explicit",
     ]:
         assert phrase in guardrails
 
