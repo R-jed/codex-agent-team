@@ -1,36 +1,46 @@
 # Architecture
 
-codex delegate is a thin policy layer over Codex Native Subagents. It does not implement a second Agent runtime, persistent DAG service, background scheduler, daemon, or routing proxy.
+codex delegate is a leadership, coordination, and recovery policy over Codex Native Subagents. It does not implement a second Agent runtime, background scheduler, daemon, routing proxy, or persistent DAG service.
 
-The user-facing main session is the team leader. It owns user intent, authorization, team composition, integration, acceptance, and the final response.
+The user-facing Main session is the team leader. It owns user intent, authorization, team composition, semantic decisions, integration, acceptance, and the final response.
 
-The product target is the smallest useful delegation graph that improves everyday development quality without making the user manage Agent topology or specify an Agent count.
+The product target is the smallest useful delegation graph that improves development quality while keeping multi-Agent coordination machine-checkable when the task actually needs it.
 
 ## Runtime mechanism
 
-The normal control loop is intentionally short:
+The normal control loop is:
 
 ```text
 understand outcome + acceptance
 -> preserve upstream task truth when another Skill/plan already owns it
 -> ask whether delegation helps
--> identify the current ready frontier
--> assign distinct responsibilities to the capability actually needed
--> attach intent, mutation authority, and dependencies when relevant
+-> select the capability actually needed
+-> keep zero/one-child work on the lightweight path
+-> compile TeamPlan only when multi-responsibility coordination needs it
+-> derive structural readiness from the dependency DAG
+-> let Main decide semantic safety and delegation value
 -> run the smallest useful active set
--> consume useful completions and update the ready frontier
+-> track each Agent attempt by stable unit identity + unique task identity
+-> consume useful completions and update readiness
+-> classify confirmed failures by execution origin + semantic blocker
+-> recover within a bounded attempt policy
 -> integrate accepted outputs in dependency-respecting order
 -> verify the real combined artifact
--> diagnose a blocker only when work is unresolved
 -> run fresh independent review only when the final artifact requires it
 -> deliver
 ```
 
-The installed Skill has three model-facing runtime references:
+The installed Skill has five focused model-facing runtime references:
 
 ```text
 router-core.md
--> delegation benefit, upstream workflow ownership, role selection, child packet, adaptive scheduling, integration order, blocker handling, acceptance
+-> delegation benefit, upstream workflow ownership, role selection, responsibility semantics, adaptive scheduling, acceptance
+
+team-plan.md
+-> multi-responsibility identity, dependency DAG, ownership, revision, integration order
+
+recovery.md
+-> native attempt identity, lifecycle, UNKNOWN, failure classification, bounded recovery, Main takeover
 
 guardrails.md
 -> authority, explicit invocation, mutation authority, writer ownership, semantic independence, provisioning, consent, trust, permissions, runtime evidence
@@ -39,11 +49,11 @@ final-review.md
 -> artifact-bound independent assurance
 ```
 
-`plugins/codex-delegate/policy-contract.json` contains only stable machine constants: hard delegation safety limits, role routes, capability-dedup reference, and Final Review reason codes. Adaptive team size and coordination decisions are intentionally not encoded as numeric or workflow constants.
+`plugins/codex-delegate/policy-contract.json` still contains only stable machine constants: hard delegation safety limits, role routes, capability-dedup reference, and Final Review reason codes. TeamPlan and recovery state are execution contracts, not new permanent routing taxonomy.
 
 ## Leader-led delegation
 
-Main decides how to use the team from the task in front of it.
+Main decides how to use the team from the actual task.
 
 There is no product rule such as:
 
@@ -55,15 +65,15 @@ large task -> 4 Agents
 
 There is also no rule that five roles imply five children.
 
-The five roles are a capability vocabulary. Child instances come from real unresolved responsibilities. Main may keep everything itself, start one specialist, run several independent read-only lanes in parallel, or add another specialist later when new evidence makes that work ready.
+The five roles are a capability vocabulary. Child instances come from real unresolved responsibilities. Main may keep everything itself, start one specialist, run several independent read-only lanes in parallel, or add another specialist later when new evidence makes work ready.
 
-A child is justified only when its responsibility is ready, distinct, non-duplicative, useful to delegate, and safe under current boundaries. Native Codex capacity is an upper bound, never a target to fill.
+Native Codex capacity is an upper bound, never a target to fill.
 
 ## Upstream workflow ownership
 
-codex delegate coordinates execution. It does not compete with another Skill or accepted plan for domain ownership.
+codex delegate coordinates execution without competing with another Skill or accepted plan for domain ownership.
 
-When an active upstream workflow already defines any of these, preserve them as task truth unless the user or an evidence-backed blocker requires a change:
+When an active upstream workflow already defines any of these, preserve them as task truth unless the user or an evidence-backed blocker requires change:
 
 ```text
 goal
@@ -75,11 +85,11 @@ business acceptance
 quality gates
 ```
 
-codex delegate may still choose owners, specialist roles, useful concurrency, write isolation, and integration timing around that workflow.
+codex delegate may choose owners, specialist roles, useful concurrency, write isolation, TeamPlan representation, and integration timing around that workflow.
 
 If the upstream contract is incomplete or contradictory, the issue is a `contract` blocker. Main repairs the missing truth instead of silently creating a replacement workflow.
 
-If an upstream workflow already has a useful plan or ledger, reuse it as the coordination source. Persistent duplicate state is avoided unless a distinct recovery/audit need is established.
+If an upstream workflow already has a useful plan or ledger, reuse it as the coordination source. Do not create a second persistent state source.
 
 ## Direct capability selection
 
@@ -95,13 +105,7 @@ The router asks what capability the unresolved work actually needs.
 | bounded read-heavy technical investigation/evidence synthesis after semantics are stable | Terra Investigator |
 | independent final assurance for a consequential candidate | fresh Sol Advisor |
 
-The quality boundaries follow current Codex model guidance:
-
-- Luna is reserved for clear, repeatable, high-volume bounded work.
-- Terra is a read-heavy investigation/value lane when broader synthesis is useful and material semantics are already stable.
-- Sol is the judgment lane for demanding, ambiguous, multi-step reasoning and judgment-coupled implementation.
-
-A task being large, many-file, hard, or easy to describe in a contract does not by itself select a model or an Agent count.
+Task size, file count, or one failed attempt does not select a model by itself.
 
 ## Current roles
 
@@ -113,46 +117,69 @@ A task being large, many-file, hard, or easy to describe in a contract does not 
 | Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | bounded read-heavy technical investigation and evidence synthesis |
 | Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | demanding/material read-only judgment or fresh independent review |
 
-Role identity is separate from model identity so future route changes do not redefine responsibility semantics.
+Role identity stays separate from model identity.
 
-## Compact task and child state
+## Lightweight path and TeamPlan trigger
 
-The normal runtime keeps one small work-item state rather than separate orchestration ledgers:
+Zero or one delegated responsibility stays on the lightweight path. Main keeps one compact work-item state and the child receives one bounded responsibility packet.
+
+When two or more delegated responsibilities are concurrently unresolved, or delegated outputs need non-trivial machine-checkable dependency/integration order, Main compiles a lightweight TeamPlan before further dispatch.
+
+TeamPlan does not choose models or Agent count. It represents coordination truth:
 
 ```text
-outcome
-owner
-read/write intent
-material judgment: none | separable | coupled
-acceptance
-valid evidence
-current failure
-blocker: none | contract | judgment | investigation | stalled
+revision
+planning source
+root goal
+
+units:
+  unit_id
+  role
+  goal
+  output
+  depends_on
+  ownership
+  done_when
+
+integration owner
+integration order
+final verification
 ```
 
-Add another work item only for a genuinely distinct unresolved responsibility. Valid evidence prevents repeated discovery and duplicate ownership.
+`plugins/codex-delegate/scripts/validate_team_plan.py` validates unit identity, dependency references and cycles, safe relative ownership paths, same-ready-layer write overlap, revision shape, and dependency-respecting integration order.
 
-A delegated child receives a bounded packet:
+The validator returns structural ready layers. It does not create dispatch waves, fixed concurrency budgets, or a private scheduler.
+
+## Responsibility and attempt identity
+
+Every delegated responsibility gets a stable `UNIT ID`. Every concrete Agent attempt gets a unique `TASK ID`.
+
+When TeamPlan is active, the packet also carries `TEAM PLAN REVISION`.
 
 ```text
+TEAM PLAN REVISION, when applicable
+UNIT ID
+TASK ID
 OUTCOME
-INTENT: inspect | implement | verify | review
+ROLE
+INTENT
 READ / WRITE SCOPE
-MUTATION AUTHORITY: none | declared-output-only | bounded-source-write
-INTERFACES AND INVARIANTS
+MUTATION AUTHORITY
 DECISION RIGHTS
+DEPENDS ON
+INTEGRATION AFTER
+INTERFACES AND INVARIANTS
 ACCEPTANCE
 VALID EVIDENCE / DO NOT REDO
-CURRENT FAILURE, if any
-INTEGRATION AFTER, when needed
+CURRENT FAILURE
 STOP WHEN
 ```
 
-This remains a lightweight packet, not a global TeamPlan or second task graph.
+A retry keeps the same unit identity and uses a new task identity. This prevents retry from becoming a duplicate responsibility.
 
 ## Mutation authority
 
-Filesystem access and mutation authority are separate concepts.
+Filesystem access and mutation authority remain separate:
 
 ```text
 none
@@ -165,31 +192,36 @@ bounded-source-write
 -> source mutation inside the explicit responsibility scope and decision rights
 ```
 
-Reader, Investigator, Advisor, inspect, verify, and review responsibilities do not gain source-write authority because the host happens to expose a broader sandbox. Worker or Solver writes only inside the authority Main grants.
+Reader, Investigator, Advisor, inspect, verify, and review responsibilities do not gain source-write authority from a broader host sandbox.
 
-If broader mutation becomes necessary, the child stops and returns the authority change to Main. The child does not self-upgrade.
+TeamPlan ownership records filesystem coordination. The responsibility packet remains the authorization source.
 
 ## Adaptive scheduling and semantic independence
 
 Main manages a ready frontier rather than a fixed-size team.
 
+With TeamPlan, the dependency DAG answers only structural readiness:
+
 ```text
-ready responsibility
-+ distinct owner
-+ non-duplicative
-+ semantic independence or explicit dependency order
-+ delegation value
-+ safe boundaries
-= eligible child work
+all dependencies accepted
+-> structurally ready
 ```
 
-Read-heavy independent work is the preferred place to exploit parallelism. Multiple Reader instances are valid when they own different evidence lanes. Investigator or Advisor can run alongside other independent read-only work when their specific capability is actually needed.
+Main still decides:
 
-Use progressive fan-out. Start useful ready work, consume useful completions, merge valid evidence, then decide whether any newly ready responsibility is worth another child. Do not spawn speculative work likely to be invalidated by unresolved decisions.
+```text
+semantic independence
+actual delegation value
+role suitability
+compute value
+writer/authority safety
+```
 
-The host decides how many child threads can physically run. codex delegate does not mirror that capacity into a permanent project limit. Spare capacity never creates a reason to spawn.
+Different files do not prove semantic independence. Shared APIs, schemas, migrations, lockfiles, generated artifacts, persistent state, external systems, and other shared interfaces can still couple work.
 
-## Writer ownership and semantic coupling
+Read-heavy independent work remains the preferred place to exploit parallelism.
+
+## Writer ownership
 
 One canonical physical checkout has one active writing actor inside the current orchestration:
 
@@ -199,140 +231,169 @@ Luna Worker
 Sol Solver
 ```
 
-If Worker or Solver owns the write, Main may continue read-only analysis but waits for ownership handoff before integration writes.
+Simultaneous writers require real filesystem isolation and semantic independence, or an explicit dependency/integration order that prevents unsafe overlap.
 
-Simultaneous writers require real filesystem isolation such as separate physical checkouts/workspaces/repositories. That isolation is necessary and not sufficient.
-
-Two isolated writers are still semantically coupled when one can invalidate the other's assumptions through a shared API, schema, migration order, lockfile, generated artifact, persistent state, external service, or other shared interface. Different file paths do not remove those dependencies.
-
-Before concurrent writes, Main establishes either:
-
-```text
-semantic independence
-```
-
-or:
-
-```text
-an explicit dependency and integration order that prevents unsafe overlap
-```
-
-Independent sessions, editors, hooks, and external processes remain outside this session-local scheduler. Current policy relies on isolation where practical plus drift detection and fail-closed behavior. It does not claim a cross-session lock that has not been implemented and validated.
+The TeamPlan validator can reject overlapping declared paths in the same structural ready layer. Main remains responsible for semantic coupling that path comparison cannot prove.
 
 ## Integration order
 
-`INTEGRATION AFTER` is optional. It is used when a responsibility can safely execute now but its accepted output must be integrated after named predecessor work items.
+Main is always the integration owner.
 
-It does not make semantically blocked work ready. If an unresolved API or behavioral decision prevents safe progress, the work remains off the ready frontier.
+TeamPlan `integration_order` must cover every unit and respect `depends_on`.
 
-Main is always the integration owner. Accepted outputs are integrated according to dependency order rather than child completion time. After integration, Main verifies the combined artifact because individually correct child results can still produce an incorrect integrated result.
+`INTEGRATION AFTER` remains useful inside a child packet when work can safely execute now but integration must wait for accepted predecessor output. It cannot make semantically blocked work executable.
 
-## Blocked work
+Main verifies the combined artifact because individually correct child outputs can still integrate incorrectly.
 
-Failure does not imply a stronger model.
+## Native recovery lifecycle
+
+Recovery uses a small Native-only state vocabulary:
 
 ```text
-contract
--> Main repairs missing task truth, scope, invariant, or acceptance
-
-judgment
--> capable Main / Advisor / Solver handles the demanding or material decision
-
-investigation
--> Investigator only when semantics are stable, the work remains read-only, and no material judgment remains
-
-stalled
--> at most one clean same-role retry when the role remains correct and the packet materially improves
+PLANNED
+SPAWN_PENDING
+RUNNING
+COMPLETED
+FAILED
+UNKNOWN
+CLOSED
 ```
 
-Terra is not the automatic destination for a difficult technical problem. If the remaining technical work is demanding, ambiguous, multi-step, or requires a consequential decision, route it to capable Main/Sol.
+Codex host remains responsible for actual spawn, wait, follow-up, and close controls. codex delegate records only the state supported by exposed host evidence.
 
-If the same failure continues without new evidence or acceptance progress, stop repeating the lane and diagnose the real blocker.
+`UNKNOWN` means current execution state cannot be established. It is not failure.
+
+While an attempt is UNKNOWN, codex delegate does not create a replacement Agent, retry, semantically reroute, or reassign conflicting ownership. This prevents uncertain execution from becoming duplicate execution.
+
+## Failure classification
+
+Confirmed failure uses two independent axes.
+
+Execution origin:
+
+```text
+none
+runtime_unavailable
+permission_failure
+tool_failure
+timeout
+quality_failure
+runtime_ambiguous
+```
+
+Semantic blocker:
+
+```text
+none
+contract
+judgment
+investigation
+stalled
+```
+
+The first explains what happened to execution. The second explains what capability or task truth remains.
+
+Examples:
+
+```text
+runtime_unavailable + none
+-> same role may still be correct
+
+quality_failure + judgment
+-> Sol path is now justified
+
+quality_failure + contract
+-> Main repairs task truth
+
+runtime_ambiguous
+-> UNKNOWN; do not replace
+```
+
+Infrastructure failure is not model-quality evidence.
+
+## Bounded recovery
+
+One unchanged unit gets at most:
+
+```text
+2 Agent attempts
+1 focused follow-up on the same Agent
+```
+
+A focused follow-up is for a complete result that can reasonably be corrected without changing role or responsibility.
+
+A new Agent attempt requires a confirmed failed earlier attempt and a materially improved packet or justified policy-compatible recovery path.
+
+After the second Agent attempt fails, Main takes ownership or reports the exact blocker.
+
+The two-attempt limit bounds recovery. It is not a team-size or concurrency ceiling.
+
+Semantic reroute remains blocker-driven:
+
+```text
+contract -> Main
+judgment -> capable Main / Advisor / Solver
+investigation -> Investigator only after semantics are stable and read-only
+stalled -> one policy-compatible retry if the role remains correct, otherwise Main
+```
+
+There is no Luna -> Terra -> Sol escalation ladder.
+
+## Recovery ledger
+
+Ordinary short work does not create persistent recovery state.
+
+When machine-checkable state is useful, `plugins/codex-delegate/scripts/validate_team_ledger.py` validates TeamPlan binding, unique task and Agent identity, per-unit attempt sequence, the two-attempt bound, follow-up bound, UNKNOWN replacement suppression, and basic lifecycle/adoption consistency.
+
+Persistent state is justified only when real recovery needs require it, such as cross-session continuation, multiple long-lived worktrees, or strict audit. Reuse an upstream ledger when one already exists.
+
+## TeamPlan revision
+
+Create a new revision only when structure changes materially:
+
+```text
+dependency
+ownership
+deliverable
+scope
+acceptance
+```
+
+Ordinary new evidence does not revise the plan.
+
+A running Agent stays bound to the plan truth it received. Structural changes pause new dispatch until affected active responsibilities are safely settled or invalidated. New dispatch uses the new revision.
 
 ## Runtime truth layers and Main-session capability dedup
 
-Route evidence distinguishes three layers:
+Route evidence still distinguishes:
 
 ```text
 requested
--> what routing asked for
-
 accepted
--> what the host or role surface explicitly acknowledged, when exposed
-
 observed
--> what the runtime actually reported, when exposed
 ```
 
-These layers are not interchangeable. A host accepting a requested model or role does not prove what actually ran. Missing acceptance is `not_reported`; missing native runtime telemetry is `not_observed`.
+A host accepting a requested model or role does not prove what actually ran. Missing acceptance is `not_reported`; missing native runtime telemetry is `not_observed`.
 
-`plugins/codex-delegate/scripts/runtime-evidence.py` normalizes these layers when route truth matters. Accepted/runtime drift, source conflicts, or exact route mismatches are quarantined instead of guessed through.
+`plugins/codex-delegate/scripts/runtime-evidence.py` normalizes these layers when exact route truth matters. Routine bounded work does not need diagnostics when route proof is not part of acceptance.
 
-Main-session model awareness exists only to avoid redundant Sol compute after the router has already established that material judgment needs Sol capability.
-
-Current reference role is Solver, GPT-5.6 Sol `high`:
-
-```text
-observed matching Sol family + high/xhigh/max
--> covered
-
-observed matching Sol family + medium/low
--> uncovered
-
-observed nonmatching family
--> uncovered
-
-missing / partial / accepted-only / local-only / conflicted / unranked effort
--> unknown
-```
-
-Routine bounded work does not inspect the main model. Missing telemetry does not block ordinary routing.
-
-A covered main session can avoid ordinary capability-uplift Advisor/Solver calls. It never substitutes for required independent review of its own candidate.
+Main-session Sol awareness remains only a duplicate-compute optimization. It never substitutes for required fresh independent review.
 
 ## Consent and anti-sprawl boundary
 
 Child count by itself is not a consent trigger.
 
-Several distinct low-cost read-only lanes can be an ordinary response to a large parallel task. Conversely, a smaller number of repeated Sol/Terra calls can become material compute expansion.
+Ask again when permissions, mutation authority, scope, external impact, or compute expands materially beyond what the user could reasonably expect.
 
-Ask again when permissions, mutation authority, scope, external impact, or compute expands materially beyond what the user could reasonably expect from the requested task.
-
-Do not create duplicate, speculative, or low-value children. Do not serialize expensive calls merely to avoid admitting that the orchestration has materially expanded.
-
-## Explicit invocation and onboarding
-
-The supported user command is:
-
-```text
-$codex-delegate:codex-delegate <task>
-```
-
-Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled.
-
-When an explicit task actually benefits from delegation, exact role readiness is checked before delegated implementation starts. If profiles must be provisioned, the Skill explains the managed scope, asks permission, runs the bundled installer plus `--check`, then verifies the role surface. If the runtime requires a fresh thread to discover new roles, execution stops before child writing begins.
-
-The five managed TOML files use Codex's native custom-Agent mechanism. The installer only provides project-specific lifecycle, ownership, collision safety, and same-Codex-home installer serialization around those native profiles.
+TeamPlan cannot create speculative work or justify filling host capacity. It makes dependencies explicit after Main has identified genuine responsibilities.
 
 ## Final Review
 
-Final Review is an independent assurance decision after Candidate Ready.
+Final Review remains consequence-driven after Candidate Ready.
 
-Current semantic trigger classes are:
+Current trigger classes include user-requested review, public contract change, persistent state change, security or authorization boundary, data integrity, concurrency semantics, migration, and verification gaps.
 
-```text
-user-requested review
-public contract change
-persistent state change
-security boundary
-authorization boundary
-data integrity
-concurrency semantics
-material migration
-verification gap
-```
-
-Prior use of Terra, Solver, recovery, a large diff, or many files does not by itself trigger review.
+Prior use of TeamPlan, recovery, Terra, Solver, a large diff, or many files does not itself trigger review.
 
 When required:
 
@@ -346,26 +407,10 @@ Any deliverable mutation invalidates the old verdict.
 
 ## Plugin boundary
 
-The Plugin intentionally remains skills-only because the product is fully expressible through instructions, Codex Native Subagents, and native custom Agents. It does not declare MCP servers, apps, hooks, or another runtime.
-
-Public Plugin metadata includes the website, privacy policy, terms of use, category, brand assets, and starter prompts. Public user installation is marketplace-first; local repository marketplace metadata remains a development/testing surface.
-
-## User-visible output
-
-The product reports the development result first:
-
-```text
-what changed
-verification
-remaining material risk
-```
-
-It does not emit a separate orchestration receipt for every successful invocation. Routing details are surfaced when they materially affected consent, execution, a limitation, independent review, or when the user asks.
+The Plugin remains skills-only and Native-only. It does not declare MCP servers, apps, hooks, App Thread orchestration, Provider routing, or another Agent runtime.
 
 ## Evaluation boundary
 
-Static routing regressions live in `evals/routing-cases.json`. Coordination-contract regressions live in `evals/coordination-cases.json`, including upstream workflow ownership, semantic independence, mutation authority, integration ordering, and requested/accepted/observed route truth.
+Static routing regressions live in `evals/routing-cases.json`. Coordination regressions and deterministic TeamPlan/recovery tests protect orchestration semantics. Behavioral evals remain measurement surfaces rather than runtime policy owners.
 
-These evals are measurement and regression surfaces. They do not create a second runtime policy specification. Live policy remains in the three runtime references plus stable constants in `policy-contract.json`.
-
-No model-quality or cost-superiority claim is valid until named live workloads on named runtime versions support it.
+No model-quality, cost, or speed superiority claim is valid without current measured evidence.
