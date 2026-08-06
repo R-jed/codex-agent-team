@@ -108,6 +108,8 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
         ".codex-delegate-agents.json",
         "Codex Plugin only",
         "router-core.md",
+        "team-plan.md",
+        "recovery.md",
         "guardrails.md",
         "final-review.md",
         "policy-contract.json` schema `4`",
@@ -128,6 +130,10 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
         "MUTATION AUTHORITY: none | declared-output-only | bounded-source-write",
         "INTEGRATION AFTER",
         "Requested is not accepted. Accepted is not observed",
+        "UNKNOWN is not FAILED",
+        "two Agent attempts",
+        "validate_team_plan.py",
+        "validate_team_ledger.py",
         "evals/coordination-cases.json",
     ]:
         assert phrase in AI
@@ -135,7 +141,7 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
 
 def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
     for phrase in [
-        "test data used to check routing, coordination, and runtime behavior",
+        "test data used to check routing, coordination, recovery, and runtime behavior",
         "not part of the normal user setup",
         "behavioral-workloads.json",
         "behavioral-result.schema.json",
@@ -152,9 +158,13 @@ def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
         "requested/accepted/observed route truth",
         "do not control how the plugin routes or coordinates work",
         "router-core.md",
+        "team-plan.md",
+        "recovery.md",
         "guardrails.md",
         "final-review.md",
         "policy-contract.json",
+        "tests/test_team_plan.py",
+        "tests/test_recovery_policy.py",
         "../docs/behavioral-evals.md",
     ]:
         assert phrase in EVALS
