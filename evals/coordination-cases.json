@@ -24,6 +24,30 @@
         "filesystem_isolation_sufficient": false,
         "required_resolution": "explicit_dependency_or_integration_order"
       }
+    },
+    {
+      "id": "verify-child-cannot-fix-source",
+      "input": {
+        "task": "A verification child discovers a source defect while checking acceptance."
+      },
+      "expected": {
+        "intent": "verify",
+        "mutation_authority": "none",
+        "source_write_allowed": false,
+        "on_required_source_change": "return_to_main_for_authority"
+      }
+    },
+    {
+      "id": "declared-output-does-not-grant-source-write",
+      "input": {
+        "task": "A child may update one named verification report but otherwise only inspects source."
+      },
+      "expected": {
+        "intent": "verify",
+        "mutation_authority": "declared-output-only",
+        "source_write_allowed": false,
+        "declared_output_write_allowed": true
+      }
     }
   ]
 }
