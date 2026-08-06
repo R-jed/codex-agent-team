@@ -13,7 +13,7 @@ def test_public_readmes_keep_current_identity_roles_and_entrypoint():
     for text in [ZH, EN]:
         for phrase in [
             "codex delegate",
-            "1.0.0",
+            "1.1.0",
             "$codex-delegate:codex-delegate",
             "Luna Reader",
             "Luna Worker",
@@ -99,7 +99,7 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
         "R-jed/codex-delegate",
         "Marketplace id:      codex-delegate",
         "Explicit invocation: $codex-delegate:codex-delegate",
-        "Current version:     1.0.0",
+        "Current version:     1.1.0",
         "codex_delegate_reader",
         "codex_delegate_worker",
         "codex_delegate_solver",
