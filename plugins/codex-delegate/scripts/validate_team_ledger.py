@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# Native-neutral validation logic is derived in part from
-# codex-model-routing-team validate_team_ledger.py.
+# Portions incorporate MIT-licensed third-party validation logic.
 # Copyright (c) 2026 Zhijian AI / Dapeng. MIT licensed.
 # See ../THIRD_PARTY_NOTICES.md.
 from __future__ import annotations
