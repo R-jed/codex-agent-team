@@ -140,7 +140,9 @@ Use the smallest packet that makes the responsibility safe and self-contained:
 
 ```text
 OUTCOME
+INTENT: inspect | implement | verify | review
 READ / WRITE SCOPE
+MUTATION AUTHORITY: none | declared-output-only | bounded-source-write
 INTERFACES AND INVARIANTS
 DECISION RIGHTS
 ACCEPTANCE
@@ -149,17 +151,30 @@ CURRENT FAILURE, if any
 STOP WHEN
 ```
 
-Writing roles additionally require a clear acceptance oracle and bounded write scope.
+`INTENT` states what kind of responsibility the child owns. `MUTATION AUTHORITY` states why it may change artifacts and how far that permission extends. A writable filesystem or broad sandbox never creates mutation authority by itself.
+
+Default mutation authority by responsibility:
+
+```text
+inspect -> none
+verify -> none
+review -> none
+implement -> bounded-source-write only when the packet explicitly grants bounded source ownership
+```
+
+Use `declared-output-only` when a responsibility may create or update a named report, generated output, or other explicit deliverable without gaining general source-edit authority.
+
+Writing roles additionally require a clear acceptance oracle, bounded write scope, and explicit mutation authority. If execution discovers that broader mutation is needed, stop and return the scope expansion to Main instead of widening authority locally.
 
 Decision boundaries:
 
-- Reader gathers narrow evidence and does not invent semantics.
-- Worker makes local implementation choices only; material semantic judgment returns to main/Sol.
-- Solver may make implementation-coupled material choices explicitly inside its granted decision rights.
-- Investigator performs bounded read-heavy technical investigation and synthesis after semantics stabilize; if material judgment appears, it returns the decision to main/Sol.
+- Reader gathers narrow evidence and does not invent semantics or mutate source.
+- Worker makes local implementation choices only within granted bounded-source-write authority; material semantic judgment returns to main/Sol.
+- Solver may make implementation-coupled material choices explicitly inside its granted decision rights and mutation authority.
+- Investigator performs bounded read-heavy technical investigation and synthesis after semantics stabilize; if material judgment appears, it returns the decision to main/Sol and does not mutate source.
 - Advisor resolves one demanding/material judgment or performs fresh independent review and remains read-only.
 
-Children do not widen scope, permission, user intent, external impact, or their own role.
+Children do not widen scope, permission, mutation authority, user intent, external impact, or their own role.
 
 ## 6. Return packet
 
