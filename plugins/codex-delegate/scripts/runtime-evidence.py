@@ -5,6 +5,9 @@ This helper is diagnostic. Ordinary routing must not depend on telemetry that th
 runtime did not expose. Main-session evidence only suppresses a redundant Sol uplift
 when the observed main route meets the policy reference. Child evidence verifies exact
 route, ancestry, and permission claims only when those facts are material.
+
+Route truth is kept in three layers when the host exposes them: requested, accepted,
+and observed. Platform acceptance never counts as observed runtime proof.
 """
 
 from __future__ import annotations
@@ -137,6 +140,73 @@ def source_conflicts(native: dict[str, str | None] | None, local: dict[str, str 
     ]
 
 
+def layer_conflicts(
+    accepted: dict[str, str | None] | None,
+    observed: dict[str, str | None] | None,
+    fields: tuple[str, ...],
+) -> list[str]:
+    if accepted is None or observed is None:
+        return []
+    return [
+        f"accepted_observed_conflict:{field}"
+        for field in fields
+        if accepted.get(field) is not None
+        and observed.get(field) is not None
+        and accepted[field] != observed[field]
+    ]
+
+
+def requested_layer(requested: dict[str, Any] | None, fields: tuple[str, ...]) -> dict[str, Any]:
+    declared = {} if requested is None else {field: text(requested.get(field)) for field in fields}
+    visible = {field: value for field, value in declared.items() if value is not None}
+    return {
+        "status": "declared" if visible else "not_declared",
+        "fields": visible,
+    }
+
+
+def accepted_layer(
+    accepted: dict[str, str | None] | None,
+    fields: tuple[str, ...],
+    violations: list[str],
+) -> dict[str, Any]:
+    accepted_fields = seen(accepted, fields)
+    if any(item.startswith("accepted:") or item.startswith("accepted_observed_conflict:") for item in violations):
+        status = "conflict"
+    elif not accepted_fields:
+        status = "not_reported"
+    elif all(accepted and accepted.get(field) is not None for field in fields):
+        status = "matched"
+    else:
+        status = "partial"
+    return {
+        "status": status,
+        "fields": {field: accepted[field] for field in accepted_fields} if accepted is not None else {},
+    }
+
+
+def observed_layer(native: dict[str, str | None] | None, fields: tuple[str, ...], violations: list[str]) -> dict[str, Any]:
+    native_fields = seen(native, fields)
+    if any(
+        item.startswith("native:")
+        or item.startswith("accepted_observed_conflict:")
+        or item == f"source_conflict:{field}"
+        for item in violations
+        for field in fields
+    ):
+        status = "conflict"
+    elif not native_fields:
+        status = "not_observed"
+    elif all(native and native.get(field) is not None for field in fields):
+        status = "matched"
+    else:
+        status = "partial"
+    return {
+        "status": status,
+        "fields": {field: native[field] for field in native_fields} if native is not None else {},
+    }
+
+
 def model_matches(model: str) -> bool:
     normalized = model.lower()
     return normalized == REFERENCE_MODEL or normalized.startswith(REFERENCE_MODEL + "-")
@@ -150,9 +220,14 @@ def effort_coverage(effort: str) -> str:
 
 
 def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
+    requested = obj(payload.get("requested"), "requested")
+    accepted = normalize(obj(payload.get("accepted"), "accepted"))
     native = normalize(obj(payload.get("native"), "native"))
     local = normalize(obj(payload.get("local"), "local"))
     violations = source_conflicts(native, local, MAIN_ROUTE_FIELDS)
+    if requested is not None and accepted is not None:
+        violations.extend(compare_expected(requested, accepted, "accepted", fields=MAIN_ROUTE_FIELDS))
+    violations.extend(layer_conflicts(accepted, native, MAIN_ROUTE_FIELDS))
     native_fields, local_fields = seen(native, MAIN_ROUTE_FIELDS), seen(local, MAIN_ROUTE_FIELDS)
     observed_fields = sorted(set(native_fields + local_fields))
     native_complete = native is not None and all(native.get(field) for field in MAIN_ROUTE_FIELDS)
@@ -180,6 +255,11 @@ def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
         "status": status,
         "decision": "quarantine_main_route_claim" if conflict else "use_observed_coverage",
         "evidence_grade": grade(native_complete, local_complete, conflict),
+        "truth_layers": {
+            "requested": requested_layer(requested, MAIN_ROUTE_FIELDS),
+            "accepted": accepted_layer(accepted, MAIN_ROUTE_FIELDS, violations),
+            "observed": observed_layer(native, MAIN_ROUTE_FIELDS, violations),
+        },
         "route_evidence": {
             "status": status,
             "source": evidence_source(native_complete, local_complete),
@@ -206,9 +286,14 @@ def validate_expected(expected: dict[str, Any]) -> None:
             fail(f"expected.{flag} must be boolean when present")
 
 
-def compare_expected(expected: dict[str, Any], observation: dict[str, str | None], label: str) -> list[str]:
+def compare_expected(
+    expected: dict[str, Any],
+    observation: dict[str, str | None],
+    label: str,
+    fields: tuple[str, ...] = (*IDENTITY_FIELDS, *CHILD_ROUTE_FIELDS),
+) -> list[str]:
     violations: list[str] = []
-    for field in (*IDENTITY_FIELDS, *CHILD_ROUTE_FIELDS):
+    for field in fields:
         wanted, got = text(expected.get(field)), observation.get(field)
         if wanted is not None and got is not None and wanted != got:
             violations.append(f"{label}:{field}_mismatch")
@@ -228,15 +313,19 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
     if expected is None:
         fail("expected is required for child evidence")
     validate_expected(expected)
+    accepted = normalize(obj(payload.get("accepted"), "accepted"))
     native = normalize(obj(payload.get("native"), "native"))
     local = normalize(obj(payload.get("local"), "local"))
 
     violations: list[str] = []
+    if accepted is not None:
+        violations.extend(compare_expected(expected, accepted, "accepted"))
     if native is not None:
         violations.extend(compare_expected(expected, native, "native"))
     if local is not None:
         violations.extend(compare_expected(expected, local, "local"))
     violations.extend(source_conflicts(native, local, OBSERVED_FIELDS))
+    violations.extend(layer_conflicts(accepted, native, OBSERVED_FIELDS))
 
     native_complete = route_complete(native, "native", violations)
     local_complete = route_complete(local, "local", violations)
@@ -244,8 +333,10 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
     route_conflict = any(
         item == f"source_conflict:{field}" for item in violations for field in CHILD_ROUTE_FIELDS
     ) or any(
-        f"{label}:{field}_mismatch" in violations for label in ("native", "local") for field in CHILD_ROUTE_FIELDS
-    )
+        f"{label}:{field}_mismatch" in violations
+        for label in ("accepted", "native", "local")
+        for field in CHILD_ROUTE_FIELDS
+    ) or any(item == f"accepted_observed_conflict:{field}" for item in violations for field in CHILD_ROUTE_FIELDS)
     route_status = (
         "conflict"
         if route_conflict
@@ -288,7 +379,10 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
         violations.append("permission:read_only_not_enforced")
 
     identity_conflict = any(item.endswith("thread_id_mismatch") or item.startswith("source_conflict:thread_id") for item in violations)
-    any_source_conflict = any(item.startswith("source_conflict:") for item in violations)
+    any_source_conflict = any(
+        item.startswith("source_conflict:") or item.startswith("accepted_observed_conflict:")
+        for item in violations
+    )
     conflict = (
         route["status"] == "conflict"
         or ancestry["status"] == "conflict"
@@ -326,6 +420,11 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
         "status": status,
         "decision": decision,
         "evidence_grade": grade(native_complete, local_complete, conflict),
+        "truth_layers": {
+            "requested": requested_layer(expected, CHILD_ROUTE_FIELDS),
+            "accepted": accepted_layer(accepted, CHILD_ROUTE_FIELDS, violations),
+            "observed": observed_layer(native, CHILD_ROUTE_FIELDS, violations),
+        },
         "route_evidence": route,
         "ancestry_evidence": ancestry,
         "permission_evidence": permission,
