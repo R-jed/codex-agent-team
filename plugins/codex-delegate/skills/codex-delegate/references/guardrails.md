@@ -129,6 +129,21 @@ The five profiles use Codex's native custom-Agent TOML mechanism. The bundled in
 
 Configuration intent and observed runtime fact are different.
 
+When route evidence matters, keep three truth layers separate:
+
+```text
+requested
+-> what the task packet, profile, or routing policy asked for
+
+accepted
+-> what the host or role surface explicitly acknowledged or accepted, when exposed
+
+observed
+-> what the runtime actually reported about the running session or child, when exposed
+```
+
+Requested is not accepted. Accepted is not observed. A platform accepting an Agent type, model, effort, or sandbox request does not prove that the runtime actually executed that route. If accepted or observed telemetry is missing, keep that layer `not_reported` or `not_observed` instead of copying values forward from configuration.
+
 Do not run runtime-evidence diagnostics for every ordinary child. Use `../../scripts/runtime-evidence.py` only when the claim materially depends on runtime observation, for example:
 
 - main-session Sol capability dedup;
