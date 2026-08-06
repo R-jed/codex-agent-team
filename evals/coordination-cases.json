@@ -12,6 +12,18 @@
         "delegate_may_assign": ["owner", "role", "concurrency", "write_isolation", "integration_timing"],
         "delegate_must_not_redefine": ["goal", "decomposition", "stage_order", "dependencies", "required_outputs", "business_acceptance", "quality_gates"]
       }
+    },
+    {
+      "id": "isolated-files-shared-api-are-not-independent",
+      "input": {
+        "task": "Two proposed writers use separate physical checkouts and disjoint files, but one changes an API contract that the other consumes."
+      },
+      "expected": {
+        "parallel_writes_allowed": false,
+        "reason": "semantic_dependency",
+        "filesystem_isolation_sufficient": false,
+        "required_resolution": "explicit_dependency_or_integration_order"
+      }
     }
   ]
 }
