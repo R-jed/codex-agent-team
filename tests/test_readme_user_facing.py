@@ -7,6 +7,9 @@ AI = (ROOT / "README_AI.md").read_text()
 EVALS = (ROOT / "evals" / "README.md").read_text()
 ALL_READMES = [path.read_text() for path in ROOT.rglob("README*.md")]
 DIRECTIVE = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
+CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/codex-delegate@main"
+PLUGIN_ADD = "codex plugin add codex-delegate@codex-delegate"
+UPGRADE = "codex plugin marketplace upgrade codex-delegate"
 
 
 def test_public_readmes_keep_current_identity_roles_and_entrypoint():
@@ -25,23 +28,32 @@ def test_public_readmes_keep_current_identity_roles_and_entrypoint():
             assert phrase in text
 
 
-def test_public_readmes_use_repo_marketplace_until_public_listing_is_verified():
-    assert "当前可靠的安装方式" in ZH
-    assert "GitHub 仓库注册为 Codex repo marketplace" in ZH
-    assert "The current reliable installation path" in EN
-    assert "register this GitHub repository as a Codex repo marketplace" in EN
-
+def test_public_readmes_offer_one_copy_paste_install_and_update_path():
     for text in [ZH, EN]:
-        assert "codex plugin marketplace add R-jed/codex-delegate --ref main" in text
-        assert "codex plugin add codex-delegate@codex-delegate" in text
+        assert CANONICAL_MARKETPLACE in text
+        assert "--sparse .agents/plugins" in text
+        assert "--sparse plugins/codex-delegate" in text
+        assert "&& \\\n" in text
+        assert PLUGIN_ADD in text
+        assert UPGRADE in text
         assert "$codex-delegate:codex-delegate" in text
         assert "/skills" in text
-        assert "Plugins Directory" in text
+        assert "--ref main" not in text
 
-    assert "OpenAI Platform 提交、审核并由开发者 Publish" in ZH
-    assert "submitted through the OpenAI Platform, approved, and published by the developer" in EN
-    assert "在 Codex 中打开**插件市场**，搜索 `codex-delegate`" not in ZH
-    assert "Open the **Codex Plugin Marketplace**, search for `codex-delegate`" not in EN
+    assert "30 秒安装" in ZH
+    assert "把下面整段复制到终端执行一次" in ZH
+    assert "Install in 30 seconds" in EN
+    assert "Copy and run this block once" in EN
+
+
+def test_public_readmes_keep_source_conflict_out_of_normal_install():
+    for text in [ZH, EN]:
+        assert "already added from a different source" in text
+        assert "codex plugin marketplace remove codex-delegate" not in text
+        assert "config.toml" in text
+
+    assert "旧来源修复" in ZH
+    assert "Source conflict repair" in EN
 
 
 def test_public_readmes_use_plain_language_and_leader_model():
@@ -62,12 +74,12 @@ def test_public_readmes_use_plain_language_and_leader_model():
         for phrase in forbidden:
             assert phrase not in lowered
 
-    assert "给主会话的一套“带团队规则”" in ZH
+    assert "给主会话的一套带团队规则" in ZH
     assert "small set of team-leading rules" in EN
     assert "你不需要自己挑模型" in ZH
-    assert "You do not need to pick models yourself" in EN
-    assert "没有固定的子 Agent 数量" in ZH
-    assert "does not have a fixed child-Agent count" in EN
+    assert "You do not need to choose models" in EN
+    assert "不预设固定 Agent 数量" in ZH
+    assert "does not choose a fixed Agent count" in EN
     assert "不是需要填满的目标" in ZH
     assert "not a target to fill" in EN
 
@@ -99,13 +111,13 @@ def test_all_readmes_are_product_or_reference_docs_not_release_status_ledgers():
             assert phrase.lower() not in lowered
 
 
-def test_ai_reference_keeps_exact_machine_facts_without_false_public_listing_claims():
+def test_ai_reference_keeps_exact_machine_facts_and_install_contract():
     for phrase in [
         "R-jed/codex-delegate",
-        "Repo marketplace id:    codex-delegate",
-        "Explicit invocation:    $codex-delegate:codex-delegate",
-        "Current version:        1.1.0",
-        "Public directory state: do not assume published; verify a current OpenAI listing first",
+        "Repo marketplace id: codex-delegate",
+        "Explicit invocation: $codex-delegate:codex-delegate",
+        "Current version:     1.1.0",
+        "Distribution:        Codex Plugin via canonical Git marketplace",
         "codex_delegate_reader",
         "codex_delegate_worker",
         "codex_delegate_solver",
@@ -119,6 +131,10 @@ def test_ai_reference_keeps_exact_machine_facts_without_false_public_listing_cla
         "final-review.md",
         "policy-contract.json` schema `4`",
         "Implicit invocation is disabled",
+        CANONICAL_MARKETPLACE,
+        "--sparse .agents/plugins",
+        "--sparse plugins/codex-delegate",
+        "marketplace source identity",
         "Do not claim benchmark wins",
     ]:
         assert phrase in AI
@@ -139,12 +155,9 @@ def test_ai_reference_keeps_exact_machine_facts_without_false_public_listing_cla
         "validate_team_plan.py",
         "validate_team_ledger.py",
         "evals/coordination-cases.json",
-        "Repo/local marketplace packaging does not prove public Plugins Directory publication",
-        "verify the current public listing first",
+        "Do not ask a normal user to remove the marketplace first",
     ]:
         assert phrase in AI
-
-    assert "search for `codex-delegate` in the Codex Plugin Marketplace" not in AI
 
 
 def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
@@ -183,18 +196,16 @@ def test_public_readmes_cover_first_use_parallel_writing_and_independent_review(
         "第一次需要子 Agent 时",
         "同一个实际 Git checkout 里，同一时间只允许一个写入者",
         "什么时候会再做一次独立复核",
-        "必须再找一个新的 Sol Advisor 做独立复核",
+        "新的 Sol Advisor 做独立复核",
         "实质验证缺口",
-        "Luna 做得不好不会自动升级到 Terra",
     ]:
         assert phrase in ZH
     for phrase in [
         "First time a child Agent is needed",
-        "only one actor writes to the same physical Git checkout at a time",
+        "Only one actor writes to the same physical Git checkout at a time",
         "When it asks for one more review",
         "A fresh Sol Advisor is required",
         "a meaningful verification gap",
-        "Weak Luna output does not automatically send the task to Terra",
     ]:
         assert phrase in EN
 
