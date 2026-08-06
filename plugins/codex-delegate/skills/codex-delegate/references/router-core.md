@@ -130,6 +130,8 @@ unknown
 -> use the normal Sol path only when material judgment genuinely requires it
 ```
 
+Missing telemetry is allowed to remain missing. Do not interrogate runtime metadata for a routine Luna or Terra responsibility simply to manufacture certainty.
+
 A covered main session never replaces a required fresh independent Final Review.
 
 ## 5. Responsibility packet
