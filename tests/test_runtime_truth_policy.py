@@ -66,19 +66,21 @@ def test_first_use_readiness_occurs_before_delegated_execution():
 
 
 def test_profile_lifecycle_is_current_only_and_five_role():
-    installation = (ROOT / "docs" / "plugin-installation.md").read_text()
     ai = (ROOT / "README_AI.md").read_text()
-    for role in [
-        "codex_delegate_reader",
-        "codex_delegate_worker",
-        "codex_delegate_solver",
-        "codex_delegate_investigator",
-        "codex_delegate_advisor",
-    ]:
-        assert role in installation
+    profiles = PLUGIN / "agent-profiles"
+    expected = {
+        "codex-delegate-reader.toml": "codex_delegate_reader",
+        "codex-delegate-worker.toml": "codex_delegate_worker",
+        "codex-delegate-solver.toml": "codex_delegate_solver",
+        "codex-delegate-investigator.toml": "codex_delegate_investigator",
+        "codex-delegate-advisor.toml": "codex_delegate_advisor",
+    }
+    assert {path.name for path in profiles.glob("*.toml")} == set(expected)
+    for filename, role in expected.items():
         assert role in ai
-    assert ".codex-delegate-agents.json" in installation
-    assert "leaves unrelated Agent profiles untouched" in installation
+        assert filename in ai
+    assert ".codex-delegate-agents.json" in ai
+    assert ".codex-delegate-agents.lock" in ai
 
 
 def test_process_history_is_not_a_final_review_trigger():
