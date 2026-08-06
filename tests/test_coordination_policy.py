@@ -49,3 +49,34 @@ def test_upstream_workflow_ownership_is_preserved():
         "business_acceptance",
         "quality_gates",
     } <= set(expected["delegate_must_not_redefine"])
+
+
+def test_parallel_writers_require_semantic_independence_not_only_isolation():
+    router = ROUTER.read_text().lower()
+    guardrails = GUARDRAILS.read_text().lower()
+    for phrase in [
+        "filesystem isolation is necessary for simultaneous writers, but it is not sufficient",
+        "semantic independence",
+        "shared api or schema",
+        "migration order",
+        "generated artifact",
+        "explicit dependency and integration order",
+    ]:
+        assert phrase in router
+    for phrase in [
+        "filesystem isolation alone does not establish semantic independence",
+        "shared apis",
+        "schemas",
+        "migrations",
+        "lockfiles",
+        "generated artifacts",
+        "explicit dependency or integration order",
+    ]:
+        assert phrase in guardrails
+
+    case = cases()["isolated-files-shared-api-are-not-independent"]
+    expected = case["expected"]
+    assert expected["parallel_writes_allowed"] is False
+    assert expected["filesystem_isolation_sufficient"] is False
+    assert expected["reason"] == "semantic_dependency"
+    assert expected["required_resolution"] == "explicit_dependency_or_integration_order"
