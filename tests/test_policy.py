@@ -32,7 +32,7 @@ def test_skill_and_openai_interface_keep_one_explicit_product_entrypoint():
 
     data = yaml.safe_load((SKILL / "agents" / "openai.yaml").read_text())
     assert data["interface"]["display_name"] == "Codex Delegate"
-    assert "/codex-delegate" in data["interface"]["default_prompt"]
+    assert "$codex-delegate:codex-delegate" in data["interface"]["default_prompt"]
     assert data["policy"]["allow_implicit_invocation"] is False
 
 
@@ -151,7 +151,7 @@ def test_guardrails_keep_safety_without_hot_path_runtime_ceremony():
         "Adaptive fan-out still requires discipline",
         "Child count by itself is not a consent trigger",
         "Explicit invocation only",
-        "/codex-delegate <task>",
+        "$codex-delegate:codex-delegate <task>",
         "First-use readiness before delegated execution",
         "Runtime evidence is on demand",
         "Do not emit a separate orchestration receipt",
@@ -184,8 +184,8 @@ def test_public_docs_keep_product_identity_and_five_profiles():
 
     for text in [zh, en]:
         assert directive in text
-        assert "/codex-delegate" in text
-        assert "0.9.1" in text
+        assert "$codex-delegate:codex-delegate" in text
+        assert "1.0.0" in text
         assert "Sol Solver" in text
         assert "HEADOFF.md" not in text
         assert "LOCAL_VALIDATION_REPORT.md" not in text

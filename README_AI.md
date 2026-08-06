@@ -11,8 +11,8 @@ Marketplace id:      codex-delegate
 Plugin id:           codex-delegate
 Plugin directory:    plugins/codex-delegate
 Skill:               codex-delegate
-Explicit invocation: /codex-delegate
-Current version:     0.9.1
+Explicit invocation: $codex-delegate:codex-delegate
+Current version:     1.0.0
 Distribution:        Codex Plugin only
 License:             MIT
 ```
@@ -25,7 +25,7 @@ Treat the current Codex main session as the team leader.
 
 The user supplies the goal. Main understands the task, keeps work it can handle well, delegates distinct responsibilities when another Agent adds value, chooses the specialist role, adapts the active team as evidence changes, verifies the result, and owns the final response.
 
-Do not ask the user to design the Agent team for an ordinary `/codex-delegate` task. The user does not need to specify an Agent count, choose models, or define a Luna, Terra, Sol sequence.
+Do not ask the user to design the Agent team for an ordinary `$codex-delegate:codex-delegate` task. The user does not need to specify an Agent count, choose models, or define a Luna, Terra, Sol sequence.
 
 Zero child Agents is a normal outcome. Several child Agents may run together when several distinct responsibilities are ready and parallel delegation is genuinely useful.
 
@@ -147,7 +147,7 @@ Open the Codex Plugin Marketplace
 -> search for codex-delegate
 -> install Codex Delegate
 -> start a new Codex thread
--> /codex-delegate <task>
+-> $codex-delegate:codex-delegate <task>
 ```
 
 `/skills` opens the Codex Skill picker.
@@ -175,7 +175,7 @@ codex plugin add codex-delegate@codex-delegate
 
 Start a new Codex thread after installation or an update.
 
-Implicit invocation is disabled. Use `/codex-delegate` explicitly.
+Implicit invocation is disabled. Use `$codex-delegate:codex-delegate` explicitly.
 
 ## Managed Agent profiles
 
@@ -188,6 +188,7 @@ The plugin manages these files under the active Codex home:
 <CODEX_HOME>/agents/codex-delegate-investigator.toml
 <CODEX_HOME>/agents/codex-delegate-advisor.toml
 <CODEX_HOME>/.codex-delegate-agents.json
+<CODEX_HOME>/.codex-delegate-agents.lock
 ```
 
 The TOML files use Codex's native custom-Agent format. The bundled installer only manages those five profiles and the ownership receipt. It does not create a second Agent runtime and does not edit credentials, MCP settings, repositories, `config.toml`, or unrelated Agent profiles.
@@ -229,7 +230,7 @@ final-review.md
 
 Explain the plugin in plain language first: the main Codex session acts like the team leader. The user gives it the goal, and Main decides what to do itself, which specialist Agents to use, and how many are useful at that point in the task.
 
-For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `/codex-delegate`.
+For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `$codex-delegate:codex-delegate`.
 
 Do not claim benchmark wins, token savings, speedups, or quality improvements unless there is current measured evidence for that claim.
 

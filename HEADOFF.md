@@ -2,7 +2,7 @@
 
 This is the finite deterministic/live-validation and v1.0.0 release checklist for the current codex delegate candidate.
 
-The product model is now settled: the user gives one strong Main session the goal, Main acts as the team leader, and `/codex-delegate` gives that leader the rules for deciding what to keep, what to delegate, which specialist role fits, how much useful parallelism to use, and when to stop adding Agents.
+The product model is now settled: the user gives one strong Main session the goal, Main acts as the team leader, and `$codex-delegate:codex-delegate` gives that leader the rules for deciding what to keep, what to delegate, which specialist role fits, how much useful parallelism to use, and when to stop adding Agents.
 
 The project should trust a capable Main model to lead. The policy exists to prevent loss of control, not to replace Main's judgment with a fixed Agent count or rigid model pipeline.
 
@@ -13,17 +13,18 @@ product: codex delegate
 repository: R-jed/codex-delegate
 marketplace/plugin id: codex-delegate
 skill: codex-delegate
-explicit invocation: /codex-delegate
-version: 0.9.1
+explicit invocation: $codex-delegate:codex-delegate
+version: 1.0.0
 current roles: codex_delegate_reader / worker / solver / investigator / advisor
 current ownership manifest: .codex-delegate-agents.json
+current installer lock: .codex-delegate-agents.lock
 runtime policy surface: router-core.md / guardrails.md / final-review.md
 machine policy: policy-contract.json schema 4
 invocation: explicit only
 plugin shape: skills-only
 custom roles: native Codex custom-Agent TOML profiles + project lifecycle installer
 parallelism policy: main-led ready frontier + progressive fan-out, no project ordinary numeric child ceiling
-known open reproducible PROJECT P0/P1: none established on exact current tree
+known open reproducible PROJECT P0/P1: invocation defect fixed in working tree; exact-SHA regression validation pending
 release posture: HOLD FOR RELEASE / OFFICIAL COMPLIANCE + DETERMINISTIC + LIVE VALIDATION PENDING
 ```
 
@@ -68,7 +69,7 @@ Terra is a bounded read-heavy investigation/evidence-synthesis lane. Terra is no
 
 For clear, bounded, owner-authorized maintenance, inspect current `main` first and preserve unrelated work. Direct-main work is allowed when isolation adds no concrete value.
 
-Use a branch or worktree when multiple independent writers, risky experimentation, or external review genuinely requires isolation. Never overwrite concurrent work.
+Use a separate physical checkout when multiple independent writers, risky experimentation, or external review genuinely requires isolation. Never overwrite concurrent work.
 
 During pre-release development, `main` is a moving development ref. The final v1.0.0 installation and release proof must use one fixed immutable RC/tag. A green earlier `main` SHA is not release evidence for a later SHA.
 
@@ -94,8 +95,8 @@ The deterministic gate passes only when:
 - every required command exits successfully;
 - the complete pytest suite has no failures or errors;
 - release-relevant skips, xfails, and warnings are reviewed;
-- canonical `/codex-delegate` and `/skills` behavior remains the documented project entry surface;
-- no stale dollar-style codex-delegate invocation remains;
+- canonical `$codex-delegate:codex-delegate` and `/skills` behavior remains the documented project entry surface;
+- no stale slash command or unnamespaced dollar invocation remains;
 - public Plugin metadata still includes website, privacy policy, terms, category, brand assets, and valid starter prompts;
 - the Plugin remains the smallest useful skills-only shape;
 - policy-contract.json schema 4 defines exactly five managed profiles and no ordinary numeric child ceiling;
@@ -127,22 +128,23 @@ Do not add Checkpoint 7.
 ## Checkpoint 1: Plugin discovery, command invocation, and exact five-role readiness
 
 ```text
-Status: PASS
+Status: REOPENED
 Runtime product bytes exercised: 55728b41592058575a6e35632adc6af75a355016
 Checkpoint 1 closure SHA: cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97
 Carry-forward basis: Plugin, Skill, Agent profiles, installer, policy, and runtime-reference bytes are unchanged after the runtime-tested revision; post-runtime closure changes are public/release documentation and regression tests only.
 Evidence reference: LOCAL_VALIDATION_REPORT.md#checkpoint-1-plugin-discovery-command-invocation-and-five-role-readiness
-Remaining blocker: none for Checkpoint 1.
-Closure: Codex 0.146.0 `/skills` displayed and selected `Codex Delegate`, inserting `@Codex-Delegate`; unrelated and Skill-affine ordinary-task controls completed without observed Codex Delegate activation. The Skill-affine control visibly used other applicable Skills, providing a positive control for activation evidence.
+Remaining blocker: rerun the full Checkpoint 1 path on the fixed exact SHA.
+Prior evidence: Codex 0.146.0 `/skills` displayed and selected `Codex Delegate`, inserting `@Codex-Delegate`; unrelated and Skill-affine ordinary-task controls completed without observed Codex Delegate activation. That evidence did not exercise the documented explicit command and therefore did not close invocation readiness.
+Reopen reason: Codex 0.146.0 rejected the documented `/codex-delegate` command as unrecognized. Current official Codex documentation and the live Skill registry identify `$codex-delegate:codex-delegate` as the explicit namespaced Skill invocation. A live namespaced invocation loaded the Skill and used `codex_delegate_reader`; the source fix now requires exact-SHA reinstall and regression validation.
 ```
 
 Validate a fresh user path:
 
 - Plugin is discoverable from the Codex Plugin Marketplace;
-- a new thread exposes `/codex-delegate` and `/skills` can discover/select the Skill;
+- a new thread exposes `$codex-delegate:codex-delegate` and `/skills` can discover/select the Skill;
 - ordinary tasks do not implicitly invoke codex delegate;
 - first delegated use detects missing project roles before delegated implementation starts;
-- provisioning requests permission and writes only the five managed native custom-Agent profiles plus `.codex-delegate-agents.json`;
+- provisioning requests permission and writes only the five managed native custom-Agent profiles, `.codex-delegate-agents.json`, and `.codex-delegate-agents.lock`;
 - if a fresh thread is required to see new roles, stop before child writing;
 - exact role/profile tuples come from policy-contract.json schema 4;
 - missing or mismatched exact roles do not cross-route.
@@ -152,11 +154,11 @@ Validate a fresh user path:
 Send only sanitized new evidence and unresolved consequential judgment to the consultation target below.
 
 ```text
-Status: PASS
+Status: SUPERSEDED
 Result: REVIEW_COMPLETED
 Request-ID: wgpt-a508773eef17481d
 Evidence reference: LOCAL_VALIDATION_REPORT.md#adversarial-consultation
-Finding: Checkpoint 1 PASS; the remaining `/skills` and non-implicit-invocation runtime gaps were closed. No reproducible project-side P0/P1 was established. One P2 public Final Review contract drift was corrected without changing runtime policy.
+Finding: This earlier judgment is retained as historical evidence but is superseded because the reviewed packet did not test the documented explicit command. The invocation defect and its fixed exact-SHA evidence belong in the single consolidated post-push review packet.
 ```
 
 ## Checkpoint 2: everyday routing quality and Sol dedup
@@ -195,6 +197,8 @@ Verify trusted Sol-main capability can suppress redundant Sol delegation when ap
 
 Review repeated unnecessary Agent calls, Luna semantic overreach, Terra used as an escalation rung, missed Sol judgment placement, and unjustified fan-out before changing policy.
 
+Record the sanitized evidence and unresolved consequential judgment in the consolidated review packet. Do not send a separate Web consultation at this checkpoint.
+
 ## Checkpoint 3: blockers, recovery, writer ownership, and adaptive scheduling
 
 Validate:
@@ -206,7 +210,7 @@ Validate:
 - three or more distinct ready read-only responsibilities may run together when useful;
 - spare native capacity alone does not create another child;
 - Main + Worker, Main + Solver, and Worker + Solver do not write one canonical checkout concurrently;
-- isolated worktrees/workspaces may own separate writers;
+- isolated physical checkouts/workspaces may own separate writers;
 - exposed child completions can refill useful work without forcing artificial waves.
 
 Use the A/B/C case:
@@ -224,6 +228,8 @@ Also run a positive fan-out case with at least three independent read-only lanes
 ### Review Checkpoint C
 
 Separate product defects from native-runtime capacity or observability boundaries.
+
+Record the sanitized evidence and unresolved consequential judgment in the consolidated review packet. Do not send a separate Web consultation at this checkpoint.
 
 ## Checkpoint 4: controlled product-value experiments and Final Review
 
@@ -258,9 +264,11 @@ A Sol main still needs a fresh Advisor when independence is required. Mutation a
 
 Do not turn one workload result into a permanent model-quality claim.
 
+Record the sanitized evidence and unresolved consequential judgment in the consolidated review packet. Do not send a separate Web consultation at this checkpoint.
+
 ## Checkpoint 5: consent, onboarding friction, and multi-session safety
 
-Validate that adaptive delegation feels natural to a user who simply writes `/codex-delegate <task>` and does not specify team size.
+Validate that adaptive delegation feels natural to a user who simply writes `$codex-delegate:codex-delegate <task>` and does not specify team size.
 
 Confirm:
 
@@ -275,7 +283,7 @@ Multi-session matrix:
 
 ```text
 M1 different sessions, different projects/checkouts
-M2 different sessions, same repository, isolated worktrees
+M2 different sessions, same repository source, isolated physical checkouts using independent temporary clones
 M3 different sessions, same canonical physical checkout
 M4 one project writer + one read-only session same checkout
 M5 Worker + Solver proposed concurrently in same checkout
@@ -286,7 +294,7 @@ Do not add a workspace lock unless M3 reproduces a project-side coordination fai
 
 ### Review Checkpoint E
 
-Any reproducible P0/P1 candidate requires adversarial review before remediation is accepted.
+Any reproducible P0/P1 candidate requires local adversarial review before remediation is accepted. Record it in the consolidated review packet; do not send a separate Web consultation at this checkpoint.
 
 ## Checkpoint 6: immutable RC install and release closure
 
@@ -296,7 +304,7 @@ For the selected fixed RC:
 2. run maintained CI and both required Plugin validators;
 3. verify public website/privacy/terms/support path and Plugin listing metadata;
 4. perform a real fresh Plugin installation from that fixed candidate;
-5. confirm `/codex-delegate`, `/skills`, candidate version, and disabled implicit invocation in a fresh thread;
+5. confirm `$codex-delegate:codex-delegate`, `/skills`, candidate version, and disabled implicit invocation in a fresh thread;
 6. prove first-use five-profile provisioning and readiness behavior;
 7. verify repeat install is idempotent and `--check` is non-mutating;
 8. verify managed-profile updates occur only with exact ownership proof;
@@ -322,7 +330,7 @@ Release only when one immutable RC passes:
 - complete Plugin/Skill compliance and deterministic preflight;
 - maintained CI and then-current official Plugin validation;
 - fresh marketplace install/update/five-profile lifecycle;
-- `/codex-delegate` invocation and onboarding behavior;
+- `$codex-delegate:codex-delegate` invocation and onboarding behavior;
 - representative daily routing and Sol capability-dedup cases;
 - adaptive fan-out, blocker/retry/Terra investigation, and writer-safety cases;
 - controlled product-value experiments;
@@ -336,7 +344,7 @@ Then tag `v1.0.0`, publish the GitHub Release, and make the immutable release re
 
 ## Required project consultation target
 
-Use `/webgpt-consult` at Review Checkpoints A-E, any P0/P1 candidate, and RC closure.
+Review Checkpoint A is already closed. For Review Checkpoints B-E, any later P0/P1 candidate, and RC closure, accumulate one sanitized consolidated review packet during validation. After all HEADOFF work is complete and the latest state is pushed, use `/webgpt-consult` once for the combined adversarial review and release judgment.
 
 ```text
 CONSULTATION_ENTRYPOINT: /webgpt-consult

@@ -84,7 +84,7 @@ A large task can justify several children when it contains several independent v
 
 ## 3. Complete readiness before delegated execution
 
-This Skill is designed for explicit `/codex-delegate` use. Codex users may also select it through `/skills`.
+This Skill is designed for explicit `$codex-delegate:codex-delegate` use. Codex users may also select it through `/skills`.
 
 Once the task actually justifies a child, check the exact required project role before delegated implementation begins. If provisioning is missing:
 
@@ -92,7 +92,7 @@ Once the task actually justifies a child, check the exact required project role 
 installer = skill_dir/../../scripts/install-agents.py
 ```
 
-Explain that the installer manages only the five codex delegate profiles plus `.codex-delegate-agents.json`, request permission, then run:
+Explain that the installer manages only the five codex delegate profiles, `.codex-delegate-agents.json`, and `.codex-delegate-agents.lock`, request permission, then run:
 
 ```bash
 python "$installer"
@@ -208,6 +208,6 @@ verification performed
 remaining material risk, if any
 ```
 
-Do not append a separate orchestration receipt just because `/codex-delegate` was explicitly invoked.
+Do not append a separate orchestration receipt just because `$codex-delegate:codex-delegate` was explicitly invoked.
 
 Mention routing only when it materially affected the result or user decision, such as additional consent, meaningful rerouting, a route/runtime limitation, required Final Review, or an explicit user request for orchestration details.

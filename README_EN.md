@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.9.1-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-Native%20Subagents-111827.svg" alt="Codex Native Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
@@ -33,7 +33,7 @@ Open the **Codex Plugin Marketplace**, search for `codex-delegate`, choose **Cod
 Start a new Codex thread, then give it the task directly:
 
 ```text
-/codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
+$codex-delegate:codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
 ```
 
 You can also type `/skills` to open the Skill picker.
@@ -72,7 +72,7 @@ A role controls what an Agent is responsible for. A stronger model does not auto
 
 ## Team size changes with the task
 
-A `/codex-delegate` task does not have a fixed child-Agent count.
+A `$codex-delegate:codex-delegate` task does not have a fixed child-Agent count.
 
 Main looks at the work that can actually move forward now and delegates only the parts that are distinct, useful, and ready. It does not open another Agent for work that is already owned, already answered by good evidence, or still blocked by an unresolved decision.
 

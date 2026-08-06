@@ -16,7 +16,7 @@ POLICY = PLUGIN_ROOT / "policy-contract.json"
 def test_plugin_manifest_and_marketplace_use_canonical_identity():
     payload = json.loads(PLUGIN.read_text())
     assert payload["name"] == "codex-delegate"
-    assert payload["version"] == "0.9.1"
+    assert payload["version"] == "1.0.0"
     assert payload["skills"] == "./skills/"
     assert payload["repository"] == "https://github.com/R-jed/codex-delegate"
     assert payload["homepage"] == "https://github.com/R-jed/codex-delegate#readme"
@@ -67,7 +67,7 @@ def test_skill_owns_current_profile_setup_before_delegated_execution():
     assert "../../scripts/install-agents.py" in text
     assert 'python "$installer" --check' in text
     assert ".codex-delegate-agents.json" in text
-    assert "/codex-delegate" in text
+    assert "$codex-delegate:codex-delegate" in text
     assert "native custom-Agent TOML mechanism" in text
     assert "Complete readiness before delegated execution" in text
     assert "stop before delegated code execution" in text
@@ -80,7 +80,7 @@ def test_install_doc_explains_marketplace_default_and_manual_five_profile_lifecy
     for phrase in [
         "Open the **Codex Plugin Marketplace**",
         "Search for `codex-delegate`",
-        "/codex-delegate",
+        "$codex-delegate:codex-delegate",
         "Manual or development installation",
         "codex plugin marketplace add R-jed/codex-delegate --ref main",
         "--sparse plugins/codex-delegate",
@@ -95,7 +95,7 @@ def test_install_doc_explains_marketplace_default_and_manual_five_profile_lifecy
         "immutable release ref/tag",
     ]:
         assert phrase in text
-    assert "Version:" in text and "0.9.1" in text
+    assert "Version:" in text and "1.0.0" in text
 
 
 def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
@@ -103,17 +103,17 @@ def test_readmes_and_ai_reference_share_marketplace_first_user_install_path():
     for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text()
         assert directive in text
-        assert "0.9.1" in text
+        assert "1.0.0" in text
         assert "Sol Solver" in text
-        assert "/codex-delegate" in text
+        assert "$codex-delegate:codex-delegate" in text
         assert "codex plugin marketplace add" not in text
         assert "codex plugin add codex-delegate@codex-delegate" not in text
     assert "搜索 `codex-delegate`" in (ROOT / "README.md").read_text()
     assert "search for `codex-delegate`" in (ROOT / "README_EN.md").read_text()
 
     ai = (ROOT / "README_AI.md").read_text()
-    assert "Current version:" in ai and "0.9.1" in ai
-    assert "Explicit invocation: /codex-delegate" in ai
+    assert "Current version:" in ai and "1.0.0" in ai
+    assert "Explicit invocation: $codex-delegate:codex-delegate" in ai
     assert "codex_delegate_solver" in ai
     assert "codex-delegate-solver.toml" in ai
     assert "codex_delegate_advisor" in ai

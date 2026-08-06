@@ -12,14 +12,14 @@ For ordinary users, installation is intentionally simple:
 4. Start a new Codex thread and invoke the Plugin:
 
 ```text
-/codex-delegate <task>
+$codex-delegate:codex-delegate <task>
 ```
 
 Codex CLI/IDE users can also open the Skill picker with `/skills`.
 
 That is the normal supported installation path. Ordinary users do not need to register the repository as another marketplace, run CLI installation commands, edit `config.toml`, or configure Agent profiles manually.
 
-Implicit invocation is disabled, so use `/codex-delegate` explicitly when you want the Plugin to orchestrate a task.
+Implicit invocation is disabled, so use `$codex-delegate:codex-delegate` explicitly when you want the Plugin to orchestrate a task.
 
 ## Current identity
 
@@ -28,8 +28,8 @@ Repository:       R-jed/codex-delegate
 Marketplace id:  codex-delegate
 Plugin id:        codex-delegate
 Skill:            codex-delegate
-Invocation:       /codex-delegate
-Version:          0.9.1
+Invocation:       $codex-delegate:codex-delegate
+Version:          1.0.0
 ```
 
 Plugin packaging and custom Agent profiles are separate Codex surfaces. The Plugin distributes the Skill and bundled project files. Exact model-specific roles use Codex's native custom-Agent TOML mechanism and, after explicit user approval, are provisioned into the active Codex-home `agents` directory. The default personal location is `~/.codex/agents`.
@@ -43,6 +43,7 @@ codex-delegate-solver.toml        -> codex_delegate_solver       -> GPT-5.6 Sol 
 codex-delegate-investigator.toml  -> codex_delegate_investigator -> GPT-5.6 Terra / xhigh / read-only
 codex-delegate-advisor.toml       -> codex_delegate_advisor      -> GPT-5.6 Sol / high    / read-only
 .codex-delegate-agents.json       -> project ownership receipt
+.codex-delegate-agents.lock       -> same-Codex-home installer serialization
 ```
 
 The custom Agent files are an official Codex host capability. The bundled installer is a project-specific lifecycle and ownership layer around those native profiles. It does not implement another Agent runtime.
@@ -66,7 +67,7 @@ codex plugin add codex-delegate@codex-delegate
 Start a new Codex thread, then invoke explicitly:
 
 ```text
-/codex-delegate <task>
+$codex-delegate:codex-delegate <task>
 ```
 
 Do not manually edit `config.toml`, marketplace state, Plugin cache state, or Agent profiles to simulate installation.
@@ -88,11 +89,11 @@ Start a new Codex thread after a manual update.
 
 Role setup should not interrupt an implementation halfway through.
 
-When an explicit `/codex-delegate` task actually benefits from a child, the Skill checks the required exact role before delegated code execution starts. If provisioning is needed, it:
+When an explicit `$codex-delegate:codex-delegate` task actually benefits from a child, the Skill checks the required exact role before delegated code execution starts. If provisioning is needed, it:
 
 1. explains the project-managed write scope and asks permission;
 2. resolves `../../scripts/install-agents.py` relative to the installed Skill;
-3. writes or verifies only the five current native custom Agent profiles and `.codex-delegate-agents.json` under the active Codex home;
+3. writes or verifies only the five current native custom Agent profiles, `.codex-delegate-agents.json`, and `.codex-delegate-agents.lock` under the active Codex home;
 4. runs a non-mutating `--check`;
 5. re-inspects the role surface exposed by the current runtime;
 6. if a fresh thread is required to discover new roles, stops before delegated writing and asks the user to restart the task in a new thread.
@@ -106,7 +107,7 @@ Successful file installation is configuration evidence. It does not prove the mo
 The bundled installer:
 
 - uses the active Codex-home `agents` directory;
-- writes only the five current profiles and `.codex-delegate-agents.json`;
+- writes only the five current profiles, `.codex-delegate-agents.json`, and `.codex-delegate-agents.lock`;
 - rejects symlinked Codex-home/profile/manifest destinations;
 - rejects another TOML file claiming a current reserved `codex_delegate_*` role;
 - refuses to overwrite a differing current profile unless previous ownership is proven by exact hash;
@@ -137,7 +138,7 @@ Each fixed release candidate must:
 4. verify the Plugin remains the smallest required skills-only shape and public legal/listing metadata is valid;
 5. verify marketplace metadata points to `./plugins/codex-delegate`;
 6. perform a real fresh Plugin Marketplace install from the fixed candidate;
-7. start a new thread and confirm `/codex-delegate` discovery, `/skills` discovery, version `0.9.1`, and implicit invocation disabled;
+7. start a new thread and confirm `$codex-delegate:codex-delegate` discovery, `/skills` discovery, version `1.0.0`, and implicit invocation disabled;
 8. verify first-use five-role provisioning/readiness before delegated execution;
 9. verify installer idempotence, managed-profile update/addition, unrelated-profile preservation, and non-mutating `--check`;
 10. exercise same-Codex-home installer concurrency cases owned by `HEADOFF.md`;

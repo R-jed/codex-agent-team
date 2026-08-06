@@ -34,6 +34,17 @@ def test_installer_refuses_same_current_reserved_role_name_in_different_file(tmp
     assert "reserved current role name" in result.stdout + result.stderr
 
 
+def test_installer_refuses_symlinked_lock(tmp_path):
+    target = tmp_path / "codex-home"
+    target.mkdir()
+    external = tmp_path / "external-lock"
+    external.write_bytes(b"\0")
+    (target / ".codex-delegate-agents.lock").symlink_to(external)
+    result = run_installer(target)
+    assert result.returncode != 0
+    assert "Refusing symlinked installer lock" in result.stdout + result.stderr
+
+
 def test_installer_is_idempotent_and_check_is_non_mutating(tmp_path):
     target = tmp_path / "codex-home"
     first = run_installer(target)

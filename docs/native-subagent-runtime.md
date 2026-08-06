@@ -16,7 +16,7 @@ The distinction is deliberate:
 The product user command is:
 
 ```text
-/codex-delegate <task>
+$codex-delegate:codex-delegate <task>
 ```
 
 Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled. The user chooses when adaptive delegation is worth applying.

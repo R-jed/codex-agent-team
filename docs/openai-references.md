@@ -2,7 +2,7 @@
 
 This page records the current OpenAI sources that materially constrain codex delegate. It separates official Codex/Plugin/model facts from project policy and from product hypotheses that still require live evidence.
 
-Last reviewed: 2026-08-05.
+Last reviewed: 2026-08-06.
 
 ## Normative source order
 
@@ -21,13 +21,13 @@ Do not turn a version-specific runtime observation into a permanent OpenAI guara
 
 ### Build skills
 
-https://developers.openai.com/codex/skills
+https://developers.openai.com/plugins/build/skills
 
 Used for:
 
 - `SKILL.md` as the Skill entry point with `name` and `description` frontmatter;
 - progressive disclosure through optional `scripts/`, `references/`, `assets/`, and `agents/openai.yaml`;
-- `/skills` as the Codex CLI/IDE Skill picker;
+- `/skills` or a `$` Skill mention as Codex CLI/IDE explicit invocation;
 - `policy.allow_implicit_invocation: false` disabling implicit matching;
 - restart/reload expectations when newly installed Skill state is not visible;
 - preferring plugins for reusable distribution beyond local/repository-scoped Skill authoring.
@@ -35,12 +35,12 @@ Used for:
 Current codex delegate consequence:
 
 ```text
-canonical user command: /codex-delegate
+canonical user command: $codex-delegate:codex-delegate
 Skill picker: /skills
 implicit invocation: disabled
 ```
 
-The project keeps `/codex-delegate` consistent across its Plugin starter prompts, Skill metadata, public docs, and regression tests.
+The official surface contract establishes `$` Skill invocation. The live Codex Skill registry establishes this installed Plugin Skill's complete namespaced identifier as `codex-delegate:codex-delegate`. The project keeps `$codex-delegate:codex-delegate` consistent across its Plugin starter prompts, Skill metadata, public docs, and regression tests.
 
 ## Plugin architecture and packaging
 

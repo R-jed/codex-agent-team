@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import tomllib
 from pathlib import Path
@@ -14,8 +15,11 @@ PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
 MANIFEST = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 SKILL_ROOT = PLUGIN_ROOT / "skills" / "codex-delegate"
 OPENAI_YAML = SKILL_ROOT / "agents" / "openai.yaml"
-CANONICAL_INVOCATION = "/codex-delegate"
-RETIRED_DOLLAR_INVOCATION = "$" + "codex-delegate"
+CANONICAL_INVOCATION = "$codex-delegate:codex-delegate"
+RETIRED_SLASH_INVOCATION = r"(?<![A-Za-z0-9_-])" + "/" + "codex-delegate"
+RETIRED_SHORT_DOLLAR_INVOCATION = r"\$" + "codex-delegate" + r"(?!:)"
+RETIRED_INVOCATION = re.compile(f"(?:{RETIRED_SLASH_INVOCATION}|{RETIRED_SHORT_DOLLAR_INVOCATION})")
+EVIDENCE_LEDGERS = {"HEADOFF.md", "LOCAL_VALIDATION_REPORT.md"}
 
 
 def tracked_paths() -> list[Path]:
@@ -46,26 +50,29 @@ def test_plugin_manifest_has_public_legal_links_and_stays_skills_only():
     assert (ROOT / "TERMS.md").is_file()
 
 
-def test_plugin_starter_prompts_use_project_slash_command():
+def test_plugin_starter_prompts_use_canonical_invocation():
     prompts = json.loads(MANIFEST.read_text())["interface"]["defaultPrompt"]
     assert 1 <= len(prompts) <= 3
     assert all(CANONICAL_INVOCATION in prompt for prompt in prompts)
-    assert all(RETIRED_DOLLAR_INVOCATION not in prompt for prompt in prompts)
+    assert all(not RETIRED_INVOCATION.search(prompt) for prompt in prompts)
     assert all(len(prompt) <= 128 for prompt in prompts)
 
 
-def test_openai_skill_metadata_uses_project_slash_command():
+def test_openai_skill_metadata_uses_canonical_invocation():
     payload = yaml.safe_load(OPENAI_YAML.read_text())
     interface = payload["interface"]
     assert 25 <= len(interface["short_description"]) <= 64
     assert CANONICAL_INVOCATION in interface["default_prompt"]
-    assert RETIRED_DOLLAR_INVOCATION not in interface["default_prompt"]
+    assert not RETIRED_INVOCATION.search(interface["default_prompt"])
     assert payload["policy"]["allow_implicit_invocation"] is False
 
 
-def test_retired_dollar_invocation_is_absent_from_tracked_tree():
+def test_retired_invocations_are_absent_from_tracked_tree():
     violations = []
     for path in tracked_paths():
+        relative = path.relative_to(ROOT).as_posix()
+        if relative in EVIDENCE_LEDGERS:
+            continue
         if path.is_symlink():
             text = os.readlink(path)
         else:
@@ -73,9 +80,9 @@ def test_retired_dollar_invocation_is_absent_from_tracked_tree():
                 text = path.read_text()
             except UnicodeDecodeError:
                 continue
-        if RETIRED_DOLLAR_INVOCATION in text:
-            violations.append(path.relative_to(ROOT).as_posix())
-    assert not violations, f"Retired dollar-style invocation remains: {violations}"
+        if RETIRED_INVOCATION.search(text):
+            violations.append(relative)
+    assert not violations, f"Retired invocation remains: {violations}"
 
 
 def test_managed_agent_profiles_follow_native_custom_agent_shape():

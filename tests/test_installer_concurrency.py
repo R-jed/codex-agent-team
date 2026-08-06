@@ -1,0 +1,78 @@
+from __future__ import annotations
+
+import importlib.util
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+INSTALLER = ROOT / "plugins" / "codex-delegate" / "scripts" / "install-agents.py"
+
+
+def load_installer():
+    spec = importlib.util.spec_from_file_location("codex_delegate_installer", INSTALLER)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def run_installer(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(INSTALLER), "--codex-home", str(home), *extra],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+@pytest.mark.skipif(not hasattr(os, "fork"), reason="fault-injection harness requires fork")
+def test_failed_installer_cannot_rollback_a_successful_peer(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    installer = load_installer()
+    ready_read, ready_write = os.pipe()
+    release_read, release_write = os.pipe()
+    pid = os.fork()
+
+    if pid == 0:
+        os.close(ready_read)
+        os.close(release_write)
+
+        def fail_after_profile_mutation(path, payload):
+            os.write(ready_write, b"1")
+            os.read(release_read, 1)
+            raise RuntimeError("injected failure after profile mutation")
+
+        installer.write_manifest = fail_after_profile_mutation
+        try:
+            installer.install(home, False)
+        except RuntimeError:
+            os._exit(23)
+        os._exit(24)
+
+    os.close(ready_write)
+    os.close(release_read)
+    os.read(ready_read, 1)
+    peer = subprocess.Popen(
+        [sys.executable, str(INSTALLER), "--codex-home", str(home)],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    time.sleep(0.2)
+    peer_was_serialized = peer.poll() is None
+    os.write(release_write, b"1")
+    _, fault_status = os.waitpid(pid, 0)
+    peer_stdout, peer_stderr = peer.communicate(timeout=10)
+
+    assert peer_was_serialized
+    assert os.waitstatus_to_exitcode(fault_status) == 23
+    assert peer.returncode == 0, peer_stdout + peer_stderr
+    check = run_installer(home, "--check")
+    assert check.returncode == 0, check.stdout + check.stderr

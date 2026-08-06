@@ -10,10 +10,11 @@ Repository: R-jed/codex-delegate
 Marketplace id: codex-delegate
 Plugin id: codex-delegate
 Skill: codex-delegate
-Canonical explicit invocation: /codex-delegate
-Plugin version: 0.9.1
+Canonical explicit invocation: $codex-delegate:codex-delegate
+Plugin version: 1.0.0
 Current roles: codex_delegate_reader / codex_delegate_worker / codex_delegate_solver / codex_delegate_investigator / codex_delegate_advisor
 Current ownership manifest: .codex-delegate-agents.json
+Current installer lock: .codex-delegate-agents.lock
 Machine policy: policy-contract.json schema 4
 Runtime policy surface: router-core.md / guardrails.md / final-review.md
 Invocation: explicit only
@@ -21,7 +22,7 @@ Plugin shape: skills-only
 Parallelism policy: main-led ready frontier + progressive fan-out, no project ordinary numeric child ceiling
 Architecture posture: MECHANISM COMPRESSION + OFFICIAL CODEX ALIGNMENT IMPLEMENTED / VALIDATION PENDING
 Release posture: HOLD FOR RELEASE / DETERMINISTIC + LIVE VALIDATION PENDING
-Known open reproducible PROJECT P0/P1 on exact current tree: none established yet
+Known open reproducible PROJECT P0/P1 on exact current tree: invocation defect fixed in working tree; exact-SHA regression validation pending
 ```
 
 Static validation for the exact current tree is pending. Nothing in this ledger means `pytest passed`, `Plugin validator passed`, or product behavior is proven until exact commands and outputs are recorded for the exact candidate SHA.
@@ -56,13 +57,13 @@ Current source inspection establishes:
 - complete trusted Sol `high`, `xhigh`, or `max` metadata can cover the current Sol `high` reference; Sol `medium`/`low` is insufficient; unknown/unranked/partial/local-only/conflicted evidence remains conservative;
 - one canonical checkout has one writing actor inside the current orchestration; Main writes, Worker, and Solver share that domain;
 - implicit Skill invocation is disabled;
-- canonical user invocation is `/codex-delegate`; `/skills` remains the Skill picker; no dollar-style codex-delegate invocation is part of the current product contract;
+- canonical user invocation is `$codex-delegate:codex-delegate`; `/skills` remains the Skill picker; the stale slash command and unnamespaced dollar form are not part of the current product contract;
 - first-use role provisioning is required before delegated code execution, avoiding mid-implementation setup/restart;
-- the five managed role files use Codex's native custom-Agent TOML mechanism under the active Codex home; the bundled installer is a project-specific lifecycle/ownership safety layer, not another Agent runtime;
+- the five managed role files use Codex's native custom-Agent TOML mechanism under the active Codex home; the bundled installer is a project-specific lifecycle/ownership safety layer, including same-Codex-home serialization through `.codex-delegate-agents.lock`, not another Agent runtime;
 - ordinary successful tasks no longer require a separate orchestration receipt;
 - Final Review remains consequence-driven and fresh when required;
 - the Plugin intentionally remains skills-only and does not declare unused MCP/apps/hooks surfaces;
-- public Plugin metadata includes website, privacy policy, terms of use, category, brand assets, and `/codex-delegate` starter prompts;
+- public Plugin metadata includes website, privacy policy, terms of use, category, brand assets, and `$codex-delegate:codex-delegate` starter prompts;
 - root `PRIVACY.md` and `TERMS.md` are current public legal documents for Plugin submission metadata;
 - `main` remains a moving pre-release development ref; final v1.0.0 installation evidence must be bound to one immutable RC/tag.
 
@@ -74,7 +75,7 @@ The current review is grounded in current OpenAI Codex documentation for:
 
 ```text
 Codex Skill metadata and /skills picker behavior
-codex delegate public command: /codex-delegate
+codex delegate public command: $codex-delegate:codex-delegate
 Plugin minimum shape and skills-only Plugins
 Plugin manifest and marketplace metadata
 public Plugin submission/listing/legal URL requirements
@@ -104,12 +105,13 @@ Current upstream documentation includes examples with several parallel specialis
 | Claim | Status | Boundary |
 | --- | --- | --- |
 | repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
-| Plugin version is `0.9.1` | repository fact | current Plugin/public docs |
-| canonical explicit Plugin invocation is `/codex-delegate` | implementation fact, exact-tree regression/live validation pending | manifest/openai metadata/docs/tests |
+| Plugin version is `1.0.0` | repository fact | current Plugin/public docs |
+| canonical explicit Plugin invocation is `$codex-delegate:codex-delegate` | implementation fact, exact-tree regression/live validation pending | manifest/openai metadata/docs/tests |
 | public privacy/terms URLs exist in Plugin manifest | implementation fact, current validator/live listing revalidation pending | manifest + root legal docs |
 | Plugin remains skills-only | repository fact, official validator revalidation pending | manifest/package |
 | current role set is Reader/Worker/Solver/Investigator/Advisor | repository fact, deterministic revalidation pending | policy/profile/installer/tests |
 | current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer lifecycle |
+| same-Codex-home installer lock is `.codex-delegate-agents.lock` | repository fact, I1-I3 exact-SHA revalidation pending | installer lifecycle |
 | custom profiles use native Codex Agent TOML shape | implementation fact, live discovery pending | profiles/compliance tests |
 | policy schema 4 is internally valid | implementation fact, deterministic suite pending | policy/runtime/tests |
 | policy has no ordinary numeric child ceiling | implementation fact, deterministic + live behavioral validation pending | policy/router/guardrails/evals |
@@ -145,7 +147,7 @@ Git: 2.50.1
 Codex CLI/runtime: 0.146.0
 ```
 
-This evidence predates Sol Solver, mechanism compression, the current `/codex-delegate` command contract, current Terra placement, and adaptive fan-out. It cannot establish current routing, onboarding, profile lifecycle, capability dedup, adaptive concurrency, or release readiness.
+This evidence predates Sol Solver, mechanism compression, the current `$codex-delegate:codex-delegate` command contract, current Terra placement, and adaptive fan-out. It cannot establish current routing, onboarding, profile lifecycle, capability dedup, adaptive concurrency, or release readiness.
 
 ## Deterministic execution record
 
@@ -257,13 +259,13 @@ CHECKPOINT: 1
 TESTED_REVISION: 55728b41592058575a6e35632adc6af75a355016
 RUNTIME_VERSION / PLATFORM: Codex 0.146.0 / Apple Silicon macOS 27.0 (26A5388g)
 WORKLOAD / FIXTURE: Fresh Git Marketplace install, first-use provisioning, task-refresh boundary, one bounded read-only Reader run in each of a fresh Desktop task and a fresh CLI process, direct `/skills` selection, one unrelated ephemeral ordinary task, and one Skill-affine ordinary repository-review task.
-EXPECTED USER OUTCOME: /codex-delegate and /skills discover the Skill; ordinary tasks do not invoke it implicitly; missing exact roles fail closed before delegated implementation; authorized provisioning writes only five managed profiles plus the ownership manifest; a fresh task can use the exact roles.
+EXPECTED USER OUTCOME: The then-documented `/codex-delegate` command and `/skills` discover the Skill; ordinary tasks do not invoke it implicitly; missing exact roles fail closed before delegated implementation; authorized provisioning writes only five managed profiles plus the ownership manifest; a fresh task can use the exact roles.
 EXPECTED ACTOR / INVARIANT: codex_delegate_reader for the bounded Git identity read; exactly five policy-contract.json schema 4 roles; fork_turns="none"; no repository write; no unrelated Agent-directory mutation.
 OBSERVED ROUTING / RESOURCE STATE: The pre-provision task rejected codex_delegate_reader. After provisioning it still rejected the role. A fresh Desktop task and fresh CLI process exposed all five exact types and accepted one codex_delegate_reader each. In fresh CLI task 019fd2e5-74f5-7412-9915-e98c24f3c169, `/skills` displayed `Codex Delegate`; selecting it inserted `@Codex-Delegate` without a discovery or load error.
 OBSERVED RUNTIME EVIDENCE: Desktop task 019fd2af-68c3-71a2-8d34-868614c64248 and the fresh CLI Reader both returned main at 55728b41592058575a6e35632adc6af75a355016 without modifying the repository. A separate unrelated ephemeral task exited 0, returned `4`, emitted five JSON events, and recorded `SKILL_OR_DELEGATE_ACTIVATION_MATCHES=0` and `TOOL_OR_SKILL_EVENTS=0`. A Skill-affine ordinary repository-review task exited 0 with 48 JSON events; it explicitly loaded and declared graphify / ponytail as positive controls while showing no installed Codex Delegate Skill load, selection, invocation, activation record, or use declaration.
-RESULT: PASS
+RESULT: SUPERSEDED
 EVIDENCE CLASS: Marketplace and installed-cache bytes; installer output; exact profile hashes; native role-surface acceptance; fresh Desktop task output; separate fresh-process output; direct `/skills` selector behavior; unrelated-task and Skill-affine-task JSON event streams with other-Skill positive controls.
-UNRESOLVED: none for Checkpoint 1.
+UNRESOLVED: The prior run did not exercise the then-documented explicit command. Checkpoint 1 must rerun on the fixed exact SHA.
 ```
 
 Commands and verification:
@@ -297,7 +299,7 @@ Observed evidence:
 - A fresh Desktop task and a separate fresh CLI process both exposed all five exact Agent types. Each successfully ran one `codex_delegate_reader` with `fork_turns="none"`; both Readers reported HEAD `55728b41592058575a6e35632adc6af75a355016` on `main` without modifying the repository.
 - A fresh interactive Codex 0.146.0 CLI opened `/skills`, listed `Codex Delegate` as a Plugin Skill, and selected it successfully; the composer inserted `@Codex-Delegate` with no discovery or load error.
 - A separate fresh ephemeral read-only task received an unrelated arithmetic prompt that did not name or select codex delegate. It exited 0 and returned exactly `4`; its complete JSON stream contained five events, no Skill/Delegate activation match, and no tool or Skill event. This independently confirms the configured non-implicit behavior for the exercised ordinary path.
-- The Skill-affine ordinary repository-review control also avoided every explicit codex delegate reference. It exited 0 after 48 JSON events and returned one concrete README ambiguity without modifying files. Its event stream loaded and declared graphify / ponytail and used context-mode, but did not load the installed Codex Delegate `SKILL.md`, select `@Codex-Delegate`, invoke `/codex-delegate`, emit a Codex Delegate activation record, or declare Codex Delegate use. Repository paths and target-file content containing the project name were classified as inspected data, not activation evidence.
+- The Skill-affine ordinary repository-review control also avoided every explicit codex delegate reference. It exited 0 after 48 JSON events and returned one concrete README ambiguity without modifying files. Its event stream loaded and declared graphify / ponytail and used context-mode, but did not load the installed Codex Delegate `SKILL.md`, select `@Codex-Delegate`, invoke `$codex-delegate:codex-delegate`, emit a Codex Delegate activation record, or declare Codex Delegate use. Repository paths and target-file content containing the project name were classified as inspected data, not activation evidence.
 - The Skill-affine control found a real P2 public Final Review contract drift: `README.md` and `README_EN.md` described required semantic review triggers as optional. The minimal fix restores `required` plus `materially` wording in both public READMEs, with a red-then-green regression assertion in `tests/test_readme_user_facing.py`; runtime policy is unchanged.
 - An earlier unrelated deep-review probe exceeded the 300-second context-mode RPC window and its two exact Codex processes were terminated. It produced no verdict and is excluded from Checkpoint 1 evidence.
 
@@ -306,8 +308,24 @@ Checkpoint 1 closure:
 - The initial model-visible Skill list omitted `codex-delegate`, but that surface is not the `/skills` selector. Direct `/skills` discovery and selection passed.
 - Configuration, an unrelated ordinary control, and a Skill-affine ordinary control now agree that ordinary tasks do not invoke the Skill implicitly on the exercised paths.
 - Review Checkpoint A passed through `/webgpt-consult` in the exact existing `codex-delegate` conversation. Verified GPT-5.6 Sol High first kept Checkpoint 1 PARTIAL under Request-ID `wgpt-e54de2858e9550a3`, required the Skill-affine boundary control under `wgpt-f078b6dc93df46ef`, and accepted final closure under `wgpt-a508773eef17481d`.
-- Checkpoint 1 is PASS. Release remains HOLD.
-- Checkpoint 2 was not started.
+- The earlier Checkpoint 1 PASS is superseded. Release remains HOLD.
+- Checkpoint 2 began with a live T1 main-only probe and explicit-invocation diagnosis; full exact-SHA closure is pending.
+
+### 2026-08-06 invocation reopen and root-cause fix
+
+- Codex CLI 0.146.0 returned `Unrecognized command '/codex-delegate'`; this directly disproved the documented command contract.
+- Current official Codex documentation states that CLI/IDE explicit Skill invocation uses `/skills` or a `$` Skill mention. The live Codex Skill registry exposed the installed Skill as `codex-delegate:codex-delegate`.
+- A live read-only `$codex-delegate:codex-delegate` invocation exited 0, loaded the installed Skill references, used one `codex_delegate_reader`, reported HEAD `be90299d9fccc859a12a215591c358790d21714a` and policy schema `4`, and did not edit files. The JSONL surface exposed a collaboration wait and the final response identified the Reader; unavailable native details remain unclaimed.
+- Root cause: public docs, starter prompts, metadata, policy references, and regression tests encoded a nonexistent custom slash command. The source now uses the actual namespaced Skill identifier. Runtime routing policy is unchanged.
+- This working-tree proof is diagnostic only. Checkpoint 1 remains reopened until a fixed immutable SHA is installed and the explicit invocation, `/skills`, implicit-off controls, and five-profile lifecycle are rerun from that SHA.
+
+### 2026-08-06 installer concurrency diagnosis
+
+- I1 clean same-Codex-home race: two concurrent installers both exited 0; final `--check` exited 0; all five profiles were exact; no staging or backup leftovers remained.
+- I3 current-profile update and missing-profile addition races: both concurrent update processes and both concurrent addition processes exited 0; final `--check` exited 0 in both scenarios; no staging or backup leftovers remained.
+- I2 reproduced a project-side invariant failure before the fix. A fault-injected installer paused after profile mutation and before manifest write; its peer completed successfully because no inter-process serialization existed; the faulting process could then roll back shared state. The red regression failed because the peer was not serialized.
+- The minimal root-cause fix adds a persistent `.codex-delegate-agents.lock` under the target Codex home and serializes the complete preflight, mutation, verification, and rollback transaction. The I2 regression then passed, and the installer-focused set passed 57 tests.
+- These working-tree runs establish the defect and validate the repair logic. I1-I3 must rerun on the fixed immutable RC before Checkpoint 6 can close.
 
 ## Live validation record format
 

@@ -29,7 +29,7 @@ The live suite asks:
 5. When Luna encounters a material semantic blocker, does correct rerouting reduce wrong edits/rework compared with simply continuing Luna?
 6. For stable semantics and read-only work, does Terra provide useful quality/context depth at lower total cost than a Sol judgment lane, and when does narrow Luna Reader remain sufficient?
 7. Does consequence-driven Final Review catch material issues while avoiding decorative review caused only by process history?
-8. Does explicit `/codex-delegate` invocation plus pre-execution role readiness reduce onboarding interruption compared with discovering missing roles mid-task?
+8. Does explicit `$codex-delegate:codex-delegate` invocation plus pre-execution role readiness reduce onboarding interruption compared with discovering missing roles mid-task?
 9. Does removing default orchestration receipts improve completion clarity without hiding consequential routing/consent/review information?
 
 These are separate questions. Do not collapse them into one global score.
@@ -245,7 +245,7 @@ For the process-history negative control, use a candidate where Terra/Solver/rec
 
 ## Experiment H: first-use readiness
 
-Measure the first explicit `/codex-delegate` experience when project Agent profiles are absent.
+Measure the first explicit `$codex-delegate:codex-delegate` experience when project Agent profiles are absent.
 
 The current candidate should:
 

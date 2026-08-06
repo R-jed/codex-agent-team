@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import os
 from pathlib import Path
+import stat
 import tempfile
 import tomllib
 from typing import NoReturn
@@ -17,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROFILE_SOURCE = ROOT / "agent-profiles"
 POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
 MANIFEST_NAME = ".codex-delegate-agents.json"
+LOCK_NAME = ".codex-delegate-agents.lock"
 MANIFEST_SCHEMA = 1
 MANAGED_BY = "codex-delegate"
 POLICY_SCHEMA = 4
@@ -25,6 +28,68 @@ ROLE_KEYS = {"reader", "worker", "solver", "investigator", "advisor"}
 
 def fail(message: str) -> NoReturn:
     raise SystemExit(message)
+
+
+def lock_file(fd: int) -> None:
+    if os.name == "nt":
+        import msvcrt
+
+        os.lseek(fd, 0, os.SEEK_SET)
+        msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+        return
+
+    import fcntl
+
+    fcntl.flock(fd, fcntl.LOCK_EX)
+
+
+def unlock_file(fd: int) -> None:
+    if os.name == "nt":
+        import msvcrt
+
+        os.lseek(fd, 0, os.SEEK_SET)
+        msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        return
+
+    import fcntl
+
+    fcntl.flock(fd, fcntl.LOCK_UN)
+
+
+@contextmanager
+def installer_lock(codex_home: Path, *, check_only: bool):
+    lock_path = codex_home / LOCK_NAME
+    if check_only and not codex_home.is_dir():
+        fail(f"Required Codex home is missing: {codex_home}")
+    if not check_only:
+        codex_home.mkdir(parents=True, exist_ok=True)
+    if lock_path.is_symlink():
+        fail(f"Refusing symlinked installer lock: {lock_path}")
+
+    flags = os.O_RDWR | (0 if check_only else os.O_CREAT)
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(lock_path, flags, 0o600)
+    except OSError as exc:
+        fail(f"Could not open installer lock {lock_path}: {exc}")
+    locked = False
+    try:
+        metadata = os.fstat(fd)
+        if not stat.S_ISREG(metadata.st_mode):
+            fail(f"Installer lock is not a regular file: {lock_path}")
+        if metadata.st_size == 0:
+            if check_only:
+                fail(f"Installer lock is missing initialization state: {lock_path}")
+            os.write(fd, b"\0")
+            os.fsync(fd)
+        lock_file(fd)
+        locked = True
+        yield
+    finally:
+        if locked:
+            unlock_file(fd)
+        os.close(fd)
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -296,11 +361,7 @@ def rollback(
     return errors
 
 
-def install(codex_home: Path, check_only: bool) -> None:
-    codex_home = codex_home.expanduser()
-    if codex_home.is_symlink():
-        fail(f"Refusing symlinked Codex home: {codex_home}")
-    codex_home = codex_home.resolve()
+def install_locked(codex_home: Path, check_only: bool) -> None:
     agents_dir = codex_home / "agents"
     manifest_path = codex_home / MANIFEST_NAME
 
@@ -358,6 +419,15 @@ def install(codex_home: Path, check_only: bool) -> None:
         "Profile files are ready. Re-check the native spawn_agent role surface; "
         "start a fresh Codex task only if the current task still cannot discover these roles."
     )
+
+
+def install(codex_home: Path, check_only: bool) -> None:
+    codex_home = codex_home.expanduser()
+    if codex_home.is_symlink():
+        fail(f"Refusing symlinked Codex home: {codex_home}")
+    codex_home = codex_home.resolve()
+    with installer_lock(codex_home, check_only=check_only):
+        install_locked(codex_home, check_only)
 
 
 def main() -> None:

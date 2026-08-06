@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.9.1-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-%E5%8E%9F%E7%94%9F%20Subagents-111827.svg" alt="Codex 原生 Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
@@ -33,7 +33,7 @@ codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，�
 安装后开启新的 Codex 会话，然后直接下任务：
 
 ```text
-/codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
+$codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
 
 你也可以输入 `/skills` 打开 Skill 选择器。
@@ -72,7 +72,7 @@ codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，�
 
 ## 团队规模会动态变化
 
-一次 `/codex-delegate` 任务没有固定的子 Agent 数量。
+一次 `$codex-delegate:codex-delegate` 任务没有固定的子 Agent 数量。
 
 主会话会先找出当前真正可以推进的工作，再判断哪些值得并行交出去。每个子 Agent 都必须有清楚、独立、现在就能做的责任。已有 Agent 正在做的事情、已经有可靠结果的事情、还依赖未解决问题的事情，都不会为了凑并发再开一个 Agent。
 

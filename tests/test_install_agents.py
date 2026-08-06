@@ -18,6 +18,7 @@ CURRENT_FILES = (
     "codex-delegate-advisor.toml",
 )
 CURRENT_MANIFEST = ".codex-delegate-agents.json"
+CURRENT_LOCK = ".codex-delegate-agents.lock"
 
 
 def run(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
@@ -52,6 +53,7 @@ def test_fresh_install_creates_only_current_managed_generation(tmp_path: Path):
     for filename in CURRENT_FILES:
         assert (home / "agents" / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
     manifest = json.loads((home / CURRENT_MANIFEST).read_text())
+    assert (home / CURRENT_LOCK).read_bytes() == b"\0"
     assert manifest["schema_version"] == 1
     assert manifest["managed_by"] == "codex-delegate"
     assert set(manifest["profile_hashes"]) == set(CURRENT_FILES)

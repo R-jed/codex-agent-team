@@ -28,7 +28,7 @@ def test_handoff_requires_official_compliance_and_deterministic_execution_before
         "complete pytest suite has no failures or errors",
         "both required Plugin validator runs pass",
         "tested SHA remains unchanged after validation",
-        "/codex-delegate",
+        "$codex-delegate:codex-delegate",
         "/skills",
         "privacy policy",
         "skills-only",
@@ -48,7 +48,7 @@ def test_handoff_uses_five_roles_and_compact_policy_surface():
     ]:
         assert role in HANDOFF
     for phrase in [
-        "version: 0.9.1",
+        "version: 1.0.0",
         "router-core.md / guardrails.md / final-review.md",
         "policy-contract.json schema 4",
         "invocation: explicit only",
@@ -125,7 +125,10 @@ def test_handoff_keeps_exact_adversarial_consultation_target():
 
 def test_checkpoint_one_records_direct_discovery_and_non_implicit_runtime_evidence():
     checkpoint = HANDOFF.split("## Checkpoint 1:", 1)[1].split("## Checkpoint 2:", 1)[0]
-    assert "Status: PASS" in checkpoint
+    assert "Status: REOPENED" in checkpoint
+    retired_command = "rejected the documented `" + "/" + "codex-delegate` command"
+    assert retired_command in checkpoint
+    assert "fixed exact SHA" in checkpoint
     for phrase in [
         "Codex Delegate",
         "@Codex-Delegate",
@@ -135,15 +138,15 @@ def test_checkpoint_one_records_direct_discovery_and_non_implicit_runtime_eviden
         "graphify / ponytail",
         "wgpt-a508773eef17481d",
         "P2 public Final Review contract drift",
-        "UNRESOLVED: none for Checkpoint 1",
+        "Checkpoint 1 must rerun on the fixed exact SHA",
     ]:
         assert phrase in REPORT
 
 
 def test_report_is_pending_evidence_ledger_for_current_candidate():
     for phrase in [
-        "Plugin version: 0.9.1",
-        "Canonical explicit invocation: /codex-delegate",
+        "Plugin version: 1.0.0",
+        "Canonical explicit invocation: $codex-delegate:codex-delegate",
         "codex_delegate_reader",
         "codex_delegate_solver",
         ".codex-delegate-agents.json",

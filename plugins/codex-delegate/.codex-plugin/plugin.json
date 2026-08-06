@@ -1,6 +1,6 @@
 {
   "name": "codex-delegate",
-  "version": "0.9.1",
+  "version": "1.0.0",
   "description": "Let the main Codex session lead a specialist Subagent team, delegating adaptively when extra native compute adds real value.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
@@ -24,9 +24,9 @@
     "logoDark": "./assets/codex-delegate-logo-dark.svg",
     "screenshots": [],
     "defaultPrompt": [
-      "Use /codex-delegate to complete this task. Lead the work and delegate only when it adds value.",
-      "Use /codex-delegate to implement this change with the right specialists and useful parallelism.",
-      "Use /codex-delegate to review this change and add independent review only when needed."
+      "Use $codex-delegate:codex-delegate to complete this task. Lead the work and delegate only when it adds value.",
+      "Use $codex-delegate:codex-delegate to implement this change with the right specialists and useful parallelism.",
+      "Use $codex-delegate:codex-delegate to review this change and add independent review only when needed."
     ]
   }
 }
