@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "suite": "codex-delegate-coordination-contract",
+  "cases": [
+    {
+      "id": "upstream-workflow-remains-authoritative",
+      "input": {
+        "task": "An upstream Skill already defines goal, stages, outputs, dependencies, and acceptance. Delegate useful execution without changing that workflow."
+      },
+      "expected": {
+        "preserve_upstream_workflow": true,
+        "delegate_may_assign": ["owner", "role", "concurrency", "write_isolation", "integration_timing"],
+        "delegate_must_not_redefine": ["goal", "decomposition", "stage_order", "dependencies", "required_outputs", "business_acceptance", "quality_gates"]
+      }
+    }
+  ]
+}
