@@ -88,7 +88,8 @@ def test_stalled_lane_has_one_clean_retry_not_universal_retry_loop():
 
 def test_installer_lock_is_separate_from_session_level_scheduler_claims():
     guardrails = GUARDRAILS.read_text().lower()
-    installation = (ROOT / "docs" / "plugin-installation.md").read_text().lower()
+    installer = (PLUGIN / "scripts" / "install-agents.py").read_text().lower()
     assert "cross-session locking" in guardrails
-    assert "persistent installer lock serializes installers targeting the same codex home" in installation
-    assert "one failed rollback cannot erase a successful peer" in installation
+    assert 'lock_name = ".codex-delegate-agents.lock"' in installer
+    assert "def installer_lock(" in installer
+    assert "lock_file(fd)" in installer
