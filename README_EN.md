@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.1.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-Native%20Subagents-111827.svg" alt="Codex Native Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
@@ -76,6 +76,10 @@ A `$codex-delegate:codex-delegate` task does not have a fixed child-Agent count.
 
 Main looks at the work that can actually move forward now and delegates only the parts that are distinct, useful, and ready. It does not open another Agent for work that is already owned, already answered by good evidence, or still blocked by an unresolved decision.
 
+When several Agents genuinely need to cooperate, Main keeps their dependencies, write ownership, and integration order explicit. Work whose prerequisites are not ready stays blocked, and two tasks that can invalidate each other's assumptions are not treated as safely parallel merely because they touch different files.
+
+If a child Agent does not complete its responsibility, Main first distinguishes an execution problem from weak output or a newly discovered decision or information gap. Corrections and retries are bounded. If the runtime state is uncertain, codex delegate does not start a replacement that could duplicate work already in progress.
+
 That means one task may look like:
 
 ```text
@@ -96,7 +100,7 @@ When one job finishes and unlocks another independent job, Main can add the righ
 
 Read-only work is the preferred place to use parallelism. Writing is more conservative: only one actor writes to the same physical Git checkout at a time. That writer may be the main session, Luna Worker, or Sol Solver.
 
-If multiple Agents truly need to write at the same time, they need separate worktrees, workspaces, or repositories.
+If multiple Agents truly need to write at the same time, they need separate worktrees, workspaces, or repositories, and the changes must also be semantically safe to run together.
 
 A material expansion in permissions, scope, external impact, or compute still requires fresh user consent. Crossing an arbitrary child count does not.
 
