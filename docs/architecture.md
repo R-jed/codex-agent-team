@@ -12,13 +12,15 @@ The normal control loop is intentionally short:
 
 ```text
 understand outcome + acceptance
+-> preserve upstream task truth when another Skill/plan already owns it
 -> ask whether delegation helps
 -> identify the current ready frontier
 -> assign distinct responsibilities to the capability actually needed
+-> attach intent, mutation authority, and dependencies when relevant
 -> run the smallest useful active set
 -> consume useful completions and update the ready frontier
--> expand only when another responsibility is now ready and worth delegating
--> verify the real artifact
+-> integrate accepted outputs in dependency-respecting order
+-> verify the real combined artifact
 -> diagnose a blocker only when work is unresolved
 -> run fresh independent review only when the final artifact requires it
 -> deliver
@@ -28,16 +30,16 @@ The installed Skill has three model-facing runtime references:
 
 ```text
 router-core.md
--> delegation benefit, role selection, child packet, adaptive scheduling, blocker handling, acceptance
+-> delegation benefit, upstream workflow ownership, role selection, child packet, adaptive scheduling, integration order, blocker handling, acceptance
 
 guardrails.md
--> authority, explicit invocation, provisioning readiness, consent, writer ownership, trust, permissions, runtime evidence
+-> authority, explicit invocation, mutation authority, writer ownership, semantic independence, provisioning, consent, trust, permissions, runtime evidence
 
 final-review.md
 -> artifact-bound independent assurance
 ```
 
-`plugins/codex-delegate/policy-contract.json` contains only stable machine constants: hard delegation safety limits, role routes, capability-dedup reference, and Final Review reason codes. Adaptive team size is intentionally not encoded as a numeric project constant.
+`plugins/codex-delegate/policy-contract.json` contains only stable machine constants: hard delegation safety limits, role routes, capability-dedup reference, and Final Review reason codes. Adaptive team size and coordination decisions are intentionally not encoded as numeric or workflow constants.
 
 ## Leader-led delegation
 
@@ -57,9 +59,31 @@ The five roles are a capability vocabulary. Child instances come from real unres
 
 A child is justified only when its responsibility is ready, distinct, non-duplicative, useful to delegate, and safe under current boundaries. Native Codex capacity is an upper bound, never a target to fill.
 
+## Upstream workflow ownership
+
+codex delegate coordinates execution. It does not compete with another Skill or accepted plan for domain ownership.
+
+When an active upstream workflow already defines any of these, preserve them as task truth unless the user or an evidence-backed blocker requires a change:
+
+```text
+goal
+decomposition
+stage order
+dependencies
+required outputs
+business acceptance
+quality gates
+```
+
+codex delegate may still choose owners, specialist roles, useful concurrency, write isolation, and integration timing around that workflow.
+
+If the upstream contract is incomplete or contradictory, the issue is a `contract` blocker. Main repairs the missing truth instead of silently creating a replacement workflow.
+
+If an upstream workflow already has a useful plan or ledger, reuse it as the coordination source. Persistent duplicate state is avoided unless a distinct recovery/audit need is established.
+
 ## Direct capability selection
 
-The router does not require a large internal taxonomy. It asks what capability the unresolved work actually needs.
+The router asks what capability the unresolved work actually needs.
 
 | Work remaining | Typical actor |
 | --- | --- |
@@ -91,7 +115,7 @@ A task being large, many-file, hard, or easy to describe in a contract does not 
 
 Role identity is separate from model identity so future route changes do not redefine responsibility semantics.
 
-## Compact task state
+## Compact task and child state
 
 The normal runtime keeps one small work-item state rather than separate orchestration ledgers:
 
@@ -108,7 +132,44 @@ blocker: none | contract | judgment | investigation | stalled
 
 Add another work item only for a genuinely distinct unresolved responsibility. Valid evidence prevents repeated discovery and duplicate ownership.
 
-## Adaptive scheduling
+A delegated child receives a bounded packet:
+
+```text
+OUTCOME
+INTENT: inspect | implement | verify | review
+READ / WRITE SCOPE
+MUTATION AUTHORITY: none | declared-output-only | bounded-source-write
+INTERFACES AND INVARIANTS
+DECISION RIGHTS
+ACCEPTANCE
+VALID EVIDENCE / DO NOT REDO
+CURRENT FAILURE, if any
+INTEGRATION AFTER, when needed
+STOP WHEN
+```
+
+This remains a lightweight packet, not a global TeamPlan or second task graph.
+
+## Mutation authority
+
+Filesystem access and mutation authority are separate concepts.
+
+```text
+none
+-> no artifact mutation
+
+declared-output-only
+-> only a named report, generated artifact, or declared deliverable
+
+bounded-source-write
+-> source mutation inside the explicit responsibility scope and decision rights
+```
+
+Reader, Investigator, Advisor, inspect, verify, and review responsibilities do not gain source-write authority because the host happens to expose a broader sandbox. Worker or Solver writes only inside the authority Main grants.
+
+If broader mutation becomes necessary, the child stops and returns the authority change to Main. The child does not self-upgrade.
+
+## Adaptive scheduling and semantic independence
 
 Main manages a ready frontier rather than a fixed-size team.
 
@@ -116,6 +177,7 @@ Main manages a ready frontier rather than a fixed-size team.
 ready responsibility
 + distinct owner
 + non-duplicative
++ semantic independence or explicit dependency order
 + delegation value
 + safe boundaries
 = eligible child work
@@ -123,9 +185,47 @@ ready responsibility
 
 Read-heavy independent work is the preferred place to exploit parallelism. Multiple Reader instances are valid when they own different evidence lanes. Investigator or Advisor can run alongside other independent read-only work when their specific capability is actually needed.
 
-Use progressive fan-out. Start useful ready work, consume useful completions, merge valid evidence, then decide whether any newly ready responsibility is worth another child. Do not spawn speculative work that is likely to be invalidated by unresolved decisions.
+Use progressive fan-out. Start useful ready work, consume useful completions, merge valid evidence, then decide whether any newly ready responsibility is worth another child. Do not spawn speculative work likely to be invalidated by unresolved decisions.
 
 The host decides how many child threads can physically run. codex delegate does not mirror that capacity into a permanent project limit. Spare capacity never creates a reason to spawn.
+
+## Writer ownership and semantic coupling
+
+One canonical physical checkout has one active writing actor inside the current orchestration:
+
+```text
+Main session while mutating
+Luna Worker
+Sol Solver
+```
+
+If Worker or Solver owns the write, Main may continue read-only analysis but waits for ownership handoff before integration writes.
+
+Simultaneous writers require real filesystem isolation such as separate physical checkouts/workspaces/repositories. That isolation is necessary and not sufficient.
+
+Two isolated writers are still semantically coupled when one can invalidate the other's assumptions through a shared API, schema, migration order, lockfile, generated artifact, persistent state, external service, or other shared interface. Different file paths do not remove those dependencies.
+
+Before concurrent writes, Main establishes either:
+
+```text
+semantic independence
+```
+
+or:
+
+```text
+an explicit dependency and integration order that prevents unsafe overlap
+```
+
+Independent sessions, editors, hooks, and external processes remain outside this session-local scheduler. Current policy relies on isolation where practical plus drift detection and fail-closed behavior. It does not claim a cross-session lock that has not been implemented and validated.
+
+## Integration order
+
+`INTEGRATION AFTER` is optional. It is used when a responsibility can safely execute now but its accepted output must be integrated after named predecessor work items.
+
+It does not make semantically blocked work ready. If an unresolved API or behavioral decision prevents safe progress, the work remains off the ready frontier.
+
+Main is always the integration owner. Accepted outputs are integrated according to dependency order rather than child completion time. After integration, Main verifies the combined artifact because individually correct child results can still produce an incorrect integrated result.
 
 ## Blocked work
 
@@ -149,25 +249,40 @@ Terra is not the automatic destination for a difficult technical problem. If the
 
 If the same failure continues without new evidence or acceptance progress, stop repeating the lane and diagnose the real blocker.
 
-## Main-session capability dedup
+## Runtime truth layers and Main-session capability dedup
 
-Main-session model awareness exists to avoid redundant Sol compute. It is an optimization after the router has already established that material judgment needs Sol capability.
+Route evidence distinguishes three layers:
 
-`policy-contract.json` declares the reference role and reasoning-effort order. `plugins/codex-delegate/scripts/runtime-evidence.py` can normalize trusted current-session model/effort metadata when the optimization is material.
+```text
+requested
+-> what routing asked for
+
+accepted
+-> what the host or role surface explicitly acknowledged, when exposed
+
+observed
+-> what the runtime actually reported, when exposed
+```
+
+These layers are not interchangeable. A host accepting a requested model or role does not prove what actually ran. Missing acceptance is `not_reported`; missing native runtime telemetry is `not_observed`.
+
+`plugins/codex-delegate/scripts/runtime-evidence.py` normalizes these layers when route truth matters. Accepted/runtime drift, source conflicts, or exact route mismatches are quarantined instead of guessed through.
+
+Main-session model awareness exists only to avoid redundant Sol compute after the router has already established that material judgment needs Sol capability.
 
 Current reference role is Solver, GPT-5.6 Sol `high`:
 
 ```text
-matching Sol family + high/xhigh/max
+observed matching Sol family + high/xhigh/max
 -> covered
 
-matching Sol family + medium/low
+observed matching Sol family + medium/low
 -> uncovered
 
-nonmatching family
+observed nonmatching family
 -> uncovered
 
-missing / partial / local-only / conflicted / unranked effort
+missing / partial / accepted-only / local-only / conflicted / unranked effort
 -> unknown
 ```
 
@@ -175,29 +290,13 @@ Routine bounded work does not inspect the main model. Missing telemetry does not
 
 A covered main session can avoid ordinary capability-uplift Advisor/Solver calls. It never substitutes for required independent review of its own candidate.
 
-## Writer ownership
-
-One canonical physical checkout has one active writing actor inside the current orchestration:
-
-```text
-Main session while mutating
-Luna Worker
-Sol Solver
-```
-
-If Worker or Solver owns the write, Main may continue read-only analysis but waits for ownership handoff before integration writes.
-
-Multiple concurrent writers require real filesystem isolation such as separate worktrees/workspaces/repositories. File-list promises are insufficient isolation.
-
-Independent sessions, editors, hooks, and external processes remain outside this session-local scheduler. Current policy relies on isolation where practical plus drift detection and fail-closed behavior. It does not claim a cross-session lock that has not been implemented and validated.
-
 ## Consent and anti-sprawl boundary
 
 Child count by itself is not a consent trigger.
 
 Several distinct low-cost read-only lanes can be an ordinary response to a large parallel task. Conversely, a smaller number of repeated Sol/Terra calls can become material compute expansion.
 
-Ask again when permissions, scope, external impact, or compute expands materially beyond what the user could reasonably expect from the requested task.
+Ask again when permissions, mutation authority, scope, external impact, or compute expands materially beyond what the user could reasonably expect from the requested task.
 
 Do not create duplicate, speculative, or low-value children. Do not serialize expensive calls merely to avoid admitting that the orchestration has materially expanded.
 
@@ -213,27 +312,7 @@ Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invo
 
 When an explicit task actually benefits from delegation, exact role readiness is checked before delegated implementation starts. If profiles must be provisioned, the Skill explains the managed scope, asks permission, runs the bundled installer plus `--check`, then verifies the role surface. If the runtime requires a fresh thread to discover new roles, execution stops before child writing begins.
 
-The five managed TOML files use Codex's native custom-Agent mechanism. The installer only provides project-specific lifecycle, ownership, and collision safety around those native profiles.
-
-This avoids discovering installation requirements midway through a development task.
-
-## Runtime evidence boundary
-
-Runtime evidence is diagnostic and on demand.
-
-Use it when a claim genuinely depends on observed runtime facts, such as:
-
-- Sol capability dedup;
-- hard host-enforced read-only;
-- exact route/model/effort proof;
-- ancestry when depth-one proof matters;
-- independent-review provenance;
-- configuration/runtime conflicts;
-- release diagnostics.
-
-Ordinary bounded implementation can rely on exact configured role intent plus actual artifact verification when runtime route proof is not part of acceptance.
-
-Configuration remains separate from observation. Missing evidence stays missing.
+The five managed TOML files use Codex's native custom-Agent mechanism. The installer only provides project-specific lifecycle, ownership, collision safety, and same-Codex-home installer serialization around those native profiles.
 
 ## Final Review
 
@@ -285,8 +364,8 @@ It does not emit a separate orchestration receipt for every successful invocatio
 
 ## Evaluation boundary
 
-Static tests prove machine contracts and deterministic helpers. `evals/` is a measurement surface for controlled product experiments, not a second runtime policy specification.
+Static routing regressions live in `evals/routing-cases.json`. Coordination-contract regressions live in `evals/coordination-cases.json`, including upstream workflow ownership, semantic independence, mutation authority, integration ordering, and requested/accepted/observed route truth.
 
-Behavioral labels in eval schemas may remain more detailed than the runtime hot path so historical experiments stay comparable. They must not force the Skill to maintain the old runtime ontology.
+These evals are measurement and regression surfaces. They do not create a second runtime policy specification. Live policy remains in the three runtime references plus stable constants in `policy-contract.json`.
 
 No model-quality or cost-superiority claim is valid until named live workloads on named runtime versions support it.
