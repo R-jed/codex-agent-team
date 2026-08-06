@@ -1,8 +1,26 @@
 # Plugin Installation
 
-codex delegate is distributed through the native Codex Plugin system. The supported repository installation path uses a Git marketplace source and the normal `codex plugin` commands.
+codex delegate is distributed through the native Codex Plugin system. Users can install it from the Codex Plugins Directory when a public listing is available, or through the canonical Git repo marketplace from the command line.
 
-## Normal installation
+## Installation options
+
+### Option 1: Codex Plugin Marketplace
+
+Use this path when `codex-delegate` is visible in the Plugins Directory available to your Codex environment.
+
+In the ChatGPT desktop app:
+
+1. Switch to **Codex**.
+2. Open **Plugins**.
+3. Search for `codex-delegate`.
+4. Open the plugin details and select `+` to install it.
+5. Start a new Codex session after installation.
+
+Codex CLI users can also enter `/plugins` to open the plugin browser, search or browse the available marketplace entries, and install from there.
+
+The public Plugins Directory is a separate distribution surface from this repository marketplace. A public listing appears only after the plugin has been submitted, approved, and published through OpenAI's plugin publication flow. If `codex-delegate` is not visible in the Plugins Directory available to the user, use the command-line installation below.
+
+### Option 2: Command-line installation
 
 Copy and run this block once:
 
@@ -13,7 +31,9 @@ codex plugin marketplace add R-jed/codex-delegate@main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Then start a new Codex thread and invoke explicitly:
+The marketplace registration command is safe to repeat when the same canonical source is already configured. Codex recognizes the existing registration and keeps using it.
+
+After either installation path, start a new Codex thread and invoke explicitly:
 
 ```text
 $codex-delegate:codex-delegate <task>
@@ -21,11 +41,7 @@ $codex-delegate:codex-delegate <task>
 
 `/skills` opens the Codex Skill picker.
 
-This is the normal installation path for new users.
-
-The marketplace registration command is also safe to repeat when the same canonical source is already configured. Codex recognizes the existing registration and keeps using it.
-
-## Canonical marketplace source
+## Canonical command-line marketplace source
 
 Keep this source shape unchanged:
 
@@ -40,13 +56,13 @@ plugin:        codex-delegate
 
 Codex treats the Git source, ref, and sparse paths as part of marketplace source identity. Changing those fields can make an existing registration look like a different source even when the repository ultimately contains the same Plugin.
 
-For that reason, normal documentation and support should always use the canonical command above.
+For that reason, command-line documentation and support should always use the canonical command above.
 
-Do not shorten the command by removing either `--sparse` path for existing users. Do not replace the source with a local checkout in normal installation instructions.
+Do not shorten the command by removing either `--sparse` path for existing users. Do not replace the source with a local checkout in normal command-line installation instructions.
 
 ## Update
 
-Copy and run:
+For users installed through the command-line repo marketplace, copy and run:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate && \
@@ -57,7 +73,11 @@ Then start a new Codex thread.
 
 The marketplace upgrade refreshes the configured Git snapshot. Re-running `codex plugin add` installs the Plugin from that refreshed snapshot.
 
+For users installed through the Plugins Directory, use the **Plugins** installed area to review and manage the installed plugin, then start a new Codex session after an update.
+
 ## Source conflict repair
+
+This section applies to the command-line repo marketplace path.
 
 If installation reports:
 
@@ -77,7 +97,7 @@ If `codex-delegate` is registered from an old or incorrect source, remove only t
 codex plugin marketplace remove codex-delegate
 ```
 
-Then run the normal installation block again:
+Then run the canonical command-line installation block again:
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate@main \
@@ -92,12 +112,14 @@ Do not hand-edit `config.toml`, marketplace cache files, or installed Plugin cac
 
 ## Verify the installation
 
-To inspect the marketplace and installed Plugin state:
+For a command-line repo marketplace installation, inspect the marketplace and installed Plugin state with:
 
 ```bash
 codex plugin marketplace list --json
 codex plugin list --marketplace codex-delegate
 ```
+
+For a Plugins Directory installation, confirm that `codex-delegate` appears in the installed plugins area.
 
 After installation or update, always test from a new Codex thread.
 
@@ -153,16 +175,17 @@ For a fixed release candidate:
 4. run the then-current official OpenAI Plugin validator when current compatibility evidence is required;
 5. run the full deterministic test suite;
 6. verify the canonical Git marketplace install/update path when installation behavior changed;
-7. verify first-use five-role provisioning when the managed profile lifecycle changed;
-8. test from a fresh Codex thread.
+7. verify the Plugins Directory path separately when public-directory discoverability is part of acceptance;
+8. verify first-use five-role provisioning when the managed profile lifecycle changed;
+9. test from a fresh Codex thread.
 
-Static validation cannot prove routing quality, coordination quality, recovery quality, or live runtime route identity.
+Static validation cannot prove routing quality, coordination quality, recovery quality, live runtime route identity, or public-directory publication.
 
-## Public directory note
+## Public directory boundary
 
-The repository marketplace and any OpenAI-hosted public Plugin directory are separate distribution surfaces. Repository installation does not establish that a public directory listing exists.
+ChatGPT and Codex share one universal public plugin directory. Published plugins can be discovered and installed from supported Plugins surfaces.
 
-Only describe codex delegate as directly searchable in an OpenAI-hosted public directory after that listing has been independently verified.
+Repository marketplace packaging does not establish that a public directory listing exists. Only describe `codex-delegate` as currently searchable in the public Plugins Directory after that listing has been independently verified.
 
 ## Failure behavior
 
