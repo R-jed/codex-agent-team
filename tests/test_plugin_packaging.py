@@ -93,10 +93,9 @@ def test_skill_owns_current_profile_setup_before_delegated_execution():
     assert not (ROOT / "scripts" / "doctor.py").exists()
 
 
-def test_install_doc_distinguishes_directory_and_canonical_git_marketplace_paths():
+def test_install_doc_contains_only_current_install_and_update_paths():
     text = INSTALL_DOC.read_text()
     for phrase in [
-        "Installation options",
         "Option 1: Codex Plugin Marketplace",
         "Search for `codex-delegate`",
         "/plugins",
@@ -105,29 +104,25 @@ def test_install_doc_distinguishes_directory_and_canonical_git_marketplace_paths
         "--sparse .agents/plugins",
         "--sparse plugins/codex-delegate",
         PLUGIN_ADD,
+        "## Update",
         UPGRADE,
-        "Canonical command-line marketplace source",
-        "Codex treats the Git source, ref, and sparse paths as part of marketplace source identity",
-        "Source conflict repair",
-        "codex plugin marketplace list --json",
-        "codex plugin marketplace remove codex-delegate",
-        "New users and users already on the canonical source do not need the remove step",
         "$codex-delegate:codex-delegate",
-        "Repo marketplace id: codex-delegate",
-        "codex_delegate_reader",
-        "codex_delegate_solver",
-        ".codex-delegate-agents.json",
-        "First-use Agent readiness",
-        "Implicit invocation is disabled",
-        "public directory listing exists",
-        "Repository marketplace packaging does not establish that a public directory listing exists",
+        "/skills",
     ]:
         assert phrase in text
-    assert "Version:" in text and "1.1.0" in text
+    for phrase in [
+        "different source",
+        "Source conflict",
+        "marketplace remove",
+        "config.toml",
+        "historical installation",
+        "old source",
+    ]:
+        assert phrase not in text
     assert "--ref main" not in text
 
 
-def test_readmes_and_ai_reference_share_dual_install_contract():
+def test_readmes_and_ai_reference_share_clean_dual_install_contract():
     directive = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
     for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text()
@@ -141,19 +136,20 @@ def test_readmes_and_ai_reference_share_dual_install_contract():
         assert "--sparse plugins/codex-delegate" in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
-        assert "codex plugin marketplace remove codex-delegate" not in text
+        assert "marketplace remove" not in text
+        assert "different source" not in text
 
     ai = (ROOT / "README_AI.md").read_text()
     assert "Current version:     1.1.0" in ai
     assert "Repo marketplace id: codex-delegate" in ai
     assert "Explicit invocation: $codex-delegate:codex-delegate" in ai
-    assert "Distribution:        Codex Plugin via Plugins Directory or canonical Git marketplace" in ai
-    assert "Public listing:      verify current directory availability before claiming searchable" in ai
+    assert "Distribution:        Codex Plugin" in ai
     assert "codex_delegate_solver" in ai
     assert "codex-delegate-solver.toml" in ai
     assert "codex_delegate_advisor" in ai
-    assert "Plugin Marketplace path" in ai
-    assert "Command-line path" in ai
+    assert "Plugin Marketplace" in ai
+    assert "Command line" in ai
     assert CANONICAL_MARKETPLACE in ai
-    assert "Do not ask a normal user to remove the marketplace first" in ai
+    assert "marketplace remove" not in ai
+    assert "source mismatch" not in ai
     assert "no project-level ordinary numeric child ceiling" in ai
