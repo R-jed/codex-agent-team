@@ -148,6 +148,7 @@ DECISION RIGHTS
 ACCEPTANCE
 VALID EVIDENCE / DO NOT REDO
 CURRENT FAILURE, if any
+INTEGRATION AFTER, when needed
 STOP WHEN
 ```
 
@@ -163,6 +164,10 @@ implement -> bounded-source-write only when the packet explicitly grants bounded
 ```
 
 Use `declared-output-only` when a responsibility may create or update a named report, generated output, or other explicit deliverable without gaining general source-edit authority.
+
+`INTEGRATION AFTER` is optional. Use it only when a responsibility can execute safely now but its accepted output must be integrated after one or more other accepted work items. It expresses integration order, not permission to execute through an unresolved semantic dependency.
+
+If a responsibility cannot make safe progress until another work item establishes missing task truth, interface semantics, or required evidence, keep it off the ready frontier instead of using `INTEGRATION AFTER` as a shortcut.
 
 Writing roles additionally require a clear acceptance oracle, bounded write scope, and explicit mutation authority. If execution discovers that broader mutation is needed, stop and return the scope expansion to Main instead of widening authority locally.
 
@@ -255,6 +260,8 @@ Read-only independent work is the preferred place to exploit parallelism. Multip
 
 A canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain. Concurrent writers require genuinely isolated workspaces or worktrees and established semantic independence, or an explicit dependency and integration order that prevents unsafe simultaneous mutation.
 
+For accepted outputs with `INTEGRATION AFTER`, Main remains the integration owner and applies them only after the named predecessor work items are accepted. Integration order must respect all explicit semantic dependencies. Do not integrate by completion time when dependency order says otherwise.
+
 Empty capacity is never a reason to start Solver, Advisor, or Investigator. Repeated expensive parallel or serial calls that materially expand compute require consent under `guardrails.md`.
 
 Process an exposed child completion when useful instead of imposing an artificial wave barrier. Reuse valid evidence and suppress repeated discovery.
@@ -263,6 +270,8 @@ Process an exposed child completion when useful instead of imposing an artificia
 
 The main session owns integration and final acceptance.
 
-Normal completion requires the actual requested artifact plus the relevant deterministic or reproducible verification. Model agreement is not verification.
+Normal completion requires the actual requested artifact plus the relevant deterministic or reproducible verification. When several delegated outputs are combined, Main integrates them in dependency-respecting order and verifies the resulting combined artifact, not only each isolated child result.
+
+Model agreement is not verification.
 
 After Candidate Ready, apply `final-review.md` only when the final artifact's consequences require an independent second judgment.
