@@ -28,7 +28,7 @@ def test_public_readmes_keep_current_identity_roles_and_entrypoint():
             assert phrase in text
 
 
-def test_public_readmes_distinguish_plugin_marketplace_and_command_line_installation():
+def test_public_readmes_distinguish_marketplace_and_command_line_installation():
     for text in [ZH, EN]:
         assert CANONICAL_MARKETPLACE in text
         assert "--sparse .agents/plugins" in text
@@ -47,8 +47,9 @@ def test_public_readmes_distinguish_plugin_marketplace_and_command_line_installa
         "### 方式一：Codex 插件市场",
         "搜索 `codex-delegate`",
         "### 方式二：命令行安装",
-        "如果当前插件目录里搜索不到 `codex-delegate`",
-        "公共 Plugin Directory 与仓库 marketplace 是两个独立的分发入口",
+        "## 更新",
+        "### 插件市场",
+        "### 命令行",
     ]:
         assert phrase in ZH
 
@@ -57,20 +58,28 @@ def test_public_readmes_distinguish_plugin_marketplace_and_command_line_installa
         "### Option 1: Codex Plugin Marketplace",
         "Search for `codex-delegate`",
         "### Option 2: Command-line installation",
-        "If `codex-delegate` is not currently visible in your Plugins Directory",
-        "The public Plugins Directory and the repository marketplace are separate distribution paths",
+        "## Update",
+        "### Plugin Marketplace",
+        "### Command line",
     ]:
         assert phrase in EN
 
 
-def test_public_readmes_keep_source_conflict_out_of_normal_install():
-    for text in [ZH, EN]:
-        assert "already added from a different source" in text
-        assert "codex plugin marketplace remove codex-delegate" not in text
-        assert "config.toml" in text
+def test_public_install_docs_do_not_expose_legacy_source_migration():
+    for text in [ZH, EN, AI]:
+        lowered = text.lower()
+        for phrase in [
+            "already added from a different source",
+            "source conflict repair",
+            "source mismatch",
+            "marketplace remove codex-delegate",
+            "old source",
+            "historical installation",
+        ]:
+            assert phrase not in lowered
 
-    assert "旧来源修复" in ZH
-    assert "Source conflict repair" in EN
+    assert "旧来源" not in ZH
+    assert "旧来源修复" not in ZH
 
 
 def test_public_readmes_use_plain_language_and_leader_model():
@@ -128,14 +137,13 @@ def test_all_readmes_are_product_or_reference_docs_not_release_status_ledgers():
             assert phrase.lower() not in lowered
 
 
-def test_ai_reference_keeps_exact_machine_facts_and_dual_install_contract():
+def test_ai_reference_keeps_exact_machine_facts_and_clean_install_contract():
     for phrase in [
         "R-jed/codex-delegate",
         "Repo marketplace id: codex-delegate",
         "Explicit invocation: $codex-delegate:codex-delegate",
         "Current version:     1.1.0",
-        "Distribution:        Codex Plugin via Plugins Directory or canonical Git marketplace",
-        "Public listing:      verify current directory availability before claiming searchable",
+        "Distribution:        Codex Plugin",
         "codex_delegate_reader",
         "codex_delegate_worker",
         "codex_delegate_solver",
@@ -152,13 +160,12 @@ def test_ai_reference_keeps_exact_machine_facts_and_dual_install_contract():
         CANONICAL_MARKETPLACE,
         "--sparse .agents/plugins",
         "--sparse plugins/codex-delegate",
-        "marketplace source identity",
-        "Explain two installation paths clearly",
-        "Plugin Marketplace path",
-        "Command-line path",
+        "Explain two installation methods clearly",
+        "Plugin Marketplace",
+        "Command line",
         "search for `codex-delegate`",
         "/plugins",
-        "verify current directory availability",
+        "For update questions",
         "Do not claim benchmark wins",
     ]:
         assert phrase in AI
@@ -179,7 +186,6 @@ def test_ai_reference_keeps_exact_machine_facts_and_dual_install_contract():
         "validate_team_plan.py",
         "validate_team_ledger.py",
         "evals/coordination-cases.json",
-        "Do not ask a normal user to remove the marketplace first",
     ]:
         assert phrase in AI
 
