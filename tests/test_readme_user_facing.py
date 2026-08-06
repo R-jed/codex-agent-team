@@ -25,18 +25,23 @@ def test_public_readmes_keep_current_identity_roles_and_entrypoint():
             assert phrase in text
 
 
-def test_public_readmes_are_marketplace_first_and_explain_updates_simply():
-    assert "Codex 中打开**插件市场**" in ZH
-    assert "搜索 `codex-delegate`" in ZH
-    assert "Open the **Codex Plugin Marketplace**" in EN
-    assert "search for `codex-delegate`" in EN
-    assert "$codex-delegate:codex-delegate" in ZH and "/skills" in ZH
-    assert "$codex-delegate:codex-delegate" in EN and "/skills" in EN
-    assert "以后更新插件，同样直接通过 Codex 插件市场完成" in ZH
-    assert "Updates are handled through the Codex Plugin Marketplace as well" in EN
+def test_public_readmes_use_repo_marketplace_until_public_listing_is_verified():
+    assert "当前可靠的安装方式" in ZH
+    assert "GitHub 仓库注册为 Codex repo marketplace" in ZH
+    assert "The current reliable installation path" in EN
+    assert "register this GitHub repository as a Codex repo marketplace" in EN
+
     for text in [ZH, EN]:
-        assert "codex plugin marketplace add" not in text
-        assert "codex plugin add codex-delegate@codex-delegate" not in text
+        assert "codex plugin marketplace add R-jed/codex-delegate --ref main" in text
+        assert "codex plugin add codex-delegate@codex-delegate" in text
+        assert "$codex-delegate:codex-delegate" in text
+        assert "/skills" in text
+        assert "Plugins Directory" in text
+
+    assert "OpenAI Platform 提交、审核并由开发者 Publish" in ZH
+    assert "submitted through the OpenAI Platform, approved, and published by the developer" in EN
+    assert "在 Codex 中打开**插件市场**，搜索 `codex-delegate`" not in ZH
+    assert "Open the **Codex Plugin Marketplace**, search for `codex-delegate`" not in EN
 
 
 def test_public_readmes_use_plain_language_and_leader_model():
@@ -94,19 +99,19 @@ def test_all_readmes_are_product_or_reference_docs_not_release_status_ledgers():
             assert phrase.lower() not in lowered
 
 
-def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
+def test_ai_reference_keeps_exact_machine_facts_without_false_public_listing_claims():
     for phrase in [
         "R-jed/codex-delegate",
-        "Marketplace id:      codex-delegate",
-        "Explicit invocation: $codex-delegate:codex-delegate",
-        "Current version:     1.1.0",
+        "Repo marketplace id:    codex-delegate",
+        "Explicit invocation:    $codex-delegate:codex-delegate",
+        "Current version:        1.1.0",
+        "Public directory state: do not assume published; verify a current OpenAI listing first",
         "codex_delegate_reader",
         "codex_delegate_worker",
         "codex_delegate_solver",
         "codex_delegate_investigator",
         "codex_delegate_advisor",
         ".codex-delegate-agents.json",
-        "Codex Plugin only",
         "router-core.md",
         "team-plan.md",
         "recovery.md",
@@ -114,7 +119,6 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
         "final-review.md",
         "policy-contract.json` schema `4`",
         "Implicit invocation is disabled",
-        "search for `codex-delegate` in the Codex Plugin Marketplace",
         "Do not claim benchmark wins",
     ]:
         assert phrase in AI
@@ -135,8 +139,12 @@ def test_ai_reference_keeps_exact_machine_facts_without_user_facing_ceremony():
         "validate_team_plan.py",
         "validate_team_ledger.py",
         "evals/coordination-cases.json",
+        "Repo/local marketplace packaging does not prove public Plugins Directory publication",
+        "verify the current public listing first",
     ]:
         assert phrase in AI
+
+    assert "search for `codex-delegate` in the Codex Plugin Marketplace" not in AI
 
 
 def test_evals_readme_is_short_maintainer_reference_and_not_runtime_policy():
