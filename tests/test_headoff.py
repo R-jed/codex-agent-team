@@ -145,7 +145,10 @@ def test_checkpoint_one_is_reopened_for_exact_coordination_hardened_candidate():
     assert "Status: REOPENED" in checkpoint
     retired_command = "rejected the documented `" + "/" + "codex-delegate` command"
     assert retired_command in checkpoint
-    assert "one exact current coordination-hardened SHA" in checkpoint
+    assert "bd159e417bde9db2b95e612e1d6154a8f75a5a9f" in checkpoint
+    assert "deterministic gate passes" in checkpoint.lower()
+    assert "live" in checkpoint.lower()
+    assert "pending" in checkpoint.lower()
     assert "Skill/router/guardrails/runtime-evidence bytes changed" in checkpoint
     for phrase in [
         "Codex Delegate",
@@ -169,9 +172,10 @@ def test_report_is_pending_evidence_ledger_for_current_candidate():
         "codex_delegate_solver",
         ".codex-delegate-agents.json",
         "policy-contract.json schema 4",
-        "MECHANISM COMPRESSION + OFFICIAL CODEX ALIGNMENT IMPLEMENTED / VALIDATION PENDING",
-        "DETERMINISTIC + LIVE VALIDATION PENDING",
-        "Static validation for the exact current tree is pending",
+        "COORDINATION HARDENING IMPLEMENTED",
+        "DETERMINISTIC PASS",
+        "LIVE VALIDATION PENDING",
+        "Deterministic validation passed on the product candidate SHA bd159e4",
         "policy has no ordinary numeric child ceiling",
         "Main uses ready-frontier progressive fan-out",
         "exactly three model-facing runtime references remain",
@@ -182,4 +186,4 @@ def test_report_is_pending_evidence_ledger_for_current_candidate():
     ]:
         assert phrase in REPORT
     assert "public users and ai agents should use readme/readme_ai" in REPORT.lower()
-    assert "pytest passed" in REPORT
+    assert "PASS — 151 passed" in REPORT

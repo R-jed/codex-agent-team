@@ -20,12 +20,12 @@ Runtime policy surface: router-core.md / guardrails.md / final-review.md
 Invocation: explicit only
 Plugin shape: skills-only
 Parallelism policy: main-led ready frontier + progressive fan-out, no project ordinary numeric child ceiling
-Architecture posture: MECHANISM COMPRESSION + OFFICIAL CODEX ALIGNMENT IMPLEMENTED / VALIDATION PENDING
+Architecture posture: MECHANISM COMPRESSION + OFFICIAL CODEX ALIGNMENT + COORDINATION HARDENING IMPLEMENTED / DETERMINISTIC PASS / LIVE VALIDATION PENDING
 Release posture: HOLD FOR RELEASE / DETERMINISTIC GATE PASSES ON bd159e4 / LIVE VALIDATION PENDING
 Known open reproducible PROJECT P0/P1 on exact current tree: none established; coordination-hardened deterministic gate passes on bd159e4; live Checkpoint 1 rerun pending
 ```
 
-Static validation for the exact current tree is pending. Nothing in this ledger means `pytest passed`, `Plugin validator passed`, or product behavior is proven until exact commands and outputs are recorded for the exact candidate SHA.
+Deterministic validation passed on the product candidate SHA bd159e417bde9db2b95e612e1d6154a8f75a5a9f (151 tests, Plugin validators, policy schema 4, 7 coordination cases). The evidence-record HEAD (a3880fe or later) carries forward this deterministic evidence because it changes only documentation and test alignment, not runtime-sensitive product bytes. Live validation remains pending.
 
 ## Repository facts established during the 2026-08-05 refactor and official-compliance review
 
@@ -107,14 +107,14 @@ Current upstream documentation includes examples with several parallel specialis
 | repo/marketplace/Plugin identity is `codex-delegate` | repository fact | current tree |
 | Plugin version is `1.0.0` | repository fact | current Plugin/public docs |
 | canonical explicit Plugin invocation is `$codex-delegate:codex-delegate` | implementation fact, exact-tree regression/live validation pending | manifest/openai metadata/docs/tests |
-| public privacy/terms URLs exist in Plugin manifest | implementation fact, current validator/live listing revalidation pending | manifest + root legal docs |
-| Plugin remains skills-only | repository fact, official validator revalidation pending | manifest/package |
-| current role set is Reader/Worker/Solver/Investigator/Advisor | repository fact, deterministic revalidation pending | policy/profile/installer/tests |
-| current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer lifecycle |
+| public privacy/terms URLs exist in Plugin manifest | implementation fact, Plugin validators pass on bd159e4; live listing revalidation pending | manifest + root legal docs |
+| Plugin remains skills-only | repository fact, Plugin validators pass on bd159e4 | manifest/package |
+| current role set is Reader/Worker/Solver/Investigator/Advisor | repository fact, deterministic suite passed on bd159e4 | policy/profile/installer/tests |
+| current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic suite passed on bd159e4 | installer lifecycle |
 | same-Codex-home installer lock is `.codex-delegate-agents.lock` | repository fact, I1-I3 exact-SHA revalidation pending | installer lifecycle |
 | custom profiles use native Codex Agent TOML shape | implementation fact, live discovery pending | profiles/compliance tests |
 | policy schema 4 is internally valid | implementation fact, deterministic suite passed on bd159e4 | policy/runtime/tests |
-| policy has no ordinary numeric child ceiling | implementation fact, deterministic + live behavioral validation pending | policy/router/guardrails/evals |
+| policy has no ordinary numeric child ceiling | implementation fact, deterministic suite passed on bd159e4; live behavioral validation pending | policy/router/guardrails/evals |
 | Main uses ready-frontier progressive fan-out | policy fact, live behavioral validation pending | Skill/router/Checkpoint 3/4 |
 | duplicate/speculative fan-out is suppressed | policy + static eval fact, live validation pending | guardrails/evals/Checkpoint 3/4 |
 | child count alone does not trigger consent | policy fact, live UX validation pending | guardrails/Checkpoint 5 |
@@ -128,7 +128,7 @@ Current upstream documentation includes examples with several parallel specialis
 | installer concurrency lock (I2 fix) | deterministic regression fact, live I1-I3 pending on RC | installer/tests |
 | implicit invocation is disabled | implementation fact, runtime validation pending | openai interface/live invocation |
 | first-use provisioning happens before delegated execution | policy fact, live validation pending | Skill/guardrails/Checkpoint 1 |
-| capability dedup is model + effort aware | implementation + fixture tests present, deterministic execution pending | runtime-evidence helper |
+| capability dedup is model + effort aware | implementation + fixture tests, deterministic suite passed on bd159e4 | runtime-evidence helper |
 | runtime evidence is absent from ordinary hot path | policy fact, live observation pending | Skill/guardrails/Checkpoint 2 |
 | one compact task state replaces three runtime ledgers | policy fact, behavioral validation pending | Skill/router-core |
 | Luna bounded implementation quality | hypothesis only | Checkpoint 2/4 |
