@@ -11,8 +11,8 @@ The product exists to let a strong main model use extra Agents when they add rea
 
 The runtime policy has three owners only:
 
-- `references/router-core.md`: delegation benefit, actor selection, child packet, adaptive scheduling, reroute, acceptance
-- `references/guardrails.md`: consent, writer ownership, permissions, trust boundaries, provisioning, runtime evidence
+- `references/router-core.md`: delegation benefit, actor selection, upstream-workflow ownership, child packet, adaptive scheduling, integration order, reroute, acceptance
+- `references/guardrails.md`: consent, mutation authority, writer ownership, semantic independence, permissions, trust boundaries, provisioning, runtime evidence
 - `references/final-review.md`: independent artifact-bound final assurance
 
 Stable role/model constants and hard delegation safety limits live in `../../policy-contract.json`.
@@ -23,17 +23,21 @@ Stable role/model constants and hard delegation safety limits live in `../../pol
 2. Zero children is normal. Delegation must provide concrete value.
 3. There is no fixed Agent-count target or ordinary numeric child ceiling in project policy. Main chooses the smallest useful active set from work that is actually ready.
 4. Every child must own a distinct responsibility. Do not create duplicate, speculative, or low-value Agents just because native capacity is available.
-5. Luna Reader gathers narrow bounded evidence. Luna Worker implements clear, repeatable behavior that is already decided.
-6. Sol Advisor handles demanding or material read-only judgment. Sol Solver handles implementation where demanding or material judgment is coupled to the write.
-7. Terra Investigator handles bounded read-heavy technical investigation and evidence synthesis after semantics are stable and no material judgment remains. Terra is not an escalation rung for hard work.
-8. Main-session Sol capability is a dedup optimization, not task taxonomy or authority. Do not buy duplicate Sol capability when trusted current-session evidence already covers it.
-9. Failure does not imply model escalation. Diagnose the remaining blocker and reroute only when the work really changed.
-10. One canonical checkout has one active writing actor inside this orchestration. Main writes, Luna Worker, and Sol Solver share that domain.
-11. Child reports are claims. Accept from actual artifact state plus relevant deterministic or reproducible evidence.
-12. Fresh independent Final Review is on demand for consequential artifacts. A Sol main does not review its own candidate independently.
-13. Children do not create project Subagents. Delegation depth is one.
-14. Native Agent capacity is a ceiling, never a target to fill.
-15. Do not emit orchestration ceremony when it adds no user value.
+5. Preserve an upstream Skill or accepted plan that already owns goal, decomposition, stage order, dependencies, outputs, acceptance, or quality gates. codex delegate coordinates around it instead of silently replacing it.
+6. Luna Reader gathers narrow bounded evidence. Luna Worker implements clear, repeatable behavior that is already decided.
+7. Sol Advisor handles demanding or material read-only judgment. Sol Solver handles implementation where demanding or material judgment is coupled to the write.
+8. Terra Investigator handles bounded read-heavy technical investigation and evidence synthesis after semantics are stable and no material judgment remains. Terra is not an escalation rung for hard work.
+9. Main-session Sol capability is a dedup optimization, not task taxonomy or authority. Do not buy duplicate Sol capability when trusted current-session evidence already covers it.
+10. Failure does not imply model escalation. Diagnose the remaining blocker and reroute only when the work really changed.
+11. One canonical checkout has one active writing actor inside this orchestration. Main writes, Luna Worker, and Sol Solver share that domain.
+12. Filesystem isolation alone does not prove that concurrent writers are semantically independent. Shared APIs, schemas, migrations, generated state, lockfiles, persistent state, or external systems can still couple them.
+13. Filesystem permission is capability, not mutation authority. A child may mutate only what Main explicitly grants for that responsibility.
+14. Child reports are claims. Accept from actual artifact state plus relevant deterministic or reproducible evidence.
+15. Requested, platform-accepted, and runtime-observed route facts remain separate. Missing runtime evidence stays missing.
+16. Fresh independent Final Review is on demand for consequential artifacts. A Sol main does not review its own candidate independently.
+17. Children do not create project Subagents. Delegation depth is one.
+18. Native Agent capacity is a ceiling, never a target to fill.
+19. Do not emit orchestration ceremony when it adds no user value.
 
 ## 1. Understand the task
 
@@ -48,6 +52,8 @@ known repository/runtime facts
 ```
 
 Do not start by choosing Luna, Terra, Sol, an Agent count, or a pipeline.
+
+If an active upstream Skill or accepted user plan already defines the workflow, keep its goal, stage order, dependencies, outputs, business acceptance, and quality gates authoritative. Reuse an existing useful plan or ledger rather than creating a second coordination truth source.
 
 Maintain one compact task state per unresolved work item:
 
@@ -132,21 +138,39 @@ Consult main-session model/effort only when material judgment already needs Sol 
 
 ## 5. Lead the team with adaptive fan-out
 
-Compile one bounded responsibility packet per child using `router-core.md`.
+Compile one bounded responsibility packet per child using `router-core.md`:
+
+```text
+OUTCOME
+INTENT: inspect | implement | verify | review
+READ / WRITE SCOPE
+MUTATION AUTHORITY: none | declared-output-only | bounded-source-write
+INTERFACES AND INVARIANTS
+DECISION RIGHTS
+ACCEPTANCE
+VALID EVIDENCE / DO NOT REDO
+CURRENT FAILURE, if any
+INTEGRATION AFTER, when needed
+STOP WHEN
+```
+
+`INTENT` describes the responsibility. `MUTATION AUTHORITY` separately controls what artifact mutation is authorized. Broad host permissions never enlarge that authority. `INTEGRATION AFTER` is optional and expresses integration order only when the work can safely execute before that integration point.
 
 Main manages a ready frontier rather than choosing a fixed team size up front. Start a child only when the responsibility is:
 
 - ready to make progress now;
 - distinct from work already owned or satisfied by valid evidence;
-- independent enough to benefit from parallel execution or context isolation;
+- semantically independent from concurrent work, or governed by a clear dependency order;
 - worth the handoff, model cost, and later integration work;
-- safe under current writer, permission, scope, and external-impact boundaries.
+- safe under current writer, mutation-authority, permission, scope, and external-impact boundaries.
 
 Use progressive fan-out. Start the useful responsibilities that are ready, consume exposed completions, update task truth, and add another child only when new evidence makes another responsibility ready and delegation is still worthwhile.
 
 Do not create speculative children for work that is likely to be invalidated by an unresolved dependency. Do not duplicate a responsibility merely to keep Agents busy. Do not treat available native capacity as a reason to spawn.
 
-Read-only independent work may run concurrently when native capacity allows. A canonical checkout has only one writing actor inside this orchestration. If Worker or Solver owns the write, main stays read-only in that checkout until ownership returns.
+Read-only independent work may run concurrently when native capacity allows. A canonical checkout has only one writing actor inside this orchestration. Separate physical checkouts are required for simultaneous writers, and Main must still establish semantic independence or explicit dependency/integration order.
+
+When multiple delegated outputs are combined, Main integrates them in dependency-respecting order and verifies the combined artifact. Completion order alone does not decide integration order.
 
 Solver, Advisor, and Investigator calls must still be justified by their capability need. Empty capacity is never a reason to buy a more expensive lane. Repeated expensive parallel or serial calls that materially expand compute fall under `guardrails.md` consent rules.
 
@@ -182,7 +206,23 @@ stalled -> at most one clean same-role retry when the role remains correct and t
 
 Do not translate “Luna failed” directly into Terra or Sol.
 
-## 7. Apply Final Review only when the candidate needs it
+## 7. Keep route truth layered
+
+When route identity matters, preserve three separate facts:
+
+```text
+requested
+accepted
+observed
+```
+
+Requested is what routing asked for. Accepted is what the host explicitly acknowledged, when exposed. Observed is what the runtime actually reported, when exposed.
+
+Do not turn an accepted route into an observed route. Do not copy configured model, effort, sandbox, ancestry, or identity values into missing runtime fields. Keep `unknown`, `not_reported`, or `not_observed` when that is the real evidence state.
+
+Use `../../scripts/runtime-evidence.py` only when these distinctions materially affect capability dedup, hard permission claims, provenance, diagnostics, or release evidence.
+
+## 8. Apply Final Review only when the candidate needs it
 
 After normal acceptance reaches Candidate Ready, use `references/final-review.md`.
 
@@ -198,7 +238,7 @@ bind exact candidate
 
 Only a fresh `ship` verdict for the unchanged candidate satisfies required independent review.
 
-## 8. Report the task result
+## 9. Report the task result
 
 Normal completion output focuses on:
 
