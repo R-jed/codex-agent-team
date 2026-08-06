@@ -71,6 +71,18 @@
         "integration_after_is_sufficient": false,
         "reason": "semantic_truth_not_ready"
       }
+    },
+    {
+      "id": "accepted-route-is-not-runtime-observation",
+      "input": {
+        "task": "The host accepted the requested child role and model, but it did not expose runtime model or effort telemetry."
+      },
+      "expected": {
+        "requested_status": "declared",
+        "accepted_status": "matched",
+        "observed_status": "not_observed",
+        "may_claim_observed_route": false
+      }
     }
   ]
 }
