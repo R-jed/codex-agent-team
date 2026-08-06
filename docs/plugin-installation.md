@@ -1,80 +1,105 @@
 # Plugin Installation
 
-codex delegate is packaged as a Codex Plugin. The repository marketplace and OpenAI's public Plugins Directory are separate distribution surfaces.
+codex delegate is distributed through the native Codex Plugin system. The supported repository installation path uses a Git marketplace source and the normal `codex plugin` commands.
 
-## Current distribution status
+## Normal installation
 
-The repository contains a valid repo/local marketplace entry at `.agents/plugins/marketplace.json` and a Plugin package at `plugins/codex-delegate`.
-
-That repository metadata is sufficient for repo marketplace installation and development testing. It does not prove that the Plugin has been submitted, approved, or published in OpenAI's universal public Plugins Directory.
-
-Do not tell users to search for `codex-delegate` in the public directory unless a current published OpenAI listing has been independently verified.
-
-## Current reliable installation
-
-Register this GitHub repository as a Codex marketplace, then install the Plugin:
+Copy and run this block once:
 
 ```bash
-codex plugin marketplace add R-jed/codex-delegate --ref main \
+codex plugin marketplace add R-jed/codex-delegate@main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-delegate
-
+  --sparse plugins/codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread, then invoke explicitly:
+Then start a new Codex thread and invoke explicitly:
 
 ```text
 $codex-delegate:codex-delegate <task>
 ```
 
-Codex CLI/IDE users can also open the Skill picker with `/skills`.
+`/skills` opens the Codex Skill picker.
 
-Implicit invocation is disabled, so use `$codex-delegate:codex-delegate` when you want the Plugin to orchestrate a task.
+This is the normal installation path for new users.
 
-## Repo marketplace update
+The marketplace registration command is also safe to repeat when the same canonical source is already configured. Codex recognizes the existing registration and keeps using it.
 
-For an installation registered from this repository:
+## Canonical marketplace source
+
+Keep this source shape unchanged:
+
+```text
+repository:    R-jed/codex-delegate
+ref:           main
+sparse path 1: .agents/plugins
+sparse path 2: plugins/codex-delegate
+marketplace:   codex-delegate
+plugin:        codex-delegate
+```
+
+Codex treats the Git source, ref, and sparse paths as part of marketplace source identity. Changing those fields can make an existing registration look like a different source even when the repository ultimately contains the same Plugin.
+
+For that reason, normal documentation and support should always use the canonical command above.
+
+Do not shorten the command by removing either `--sparse` path for existing users. Do not replace the source with a local checkout in normal installation instructions.
+
+## Update
+
+Copy and run:
 
 ```bash
-codex plugin marketplace upgrade codex-delegate
+codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread after an update.
+Then start a new Codex thread.
 
-`main` is the moving development channel. Evidence for a particular build applies only to the exact revision tested. A stable public release should use an immutable release ref or tag.
+The marketplace upgrade refreshes the configured Git snapshot. Re-running `codex plugin add` installs the Plugin from that refreshed snapshot.
 
-## Public Plugins Directory publication
+## Source conflict repair
 
-OpenAI's public Plugins Directory is shared by ChatGPT and Codex. A repo/local marketplace entry does not automatically register a Plugin there.
-
-To make codex delegate globally searchable, the publisher must complete the OpenAI Platform publication flow:
-
-1. Use an OpenAI Platform organization with Plugin submission write access. The current Platform permission is labeled **Apps Management**.
-2. Complete individual or business developer identity verification for the publishing organization.
-3. Open the OpenAI Plugin submission portal and create a **Skills only** submission.
-4. Complete the public listing with the Plugin name, descriptions, logo, category, website, support URL, privacy policy URL, and terms URL.
-5. Upload the final Skill bundle, add realistic starter prompts, provide at least five positive and three negative test cases, choose availability, and add release notes.
-6. Submit the Plugin for OpenAI review.
-7. After approval, explicitly **Publish** the approved version from the portal.
-8. Only after publication should documentation treat public-directory search as an ordinary installation path.
-
-Useful current public URLs for the listing are:
+If installation reports:
 
 ```text
-Website:        https://github.com/R-jed/codex-delegate
-Support:        https://github.com/R-jed/codex-delegate/issues
-Privacy policy: https://github.com/R-jed/codex-delegate/blob/main/PRIVACY.md
-Terms:          https://github.com/R-jed/codex-delegate/blob/main/TERMS.md
+marketplace 'codex-delegate' is already added from a different source
 ```
 
-Official publication documentation:
+first inspect the configured marketplaces:
 
-- https://developers.openai.com/plugins/deploy/submission
-- https://developers.openai.com/plugins/build/plugins
+```bash
+codex plugin marketplace list --json
+```
 
-Repository CI, the official Plugin validator, a successful repo marketplace install, and `.agents/plugins/marketplace.json` are packaging and local-distribution evidence. None of them establish public-directory approval or publication.
+If `codex-delegate` is registered from an old or incorrect source, remove only that marketplace registration:
+
+```bash
+codex plugin marketplace remove codex-delegate
+```
+
+Then run the normal installation block again:
+
+```bash
+codex plugin marketplace add R-jed/codex-delegate@main \
+  --sparse .agents/plugins \
+  --sparse plugins/codex-delegate && \
+codex plugin add codex-delegate@codex-delegate
+```
+
+This repair is for historical or mismatched installations. New users and users already on the canonical source do not need the remove step.
+
+Do not hand-edit `config.toml`, marketplace cache files, or installed Plugin cache directories to repair a source mismatch.
+
+## Verify the installation
+
+To inspect the marketplace and installed Plugin state:
+
+```bash
+codex plugin marketplace list --json
+codex plugin list --marketplace codex-delegate
+```
+
+After installation or update, always test from a new Codex thread.
 
 ## Current identity
 
@@ -87,88 +112,58 @@ Invocation:          $codex-delegate:codex-delegate
 Version:             1.1.0
 ```
 
-Plugin packaging and custom Agent profiles are separate Codex surfaces. The Plugin distributes the Skill and bundled project files. Exact model-specific roles use Codex's native custom-Agent TOML mechanism and, after explicit user approval, are provisioned into the active Codex-home `agents` directory. The default personal location is `~/.codex/agents`.
-
-Current managed Agent state:
-
-```text
-codex-delegate-reader.toml        -> codex_delegate_reader       -> GPT-5.6 Luna / max    / read-only
-codex-delegate-worker.toml        -> codex_delegate_worker       -> GPT-5.6 Luna / max    / workspace-write
-codex-delegate-solver.toml        -> codex_delegate_solver       -> GPT-5.6 Sol / high    / workspace-write
-codex-delegate-investigator.toml  -> codex_delegate_investigator -> GPT-5.6 Terra / xhigh / read-only
-codex-delegate-advisor.toml       -> codex_delegate_advisor      -> GPT-5.6 Sol / high    / read-only
-.codex-delegate-agents.json       -> project ownership receipt
-.codex-delegate-agents.lock       -> same-Codex-home installer serialization
-```
-
-The custom Agent files are an official Codex host capability. The bundled installer is a project-specific lifecycle and ownership layer around those native profiles. It does not implement another Agent runtime.
-
-These are implementation details of the current managed role set. Users do not need to edit them manually.
+Implicit invocation is disabled. Use `$codex-delegate:codex-delegate` explicitly when you want the Plugin to orchestrate a task.
 
 ## First-use Agent readiness
 
-Role setup should not interrupt an implementation halfway through.
+Plugin installation and custom Agent profile readiness are separate Codex surfaces.
 
 When an explicit `$codex-delegate:codex-delegate` task actually benefits from a child, the Skill checks the required exact role before delegated code execution starts. If provisioning is needed, it:
 
 1. explains the project-managed write scope and asks permission;
 2. resolves `../../scripts/install-agents.py` relative to the installed Skill;
-3. writes or verifies only the five current native custom Agent profiles, `.codex-delegate-agents.json`, and `.codex-delegate-agents.lock` under the active Codex home;
+3. writes or verifies only the five managed native custom Agent profiles, `.codex-delegate-agents.json`, and `.codex-delegate-agents.lock` under the active Codex home;
 4. runs a non-mutating `--check`;
 5. re-inspects the role surface exposed by the current runtime;
-6. if a fresh thread is required to discover new roles, stops before delegated writing and asks the user to restart the task in a new thread.
+6. stops before delegated writing and asks for a new thread if the current thread cannot discover the newly installed roles.
 
-The installer can extend an exact proven current-generation receipt by adding a newly shipped managed profile without rewriting unchanged managed profiles. A differing profile is overwritten only when the current ownership receipt proves its exact previous bytes.
+Current managed roles:
 
-Successful file installation is configuration evidence. It does not prove the model, effort, sandbox, ancestry, or route actually observed at runtime.
+```text
+codex_delegate_reader       -> GPT-5.6 Luna / max    / read-only
+codex_delegate_worker       -> GPT-5.6 Luna / max    / workspace-write
+codex_delegate_solver       -> GPT-5.6 Sol / high    / workspace-write
+codex_delegate_investigator -> GPT-5.6 Terra / xhigh / read-only
+codex_delegate_advisor      -> GPT-5.6 Sol / high    / read-only
+```
 
-## Managed profile safety
+The bundled installer manages only these profiles and its ownership/lock files. It does not edit credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
-The bundled installer:
+## Development and release validation
 
-- uses the active Codex-home `agents` directory;
-- writes only the five current profiles, `.codex-delegate-agents.json`, and `.codex-delegate-agents.lock`;
-- rejects symlinked Codex-home/profile/manifest destinations;
-- rejects another TOML file claiming a current reserved `codex_delegate_*` role;
-- refuses to overwrite a differing current profile unless previous ownership is proven by exact hash;
-- leaves unrelated Agent profiles untouched;
-- stages replacements and rolls back its managed single-process changes on failure;
-- supports a strictly non-mutating `--check` mode.
-
-It does not edit credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
-
-The persistent installer lock serializes installers targeting the same Codex home so one failed rollback cannot erase a successful peer.
-
-## Public Plugin metadata
-
-The Plugin manifest exposes a website, privacy policy, terms of use, category, brand assets, and starter prompts. Current legal references are:
-
-- `PRIVACY.md`
-- `TERMS.md`
-
-The Plugin remains skills-only. It does not declare MCP servers, apps, hooks, or another runtime because the current use case is fully expressed through a Skill plus native Codex custom Agents.
-
-The public submission portal owns the actual public listing state. Repository metadata should not be treated as a substitute for that state.
-
-## Plugin validation for a fixed release
+`main` is a moving development channel. Validation evidence for a specific build applies only to the exact revision tested.
 
 For a fixed release candidate:
 
-1. bind an immutable candidate SHA/ref;
-2. run the repository-pinned official Plugin validator used by maintained CI;
-3. run the then-current official OpenAI Plugin validator against `plugins/codex-delegate` when current compatibility evidence is required;
-4. verify the Plugin remains the smallest required skills-only shape and public legal/listing metadata is valid;
-5. verify repo marketplace metadata points to `./plugins/codex-delegate`;
-6. perform a fresh repo marketplace install when installation behavior itself changed or needs reconfirmation;
-7. confirm `$codex-delegate:codex-delegate`, `/skills`, the intended version, and explicit-only invocation when those surfaces are part of acceptance;
-8. verify first-use five-role provisioning/readiness when the managed-profile lifecycle changed or needs reconfirmation;
-9. verify installer idempotence, ownership protection, unrelated-profile preservation, and non-mutating `--check` when installer behavior changed;
-10. separately verify the OpenAI Platform listing state before making any public-directory availability claim.
+1. bind an immutable candidate SHA or tag;
+2. validate `plugins/codex-delegate/.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`;
+3. run the repository-pinned official OpenAI Plugin validator;
+4. run the then-current official OpenAI Plugin validator when current compatibility evidence is required;
+5. run the full deterministic test suite;
+6. verify the canonical Git marketplace install/update path when installation behavior changed;
+7. verify first-use five-role provisioning when the managed profile lifecycle changed;
+8. test from a fresh Codex thread.
 
-Static Plugin validation remains separate from live product behavior and public-directory publication. It cannot prove routing quality, coordination quality, recovery quality, main-session capability dedup value, Sol Solver value, Terra investigation value, onboarding quality, independent Final Review yield, OpenAI review approval, or public publication.
+Static validation cannot prove routing quality, coordination quality, recovery quality, or live runtime route identity.
+
+## Public directory note
+
+The repository marketplace and any OpenAI-hosted public Plugin directory are separate distribution surfaces. Repository installation does not establish that a public directory listing exists.
+
+Only describe codex delegate as directly searchable in an OpenAI-hosted public directory after that listing has been independently verified.
 
 ## Failure behavior
 
-If repo marketplace installation, profile provisioning, validation, exactness verification, or a required review dependency fails, stop and report the actual failure. Do not patch user configuration manually to make the supported path appear successful.
+If marketplace registration, marketplace refresh, Plugin installation, profile provisioning, or validation fails, report the actual failure and preserve the user's existing configuration.
 
-If the Plugin cannot be found in the public Plugins Directory, do not infer a packaging defect from that fact alone. First distinguish public-directory publication state from repo marketplace installation state.
+Do not manually patch Codex configuration or caches to make the supported installation path appear successful.
