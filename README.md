@@ -26,7 +26,22 @@ codex delegate 是一个 Codex Plugin。你给出开发目标，当前主会话�
 
 你不需要自己挑模型，不需要规定 Agent 数量，也不需要设计 Luna、Terra、Sol 的执行顺序。
 
-## 30 秒安装
+## 安装
+
+codex delegate 提供两种安装方式。
+
+### 方式一：Codex 插件市场
+
+如果 `codex-delegate` 已经出现在你当前使用的 Codex 插件目录中，这是最直观的安装方式：
+
+1. 在 ChatGPT 桌面端切换到 **Codex**，打开 **Plugins**。Codex CLI 用户也可以输入 `/plugins` 打开插件浏览器。
+2. 搜索 `codex-delegate`。
+3. 打开插件详情，点击 `+` 安装。
+4. 安装完成后开启一个新的 Codex 会话。
+
+如果当前插件目录里搜索不到 `codex-delegate`，直接使用下面的命令行安装方式。
+
+### 方式二：命令行安装
 
 把下面整段复制到终端执行一次：
 
@@ -37,7 +52,11 @@ codex plugin marketplace add R-jed/codex-delegate@main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-然后开启一个新的 Codex 会话：
+命令行安装可以重复执行。如果 Codex 已经从相同来源注册了 `codex-delegate` marketplace，会继续复用现有注册。
+
+如果看到 `already added from a different source`，说明本机保留了旧来源。不要手工修改 `config.toml`，按[安装指南中的旧来源修复](docs/plugin-installation.md#source-conflict-repair)处理。
+
+无论使用哪一种安装方式，安装后都开启一个新的 Codex 会话，然后直接下任务：
 
 ```text
 $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
@@ -45,20 +64,18 @@ $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题�
 
 也可以输入 `/skills` 打开 Skill 选择器。
 
-这段安装命令可以重复使用。如果你的 Codex 已经从相同来源注册了 `codex-delegate` marketplace，Codex 会直接复用现有注册。
-
-如果看到 `already added from a different source`，说明本机保留了旧来源。不要手工修改 `config.toml`，按[安装指南中的旧来源修复](docs/plugin-installation.md#source-conflict-repair)处理。
+公共 Plugin Directory 与仓库 marketplace 是两个独立的分发入口。只有已经正式发布到公共目录的版本才会出现在插件市场搜索结果中。
 
 ## 怎么更新
 
-同样复制一次：
+通过命令行 repo marketplace 安装的用户可以运行：
 
 ```bash
 codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-更新后开启新的 Codex 会话。
+通过插件市场安装的用户可以在 **Plugins** 的已安装插件区域查看和管理当前安装。更新后开启新的 Codex 会话。
 
 ## 你只需要下任务
 
@@ -157,7 +174,7 @@ codex delegate 直接使用 Codex 原生 Subagents，不运行独立 Agent runti
 ## 文档
 
 - [README_AI.md](README_AI.md)：给 AI Agent 读取的项目说明
-- [安装指南](docs/plugin-installation.md)：安装、更新、旧来源修复和排障
+- [安装指南](docs/plugin-installation.md)：插件市场安装、命令行安装、更新、旧来源修复和排障
 - [架构](docs/architecture.md)：角色分工、协调、恢复和安全规则
 - [Native Subagent Runtime](docs/native-subagent-runtime.md)：Codex 原生 Subagent 运行边界
 - [Privacy Policy](PRIVACY.md) · [Terms of Use](TERMS.md)
