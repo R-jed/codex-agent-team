@@ -126,6 +126,8 @@ New evidence or an implementation detail does not require a revision by itself.
 
 Revision 1 uses `supersedes_revision: null`. Every later revision must point to the direct previous revision.
 
+Keep the same `unit_id` across revisions only when the responsibility identity remains the same. If a responsibility is materially split, replaced, or redefined, use a new unit ID. This keeps the recovery attempt budget bound to one stable responsibility instead of resetting it through plan revision.
+
 Already-dispatched work remains bound to the plan truth it received. Do not silently rewrite a running responsibility. When a structural change affects active work, pause new dispatch, settle or safely invalidate the affected responsibility, then dispatch against the new revision.
 
 ## 7. Validation
@@ -133,7 +135,7 @@ Already-dispatched work remains bound to the plan truth it received. Do not sile
 Before multi-responsibility dispatch, validate the plan:
 
 ```bash
-python plugins/codex-delegate/scripts/validate-team-plan.py /path/to/team-plan.json
+python plugins/codex-delegate/scripts/validate_team_plan.py /path/to/team-plan.json
 ```
 
 The validator checks schema shape, unit identity, dependency validity and cycles, safe ownership paths, ready-layer write collisions, revision continuity, and integration order.
