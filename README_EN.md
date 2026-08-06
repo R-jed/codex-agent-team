@@ -28,7 +28,17 @@ You do not need to pick models yourself, decide how many Agents should run, or d
 
 ## Quickstart
 
-Open the **Codex Plugin Marketplace**, search for `codex-delegate`, choose **Codex Delegate**, and install it.
+The current reliable installation path is to register this GitHub repository as a Codex repo marketplace, then install `codex-delegate`:
+
+```bash
+codex plugin marketplace add R-jed/codex-delegate --ref main \
+  --sparse .agents/plugins \
+  --sparse plugins/codex-delegate
+
+codex plugin add codex-delegate@codex-delegate
+```
+
+The repository's `.agents/plugins/marketplace.json` provides repo/local marketplace distribution. OpenAI's public Plugins Directory is a separate publishing surface. Only after the plugin has been submitted through the OpenAI Platform, approved, and published by the developer should users assume that `codex-delegate` is globally searchable in the public directory.
 
 Start a new Codex thread, then give it the task directly:
 
@@ -38,9 +48,7 @@ $codex-delegate:codex-delegate Deep review this change, fix the issues you find,
 
 You can also type `/skills` to open the Skill picker.
 
-Updates are handled through the Codex Plugin Marketplace as well. After an update, start a new Codex thread.
-
-Most users never need installation scripts or manual Agent setup. For development installs, manual installs, or troubleshooting, see [Installation](docs/plugin-installation.md).
+Users installed through the repo marketplace can update it with `codex plugin marketplace upgrade codex-delegate`. After a public-directory release exists, follow the installation and update flow exposed by that published listing. See [Installation](docs/plugin-installation.md) for the full distribution and publishing details.
 
 ## You give the goal, Main runs the team
 
