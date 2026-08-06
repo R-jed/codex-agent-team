@@ -40,6 +40,8 @@ If a child owns the write responsibility, the main session may continue read-onl
 
 Multiple simultaneous writers require genuine filesystem isolation such as separate worktrees, workspaces, or repositories. Disjoint intended file lists in one checkout do not prove isolation.
 
+Filesystem isolation alone does not establish semantic independence. Before allowing isolated writers to proceed concurrently, Main must establish that they cannot invalidate each other's assumptions through shared APIs, schemas, migrations, lockfiles, generated artifacts, persistent state, external systems, or another shared interface. If a semantic dependency exists, make the dependency or integration order explicit and do not run mutually invalidating writes simultaneously.
+
 Independent Codex sessions, editors, hooks, and external processes are outside this session-local scheduler. Preserve unrelated edits, re-read state when drift is plausible, and stop when drift invalidates scope, invariants, interfaces, decision rights, or acceptance.
 
 Do not claim cross-session locking unless a real mechanism has been observed and validated.
