@@ -62,18 +62,19 @@ def test_only_current_five_profiles_are_packaged():
     assert policy["roles"]["solver"]["profile_file"] == "codex-delegate-solver.toml"
 
 
-def test_reused_coordination_code_ships_with_mit_notice():
+def test_third_party_mit_notice_is_packaged_without_source_pointer():
     notice = PLUGIN_ROOT / "THIRD_PARTY_NOTICES.md"
     assert notice.is_file()
     text = notice.read_text()
     for phrase in [
-        "zjp1997720/zhijian-skills",
-        "codex-model-routing-team",
-        "8b9abec4b353c70f04e8409302169309544bae95",
+        "MIT-licensed third-party material",
         "Copyright (c) 2026 Zhijian AI / Dapeng",
-        "MIT",
+        "Permission is hereby granted",
+        "THE SOFTWARE IS PROVIDED \"AS IS\"",
     ]:
         assert phrase in text
+    assert "github.com/" not in text
+    assert "upstream revision" not in text
 
 
 def test_skill_owns_current_profile_setup_before_delegated_execution():
