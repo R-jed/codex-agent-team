@@ -51,7 +51,7 @@ def test_runtime_state_is_one_compact_work_item_not_three_ledgers():
 def test_child_proposal_never_becomes_orchestration_authority():
     router = ROUTER.read_text()
     guardrails = (SKILL_ROOT / "references" / "guardrails.md").read_text()
-    assert "Children do not widen scope, permission, user intent, external impact, or their own role" in router
+    assert "Children do not widen scope, permission, mutation authority, user intent, external impact, or their own role" in router
     assert "main session always owns" in guardrails.lower()
     assert "Child completion, confidence, model agreement" in guardrails
 
