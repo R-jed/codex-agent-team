@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Portions of the TeamPlan coordination validator and recovery-state validation logic in this plugin are derived from MIT-licensed code in `zjp1997720/zhijian-skills`, skill `codex-model-routing-team`, upstream revision `8b9abec4b353c70f04e8409302169309544bae95`.
+Portions of the coordination and recovery validation logic include MIT-licensed third-party material.
 
 Copyright (c) 2026 Zhijian AI / Dapeng
 
