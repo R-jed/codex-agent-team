@@ -28,7 +28,17 @@ codex delegate 是一个给 Codex 用的插件。你把开发任务交给它，�
 
 ## 快速开始
 
-在 Codex 中打开**插件市场**，搜索 `codex-delegate`，选择 **Codex Delegate** 并安装。
+当前可靠的安装方式是先把这个 GitHub 仓库注册为 Codex repo marketplace，再安装 `codex-delegate`：
+
+```bash
+codex plugin marketplace add R-jed/codex-delegate --ref main \
+  --sparse .agents/plugins \
+  --sparse plugins/codex-delegate
+
+codex plugin add codex-delegate@codex-delegate
+```
+
+仓库里的 `.agents/plugins/marketplace.json` 负责 repo/local marketplace 分发。OpenAI 的公共 Plugins Directory 是单独的发布渠道，只有插件完成 OpenAI Platform 提交、审核并由开发者 Publish 后，才应当假设所有用户都能直接在公共插件目录里搜索到 `codex-delegate`。
 
 安装后开启新的 Codex 会话，然后直接下任务：
 
@@ -38,9 +48,7 @@ $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题�
 
 你也可以输入 `/skills` 打开 Skill 选择器。
 
-以后更新插件，同样直接通过 Codex 插件市场完成。更新后开启一个新的 Codex 会话即可。
-
-普通用户不需要运行安装脚本，也不需要手工配置 Agent。如果你在做开发安装、手动安装或排障，请看[安装指南](docs/plugin-installation.md)。
+通过仓库 marketplace 安装的用户可以使用 `codex plugin marketplace upgrade codex-delegate` 更新。公共目录真正发布后，再以当时的公共目录安装和更新方式为准。更详细的安装与发布说明见[安装指南](docs/plugin-installation.md)。
 
 ## 你只需要下任务
 
