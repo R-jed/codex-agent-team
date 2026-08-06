@@ -21,6 +21,7 @@ def test_handoff_requires_official_compliance_and_deterministic_execution_before
         "tests/test_official_plugin_compliance.py",
         "python -m pytest tests/test_identity_cleanup.py -q",
         "tests/test_concurrency_policy.py",
+        "tests/test_coordination_policy.py",
         "tests/test_runtime_evidence.py",
         "tests/test_capability_dedup.py",
         "tests/test_behavioral_evals.py",
@@ -74,6 +75,19 @@ def test_handoff_adaptive_fanout_keeps_strong_main_in_control():
         assert phrase.lower() in HANDOFF.lower()
 
 
+def test_handoff_preserves_coordination_correctness_without_new_scheduler():
+    for phrase in [
+        "upstream Skill or accepted plan remains authoritative",
+        "filesystem isolation alone does not prove semantic independence",
+        "child intent and mutation authority are separate",
+        "INTEGRATION AFTER",
+        "requested, platform-accepted, and runtime-observed route facts stay separate",
+        "competing workflow planner",
+        "global TeamPlan",
+    ]:
+        assert phrase.lower() in HANDOFF.lower()
+
+
 def test_handoff_terra_is_read_heavy_lane_and_sol_keeps_demanding_judgment():
     for phrase in [
         "Terra is a bounded read-heavy investigation/evidence-synthesis lane",
@@ -97,6 +111,9 @@ def test_handoff_keeps_daily_runtime_and_behavioral_gates():
         "Advisor + Luna handoff vs one Sol Solver",
         "Sol-main direct execution vs redundant Sol Solver",
         "adaptive multi-reader fan-out vs unnecessary serial waves",
+        "semantic-coupling negative control",
+        "mutation-authority negative control",
+        "accepted-only route evidence vs actual observed route evidence",
         "first-use five-profile provisioning and readiness behavior",
     ]:
         assert phrase.lower() in HANDOFF.lower()
@@ -123,12 +140,13 @@ def test_handoff_keeps_exact_adversarial_consultation_target():
         assert phrase in HANDOFF
 
 
-def test_checkpoint_one_records_direct_discovery_and_non_implicit_runtime_evidence():
+def test_checkpoint_one_is_reopened_for_exact_coordination_hardened_candidate():
     checkpoint = HANDOFF.split("## Checkpoint 1:", 1)[1].split("## Checkpoint 2:", 1)[0]
     assert "Status: REOPENED" in checkpoint
     retired_command = "rejected the documented `" + "/" + "codex-delegate` command"
     assert retired_command in checkpoint
-    assert "fixed exact SHA" in checkpoint
+    assert "one exact current coordination-hardened SHA" in checkpoint
+    assert "Skill/router/guardrails/runtime-evidence bytes changed" in checkpoint
     for phrase in [
         "Codex Delegate",
         "@Codex-Delegate",
