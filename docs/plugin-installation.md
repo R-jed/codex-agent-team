@@ -29,7 +29,7 @@ Marketplace id:  codex-delegate
 Plugin id:        codex-delegate
 Skill:            codex-delegate
 Invocation:       $codex-delegate:codex-delegate
-Version:          1.0.0
+Version:          1.1.0
 ```
 
 Plugin packaging and custom Agent profiles are separate Codex surfaces. The Plugin distributes the Skill and bundled project files. Exact model-specific roles use Codex's native custom-Agent TOML mechanism and, after explicit user approval, are provisioned into the active Codex-home `agents` directory. The default personal location is `~/.codex/agents`.
@@ -54,7 +54,7 @@ These are implementation details of the current managed role set. Ordinary users
 
 Use the CLI path only when you are developing the Plugin, testing a specific repository revision, troubleshooting marketplace discovery, or explicitly need a manual installation path.
 
-Before v1.0.0, `main` is the development channel:
+`main` is the development channel for unreleased changes:
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate --ref main \
@@ -72,7 +72,7 @@ $codex-delegate:codex-delegate <task>
 
 Do not manually edit `config.toml`, marketplace state, Plugin cache state, or Agent profiles to simulate installation.
 
-Because `main` moves during pre-release development, deterministic/live evidence applies only to the exact SHA tested. After v1.0.0 is cut, release validation should use the immutable release ref/tag validated for that release.
+Because `main` can move between releases, evidence for a particular build applies only to the exact revision tested. Release validation should use the immutable release ref/tag intended for that release.
 
 ## Manual update or reinstall
 
@@ -117,7 +117,7 @@ The bundled installer:
 
 It does not edit credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
 
-Concurrent same-Codex-home multi-process behavior remains a live release-validation concern until tested. Single-process rollback does not prove multi-process transactionality.
+The persistent installer lock serializes installers targeting the same Codex home so one failed rollback cannot erase a successful peer.
 
 ## Public Plugin metadata
 
@@ -128,23 +128,22 @@ The public Plugin manifest exposes a website, privacy policy, terms of use, cate
 
 The Plugin remains skills-only. It does not declare MCP servers, apps, hooks, or another runtime because the current use case is fully expressed through a Skill plus native Codex custom Agents.
 
-## Plugin validation before release
+## Plugin validation for a fixed release
 
-Each fixed release candidate must:
+For a fixed release candidate:
 
-1. record an immutable candidate SHA/ref;
+1. bind an immutable candidate SHA/ref;
 2. run the repository-pinned official Plugin validator used by maintained CI;
-3. run the then-current official OpenAI Plugin validator against `plugins/codex-delegate` and record its revision;
+3. run the then-current official OpenAI Plugin validator against `plugins/codex-delegate` when current compatibility evidence is required;
 4. verify the Plugin remains the smallest required skills-only shape and public legal/listing metadata is valid;
 5. verify marketplace metadata points to `./plugins/codex-delegate`;
-6. perform a real fresh Plugin Marketplace install from the fixed candidate;
-7. start a new thread and confirm `$codex-delegate:codex-delegate` discovery, `/skills` discovery, version `1.0.0`, and implicit invocation disabled;
-8. verify first-use five-role provisioning/readiness before delegated execution;
-9. verify installer idempotence, managed-profile update/addition, unrelated-profile preservation, and non-mutating `--check`;
-10. exercise same-Codex-home installer concurrency cases owned by `HEADOFF.md`;
-11. record exact runtime, Git revision, validator revision, commands, and outcomes in the maintainer evidence ledger.
+6. perform a fresh Plugin Marketplace install when installation behavior itself changed or needs reconfirmation;
+7. confirm `$codex-delegate:codex-delegate`, `/skills`, the intended version, and explicit-only invocation when those surfaces are part of acceptance;
+8. verify first-use five-role provisioning/readiness when the managed-profile lifecycle changed or needs reconfirmation;
+9. verify installer idempotence, ownership protection, unrelated-profile preservation, and non-mutating `--check` when installer behavior changed;
+10. record the exact revision and validation evidence used for any release claim.
 
-Static Plugin validation remains separate from live product behavior. It cannot prove routing quality, main-session capability dedup value, Sol Solver value, Terra investigation value, onboarding quality, cross-session safety, or independent Final Review yield.
+Static Plugin validation remains separate from live product behavior. It cannot prove routing quality, coordination quality, recovery quality, main-session capability dedup value, Sol Solver value, Terra investigation value, onboarding quality, or independent Final Review yield.
 
 ## Failure behavior
 
