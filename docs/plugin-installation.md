@@ -139,7 +139,7 @@ codex_delegate_advisor      -> GPT-5.6 Sol / high    / read-only
 
 The bundled installer manages only these profiles and its ownership/lock files. It leaves unrelated Agent profiles untouched and does not edit credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent state.
 
-The persistent installer lock serializes installers targeting the same Codex home so concurrent setup attempts cannot overwrite each other's managed state.
+The persistent installer lock serializes installers targeting the same Codex home so one failed rollback cannot erase a successful peer.
 
 ## Development and release validation
 
