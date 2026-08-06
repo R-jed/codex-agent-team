@@ -62,6 +62,20 @@ def test_only_current_five_profiles_are_packaged():
     assert policy["roles"]["solver"]["profile_file"] == "codex-delegate-solver.toml"
 
 
+def test_reused_coordination_code_ships_with_mit_notice():
+    notice = PLUGIN_ROOT / "THIRD_PARTY_NOTICES.md"
+    assert notice.is_file()
+    text = notice.read_text()
+    for phrase in [
+        "zjp1997720/zhijian-skills",
+        "codex-model-routing-team",
+        "8b9abec4b353c70f04e8409302169309544bae95",
+        "Copyright (c) 2026 Zhijian AI / Dapeng",
+        "MIT",
+    ]:
+        assert phrase in text
+
+
 def test_skill_owns_current_profile_setup_before_delegated_execution():
     text = (SKILL / "SKILL.md").read_text()
     assert "../../scripts/install-agents.py" in text
