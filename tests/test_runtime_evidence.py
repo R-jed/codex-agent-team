@@ -57,11 +57,49 @@ def test_child_configuration_only_stays_c1():
     assert data["decision"] == "continue_configuration_only"
     assert data["evidence_grade"] == "C1_configuration_only"
     assert data["route_evidence"]["status"] == "not_observed"
+    assert data["truth_layers"]["requested"]["status"] == "declared"
+    assert data["truth_layers"]["accepted"]["status"] == "not_reported"
+    assert data["truth_layers"]["observed"]["status"] == "not_observed"
+
+
+def test_platform_acceptance_never_counts_as_observed_runtime_proof():
+    result, data = run_verifier(
+        {"expected": expected(), "accepted": observation(), "native": None, "local": None}
+    )
+    assert result.returncode == 0
+    assert data["truth_layers"]["accepted"]["status"] == "matched"
+    assert data["truth_layers"]["observed"]["status"] == "not_observed"
+    assert data["runtime_reported"] is False
+    assert data["evidence_grade"] == "C1_configuration_only"
+    assert data["decision"] == "continue_configuration_only"
+
+
+def test_accepted_route_mismatch_or_accepted_observed_drift_is_quarantined():
+    result, data = run_verifier(
+        {"expected": expected(), "accepted": observation(model="gpt-5.6-terra", effort="xhigh")}
+    )
+    assert result.returncode == 0
+    assert data["decision"] == "quarantine"
+    assert data["truth_layers"]["accepted"]["status"] == "conflict"
+    assert "accepted:model_mismatch" in data["violations"]
+
+    result, data = run_verifier(
+        {
+            "expected": expected(),
+            "accepted": observation(),
+            "native": observation(model="gpt-5.6-terra", effort="xhigh"),
+        }
+    )
+    assert result.returncode == 0
+    assert data["decision"] == "quarantine"
+    assert data["truth_layers"]["observed"]["status"] == "conflict"
+    assert "accepted_observed_conflict:model" in data["violations"]
 
 
 def test_complete_native_child_route_is_r1_and_complete_agreement_is_r2():
     result, data = run_verifier({"subject": "child", "expected": expected(), "native": observation()})
     assert result.returncode == 0 and data["evidence_grade"] == "R1_runtime_reported"
+    assert data["truth_layers"]["observed"]["status"] == "matched"
     result, data = run_verifier(
         {"subject": "child", "expected": expected(), "native": observation(), "local": observation()}
     )
@@ -75,6 +113,7 @@ def test_partial_native_child_route_never_counts_as_runtime_proof():
     assert result.returncode == 0
     assert data["evidence_grade"] == "C1_configuration_only"
     assert data["route_evidence"]["status"] == "partial"
+    assert data["truth_layers"]["observed"]["status"] == "partial"
 
 
 def test_runtime_required_rejects_partial_native_child_route():
@@ -139,6 +178,23 @@ def test_native_sol_main_provides_covered_judgment_state():
     assert data["main_judgment_coverage"] == "covered"
     assert data["coverage_source"] == "trusted_session_metadata"
     assert data["evidence_grade"] == "R1_runtime_reported"
+    assert data["truth_layers"]["observed"]["status"] == "matched"
+
+
+def test_accepted_sol_main_without_native_observation_remains_unknown():
+    result, data = run_verifier(
+        {
+            "subject": "main_session",
+            "requested": {"model": "gpt-5.6-sol", "effort": "high"},
+            "accepted": {"model": "gpt-5.6-sol", "effort": "high"},
+        }
+    )
+    assert result.returncode == 0
+    assert data["truth_layers"]["requested"]["status"] == "declared"
+    assert data["truth_layers"]["accepted"]["status"] == "matched"
+    assert data["truth_layers"]["observed"]["status"] == "not_observed"
+    assert data["main_judgment_coverage"] == "unknown"
+    assert data["coverage_source"] == "not_observed"
 
 
 def test_native_non_sol_main_provides_uncovered_judgment_state():
