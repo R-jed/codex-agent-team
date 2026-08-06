@@ -86,9 +86,9 @@ def test_stalled_lane_has_one_clean_retry_not_universal_retry_loop():
     assert "failed luna attempt never directly means" in router
 
 
-def test_codex_home_concurrency_remains_release_validation_boundary():
+def test_installer_lock_is_separate_from_session_level_scheduler_claims():
     guardrails = GUARDRAILS.read_text().lower()
     installation = (ROOT / "docs" / "plugin-installation.md").read_text().lower()
     assert "cross-session locking" in guardrails
-    assert "concurrent same-codex-home multi-process behavior" in installation
-    assert "release-validation concern" in installation
+    assert "persistent installer lock serializes installers targeting the same codex home" in installation
+    assert "one failed rollback cannot erase a successful peer" in installation
