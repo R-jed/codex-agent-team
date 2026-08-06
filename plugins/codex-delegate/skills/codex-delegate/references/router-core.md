@@ -26,6 +26,26 @@ blocked_by: none | contract | judgment | investigation | stalled
 
 Add another work item only when it represents a genuinely distinct unresolved responsibility. Do not duplicate work that valid evidence already satisfies or another active owner already holds.
 
+## 1A. Preserve upstream workflow ownership
+
+When another active Skill, an accepted user plan, or another trusted upstream workflow already defines any of the following, treat those definitions as task truth unless the user or a real evidence-backed blocker requires them to change:
+
+```text
+goal
+decomposition
+stage order
+dependencies
+required outputs
+business acceptance
+quality gates
+```
+
+codex delegate may assign owners, choose specialist roles, decide useful concurrency, enforce write isolation, and choose integration timing around that upstream workflow. It does not silently create a competing domain plan.
+
+Do not skip an upstream gate, reorder an upstream dependency, widen the required output, or redefine domain semantics merely because a different decomposition would be easier to delegate. If the upstream contract is incomplete or contradictory, classify the blocker as `contract` and return the missing truth to Main instead of inventing a replacement workflow.
+
+When the upstream workflow already maintains a useful plan or ledger, reuse it as the coordination source of truth. Do not create a second persistent state source just for codex delegate.
+
 ## 2. First question: does delegation help?
 
 Zero children is normal.
