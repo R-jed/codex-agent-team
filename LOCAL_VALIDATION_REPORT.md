@@ -21,8 +21,8 @@ Invocation: explicit only
 Plugin shape: skills-only
 Parallelism policy: main-led ready frontier + progressive fan-out, no project ordinary numeric child ceiling
 Architecture posture: MECHANISM COMPRESSION + OFFICIAL CODEX ALIGNMENT IMPLEMENTED / VALIDATION PENDING
-Release posture: HOLD FOR RELEASE / DETERMINISTIC + LIVE VALIDATION PENDING
-Known open reproducible PROJECT P0/P1 on exact current tree: invocation defect fixed in working tree; exact-SHA regression validation pending
+Release posture: HOLD FOR RELEASE / DETERMINISTIC GATE PASSES ON bd159e4 / LIVE VALIDATION PENDING
+Known open reproducible PROJECT P0/P1 on exact current tree: none established; coordination-hardened deterministic gate passes on bd159e4; live Checkpoint 1 rerun pending
 ```
 
 Static validation for the exact current tree is pending. Nothing in this ledger means `pytest passed`, `Plugin validator passed`, or product behavior is proven until exact commands and outputs are recorded for the exact candidate SHA.
@@ -113,13 +113,19 @@ Current upstream documentation includes examples with several parallel specialis
 | current ownership receipt is `.codex-delegate-agents.json` | repository fact, deterministic revalidation pending | installer lifecycle |
 | same-Codex-home installer lock is `.codex-delegate-agents.lock` | repository fact, I1-I3 exact-SHA revalidation pending | installer lifecycle |
 | custom profiles use native Codex Agent TOML shape | implementation fact, live discovery pending | profiles/compliance tests |
-| policy schema 4 is internally valid | implementation fact, deterministic suite pending | policy/runtime/tests |
+| policy schema 4 is internally valid | implementation fact, deterministic suite passed on bd159e4 | policy/runtime/tests |
 | policy has no ordinary numeric child ceiling | implementation fact, deterministic + live behavioral validation pending | policy/router/guardrails/evals |
 | Main uses ready-frontier progressive fan-out | policy fact, live behavioral validation pending | Skill/router/Checkpoint 3/4 |
 | duplicate/speculative fan-out is suppressed | policy + static eval fact, live validation pending | guardrails/evals/Checkpoint 3/4 |
 | child count alone does not trigger consent | policy fact, live UX validation pending | guardrails/Checkpoint 5 |
 | native capacity remains host-owned | upstream + project policy fact, live capacity characterization pending | OpenAI docs/runtime contract |
-| exactly three model-facing runtime references remain | implementation fact, deterministic suite pending | Skill references/tests |
+| exactly three model-facing runtime references remain | implementation fact, deterministic suite passed on bd159e4 | Skill references/tests |
+| upstream workflow ownership preserved | policy + deterministic regression fact, live pending | router-core/coordination-cases/checkpoint 3 |
+| semantic independence required for parallel writers | policy + deterministic regression fact, live pending | guardrails/coordination-cases/checkpoint 3 |
+| child mutation authority is explicit and separate from intent | policy + deterministic regression fact, live pending | router-core/guardrails/coordination-cases |
+| integration ordering respects dependencies, not completion time | policy + deterministic regression fact, live pending | router-core/coordination-cases/checkpoint 3 |
+| requested/accepted/observed truth layers are not collapsed | policy + deterministic regression fact, live pending | guardrails/runtime-evidence/coordination-cases |
+| installer concurrency lock (I2 fix) | deterministic regression fact, live I1-I3 pending on RC | installer/tests |
 | implicit invocation is disabled | implementation fact, runtime validation pending | openai interface/live invocation |
 | first-use provisioning happens before delegated execution | policy fact, live validation pending | Skill/guardrails/Checkpoint 1 |
 | capability dedup is model + effort aware | implementation + fixture tests present, deterministic execution pending | runtime-evidence helper |
@@ -233,6 +239,47 @@ EXIT CODES: all 0.
 WARNINGS / SKIPS / XFAILS: none reported.
 HEAD STABILITY: every pytest and validator command started and ended at cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97.
 NOTES: the follow-up evidence-record commit changes only HEADOFF.md and LOCAL_VALIDATION_REPORT.md; runtime-sensitive bytes and the tested regression suite remain identical to the tested closure revision.
+
+COORDINATION HARDENING EXACT-CANDIDATE REVALIDATION:
+TESTED_REVISION: bd159e417bde9db2b95e612e1d6154a8f75a5a9f
+PYTHON / TOOL VERSION: Python 3.14.6; pinned validator revision 7750465934d97dd3cbcb3b1655d2f622744010d3; official openai/codex main revision 7a0e974e08c798d1e8d59d407aeb6e24db1313af
+PLATFORM: Apple Silicon macOS 27.0 (Darwin 27.0.0 arm64)
+GIT: 2.50.1 (Apple Git-155)
+
+COMMAND: python -m pytest tests/test_identity_cleanup.py -q
+EXIT CODE: 0
+RESULT: PASS — 4 passed
+
+COMMAND: python -m pytest tests/test_official_plugin_compliance.py tests/test_install_agents.py tests/test_installer_safety.py tests/test_plugin_packaging.py tests/test_policy.py tests/test_concurrency_policy.py tests/test_coordination_policy.py tests/test_runtime_evidence.py tests/test_capability_dedup.py tests/test_runtime_truth_policy.py tests/test_behavioral_evals.py tests/test_headoff.py tests/test_readme_user_facing.py -q
+EXIT CODE: 0
+RESULT: PASS — 98 passed
+
+COMMAND: python -m pytest -q
+EXIT CODE: 0
+RESULT: PASS — 151 passed
+
+WARNINGS / SKIPS / XFAILS: none reported by any pytest run.
+
+COMMAND: pinned Plugin validator (revision 7750465934d97dd3cbcb3b1655d2f622744010d3)
+EXIT CODE: 0
+RESULT: PASS — Plugin validation passed.
+
+COMMAND: current official Plugin validator (revision 7a0e974e08c798d1e8d59d407aeb6e24db1313af)
+EXIT CODE: 0
+RESULT: PASS — Plugin validation passed.
+
+STRUCTURAL VERIFICATION:
+- policy-contract.json schema_version: 4 ✓
+- managed profiles: exactly 5 (reader/worker/solver/investigator/advisor) ✓
+- no ordinary numeric child ceiling ✓
+- implicit invocation: disabled ✓
+- coordination-cases.json: 7 cases covering upstream workflow ownership, semantic independence, mutation authority, integration ordering, and route truth layering ✓
+- router-core.md: covers upstream workflow ownership, semantic independence, mutation authority, integration ordering ✓
+- guardrails.md: covers mutation authority, semantic independence, truth layers ✓
+
+HEAD STABILITY: every pytest and validator command started and ended at bd159e417bde9db2b95e612e1d6154a8f75a5a9f.
+CHANGE DELTA: +12 coordination-hardening tests (139→151), +7 coordination eval cases, router-core.md/guardrails.md/runtime-evidence.py coordination coverage, installer concurrency lock.
+NOTES: this revalidation confirms the coordination-hardened exact candidate passes the full deterministic gate. Live Checkpoint 1 validation (Plugin discovery, explicit invocation, implicit-off controls, five-profile lifecycle) remains pending on a fresh Codex thread against this SHA.
 ```
 
 Record each run as:
@@ -318,6 +365,22 @@ Checkpoint 1 closure:
 - A live read-only `$codex-delegate:codex-delegate` invocation exited 0, loaded the installed Skill references, used one `codex_delegate_reader`, reported HEAD `be90299d9fccc859a12a215591c358790d21714a` and policy schema `4`, and did not edit files. The JSONL surface exposed a collaboration wait and the final response identified the Reader; unavailable native details remain unclaimed.
 - Root cause: public docs, starter prompts, metadata, policy references, and regression tests encoded a nonexistent custom slash command. The source now uses the actual namespaced Skill identifier. Runtime routing policy is unchanged.
 - This working-tree proof is diagnostic only. Checkpoint 1 remains reopened until a fixed immutable SHA is installed and the explicit invocation, `/skills`, implicit-off controls, and five-profile lifecycle are rerun from that SHA.
+
+### 2026-08-06 coordination hardening exact-candidate deterministic revalidation
+
+The coordination hardening changes modified router-core.md, guardrails.md, runtime-evidence.py, SKILL.md, and added coordination-cases.json plus test_coordination_policy.py and test_runtime_evidence.py. The prior Checkpoint 1 closure at cfd5f17 is no longer release proof for the current candidate.
+
+Deterministic revalidation on exact SHA bd159e417bde9db2b95e612e1d6154a8f75a5a9f:
+- identity cleanup: 4 passed
+- required deterministic set: 98 passed (up from 88, includes coordination and runtime-evidence tests)
+- complete suite: 151 passed (up from 139, +12 coordination-hardening regressions)
+- pinned Plugin validator: PASS
+- current official Plugin validator: PASS (revision 7a0e974e08c798d1e8d59d407aeb6e24db1313af)
+- warnings/skips/xfails: none
+- coordination-cases.json: 7 cases covering all five coordination semantics
+- policy-contract.json: schema 4, 5 roles, no numeric child ceiling, implicit invocation disabled
+
+The deterministic gate passes on the coordination-hardened exact candidate. Live Checkpoint 1 rerun (Plugin discovery, `$codex-delegate:codex-delegate` invocation, `/skills`, implicit-off controls, five-profile lifecycle) remains the remaining blocker.
 
 ### 2026-08-06 installer concurrency diagnosis
 

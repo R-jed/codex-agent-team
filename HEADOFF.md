@@ -138,12 +138,14 @@ Do not add Checkpoint 7.
 ## Checkpoint 1: Plugin discovery, command invocation, and exact five-role readiness
 
 ```text
-Status: REOPENED
+Status: REOPENED — deterministic gate passes on bd159e4; live rerun pending
 Prior runtime product bytes exercised: 55728b41592058575a6e35632adc6af75a355016
 Prior Checkpoint 1 closure SHA: cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97
+Deterministic revalidation SHA: bd159e417bde9db2b95e612e1d6154a8f75a5a9f
 Evidence reference: LOCAL_VALIDATION_REPORT.md#checkpoint-1-plugin-discovery-command-invocation-and-five-role-readiness
-Remaining blocker: rerun the full Checkpoint 1 path on one exact current coordination-hardened SHA after fresh installation.
+Remaining blocker: rerun the live Checkpoint 1 path (Plugin discovery, $codex-delegate:codex-delegate invocation, /skills, implicit-off, five-profile lifecycle) on bd159e4 in a fresh Codex thread.
 Prior evidence: Codex 0.146.0 `/skills` displayed and selected `Codex Delegate`, inserting `@Codex-Delegate`; unrelated and Skill-affine ordinary-task controls completed without observed Codex Delegate activation. Prior live evidence also exposed that Codex 0.146.0 rejected the documented `/codex-delegate` command, and the source contract was corrected to `$codex-delegate:codex-delegate`.
+Deterministic revalidation: 151 tests pass, no warnings/skips/xfails, pinned + current Plugin validators pass, policy-contract.json schema 4 with 5 roles, 7 coordination cases covered.
 Reopen reason: current Skill/router/guardrails/runtime-evidence bytes changed during coordination hardening, so earlier runtime evidence is useful historical evidence but is not exact-candidate release proof.
 ```
 
