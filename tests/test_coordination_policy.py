@@ -80,3 +80,36 @@ def test_parallel_writers_require_semantic_independence_not_only_isolation():
     assert expected["filesystem_isolation_sufficient"] is False
     assert expected["reason"] == "semantic_dependency"
     assert expected["required_resolution"] == "explicit_dependency_or_integration_order"
+
+
+def test_child_intent_and_mutation_authority_are_separate_contracts():
+    router = ROUTER.read_text().lower()
+    guardrails = GUARDRAILS.read_text().lower()
+    for phrase in [
+        "intent: inspect | implement | verify | review",
+        "mutation authority: none | declared-output-only | bounded-source-write",
+        "a writable filesystem or broad sandbox never creates mutation authority by itself",
+        "children do not widen scope, permission, mutation authority",
+    ]:
+        assert phrase in router
+    for phrase in [
+        "mutation authority is explicit",
+        "filesystem permission is capability, not authorization",
+        "declared-output-only",
+        "bounded-source-write",
+        "children do not self-upgrade mutation authority",
+    ]:
+        assert phrase in guardrails
+
+    verify_case = cases()["verify-child-cannot-fix-source"]["expected"]
+    assert verify_case == {
+        "intent": "verify",
+        "mutation_authority": "none",
+        "source_write_allowed": False,
+        "on_required_source_change": "return_to_main_for_authority",
+    }
+
+    output_case = cases()["declared-output-does-not-grant-source-write"]["expected"]
+    assert output_case["mutation_authority"] == "declared-output-only"
+    assert output_case["source_write_allowed"] is False
+    assert output_case["declared_output_write_allowed"] is True
