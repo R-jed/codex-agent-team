@@ -47,7 +47,7 @@ A confirmed unsuccessful attempt enters `FAILED`.
 
 If creation, identity, completion, or current Agent state cannot be established from the host evidence available to Main, enter `UNKNOWN`.
 
-`UNKNOWN` is not failure.
+UNKNOWN is not failure.
 
 While a unit has an unresolved `UNKNOWN` attempt:
 
