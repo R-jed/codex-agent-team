@@ -2,7 +2,7 @@
 # Native-neutral validation logic is derived in part from
 # codex-model-routing-team validate_team_ledger.py.
 # Copyright (c) 2026 Zhijian AI / Dapeng. MIT licensed.
-# See ../../../THIRD_PARTY_NOTICES.md.
+# See ../THIRD_PARTY_NOTICES.md.
 from __future__ import annotations
 
 import argparse
