@@ -26,7 +26,22 @@ codex delegate is a Codex Plugin. You give it the development goal. The current 
 
 You do not need to choose models, set an Agent count, or design a Luna, Terra, Sol sequence yourself.
 
-## Install in 30 seconds
+## Installation
+
+codex delegate supports two installation paths.
+
+### Option 1: Codex Plugin Marketplace
+
+If `codex-delegate` is visible in the Plugins Directory available to your Codex environment, this is the most direct installation path:
+
+1. In the ChatGPT desktop app, switch to **Codex** and open **Plugins**. Codex CLI users can also enter `/plugins` to open the plugin browser.
+2. Search for `codex-delegate`.
+3. Open the plugin details and select `+` to install it.
+4. Start a new Codex session after installation.
+
+If `codex-delegate` is not currently visible in your Plugins Directory, use the command-line installation below.
+
+### Option 2: Command-line installation
 
 Copy and run this block once:
 
@@ -37,7 +52,11 @@ codex plugin marketplace add R-jed/codex-delegate@main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Then start a new Codex thread:
+The command-line installation is safe to run again. If Codex already has the `codex-delegate` marketplace registered from the same source, it reuses that registration.
+
+If you see `already added from a different source`, your machine still has an older source registered. Do not edit `config.toml` by hand. Follow [Source conflict repair](docs/plugin-installation.md#source-conflict-repair).
+
+Whichever installation path you use, start a new Codex session and give it the task directly:
 
 ```text
 $codex-delegate:codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
@@ -45,20 +64,18 @@ $codex-delegate:codex-delegate Deep review this change, fix the issues you find,
 
 You can also type `/skills` to open the Skill picker.
 
-The same install command is safe to run again. If Codex already has the `codex-delegate` marketplace registered from the same source, it reuses that registration.
-
-If you see `already added from a different source`, your machine still has an older source registered. Do not edit `config.toml` by hand. Follow [Source conflict repair](docs/plugin-installation.md#source-conflict-repair).
+The public Plugins Directory and the repository marketplace are separate distribution paths. Only versions that have been published to the public directory appear in marketplace search results.
 
 ## Update
 
-Copy and run:
+Users installed through the command-line repo marketplace can run:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Start a new Codex thread after updating.
+Users installed through the Plugins Directory can review and manage the installed plugin from the **Plugins** installed area. Start a new Codex session after an update.
 
 ## You give the goal, Main runs the team
 
@@ -157,7 +174,7 @@ codex delegate uses Codex Native Subagents directly. It does not run a separate 
 ## Documentation
 
 - [README_AI.md](README_AI.md): project reference for AI Agents
-- [Installation](docs/plugin-installation.md): installation, updates, source repair, and troubleshooting
+- [Installation](docs/plugin-installation.md): Plugin Marketplace installation, command-line installation, updates, source repair, and troubleshooting
 - [Architecture](docs/architecture.md): roles, coordination, recovery, and safety rules
 - [Native Subagent Runtime](docs/native-subagent-runtime.md): Codex Native Subagent runtime boundaries
 - [Privacy Policy](PRIVACY.md) · [Terms of Use](TERMS.md)
