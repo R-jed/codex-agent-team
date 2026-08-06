@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.1.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-%E5%8E%9F%E7%94%9F%20Subagents-111827.svg" alt="Codex 原生 Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
@@ -76,6 +76,10 @@ $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题�
 
 主会话会先找出当前真正可以推进的工作，再判断哪些值得并行交出去。每个子 Agent 都必须有清楚、独立、现在就能做的责任。已有 Agent 正在做的事情、已经有可靠结果的事情、还依赖未解决问题的事情，都不会为了凑并发再开一个 Agent。
 
+当任务真的需要多个 Agent 协作时，主会话会把责任之间的依赖、写入范围和最后的整合顺序保持清楚。依赖尚未满足的工作不会提前派出去，两个看似修改不同文件但会互相影响的任务也不会因为路径不同就被当成安全并行。
+
+如果某个子 Agent 没有完成任务，主会话会先区分是执行环境出了问题、结果质量不够，还是任务本身出现了新的判断或信息缺口。修正和重试是有限的，状态不确定时也不会为了赶进度再启动一个可能重复工作的 Agent。
+
 所以不同任务可能是：
 
 ```text
@@ -96,7 +100,7 @@ Main
 
 读代码的工作更适合并行。写代码时更保守：同一个实际 Git checkout 里，同一时间只允许一个写入者。这个写入者可能是主会话、Luna Worker 或 Sol Solver。
 
-如果真的需要多个 Agent 同时写代码，需要把它们放到不同的 worktree、workspace 或 repository 里。
+如果真的需要多个 Agent 同时写代码，需要把它们放到不同的 worktree、workspace 或 repository 里，并确认这些改动在逻辑上也能安全并行。
 
 明显扩大权限、范围、外部影响或计算量时，仍然需要重新征得用户同意。单纯因为子 Agent 数量多了几个，不会自动触发这种询问。
 
