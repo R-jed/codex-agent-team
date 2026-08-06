@@ -113,3 +113,27 @@ def test_child_intent_and_mutation_authority_are_separate_contracts():
     assert output_case["mutation_authority"] == "declared-output-only"
     assert output_case["source_write_allowed"] is False
     assert output_case["declared_output_write_allowed"] is True
+
+
+def test_optional_integration_dependencies_do_not_become_fake_execution_readiness():
+    router = ROUTER.read_text().lower()
+    for phrase in [
+        "integration after, when needed",
+        "it expresses integration order, not permission to execute through an unresolved semantic dependency",
+        "keep it off the ready frontier instead of using `integration after` as a shortcut",
+        "main remains the integration owner",
+        "do not integrate by completion time when dependency order says otherwise",
+        "verifies the resulting combined artifact",
+    ]:
+        assert phrase in router
+
+    ordered = cases()["independent-execution-ordered-integration"]["expected"]
+    assert ordered["execution_can_overlap"] is True
+    assert ordered["consumer_integration_after"] == ["producer"]
+    assert ordered["main_is_integration_owner"] is True
+    assert ordered["integrate_by_completion_time"] is False
+
+    blocked = cases()["unresolved-semantics-cannot-hide-behind-integration-order"]["expected"]
+    assert blocked["ready_to_execute"] is False
+    assert blocked["integration_after_is_sufficient"] is False
+    assert blocked["reason"] == "semantic_truth_not_ready"
