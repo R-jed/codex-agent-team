@@ -13,16 +13,21 @@ def load_cases() -> dict:
     return json.loads((ROOT / "evals" / "runtime-assurance-cases.json").read_text())
 
 
-def test_compact_runtime_references_and_verifier_are_installed():
+def test_compact_runtime_references_and_verifiers_are_installed():
     refs = SKILL / "references"
     assert {path.name for path in refs.glob("*.md")} == {
         "router-core.md",
+        "team-plan.md",
+        "recovery.md",
         "guardrails.md",
         "final-review.md",
     }
     assert RUNTIME_VERIFIER.is_file()
+    assert (PLUGIN / "scripts" / "validate_team_plan.py").is_file()
+    assert (PLUGIN / "scripts" / "validate_team_ledger.py").is_file()
     skill = (SKILL / "SKILL.md").read_text()
     assert "runtime-evidence.py" in skill
+    assert "five focused owners" in skill
     assert not (SKILL / "scripts" / "inspect-runtime.py").exists()
 
 
