@@ -2,9 +2,9 @@
 
 This is the finite deterministic/live-validation and v1.0.0 release checklist for the current codex delegate candidate.
 
-The product model is now settled: the user gives one strong Main session the goal, Main acts as the team leader, and `$codex-delegate:codex-delegate` gives that leader the rules for deciding what to keep, what to delegate, which specialist role fits, how much useful parallelism to use, and when to stop adding Agents.
+The product model is settled: the user gives one strong Main session the goal, Main acts as the team leader, and `$codex-delegate:codex-delegate` gives that leader the rules for deciding what to keep, what to delegate, which specialist role fits, how much useful parallelism to use, and when to stop adding Agents.
 
-The project should trust a capable Main model to lead. The policy exists to prevent loss of control, not to replace Main's judgment with a fixed Agent count or rigid model pipeline.
+The project should trust a capable Main model to lead. Policy provides coordination and safety boundaries without replacing Main's judgment with a fixed Agent count, rigid model pipeline, or second workflow planner.
 
 ## Current candidate baseline
 
@@ -24,7 +24,9 @@ invocation: explicit only
 plugin shape: skills-only
 custom roles: native Codex custom-Agent TOML profiles + project lifecycle installer
 parallelism policy: main-led ready frontier + progressive fan-out, no project ordinary numeric child ceiling
-known open reproducible PROJECT P0/P1: invocation defect fixed in working tree; exact-SHA regression validation pending
+coordination policy: preserve upstream workflow truth + semantic independence + explicit mutation authority + optional integration order
+runtime evidence: requested / accepted / observed are separate truth layers
+known open reproducible PROJECT P0/P1: none established on current coordination-hardening tree; exact-SHA local/live validation pending
 release posture: HOLD FOR RELEASE / OFFICIAL COMPLIANCE + DETERMINISTIC + LIVE VALIDATION PENDING
 ```
 
@@ -44,13 +46,19 @@ These are product decisions, not tuning suggestions:
 - spare native capacity alone does not create another child;
 - three or more distinct ready read-only responsibilities may run together when the task and native capacity justify it;
 - child count alone is not a consent trigger; material compute expansion is;
+- an upstream Skill or accepted plan remains authoritative for its goal, decomposition, stage order, dependencies, outputs, acceptance, and quality gates;
+- codex delegate may coordinate ownership, role selection, useful concurrency, write isolation, and integration timing around that upstream workflow without creating a competing domain plan;
 - one canonical physical checkout has one active writer inside one orchestration;
+- filesystem isolation alone does not prove semantic independence for concurrent writers;
+- child intent and mutation authority are separate; filesystem capability never grants extra mutation authority;
+- `INTEGRATION AFTER` may order accepted outputs only when work is already safe to execute; it cannot hide unresolved semantics;
+- Main integrates delegated outputs in dependency-respecting order and verifies the combined artifact;
+- requested, platform-accepted, and runtime-observed route facts stay separate; accepted/configured values never become observed facts by inference;
 - delegation depth remains one;
-- children do not widen scope, permissions, external impact, or user intent;
+- children do not widen scope, permissions, mutation authority, external impact, or user intent;
 - there is no fixed Luna → Terra → Sol ladder;
 - failure does not imply model escalation;
 - exact role mismatch fails closed;
-- configured intent does not count as observed runtime truth;
 - independent Final Review is triggered by the final artifact's consequences, not process ceremony.
 
 The five specialist roles remain:
@@ -69,7 +77,7 @@ Terra is a bounded read-heavy investigation/evidence-synthesis lane. Terra is no
 
 For clear, bounded, owner-authorized maintenance, inspect current `main` first and preserve unrelated work. Direct-main work is allowed when isolation adds no concrete value.
 
-Use a separate physical checkout when multiple independent writers, risky experimentation, or external review genuinely requires isolation. Never overwrite concurrent work.
+Use a separate physical checkout when multiple independent writers, risky experimentation, or external review genuinely requires isolation. Filesystem isolation does not remove semantic dependencies. Never overwrite concurrent work.
 
 During pre-release development, `main` is a moving development ref. The final v1.0.0 installation and release proof must use one fixed immutable RC/tag. A green earlier `main` SHA is not release evidence for a later SHA.
 
@@ -81,7 +89,7 @@ Required deterministic execution:
 
 ```bash
 python -m pytest tests/test_identity_cleanup.py -q
-python -m pytest tests/test_official_plugin_compliance.py tests/test_install_agents.py tests/test_installer_safety.py tests/test_plugin_packaging.py tests/test_policy.py tests/test_concurrency_policy.py tests/test_runtime_evidence.py tests/test_capability_dedup.py tests/test_runtime_truth_policy.py tests/test_behavioral_evals.py tests/test_headoff.py tests/test_readme_user_facing.py -q
+python -m pytest tests/test_official_plugin_compliance.py tests/test_install_agents.py tests/test_installer_safety.py tests/test_plugin_packaging.py tests/test_policy.py tests/test_concurrency_policy.py tests/test_coordination_policy.py tests/test_runtime_evidence.py tests/test_capability_dedup.py tests/test_runtime_truth_policy.py tests/test_behavioral_evals.py tests/test_headoff.py tests/test_readme_user_facing.py -q
 python -m pytest -q
 ```
 
@@ -101,19 +109,21 @@ The deterministic gate passes only when:
 - the Plugin remains the smallest useful skills-only shape;
 - policy-contract.json schema 4 defines exactly five managed profiles and no ordinary numeric child ceiling;
 - `router-core.md / guardrails.md / final-review.md` remain the only model-facing runtime references;
+- upstream workflow ownership, semantic independence, mutation authority, optional integration order, and route truth layering stay covered by deterministic coordination regressions;
 - implicit invocation remains disabled;
 - installer fresh/update/idempotent/non-mutating/safety tests pass;
 - runtime evidence and Sol capability dedup preserve unknown when native truth is missing;
+- platform acceptance alone never counts as observed runtime route proof;
 - both required Plugin validator runs pass;
 - the tested SHA remains unchanged after validation.
 
 If any deterministic check fails, stop release validation, fix the evidence-backed defect, rerun focused checks, then rerun the full deterministic gate on the new exact SHA.
 
-Static checks do not prove model quality, native concurrent capacity, adaptive team-size quality, cross-session safety, onboarding quality, Sol Solver value, Terra investigation value, or Final Review yield.
+Static checks do not prove model quality, native concurrent capacity, adaptive team-size quality, semantic-independence judgment quality, cross-session safety, onboarding quality, Sol Solver value, Terra investigation value, or Final Review yield.
 
 ## Product stop line
 
-Do not reintroduce a fixed child count, role ladder, mandatory final Sol pass, or orchestration ceremony merely to make one workload easier to describe.
+Do not reintroduce a fixed child count, role ladder, mandatory final Sol pass, competing workflow planner, global TeamPlan, or orchestration ceremony merely to make one workload easier to describe.
 
 Blocked work stays compact:
 
@@ -129,13 +139,12 @@ Do not add Checkpoint 7.
 
 ```text
 Status: REOPENED
-Runtime product bytes exercised: 55728b41592058575a6e35632adc6af75a355016
-Checkpoint 1 closure SHA: cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97
-Carry-forward basis: Plugin, Skill, Agent profiles, installer, policy, and runtime-reference bytes are unchanged after the runtime-tested revision; post-runtime closure changes are public/release documentation and regression tests only.
+Prior runtime product bytes exercised: 55728b41592058575a6e35632adc6af75a355016
+Prior Checkpoint 1 closure SHA: cfd5f17cf18e19b5ed3afe4992fe5b8cbb45be97
 Evidence reference: LOCAL_VALIDATION_REPORT.md#checkpoint-1-plugin-discovery-command-invocation-and-five-role-readiness
-Remaining blocker: rerun the full Checkpoint 1 path on the fixed exact SHA.
-Prior evidence: Codex 0.146.0 `/skills` displayed and selected `Codex Delegate`, inserting `@Codex-Delegate`; unrelated and Skill-affine ordinary-task controls completed without observed Codex Delegate activation. That evidence did not exercise the documented explicit command and therefore did not close invocation readiness.
-Reopen reason: Codex 0.146.0 rejected the documented `/codex-delegate` command as unrecognized. Current official Codex documentation and the live Skill registry identify `$codex-delegate:codex-delegate` as the explicit namespaced Skill invocation. A live namespaced invocation loaded the Skill and used `codex_delegate_reader`; the source fix now requires exact-SHA reinstall and regression validation.
+Remaining blocker: rerun the full Checkpoint 1 path on one exact current coordination-hardened SHA after fresh installation.
+Prior evidence: Codex 0.146.0 `/skills` displayed and selected `Codex Delegate`, inserting `@Codex-Delegate`; unrelated and Skill-affine ordinary-task controls completed without observed Codex Delegate activation. Prior live evidence also exposed that Codex 0.146.0 rejected the documented `/codex-delegate` command, and the source contract was corrected to `$codex-delegate:codex-delegate`.
+Reopen reason: current Skill/router/guardrails/runtime-evidence bytes changed during coordination hardening, so earlier runtime evidence is useful historical evidence but is not exact-candidate release proof.
 ```
 
 Validate a fresh user path:
@@ -151,14 +160,12 @@ Validate a fresh user path:
 
 ### Review Checkpoint A
 
-Send only sanitized new evidence and unresolved consequential judgment to the consultation target below.
-
 ```text
 Status: SUPERSEDED
 Result: REVIEW_COMPLETED
 Request-ID: wgpt-a508773eef17481d
 Evidence reference: LOCAL_VALIDATION_REPORT.md#adversarial-consultation
-Finding: This earlier judgment is retained as historical evidence but is superseded because the reviewed packet did not test the documented explicit command. The invocation defect and its fixed exact-SHA evidence belong in the single consolidated post-push review packet.
+Finding: retained as historical review evidence. Current invocation and coordination-hardened exact candidate require the later consolidated post-push review packet before release closure.
 ```
 
 ## Checkpoint 2: everyday routing quality and Sol dedup
@@ -189,13 +196,19 @@ T7 large task with no delegation benefit
 
 T8 ambiguous task truth
 -> main repairs the contract before child writing
+
+T9 upstream Skill already defines goal/stages/dependencies/outputs/acceptance
+-> preserve upstream workflow; codex delegate assigns owners/roles/concurrency without redefining domain semantics
+
+T10 host accepts a requested route but exposes no native route observation
+-> accepted is recorded separately; observed stays not_observed and Sol coverage stays unknown
 ```
 
-Verify trusted Sol-main capability can suppress redundant Sol delegation when appropriate. Unknown Main route telemetry must stay unknown and must not add routine cost.
+Verify trusted observed Sol-main capability can suppress redundant Sol delegation when appropriate. Accepted/configured route data without native observation must stay unknown and must not add routine cost.
 
 ### Review Checkpoint B
 
-Review repeated unnecessary Agent calls, Luna semantic overreach, Terra used as an escalation rung, missed Sol judgment placement, and unjustified fan-out before changing policy.
+Review repeated unnecessary Agent calls, Luna semantic overreach, upstream workflow takeover, Terra used as an escalation rung, missed Sol judgment placement, false observed-route claims, and unjustified fan-out before changing policy.
 
 Record the sanitized evidence and unresolved consequential judgment in the consolidated review packet. Do not send a separate Web consultation at this checkpoint.
 
@@ -210,7 +223,13 @@ Validate:
 - three or more distinct ready read-only responsibilities may run together when useful;
 - spare native capacity alone does not create another child;
 - Main + Worker, Main + Solver, and Worker + Solver do not write one canonical checkout concurrently;
-- isolated physical checkouts/workspaces may own separate writers;
+- isolated physical checkouts/workspaces are only the filesystem precondition for simultaneous writers; semantic independence must also be established;
+- disjoint files with a shared API/schema/migration/lockfile/generated artifact/persistent or external state are treated as semantically coupled;
+- verify/review/read-only responsibilities cannot source-write merely because the sandbox permits it;
+- `declared-output-only` permits only the named output and does not widen to source writes;
+- a child that needs broader mutation returns the authority change to Main instead of self-upgrading;
+- `INTEGRATION AFTER` may order independent accepted outputs but cannot make unresolved-semantics work ready;
+- Main integrates dependency-ordered outputs and verifies the final combined artifact;
 - exposed child completions can refill useful work without forcing artificial waves.
 
 Use the A/B/C case:
@@ -223,17 +242,38 @@ C = depends only on B
 
 Record the real runtime wait/update surface. Do not invent event-driven behavior the host does not expose.
 
+Also run:
+
+```text
+semantic-coupling negative control
+A = isolated writer changes stable API producer implementation
+B = isolated writer consumes same stable API
+-> parallel execution may be valid when semantics are already fixed
+
+C = isolated writer changes the API contract B depends on
+-> C/B must not be treated as independent merely because files/checkouts differ
+
+mutation-authority negative control
+verify child finds a source defect
+-> reports defect; does not repair source without new authority
+
+integration-order case
+producer and consumer can execute safely against stable semantics
+-> consumer output may specify INTEGRATION AFTER producer
+-> completion time does not override integration order
+```
+
 Also run a positive fan-out case with at least three independent read-only lanes and a negative control containing duplicate or speculative lanes.
 
 ### Review Checkpoint C
 
-Separate product defects from native-runtime capacity or observability boundaries.
+Separate product defects from native-runtime capacity/observability boundaries and from correctly detected semantic dependencies.
 
 Record the sanitized evidence and unresolved consequential judgment in the consolidated review packet. Do not send a separate Web consultation at this checkpoint.
 
 ## Checkpoint 4: controlled product-value experiments and Final Review
 
-`evals/` remains a measurement surface, not runtime policy.
+`evals/` remains a measurement/regression surface, not runtime policy.
 
 Run paired workloads covering:
 
@@ -243,10 +283,14 @@ Run paired workloads covering:
 - Luna Reader vs Terra Investigator on stable-semantics investigation;
 - adaptive multi-reader fan-out vs unnecessary serial waves;
 - duplicate/speculative fan-out negative control;
+- filesystem-isolated but semantically coupled writers vs dependency-aware scheduling;
+- explicit mutation authority vs writable-sandbox-only instruction;
+- dependency-respecting integration vs completion-order integration;
+- accepted-only route evidence vs actual observed route evidence;
 - demanding/ambiguous technical judgment must go to Sol;
 - useful Final Review vs decorative process-history-only review.
 
-Measure acceptance, wrong edits, correction turns, repeated work, duplicate ownership, unnecessary children, redundant expensive calls, latency/tokens when exposed, and review findings.
+Measure acceptance, wrong edits, unauthorized edits, correction turns, repeated work, duplicate ownership, dependency mistakes, integration mistakes, unnecessary children, redundant expensive calls, latency/tokens when exposed, and review findings.
 
 Required Final Review lifecycle:
 
@@ -273,7 +317,7 @@ Validate that adaptive delegation feels natural to a user who simply writes `$co
 Confirm:
 
 - no prompt merely because active child count crosses an arbitrary number;
-- material permission, scope, external-impact, or compute expansion asks for consent;
+- material permission, mutation-authority, scope, external-impact, or compute expansion asks for consent;
 - several justified low-cost read-only lanes can stay inside ordinary execution;
 - repeated Solver/Advisor/Investigator/re-review loops eventually require renewed consent when compute materially expands;
 - initial role setup completes before delegated implementation;
@@ -310,7 +354,7 @@ For the selected fixed RC:
 8. verify managed-profile updates occur only with exact ownership proof;
 9. verify modified/unowned reserved profiles fail closed and unrelated profiles remain untouched;
 10. test same-CODEX_HOME installer races I1-I3;
-11. rerun release-relevant live checkpoints on the immutable candidate;
+11. rerun release-relevant routing, coordination, runtime-truth, and live checkpoints on the immutable candidate;
 12. close only with no open reproducible P0/P1.
 
 Same-CODEX_HOME races:
@@ -332,7 +376,8 @@ Release only when one immutable RC passes:
 - fresh marketplace install/update/five-profile lifecycle;
 - `$codex-delegate:codex-delegate` invocation and onboarding behavior;
 - representative daily routing and Sol capability-dedup cases;
-- adaptive fan-out, blocker/retry/Terra investigation, and writer-safety cases;
+- upstream workflow ownership and requested/accepted/observed runtime-truth cases;
+- adaptive fan-out, semantic independence, mutation authority, integration ordering, blocker/retry/Terra investigation, and writer-safety cases;
 - controlled product-value experiments;
 - required Final Review lifecycle;
 - multi-session and installer-concurrency validation;
@@ -344,7 +389,7 @@ Then tag `v1.0.0`, publish the GitHub Release, and make the immutable release re
 
 ## Required project consultation target
 
-Review Checkpoint A is already closed. For Review Checkpoints B-E, any later P0/P1 candidate, and RC closure, accumulate one sanitized consolidated review packet during validation. After all HEADOFF work is complete and the latest state is pushed, use `/webgpt-consult` once for the combined adversarial review and release judgment.
+Review Checkpoint A is historical. For Review Checkpoints B-E, any later P0/P1 candidate, and RC closure, accumulate one sanitized consolidated review packet during validation. After all HEADOFF work is complete and the latest state is pushed, use `/webgpt-consult` once for the combined adversarial review and release judgment.
 
 ```text
 CONSULTATION_ENTRYPOINT: /webgpt-consult
