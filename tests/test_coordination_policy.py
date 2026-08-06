@@ -137,3 +137,24 @@ def test_optional_integration_dependencies_do_not_become_fake_execution_readines
     assert blocked["ready_to_execute"] is False
     assert blocked["integration_after_is_sufficient"] is False
     assert blocked["reason"] == "semantic_truth_not_ready"
+
+
+def test_requested_accepted_and_observed_truth_layers_are_not_collapsed():
+    guardrails = GUARDRAILS.read_text().lower()
+    for phrase in [
+        "keep three truth layers separate",
+        "requested is not accepted",
+        "accepted is not observed",
+        "does not prove that the runtime actually executed that route",
+        "not_reported",
+        "not_observed",
+    ]:
+        assert phrase in guardrails
+
+    expected = cases()["accepted-route-is-not-runtime-observation"]["expected"]
+    assert expected == {
+        "requested_status": "declared",
+        "accepted_status": "matched",
+        "observed_status": "not_observed",
+        "may_claim_observed_route": False,
+    }
