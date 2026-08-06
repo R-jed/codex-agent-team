@@ -13,13 +13,14 @@ Plugin directory:    plugins/codex-delegate
 Skill:               codex-delegate
 Explicit invocation: $codex-delegate:codex-delegate
 Current version:     1.1.0
-Distribution:        Codex Plugin via canonical Git marketplace
+Distribution:        Codex Plugin via Plugins Directory or canonical Git marketplace
+Public listing:      verify current directory availability before claiming searchable
 License:             MIT
 ```
 
 Use these names exactly.
 
-The canonical marketplace registration is part of the installation contract:
+The canonical command-line marketplace registration is part of the installation contract:
 
 ```text
 repository:    R-jed/codex-delegate
@@ -30,7 +31,7 @@ marketplace:   codex-delegate
 plugin:        codex-delegate
 ```
 
-Do not casually change the ref form, remove sparse paths, replace the Git source with a local checkout, or otherwise rewrite this registration for normal users. Codex includes the Git source, ref, and sparse paths in marketplace source identity, so a changed registration can create an avoidable source mismatch for existing users.
+Do not casually change the ref form, remove sparse paths, replace the Git source with a local checkout, or otherwise rewrite this registration for command-line users. Codex includes the Git source, ref, and sparse paths in marketplace source identity, so a changed registration can create an avoidable source mismatch for existing users.
 
 ## Product model
 
@@ -279,7 +280,22 @@ Accepted configuration without native runtime observation does not establish Sol
 
 ## Install and update
 
-Give ordinary users one copy-paste installation block:
+Explain two installation paths clearly. Do not collapse them into one generic instruction.
+
+### Plugin Marketplace path
+
+When a current public listing is visible in the user's Codex Plugins Directory:
+
+1. open **Plugins** in Codex, or use `/plugins` in Codex CLI;
+2. search for `codex-delegate`;
+3. open the plugin details and select `+` to install;
+4. start a new Codex session.
+
+The public Plugins Directory and the repository marketplace are separate distribution surfaces. Repository metadata, CI, or repo marketplace installation do not prove that the public listing is currently searchable. Verify the current listing before claiming public-directory availability. If the listing is not visible, direct the user to the command-line path.
+
+### Command-line path
+
+Give this canonical copy-paste block:
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate@main \
@@ -288,28 +304,28 @@ codex plugin marketplace add R-jed/codex-delegate@main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-This command is appropriate for new users and for users whose `codex-delegate` marketplace already has the same canonical source metadata. Do not ask a normal user to remove the marketplace first.
+This command is appropriate for new command-line users and for users whose `codex-delegate` marketplace already has the same canonical source metadata. Do not ask a normal user to remove the marketplace first.
 
 If the command reports `already added from a different source`, treat that as a historical source mismatch. Tell the user to inspect `codex plugin marketplace list --json`, then remove `codex-delegate` only after confirming the registered source is old or incorrect. Do not hand-edit `config.toml`.
 
-Update:
+Command-line repo marketplace update:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Then start a new Codex thread and invoke:
+Users installed through the Plugins Directory should manage the installed plugin from the Plugins surface exposed by their Codex environment.
+
+After either installation path, start a new Codex thread and invoke:
 
 ```text
 $codex-delegate:codex-delegate <task>
 ```
 
-`/skills` opens the Codex Skill picker.
+`/plugins` opens the Codex plugin browser. `/skills` opens the Codex Skill picker.
 
 Start a new Codex thread after installation or an update. Implicit invocation is disabled.
-
-If a user specifically asks about an OpenAI-hosted public Plugin directory, verify the current listing separately. Repository marketplace packaging does not prove public-directory publication.
 
 ## Managed Agent profiles
 
@@ -364,10 +380,15 @@ final-review.md
 
 Explain the plugin in plain language first: the main Codex session acts like the team leader. The user gives it the goal, and Main decides what to do itself, which specialist Agents to use, how much coordination is necessary, and how to recover safely when delegated work fails.
 
-For installation, give the single canonical copy-paste Git marketplace command above. Do not make marketplace removal part of the normal installation path. Use removal only for a confirmed historical source mismatch.
+For installation questions, distinguish the two supported user paths:
+
+- Plugin Marketplace: search for `codex-delegate` in **Plugins** and install it when a current public listing is visible.
+- Command line: use the canonical Git marketplace block above.
+
+Do not make marketplace removal part of the normal command-line installation path. Use removal only for a confirmed historical source mismatch.
 
 Tell users to invoke the installed Plugin with `$codex-delegate:codex-delegate`.
 
-Do not claim benchmark wins, token savings, speedups, quality improvements, or public-directory availability unless there is current evidence for that claim.
+Do not claim benchmark wins, token savings, speedups, quality improvements, or current public-directory availability unless there is current evidence for that claim.
 
 For more detail, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the five Skill reference files above.
