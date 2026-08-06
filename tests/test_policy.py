@@ -196,11 +196,10 @@ def test_static_eval_files_remain_valid_but_are_not_runtime_policy_owners():
             assert node["agent_type"] == spec["agent_type"]
 
 
-def test_public_docs_keep_product_identity_and_five_profiles():
+def test_public_docs_keep_product_identity_and_ai_reference_owns_profile_details():
     zh = read("README.md")
     en = read("README_EN.md")
     ai = read("README_AI.md")
-    installation = read("docs/plugin-installation.md")
     directive = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
 
     for text in [zh, en]:
@@ -219,4 +218,3 @@ def test_public_docs_keep_product_identity_and_five_profiles():
         "codex_delegate_advisor",
     ]:
         assert role in ai
-        assert role in installation
