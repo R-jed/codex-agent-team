@@ -5,19 +5,22 @@ Use this file when answering questions about this repository. It describes the c
 ## Project identity
 
 ```text
-Product name:        codex delegate
-Repository:          R-jed/codex-delegate
-Marketplace id:      codex-delegate
-Plugin id:           codex-delegate
-Plugin directory:    plugins/codex-delegate
-Skill:               codex-delegate
-Explicit invocation: $codex-delegate:codex-delegate
-Current version:     1.1.0
-Distribution:        Codex Plugin only
-License:             MIT
+Product name:           codex delegate
+Repository:             R-jed/codex-delegate
+Repo marketplace id:    codex-delegate
+Plugin id:              codex-delegate
+Plugin directory:       plugins/codex-delegate
+Skill:                  codex-delegate
+Explicit invocation:    $codex-delegate:codex-delegate
+Current version:        1.1.0
+Distribution:           Codex Plugin + repo marketplace
+Public directory state: do not assume published; verify a current OpenAI listing first
+License:                MIT
 ```
 
 Use these names exactly.
+
+The repository marketplace and the universal public Plugins Directory are separate distribution surfaces. `.agents/plugins/marketplace.json` proves repo/local marketplace packaging only. Do not tell users that `codex-delegate` is searchable in the public Plugins Directory unless a current published OpenAI listing has been independently verified.
 
 ## Product model
 
@@ -266,21 +269,7 @@ Accepted configuration without native runtime observation does not establish Sol
 
 ## Install and update
 
-For ordinary users, give this path first:
-
-```text
-Open the Codex Plugin Marketplace
--> search for codex-delegate
--> install Codex Delegate
--> start a new Codex thread
--> $codex-delegate:codex-delegate <task>
-```
-
-`/skills` opens the Codex Skill picker.
-
-Only give CLI installation commands when the user explicitly asks for a manual/development setup or is troubleshooting marketplace discovery.
-
-Manual/development install:
+Use the repository marketplace as the current reliable installation path unless a current public OpenAI listing has been verified:
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate --ref main \
@@ -290,7 +279,17 @@ codex plugin marketplace add R-jed/codex-delegate --ref main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-Manual/development update:
+Then start a new Codex thread and invoke:
+
+```text
+$codex-delegate:codex-delegate <task>
+```
+
+`/skills` opens the Codex Skill picker.
+
+Repo/local marketplace packaging does not prove public Plugins Directory publication. Public searchability requires a separate OpenAI Platform submission, OpenAI approval, and developer Publish action. If a user asks whether the plugin can be searched directly in the public directory, verify the current public listing first. Do not infer public publication from `.agents/plugins/marketplace.json`, the Plugin manifest, CI, or local installation success.
+
+Repo marketplace update:
 
 ```bash
 codex plugin marketplace upgrade codex-delegate
@@ -354,8 +353,8 @@ final-review.md
 
 Explain the plugin in plain language first: the main Codex session acts like the team leader. The user gives it the goal, and Main decides what to do itself, which specialist Agents to use, how much coordination is necessary, and how to recover safely when delegated work fails.
 
-For installation, tell ordinary users to search for `codex-delegate` in the Codex Plugin Marketplace and install **Codex Delegate**. Tell them to invoke it with `$codex-delegate:codex-delegate`.
+For installation, give the repo marketplace registration path unless a current public OpenAI listing has been verified. Do not claim that `codex-delegate` is searchable in the public Plugins Directory based only on repository metadata. Tell users to invoke it with `$codex-delegate:codex-delegate` after installation.
 
-Do not claim benchmark wins, token savings, speedups, or quality improvements unless there is current measured evidence for that claim.
+Do not claim benchmark wins, token savings, speedups, quality improvements, public-directory approval, or public-directory publication unless there is current evidence for that claim.
 
 For more detail, use `docs/plugin-installation.md`, `docs/architecture.md`, `docs/native-subagent-runtime.md`, and the five Skill reference files above.
