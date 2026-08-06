@@ -67,7 +67,7 @@ Do not build a private scheduler, poll continuously, or manufacture lifecycle te
 
 When an attempt is confirmed unsuccessful, classify both the execution origin and any remaining task blocker.
 
-Execution origin:
+Record the execution axis as `failure_origin`:
 
 ```text
 none
@@ -79,7 +79,7 @@ quality_failure
 runtime_ambiguous
 ```
 
-Task blocker:
+Record the semantic axis as `task_blocker`:
 
 ```text
 none
