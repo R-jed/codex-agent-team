@@ -1,12 +1,14 @@
 # Router Core
 
-This is the single runtime routing contract for codex delegate.
+This is the runtime routing contract for codex delegate.
 
 The main session is the team leader. It understands the user's goal, keeps work that belongs in Main, assigns distinct responsibilities to specialist Agents when that helps, and owns integration and acceptance.
 
 The product goal is simple: delegate only when doing so improves the task, use Luna for clear repeatable bounded work, use Sol where demanding or material judgment belongs, use Terra for bounded read-heavy technical investigation, and avoid repeated or decorative Agent work.
 
 Do not build a model ladder, fixed team size, or Agent pipeline before understanding the task.
+
+`team-plan.md` owns multi-responsibility dependency and integration truth. `recovery.md` owns native attempt lifecycle and bounded recovery. This file owns delegation value, role selection, responsibility semantics, and the Main-level ready frontier.
 
 ## 1. Minimal task state
 
@@ -25,6 +27,8 @@ blocked_by: none | contract | judgment | investigation | stalled
 ```
 
 Add another work item only when it represents a genuinely distinct unresolved responsibility. Do not duplicate work that valid evidence already satisfies or another active owner already holds.
+
+A single delegated responsibility may remain on this compact path. When two or more delegated responsibilities are concurrently unresolved, or delegated outputs need non-trivial machine-checkable dependency/integration order, compile `team-plan.md` before further dispatch.
 
 ## 1A. Preserve upstream workflow ownership
 
@@ -52,11 +56,9 @@ Zero children is normal.
 
 Keep work in the main session when a child would mostly duplicate context, add handoff overhead, or provide no useful isolation, parallelism, capability uplift, read-heavy investigation, or independent judgment.
 
-A task being large, many-file, expensive, or "complex" does not by itself justify delegation. Likewise, project policy does not map task size to a fixed child count.
+A task being large, many-file, expensive, or "complex" does not by itself justify delegation. Project policy does not map task size to a fixed child count or ordinary numeric child ceiling.
 
 ## 3. Select by capability need
-
-When delegation helps, answer these questions directly.
 
 ### Narrow read-only factual work
 
@@ -106,7 +108,7 @@ If semantic intent is already stable, no material decision remains, and the task
 -> Terra Investigator
 ```
 
-Terra is an investigation/value lane. It is not the automatic destination for "hard" work and it is not an escalation rung above Luna.
+Terra is an investigation/value lane. It is not the automatic destination for hard work and it is not an escalation rung above Luna.
 
 Demanding, ambiguous, multi-step technical reasoning that still requires material judgment belongs on the Sol path. Weak Luna output, task size, one failing test, or low confidence does not justify Terra by itself.
 
@@ -128,8 +130,6 @@ unknown
 -> use the normal Sol path only when material judgment genuinely requires it
 ```
 
-Do not interrogate runtime metadata for a routine Luna or Terra task just to optimize cost. Missing telemetry is allowed to remain missing.
-
 A covered main session never replaces a required fresh independent Final Review.
 
 ## 5. Responsibility packet
@@ -139,6 +139,9 @@ A child receives one bounded responsibility, not the raw user task.
 Use the smallest packet that makes the responsibility safe and self-contained:
 
 ```text
+TEAM PLAN REVISION, when applicable
+UNIT ID
+TASK ID
 OUTCOME
 INTENT: inspect | implement | verify | review
 READ / WRITE SCOPE
@@ -154,7 +157,7 @@ STOP WHEN
 
 `INTENT` states what kind of responsibility the child owns. `MUTATION AUTHORITY` states why it may change artifacts and how far that permission extends. A writable filesystem or broad sandbox never creates mutation authority by itself.
 
-Default mutation authority by responsibility:
+Default mutation authority:
 
 ```text
 inspect -> none
@@ -165,18 +168,16 @@ implement -> bounded-source-write only when the packet explicitly grants bounded
 
 Use `declared-output-only` when a responsibility may create or update a named report, generated output, or other explicit deliverable without gaining general source-edit authority.
 
-`INTEGRATION AFTER` is optional. Use it only when a responsibility can execute safely now but its accepted output must be integrated after one or more other accepted work items. It expresses integration order, not permission to execute through an unresolved semantic dependency.
+`INTEGRATION AFTER` is optional. It expresses integration order, not permission to execute through an unresolved semantic dependency.
 
 If a responsibility cannot make safe progress until another work item establishes missing task truth, interface semantics, or required evidence, keep it off the ready frontier instead of using `INTEGRATION AFTER` as a shortcut.
-
-Writing roles additionally require a clear acceptance oracle, bounded write scope, and explicit mutation authority. If execution discovers that broader mutation is needed, stop and return the scope expansion to Main instead of widening authority locally.
 
 Decision boundaries:
 
 - Reader gathers narrow evidence and does not invent semantics or mutate source.
-- Worker makes local implementation choices only within granted bounded-source-write authority; material semantic judgment returns to main/Sol.
-- Solver may make implementation-coupled material choices explicitly inside its granted decision rights and mutation authority.
-- Investigator performs bounded read-heavy technical investigation and synthesis after semantics stabilize; if material judgment appears, it returns the decision to main/Sol and does not mutate source.
+- Worker makes local implementation choices only within granted bounded-source-write authority; material semantic judgment returns to Main/Sol.
+- Solver may make implementation-coupled material choices explicitly inside granted decision rights and mutation authority.
+- Investigator performs bounded read-heavy technical investigation and synthesis after semantics stabilize; material judgment returns to Main/Sol.
 - Advisor resolves one demanding/material judgment or performs fresh independent review and remains read-only.
 
 Children do not widen scope, permission, mutation authority, user intent, external impact, or their own role.
@@ -196,18 +197,18 @@ blocker: none | contract | judgment | investigation | stalled
 material_decisions, if any
 ```
 
-A child report is a claim. The main session verifies actual artifact state and relevant checks before acceptance.
+A child report is a claim. Main verifies actual artifact state and relevant checks before acceptance.
 
 ## 7. Blocked work means reroute, not escalation
 
-When work is blocked, diagnose what remains.
+When work is blocked, diagnose what remains:
 
 ```text
 contract
--> main repairs missing task truth, scope, invariant, or acceptance
+-> Main repairs missing task truth, scope, invariant, or acceptance
 
 judgment
--> main or Sol resolves the demanding/material decision
+-> Main or Sol resolves the demanding/material decision
 
 investigation
 -> Terra only when semantics are stable, the work remains read-only, and no material judgment is required
@@ -219,13 +220,15 @@ stalled
 
 A failed Luna attempt never directly means "use Terra" or "use a stronger model."
 
-A clean retry carries the current artifact, valid evidence, current failure, a correction hypothesis, acceptance, and explicit DO NOT REDO facts. Do not replay dead-end narration.
+`recovery.md` adds the execution-origin axis, same-Agent focused follow-up, unique task identity, UNKNOWN handling, and the two-Agent-attempt bound. Semantic reroute still follows the blocker classes above.
 
 ## 8. Adaptive scheduling
 
 Main manages a ready frontier. Project policy does not define an ordinary numeric child ceiling or a target team size.
 
-A responsibility belongs on the ready frontier only when it can make meaningful progress now. Start a child only when all of the following are true:
+A responsibility belongs on the ready frontier only when it can make meaningful progress now. With TeamPlan, structural dependency readiness comes from the validated DAG; Main still decides semantic safety and delegation value.
+
+Start a child only when all of the following are true:
 
 ```text
 ready now
@@ -252,15 +255,13 @@ understand current work
 -> start another child only if a new responsibility is now ready and still worth delegating
 ```
 
-Do not speculate ahead by spawning work that depends on unresolved decisions likely to invalidate it. Do not create multiple owners for the same unchanged responsibility unless independent cross-checking is itself an explicit requirement. Do not keep Agents busy merely because the host has spare capacity.
+Do not speculate ahead by spawning work that depends on unresolved decisions. Do not create multiple owners for the same unchanged responsibility unless independent cross-checking is itself an explicit requirement. Do not keep Agents busy merely because the host has spare capacity.
 
 Native Codex capacity is the upper bound on concurrency, not a target. If the runtime exposes less capacity or only barrier-style completion, adapt to the observed host surface rather than simulating a scheduler with busy polling.
 
-Read-only independent work is the preferred place to exploit parallelism. Multiple Reader instances are valid when they own different evidence lanes. Investigator and Advisor may run alongside other independent read-only work when their distinct capability is genuinely needed.
+Read-only independent work is the preferred place to exploit parallelism. A canonical physical checkout has one active writing actor inside the current orchestration. Concurrent writers require genuinely isolated workspaces or worktrees plus semantic independence or explicit dependency/integration order.
 
-A canonical physical checkout has one active writing actor inside the current orchestration. Main-session writes, Luna Worker, and Sol Solver share this ownership domain. Concurrent writers require genuinely isolated workspaces or worktrees and established semantic independence, or an explicit dependency and integration order that prevents unsafe simultaneous mutation.
-
-For accepted outputs with `INTEGRATION AFTER`, Main remains the integration owner and applies them only after the named predecessor work items are accepted. Integration order must respect all explicit semantic dependencies. Do not integrate by completion time when dependency order says otherwise.
+For accepted outputs with `INTEGRATION AFTER`, Main remains the integration owner and applies them only after the named predecessor work items are accepted. TeamPlan integration order must respect all explicit dependencies. Do not integrate by completion time when dependency order says otherwise.
 
 Empty capacity is never a reason to start Solver, Advisor, or Investigator. Repeated expensive parallel or serial calls that materially expand compute require consent under `guardrails.md`.
 
@@ -268,9 +269,9 @@ Process an exposed child completion when useful instead of imposing an artificia
 
 ## 9. Completion
 
-The main session owns integration and final acceptance.
+Main owns integration and final acceptance.
 
-Normal completion requires the actual requested artifact plus the relevant deterministic or reproducible verification. When several delegated outputs are combined, Main integrates them in dependency-respecting order and verifies the resulting combined artifact, not only each isolated child result.
+Normal completion requires the actual requested artifact plus relevant deterministic or reproducible verification. When several delegated outputs are combined, Main integrates them in dependency-respecting order and verifies the resulting combined artifact, not only each isolated child result.
 
 Model agreement is not verification.
 
