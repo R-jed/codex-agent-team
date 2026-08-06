@@ -48,6 +48,29 @@
         "source_write_allowed": false,
         "declared_output_write_allowed": true
       }
+    },
+    {
+      "id": "independent-execution-ordered-integration",
+      "input": {
+        "task": "Two isolated writers implement against an already-stable interface. Both can make progress now, but the consumer result must be integrated only after the producer result is accepted."
+      },
+      "expected": {
+        "execution_can_overlap": true,
+        "consumer_integration_after": ["producer"],
+        "main_is_integration_owner": true,
+        "integrate_by_completion_time": false
+      }
+    },
+    {
+      "id": "unresolved-semantics-cannot-hide-behind-integration-order",
+      "input": {
+        "task": "A consumer implementation depends on an API behavior decision that has not been made yet."
+      },
+      "expected": {
+        "ready_to_execute": false,
+        "integration_after_is_sufficient": false,
+        "reason": "semantic_truth_not_ready"
+      }
     }
   ]
 }
