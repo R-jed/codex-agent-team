@@ -80,9 +80,10 @@ A new child is justified only when its responsibility is:
 
 - ready to make progress now;
 - distinct from work already owned or already satisfied by valid evidence;
-- independent enough to benefit from parallel execution, context isolation, specialist capability, or independent judgment;
+- semantically independent enough to run alongside current work, or governed by an explicit dependency order;
+- useful for parallel execution, context isolation, specialist capability, or independent judgment;
 - worth the handoff, compute, and integration cost;
-- safe under writer, permission, scope, and external-impact boundaries.
+- safe under writer, mutation-authority, permission, scope, and external-impact boundaries.
 
 Start the smallest useful active set. When a completion or new evidence changes what is ready, reassess the frontier and add another child only if that new responsibility is still worth delegating.
 
@@ -92,6 +93,25 @@ Several Reader instances are valid when they own different evidence lanes. Inves
 
 Child count alone is not a consent trigger. Ask again when the orchestration materially expands permissions, scope, external impact, or compute beyond what the user could reasonably expect from the task.
 
+## Coordination correctness
+
+When another active Skill, an accepted user plan, or a trusted upstream workflow already owns the goal, decomposition, stage order, dependencies, required outputs, business acceptance, or quality gates, preserve that workflow as task truth. codex delegate may assign owners, roles, useful concurrency, write isolation, and integration timing around it. Do not silently replace the domain workflow with a second plan.
+
+If the upstream workflow already has a useful plan or ledger, reuse it. Do not create another persistent coordination source simply for delegation.
+
+Filesystem isolation is necessary for simultaneous writers and does not by itself prove semantic independence. Separate worktrees or repositories can still be coupled through a shared API, schema, migration, lockfile, generated artifact, persistent state, external system, or other shared interface. Main must establish semantic independence or an explicit dependency and integration order before allowing concurrent writers.
+
+A child packet separates work intent from mutation authority:
+
+```text
+INTENT: inspect | implement | verify | review
+MUTATION AUTHORITY: none | declared-output-only | bounded-source-write
+```
+
+A broad sandbox or writable filesystem does not grant source-write authority. Inspect, verify, review, Reader, Investigator, and Advisor responsibilities do not mutate source unless the task is explicitly reauthorized and rerouted. `declared-output-only` allows only the named output. Worker and Solver may use `bounded-source-write` only inside Main's granted scope and decision rights.
+
+When execution can safely overlap but accepted outputs must be integrated in a specific order, the packet may include `INTEGRATION AFTER`. This field controls integration timing. It cannot make work ready when unresolved semantics or missing evidence still block safe execution. Main remains the integration owner and verifies the final combined artifact.
+
 ## Hard safety boundaries
 
 These are hard project boundaries even when Main is a strong model:
@@ -100,19 +120,40 @@ These are hard project boundaries even when Main is a strong model:
 - Delegation depth is one. Child Agents do not create project Subagents of their own.
 - Only one actor writes to the same physical Git checkout at a time inside one orchestration.
 - Main writes, Luna Worker, and Sol Solver share that writer domain.
-- Parallel writers need separate worktrees, workspaces, or repositories.
-- Children do not widen permissions, scope, external impact, or user intent.
+- Parallel writers require separate physical checkouts plus semantic independence or explicit dependency and integration ordering.
+- Children do not widen permissions, mutation authority, scope, external impact, or user intent.
 - Duplicate, speculative, and low-value fan-out is prohibited.
 - Configuration is not proof of what actually ran.
 - Child output is a claim until the actual artifact and relevant checks support it.
+
+## Runtime truth layers
+
+When route identity matters, keep three facts separate:
+
+```text
+requested
+-> what routing asked for
+
+accepted
+-> what the host or role surface explicitly acknowledged, when exposed
+
+observed
+-> what the runtime actually reported, when exposed
+```
+
+Requested is not accepted. Accepted is not observed. Do not copy configured or accepted model, effort, sandbox, ancestry, or identity values into missing runtime fields.
+
+`plugins/codex-delegate/scripts/runtime-evidence.py` can normalize these layers when exact runtime proof matters. Missing acceptance stays `not_reported`; missing native runtime evidence stays `not_observed`. Accepted/runtime drift is a conflict and must be quarantined rather than guessed through.
+
+Ordinary bounded work does not need runtime diagnostics when route proof is not part of acceptance.
 
 ## Main-session Sol reuse
 
 The Solver reference route is GPT-5.6 Sol `high`.
 
-If trusted current-session information shows that Main is already Sol `high`, `xhigh`, or `max`, ordinary Sol-level work can stay in Main instead of opening a duplicate Sol Agent.
+If trusted current-session observation shows that Main is already Sol `high`, `xhigh`, or `max`, ordinary Sol-level work can stay in Main instead of opening another Sol unnecessarily.
 
-If Main's model or reasoning effort is unknown, keep that fact unknown. Do not infer it from local configuration alone.
+Accepted configuration without native runtime observation does not establish Sol coverage. If Main's actual model or reasoning effort remains unobserved, keep that fact unknown.
 
 A fresh Advisor is still required when the purpose of the review is independence.
 
@@ -191,13 +232,13 @@ The plugin manages these files under the active Codex home:
 <CODEX_HOME>/.codex-delegate-agents.lock
 ```
 
-The TOML files use Codex's native custom-Agent format. The bundled installer only manages those five profiles and the ownership receipt. It does not create a second Agent runtime and does not edit credentials, MCP settings, repositories, `config.toml`, or unrelated Agent profiles.
+The TOML files use Codex's native custom-Agent format. The bundled installer only manages those five profiles, the ownership receipt, and the installer lock. It does not create a second Agent runtime and does not edit credentials, MCP settings, repositories, `config.toml`, or unrelated Agent profiles.
 
 When profiles are missing, setup happens before delegated code writing starts. The plugin explains the write scope and asks for permission first. If the new roles require a fresh thread to appear, stop before child writing and ask the user to restart in a new thread.
 
 ## Independent final review
 
-A fresh `codex_delegate_advisor` is used when the finished change deserves an independent second look. Typical reasons include public API or compatibility changes, persistent state, security or permission boundaries, data integrity, concurrency behavior, migrations, meaningful verification gaps, or an explicit user request.
+A fresh `codex_delegate_advisor` is required when the final artifact materially involves one of the configured Final Review triggers, including public compatibility, persistent state, security or authorization boundaries, data integrity, concurrency semantics, migration, meaningful verification gaps, or an explicit user request.
 
 Earlier Terra use, Solver use, a large diff, or rework during the task does not automatically trigger another review.
 
@@ -222,9 +263,9 @@ guardrails.md
 final-review.md
 ```
 
-`policy-contract.json` schema `4` stores stable machine-readable role constants and hard safety limits. It intentionally does not encode an ordinary numeric child ceiling. Adaptive fan-out stays in the model-facing router so a capable Main can size the team from the actual task.
+`policy-contract.json` schema `4` stores stable machine-readable role constants and hard safety limits. It intentionally does not encode an ordinary numeric child ceiling. Adaptive fan-out and coordination semantics stay in the model-facing router/guardrails so a capable Main can size and coordinate the team from the actual task.
 
-`evals/` is for measurement and regression checks. It does not define the runtime router.
+`evals/routing-cases.json` protects routing cases. `evals/coordination-cases.json` protects coordination semantics such as upstream workflow ownership, semantic independence, mutation authority, integration ordering, and route truth layering. `evals/` remains a measurement/regression surface and does not define runtime policy.
 
 ## Answering users
 
