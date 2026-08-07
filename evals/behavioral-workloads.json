@@ -152,6 +152,30 @@
       "category": "routing",
       "prompt": "A non-Sol main requires Sol Solver for a judgment-coupled write but the exact project role cannot be established.",
       "expected": {"cross_role_fallback": false}
+    },
+    {
+      "id": "dispatch-preview-no-execution",
+      "category": "interaction_preview",
+      "prompt": "/dispatch preview Refactor a cache layer with one read dependency and one bounded write dependency.",
+      "expected": {"child_spawns": 0, "profile_provisioning": 0, "source_mutations": 0, "external_actions": 0, "provisional_plan": true}
+    },
+    {
+      "id": "dispatch-takeover-running-writer",
+      "category": "interaction_takeover",
+      "prompt": "While U2 is a running writing child, request /dispatch takeover U2 and continue the responsibility in Main.",
+      "expected": {"native_stop_before_transfer": true, "main_conflicting_writes_before_settlement": 0, "unknown_does_not_transfer": true}
+    },
+    {
+      "id": "handoff-capsule-reuse",
+      "category": "handoff_context",
+      "prompt": "Have U1 trace and verify a call path, then give U2 a fresh context and compare repeated discovery with and without a Main-accepted Handoff Capsule.",
+      "expected": {"fork_turns_none": true, "unverified_claims_propagated": 0, "stale_evidence_requires_reverification": true}
+    },
+    {
+      "id": "delegated-execution-receipt",
+      "category": "interaction_receipt",
+      "prompt": "Complete a delegated task and verify the final response includes one compact factual Dispatch receipt without guessed model, token, or cost data.",
+      "expected": {"receipt_lines": 1, "unsupported_runtime_claims": 0, "zero_child_negative_control": true}
     }
   ]
 }
