@@ -5,7 +5,7 @@
 
 <h1 align="center">subagents-dispatch</h1>
 
-<p align="center"><strong>一个Codex subagents框架。</strong></p>
+<p align="center"><strong>Codex 子代理调度框架。</strong></p>
 
 <p align="center">
   <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
@@ -19,9 +19,9 @@
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-subagents-dispatch 是一个 Codex Plugin。用户只需要给出开发目标，当前主会话负责判断哪些工作自己完成、哪些值得交给专门的 Agent，并负责最后的整合、验证和交付。
+subagents-dispatch 是一个 Codex Plugin。你给出开发目标，主会话判断哪些自己做、哪些交给专门的 Agent，最后负责整合和验证。
 
-你不需要自己挑模型，不需要规定 Agent 数量，也不需要设计 Luna、Terra、Sol 的执行顺序。
+模型选择、Agent 数量、执行顺序都由主会话决定。
 
 ## 安装
 
@@ -84,7 +84,7 @@ $subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还�
 
 ## 它怎么带队
 
-主会话始终是技术负责人。它先判断任务是否真的需要委托，再为清楚、独立、当前可以推进的责任选择合适角色。
+主会话是技术负责人。它先判断任务是否需要委托，再分配职责。
 
 | 角色 | 主要工作 |
 | --- | --- |
@@ -94,9 +94,9 @@ $subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还�
 | Terra Investigator | 做更大范围的只读技术调查和证据整理 |
 | Sol Advisor | 做重要技术判断，或对高影响结果进行独立复核 |
 
-有些任务完全由主会话完成，有些任务会同时使用多个 Agent。subagents-dispatch 不预设固定 Agent 数量，也不会为了填满并发额度而创建 Agent。
+有些任务完全由主会话完成，有些会同时用多个 Agent。不会为了填满并发而强行创建 Agent。
 
-任务之间存在依赖时，主会话负责决定启动顺序、写入范围和最终整合。修改不同文件也不自动等于可以安全并行。
+有依赖的任务，主会话决定启动顺序和写入范围。改不同文件也不一定安全并行。
 
 ## 安全边界
 

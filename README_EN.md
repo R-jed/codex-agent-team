@@ -5,7 +5,7 @@
 
 <h1 align="center">subagents-dispatch</h1>
 
-<p align="center"><strong>You set the goal. The main Codex session leads the team and brings in Luna, Terra, or Sol only when they genuinely help.</strong></p>
+<p align="center"><strong>You set the goal. Codex handles the rest.</strong></p>
 
 <p align="center">
   <a href="README.md">中文</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">Install</a> · <a href="docs/architecture.md">Architecture</a> · <a href="LICENSE">MIT License</a>
@@ -19,9 +19,9 @@
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-subagents-dispatch is a Codex Plugin. You provide the development goal. The current main session decides what to keep, what is worth handing to a specialist Agent, and remains responsible for integration, verification, and delivery.
+subagents-dispatch is a Codex Plugin. You provide the goal. The main session decides what to keep, what to delegate, and handles integration and verification.
 
-You do not need to choose models, set an Agent count, or design a Luna, Terra, Sol sequence yourself.
+Model selection, agent count, and execution order are all decided by the main session.
 
 ## Install
 
@@ -84,7 +84,7 @@ Start a new Codex session after updating.
 
 ## How it leads the team
 
-The main session remains the technical lead. It first decides whether delegation is useful, then assigns only clear, distinct responsibilities that are ready to move.
+The main session is the technical lead. It decides whether to delegate, then assigns responsibilities.
 
 | Role | Main job |
 | --- | --- |
@@ -94,21 +94,21 @@ The main session remains the technical lead. It first decides whether delegation
 | Terra Investigator | perform broader read-only technical investigation and evidence synthesis |
 | Sol Advisor | make important technical judgments or independently review consequential results |
 
-Some tasks stay entirely in Main. Others use several Agents at once. subagents-dispatch does not choose a fixed Agent count and does not spawn work just to fill available concurrency.
+Some tasks stay in Main. Others use several Agents at once. It does not spawn work just to fill available concurrency.
 
-When work has dependencies, Main owns start order, write scope, and final integration. Different files do not automatically make two changes safe to run in parallel.
+When work has dependencies, Main decides start order and write scope. Different files do not automatically make changes safe to run in parallel.
 
 ## Safety boundaries
 
-- Main always owns the user's goal, permissions, team composition, acceptance, and final response.
-- Child Agents cannot create their own Agent teams.
-- Only one actor writes to the same physical Git checkout at a time.
-- Child Agents cannot widen permissions, mutation scope, or external impact on their own.
-- An Agent saying “done” is not verification; final acceptance depends on actual files, code, and relevant checks.
-- Doctor is read-only by default; repair, installation, and upgrade require an explicit user request.
-- subagents-dispatch uses Codex Native Subagents directly and does not run a separate Agent runtime, background daemon, or external routing service.
+- Main owns the user's goal, permissions, team composition, and final response.
+- Child Agents cannot create their own teams.
+- Only one actor writes to the same Git checkout at a time.
+- Child Agents cannot widen permissions or scope on their own.
+- An Agent saying “done” is not verification; acceptance depends on actual files, code, and checks.
+- Doctor is read-only by default; changes require explicit user request.
+- Uses Codex Native Subagents directly — no separate runtime, daemon, or routing service.
 
-See [Architecture](docs/architecture.md) for the full coordination, recovery, runtime-evidence, and independent-review rules.
+See [Architecture](docs/architecture.md) for coordination, recovery, and review rules.
 
 ## Repository layout
 
