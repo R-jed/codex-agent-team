@@ -5,17 +5,9 @@ description: Diagnose subagents-dispatch installation, Codex host and marketplac
 
 # doctor
 
-Use this Skill to diagnose subagents-dispatch installation and configuration, repair its managed Agent profiles, or upgrade the Plugin.
+Use this Skill for subagents-dispatch installation, configuration, Marketplace, managed-profile, legacy-migration, repair, and upgrade work. Development routing remains owned by `/dispatch`.
 
-This Skill is operational maintenance for subagents-dispatch. It does not route development work, create a Subagent team, or redefine the runtime policy owned by `/dispatch`.
-
-## Safety model
-
-Diagnosis is read-only by default.
-
-Do not mutate Plugin, marketplace, Codex configuration, or Agent profile state unless the user explicitly asks to install, repair, or upgrade. Never edit Codex config files directly when the supported Codex CLI can perform the operation. Never remove a marketplace as a routine repair step.
-
-Treat command output as evidence. Do not claim a component is installed, enabled, current, or healthy without checking it.
+Diagnosis is read-only by default. Do not mutate Plugin, Marketplace, Codex configuration, or Agent profile state unless the user explicitly asks to install, repair, migrate, or upgrade. Never edit Codex config files directly when the supported Codex CLI can perform the operation. Do not use `marketplace remove` as a generic reset.
 
 ## Canonical identities
 
@@ -26,155 +18,105 @@ main skill:  /dispatch (internal: /subagents-dispatch:dispatch)
 doctor:      /doctor   (internal: /subagents-dispatch:doctor)
 ```
 
-The bundled managed-profile installer is:
+The managed-profile installer is:
 
 ```text
 installer = skill_dir/../../scripts/install-agents.py
 ```
 
-## 1. Diagnose
+## Diagnose
 
-Run the smallest useful set of checks. Prefer structured JSON output where Codex exposes it.
-
-### Host
+Collect the smallest useful evidence set:
 
 ```bash
 codex --version
 codex doctor --json
-```
-
-If `codex doctor --json` is unavailable on the installed Codex build, report that limitation and continue with the Plugin-specific checks below. Do not treat the missing host-doctor command as proof that subagents-dispatch is broken.
-
-### Marketplace and Plugin inventory
-
-```bash
 codex plugin marketplace list --json
 codex plugin list --available --json
-```
-
-Check for the canonical marketplace and Plugin identities above. Distinguish these states when the evidence allows it:
-
-```text
-marketplace unavailable
-plugin unavailable
-plugin available but not installed
-plugin installed
-plugin installed but disabled
-update available
-state cannot be established from current evidence
-```
-
-Do not infer Marketplace health from the Codex Plugins UI alone when CLI inventory is available.
-
-### Managed Agent profiles
-
-Run the existing deterministic verifier rather than recreating its profile logic:
-
-```bash
 python "$installer" --check
+python "$installer" --legacy-status
 ```
 
-A passing check proves the five subagents-dispatch managed Agent profiles and their ownership receipt match the currently running Plugin package. A failing check is diagnostic evidence; preserve the exact failure reason.
+If a Codex command is unavailable on the installed build, report that limitation as `UNKNOWN` and continue with the remaining checks. Preserve exact stderr for failures.
 
-### Package-local facts
+`python "$installer" --check` is the canonical managed-profile verifier. Do not implement a second profile validator in Doctor.
 
-When useful, inspect the installed Plugin package that contains this Skill:
+Use package-local files for package facts:
 
 ```text
 skill_dir/../../.codex-plugin/plugin.json
 skill_dir/../../policy-contract.json
 ```
 
-Use those files for the running package version and shipped role contract. Do not guess the version from README text.
+## Legacy migration states
 
-## 2. Report
-
-Give a compact status report with these categories when relevant:
+Interpret legacy state conservatively:
 
 ```text
-Codex host
-Marketplace
-Plugin
-Managed Agent profiles
-Recommended action
+legacy_only / mixed
+  -> automatic migration may be offered only when ownership evidence is valid
+
+legacy_ownership_unknown
+  -> automatic migration is blocked; preserve the files and report the exact ownership problem
+
+current_with_preserved_legacy_modified
+current_with_preserved_legacy
+current_with_preserved_legacy_ownership_unknown
+  -> current profiles are installed and legacy user state was intentionally preserved
+  -> do not loop on --migrate-legacy
+  -> tell the user which files need explicit review
+
+migration_complete / current_only
+  -> no legacy cleanup is needed
 ```
 
-Use `OK`, `WARN`, `FAIL`, or `UNKNOWN` only when supported by collected evidence. Keep `UNKNOWN` distinct from `FAIL`.
+When migration is authorized and ownership is valid:
 
-If everything required is healthy, say so and stop. Do not mutate a healthy installation.
+```bash
+python "$installer" --migrate-legacy
+python "$installer" --check
+python "$installer" --legacy-status
+```
 
-## 3. Repair managed Agent profiles
+The installer acquires the legacy lock before the current lock, preserves the legacy lock file for cross-generation coordination, removes only hash-proven unchanged legacy files, detects snapshot drift, and rolls back both legacy cleanup and current installation when a transaction fails.
 
-Only when the user explicitly asks to repair or install the managed profiles, run the existing installer:
+Modified or unowned legacy profiles are preserved together with the legacy manifest so ownership evidence is not discarded. A preserved terminal state is a warning requiring explicit review, not a reason to repeat migration indefinitely.
+
+## Repair managed Agent profiles
+
+Only with explicit repair/install intent:
 
 ```bash
 python "$installer"
 python "$installer" --check
 ```
 
-The installer owns collision detection, one-process locking, ownership receipts, safe upgrades, rollback, and exact profile verification. Do not bypass it by copying TOML files manually.
+Do not copy managed TOML files manually. If the current Codex session still cannot discover a required custom Agent role after a successful repair, ask the user to start a fresh Codex session.
 
-If the current Codex session still cannot discover a required custom Agent role after a successful repair, ask the user to start a fresh Codex session before testing the role surface again.
+## Install Plugin
 
-### Legacy migration
-
-When diagnosing or repairing, check for legacy `codex-delegate` installation state:
-
-```bash
-python "$installer" --legacy-status
-```
-
-If legacy state is detected (`legacy_only`, `mixed`, or `legacy_modified`), inform the user and offer migration:
-
-```bash
-python "$installer" --migrate-legacy
-```
-
-The migration:
-- Removes legacy files only when their hash matches the legacy manifest ownership
-- Preserves modified legacy files with a warning
-- Installs current profiles safely
-- Is idempotent on rerun
-
-Do not require users to know hidden CLI parameters. The normal Doctor upgrade/repair flow should detect and handle legacy state automatically.
-
-## 4. Install the Plugin from the command line
-
-Only when installation is explicitly requested and the Plugin is not already installed, use the canonical commands:
+Only when installation is requested and the Plugin is not already installed:
 
 ```bash
 codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-After installation, start a fresh Codex session and run this Doctor again. The fresh invocation uses the installed package that Codex actually selected.
+Then start a fresh Codex session and run `/doctor` again against the installed package.
 
-## 5. Upgrade the Plugin
+## Upgrade Plugin
 
-Upgrade only when the user explicitly asks for an upgrade. First report the current package version and any available-version evidence from the Plugin inventory.
-
-Use the canonical update path:
+Report current and available-version evidence before mutation. With explicit upgrade intent:
 
 ```bash
-codex plugin marketplace upgrade subagents-dispatch && \
+codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-Do not continue by running the old package's installer as if it were the upgraded package. After a successful Plugin upgrade:
+After upgrade, start a fresh Codex session and invoke `/doctor` again. The new Doctor should run its own installer checks and legacy diagnostics before repairing profiles. This prevents an older running package from writing newer managed state.
 
-1. ask the user to start a fresh Codex session;
-2. invoke `/doctor` again;
-3. let the new Doctor run `python "$installer" --check` against the newly selected package;
-4. check for legacy state with `python "$installer" --legacy-status`;
-5. if legacy state is detected, offer migration with `python "$installer" --migrate-legacy`;
-6. if the new package reports stale managed profiles, repair them through its own installer and verify again.
+## Report
 
-This prevents an older running Skill from overwriting newer Agent profile templates.
+Use `OK`, `WARN`, `FAIL`, and `UNKNOWN` only when supported by evidence. A healthy current installation with intentionally preserved legacy user state is `OK` for current managed profiles plus `WARN` for the preserved legacy state.
 
-## 6. Failure handling
-
-If a supported Codex CLI command fails, preserve the command, exit status when available, and concise stderr. Diagnose from that evidence before proposing mutation.
-
-Do not delete caches, marketplaces, Plugin state, Agent profiles, or Codex configuration speculatively. Do not use `marketplace remove` as a generic reset. Prefer the smallest supported repair that addresses the evidenced failure.
-
-If the Plugin inventory and filesystem/package evidence disagree, report the disagreement as `UNKNOWN` or `WARN` and ask for a fresh Codex session before destructive action.
+If everything required is healthy, stop. Do not mutate a healthy installation.

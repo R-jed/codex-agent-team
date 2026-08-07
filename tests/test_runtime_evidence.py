@@ -181,6 +181,19 @@ def test_native_sol_main_provides_covered_judgment_state():
     assert data["truth_layers"]["observed"]["status"] == "matched"
 
 
+def test_official_gpt_5_6_alias_is_treated_as_sol_coverage():
+    result, data = run_verifier(
+        {
+            "subject": "main_session",
+            "native": {"model": "gpt-5.6", "effort": "high"},
+        }
+    )
+    assert result.returncode == 0
+    assert data["main_judgment_coverage"] == "covered"
+    assert data["coverage_source"] == "trusted_session_metadata"
+    assert data["observed_main_model"] == "gpt-5.6"
+
+
 def test_accepted_sol_main_without_native_observation_remains_unknown():
     result, data = run_verifier(
         {

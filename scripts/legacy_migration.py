@@ -5,24 +5,15 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from pathlib import Path
-import tomllib
 from typing import NamedTuple
 
-# Legacy plugin identity
 LEGACY_MANAGED_BY = "codex-delegate"
 LEGACY_MANIFEST_NAME = ".codex-delegate-agents.json"
 LEGACY_LOCK_NAME = ".codex-delegate-agents.lock"
-LEGACY_ROLE_PREFIX = "codex-delegate"
-LEGACY_AGENT_TYPE_PREFIX = "codex_delegate"
-
-# Current plugin identity
 CURRENT_MANAGED_BY = "subagents-dispatch"
 CURRENT_MANIFEST_NAME = ".subagents-dispatch-agents.json"
 CURRENT_LOCK_NAME = ".subagents-dispatch-agents.lock"
-
-# Legacy profile file names (5 roles)
 LEGACY_PROFILE_FILES = (
     "codex-delegate-reader.toml",
     "codex-delegate-worker.toml",
@@ -44,106 +35,144 @@ class MigrationState(NamedTuple):
     mixed: bool
     legacy_modified: bool
     migration_complete: bool
+    ownership_unknown: bool
+    preserved_legacy: bool
+
+
+class LegacyBackup(NamedTuple):
+    files: dict[str, bytes]
+    removal_map: dict[str, bool]
 
 
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def load_legacy_manifest(path: Path) -> LegacyManifest | None:
-    """Load legacy manifest if it exists and is valid."""
-    if path.is_symlink() or not path.exists() or not path.is_file():
-        return None
+def legacy_manifest_status(path: Path) -> tuple[str, LegacyManifest | None]:
+    """Return (status, manifest): missing, valid, invalid, or unsafe."""
+    if path.is_symlink():
+        return "unsafe", None
+    if not path.exists():
+        return "missing", None
+    if not path.is_file():
+        return "unsafe", None
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError):
-        return None
+        return "invalid", None
     if not isinstance(payload, dict):
-        return None
-    if payload.get("managed_by") != LEGACY_MANAGED_BY:
-        return None
-    return LegacyManifest(
-        schema_version=payload.get("schema_version", 0),
-        managed_by=payload["managed_by"],
-        profile_hashes={
-            str(k): str(v)
-            for k, v in payload.get("profile_hashes", {}).items()
-            if isinstance(k, str) and isinstance(v, str)
-        },
+        return "invalid", None
+    if payload.get("schema_version") != 1 or payload.get("managed_by") != LEGACY_MANAGED_BY:
+        return "invalid", None
+    hashes = payload.get("profile_hashes")
+    if not isinstance(hashes, dict) or not all(
+        isinstance(key, str) and isinstance(value, str)
+        for key, value in hashes.items()
+    ):
+        return "invalid", None
+    return "valid", LegacyManifest(1, LEGACY_MANAGED_BY, dict(hashes))
+
+
+def load_legacy_manifest(path: Path) -> LegacyManifest | None:
+    status, manifest = legacy_manifest_status(path)
+    return manifest if status == "valid" else None
+
+
+def _legacy_profile_state(codex_home: Path) -> tuple[list[str], bool]:
+    agents_dir = codex_home / "agents"
+    regular: list[str] = []
+    unsafe = False
+    if not agents_dir.exists():
+        return regular, unsafe
+    if agents_dir.is_symlink() or not agents_dir.is_dir():
+        return regular, True
+    for filename in LEGACY_PROFILE_FILES:
+        path = agents_dir / filename
+        if path.is_symlink():
+            unsafe = True
+        elif path.exists():
+            if path.is_file():
+                regular.append(filename)
+            else:
+                unsafe = True
+    return regular, unsafe
+
+
+def _current_manifest_valid(codex_home: Path) -> bool:
+    path = codex_home / CURRENT_MANIFEST_NAME
+    if path.is_symlink() or not path.is_file():
+        return False
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return False
+    return (
+        isinstance(payload, dict)
+        and payload.get("managed_by") == CURRENT_MANAGED_BY
+        and payload.get("schema_version") == 1
+        and isinstance(payload.get("profile_hashes"), dict)
     )
 
 
 def detect_legacy_state(codex_home: Path) -> MigrationState:
-    """Detect the current migration state."""
     agents_dir = codex_home / "agents"
-    legacy_manifest_path = codex_home / LEGACY_MANIFEST_NAME
-    current_manifest_path = codex_home / CURRENT_MANIFEST_NAME
+    manifest_status, legacy_manifest = legacy_manifest_status(
+        codex_home / LEGACY_MANIFEST_NAME
+    )
+    legacy_profiles, unsafe_profiles = _legacy_profile_state(codex_home)
+    has_current = _current_manifest_valid(codex_home)
+    has_legacy = manifest_status != "missing" or bool(legacy_profiles) or unsafe_profiles
+    ownership_unknown = (
+        manifest_status in {"invalid", "unsafe"}
+        or unsafe_profiles
+        or (manifest_status == "missing" and bool(legacy_profiles))
+    )
 
-    legacy_manifest = load_legacy_manifest(legacy_manifest_path)
-
-    # Check for legacy profiles
-    legacy_profiles_exist = []
-    if agents_dir.is_dir():
-        for filename in LEGACY_PROFILE_FILES:
-            profile_path = agents_dir / filename
-            if profile_path.is_file() and not profile_path.is_symlink():
-                legacy_profiles_exist.append(filename)
-
-    # Check for current profiles
-    current_manifest = None
-    if current_manifest_path.is_file() and not current_manifest_path.is_symlink():
-        try:
-            payload = json.loads(current_manifest_path.read_text(encoding="utf-8"))
-            if isinstance(payload, dict) and payload.get("managed_by") == CURRENT_MANAGED_BY:
-                current_manifest = payload
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            pass
-
-    has_legacy = legacy_manifest is not None or len(legacy_profiles_exist) > 0
-    has_current = current_manifest is not None
-
-    # Check if legacy profiles were modified
     legacy_modified = False
-    if legacy_manifest and agents_dir.is_dir():
-        for filename, expected_hash in legacy_manifest.profile_hashes.items():
-            profile_path = agents_dir / filename
-            if profile_path.is_file():
-                actual_hash = sha256_bytes(profile_path.read_bytes())
-                if actual_hash != expected_hash:
-                    legacy_modified = True
-                    break
+    unowned_profiles = False
+    if legacy_manifest and agents_dir.is_dir() and not agents_dir.is_symlink():
+        for filename in legacy_profiles:
+            expected_hash = legacy_manifest.profile_hashes.get(filename)
+            if expected_hash is None:
+                unowned_profiles = True
+                continue
+            try:
+                actual_hash = sha256_bytes((agents_dir / filename).read_bytes())
+            except OSError:
+                ownership_unknown = True
+                continue
+            if actual_hash != expected_hash:
+                legacy_modified = True
 
+    legacy_only = has_legacy and not has_current
+    mixed = has_legacy and has_current
+    current_only = has_current and not has_legacy
+    preserved_legacy = mixed and (
+        legacy_modified or unowned_profiles or ownership_unknown
+    )
     return MigrationState(
-        legacy_only=has_legacy and not has_current,
-        current_only=has_current and not has_legacy,
-        mixed=has_legacy and has_current,
+        legacy_only=legacy_only,
+        current_only=current_only,
+        mixed=mixed,
         legacy_modified=legacy_modified,
-        migration_complete=not has_legacy and has_current,
+        migration_complete=current_only,
+        ownership_unknown=ownership_unknown,
+        preserved_legacy=preserved_legacy,
     )
 
 
 def collect_legacy_files(codex_home: Path) -> dict[str, bytes]:
-    """Collect all legacy-managed files for potential cleanup."""
+    """Snapshot migration payload. Lock files are coordination primitives, not payload."""
     agents_dir = codex_home / "agents"
     files: dict[str, bytes] = {}
-
-    # Legacy manifest
-    legacy_manifest_path = codex_home / LEGACY_MANIFEST_NAME
-    if legacy_manifest_path.is_file() and not legacy_manifest_path.is_symlink():
-        files[LEGACY_MANIFEST_NAME] = legacy_manifest_path.read_bytes()
-
-    # Legacy lock
-    legacy_lock_path = codex_home / LEGACY_LOCK_NAME
-    if legacy_lock_path.is_file() and not legacy_lock_path.is_symlink():
-        files[LEGACY_LOCK_NAME] = legacy_lock_path.read_bytes()
-
-    # Legacy profiles
-    if agents_dir.is_dir():
+    manifest_path = codex_home / LEGACY_MANIFEST_NAME
+    if manifest_path.is_file() and not manifest_path.is_symlink():
+        files[LEGACY_MANIFEST_NAME] = manifest_path.read_bytes()
+    if agents_dir.is_dir() and not agents_dir.is_symlink():
         for filename in LEGACY_PROFILE_FILES:
-            profile_path = agents_dir / filename
-            if profile_path.is_file() and not profile_path.is_symlink():
-                files[f"agents/{filename}"] = profile_path.read_bytes()
-
+            path = agents_dir / filename
+            if path.is_file() and not path.is_symlink():
+                files[f"agents/{filename}"] = path.read_bytes()
     return files
 
 
@@ -151,119 +180,149 @@ def can_safely_remove_legacy(
     codex_home: Path,
     legacy_manifest: LegacyManifest | None,
 ) -> dict[str, bool]:
-    """Determine which legacy files can be safely removed.
-
-    Returns dict of relative_path -> can_remove.
-    Only files whose hash matches the legacy manifest ownership can be removed.
-    """
     agents_dir = codex_home / "agents"
-    result: dict[str, bool] = {}
+    result: dict[str, bool] = {LEGACY_LOCK_NAME: False}
+    all_profiles_removable = legacy_manifest is not None
 
-    # Legacy manifest itself can be removed if we're migrating
-    result[LEGACY_MANIFEST_NAME] = True
+    for filename in LEGACY_PROFILE_FILES:
+        path = agents_dir / filename
+        relative = f"agents/{filename}"
+        if path.is_symlink():
+            result[relative] = False
+            all_profiles_removable = False
+            continue
+        if not path.exists():
+            continue
+        if not path.is_file():
+            result[relative] = False
+            all_profiles_removable = False
+            continue
+        expected = legacy_manifest.profile_hashes.get(filename) if legacy_manifest else None
+        if expected is None:
+            result[relative] = False
+            all_profiles_removable = False
+            continue
+        try:
+            removable = sha256_bytes(path.read_bytes()) == expected
+        except OSError:
+            removable = False
+        result[relative] = removable
+        if not removable:
+            all_profiles_removable = False
 
-    # Legacy lock: preserved during compatibility period
-    # Cross-generation contention tests depend on both lock files coexisting
-    result[LEGACY_LOCK_NAME] = False
-
-    # Legacy profiles: only if hash matches manifest ownership
-    if legacy_manifest and agents_dir.is_dir():
-        for filename in LEGACY_PROFILE_FILES:
-            profile_path = agents_dir / filename
-            if not profile_path.is_file() or profile_path.is_symlink():
-                continue
-            expected_hash = legacy_manifest.profile_hashes.get(filename)
-            if expected_hash is None:
-                # Not in legacy manifest, don't touch
-                result[f"agents/{filename}"] = False
-            else:
-                actual_hash = sha256_bytes(profile_path.read_bytes())
-                result[f"agents/{filename}"] = actual_hash == expected_hash
-    else:
-        # No legacy manifest, don't remove any profiles
-        for filename in LEGACY_PROFILE_FILES:
-            result[f"agents/{filename}"] = False
-
+    manifest_status, _ = legacy_manifest_status(codex_home / LEGACY_MANIFEST_NAME)
+    result[LEGACY_MANIFEST_NAME] = manifest_status == "valid" and all_profiles_removable
     return result
 
 
-class LegacyBackup(NamedTuple):
-    """Snapshot of legacy files before destructive migration."""
-    files: dict[str, bytes]
-    removal_map: dict[str, bool]
-
-
-def backup_legacy_files(
-    codex_home: Path,
-) -> tuple[LegacyBackup, list[str]]:
-    """Phase 1: Snapshot all legacy files without mutation.
-
-    Returns (backup, warnings).
-    """
-    agents_dir = codex_home / "agents"
-    legacy_manifest_path = codex_home / LEGACY_MANIFEST_NAME
-    legacy_manifest = load_legacy_manifest(legacy_manifest_path)
-
-    removal_map = can_safely_remove_legacy(codex_home, legacy_manifest)
+def backup_legacy_files(codex_home: Path) -> tuple[LegacyBackup, list[str]]:
+    manifest = load_legacy_manifest(codex_home / LEGACY_MANIFEST_NAME)
+    removal_map = can_safely_remove_legacy(codex_home, manifest)
     files = collect_legacy_files(codex_home)
-
     warnings: list[str] = []
     for relative_path, can_remove in removal_map.items():
-        if not can_remove and (codex_home / relative_path).exists():
-            warnings.append(f"Will preserve modified legacy file: {relative_path}")
+        target = codex_home / relative_path
+        if (
+            not can_remove
+            and relative_path != LEGACY_LOCK_NAME
+            and (target.exists() or target.is_symlink())
+        ):
+            warnings.append(
+                f"Preserving legacy file without proven ownership: {relative_path}"
+            )
+    return LegacyBackup(files, removal_map), warnings
 
-    return LegacyBackup(files=files, removal_map=removal_map), warnings
+
+def _restore_removed_paths(
+    codex_home: Path,
+    backup: LegacyBackup,
+    paths: list[str],
+) -> list[str]:
+    errors: list[str] = []
+    for relative_path in reversed(paths):
+        target = codex_home / relative_path
+        try:
+            if target.exists() or target.is_symlink():
+                errors.append(
+                    f"refusing to overwrite changed path while restoring {relative_path}"
+                )
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(backup.files[relative_path])
+        except OSError as exc:
+            errors.append(f"could not restore {relative_path}: {exc}")
+    return errors
+
+
+def remove_legacy_target(path: Path) -> None:
+    """Indirection used by transaction fault-injection tests."""
+    path.unlink()
 
 
 def commit_legacy_cleanup(
     codex_home: Path,
     backup: LegacyBackup,
 ) -> tuple[list[str], list[str]]:
-    """Phase 2: Remove legacy files. Returns (messages, warnings).
+    """Transactionally remove snapshotted, unchanged, proven-owned legacy files."""
+    removable = [
+        path
+        for path, can_remove in backup.removal_map.items()
+        if can_remove and path in backup.files
+    ]
+    warnings = [
+        f"Preserved legacy file: {path}"
+        for path, can_remove in backup.removal_map.items()
+        if not can_remove and path != LEGACY_LOCK_NAME and path in backup.files
+    ]
 
-    Only files marked removable AND present in the backup snapshot are touched.
-    """
-    messages: list[str] = []
-    warnings: list[str] = []
-    agents_dir = codex_home / "agents"
-
-    for relative_path, can_remove in backup.removal_map.items():
-        if relative_path not in backup.files:
-            continue
+    for relative_path in removable:
         target = codex_home / relative_path
-        if not target.exists():
-            continue
-        if can_remove:
-            target.unlink(missing_ok=True)
+        if target.is_symlink() or not target.is_file():
+            raise RuntimeError(
+                f"Legacy migration drift detected before cleanup: {relative_path}"
+            )
+        if target.read_bytes() != backup.files[relative_path]:
+            raise RuntimeError(
+                f"Legacy migration drift detected before cleanup: {relative_path}"
+            )
+
+    removed: list[str] = []
+    messages: list[str] = []
+    try:
+        for relative_path in removable:
+            target = codex_home / relative_path
+            if target.is_symlink() or not target.is_file():
+                raise RuntimeError(
+                    f"Legacy migration drift detected during cleanup: {relative_path}"
+                )
+            if target.read_bytes() != backup.files[relative_path]:
+                raise RuntimeError(
+                    f"Legacy migration drift detected during cleanup: {relative_path}"
+                )
+            remove_legacy_target(target)
+            removed.append(relative_path)
             messages.append(f"Removed legacy file: {relative_path}")
-        else:
-            warnings.append(f"Preserved modified legacy file: {relative_path}")
-
-    if agents_dir.is_dir() and not any(agents_dir.iterdir()):
-        agents_dir.rmdir()
-        messages.append("Removed empty agents directory")
-
+    except BaseException as exc:
+        rollback_errors = _restore_removed_paths(codex_home, backup, removed)
+        if rollback_errors:
+            raise RuntimeError(
+                f"Legacy cleanup failed: {exc}; rollback incomplete: "
+                + "; ".join(rollback_errors)
+            ) from exc
+        raise
     return messages, warnings
 
 
-def rollback_legacy_cleanup(
-    codex_home: Path,
-    backup: LegacyBackup,
-) -> list[str]:
-    """Restore legacy files from backup snapshot. Returns errors."""
-    errors: list[str] = []
-
-    for relative_path, data in backup.files.items():
-        target = codex_home / relative_path
-        if target.exists():
-            continue
-        try:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(data)
-        except OSError as exc:
-            errors.append(f"could not restore {relative_path}: {exc}")
-
-    return errors
+def rollback_legacy_cleanup(codex_home: Path, backup: LegacyBackup) -> list[str]:
+    removed_paths = [
+        path
+        for path, can_remove in backup.removal_map.items()
+        if can_remove
+        and path in backup.files
+        and not (codex_home / path).exists()
+        and not (codex_home / path).is_symlink()
+    ]
+    return _restore_removed_paths(codex_home, backup, removed_paths)
 
 
 def migrate_legacy_to_current(
@@ -273,23 +332,33 @@ def migrate_legacy_to_current(
     *,
     dry_run: bool = False,
 ) -> tuple[list[str], list[str]]:
-    """Migrate from legacy codex-delegate to current subagents-dispatch.
-
-    Returns (messages, warnings).
-    """
-    if dry_run:
-        backup, warnings = backup_legacy_files(codex_home)
-        messages = [f"Would remove: {p}" for p in backup.files if backup.removal_map.get(p, False)]
-        return messages, warnings
-
+    del current_profile_source, current_profile_files
+    state = detect_legacy_state(codex_home)
+    if state.ownership_unknown:
+        return [], [
+            "Refusing automatic legacy cleanup because ownership metadata is missing, invalid, or unsafe."
+        ]
     backup, warnings = backup_legacy_files(codex_home)
+    if dry_run:
+        return [
+            f"Would remove: {path}"
+            for path, can_remove in backup.removal_map.items()
+            if can_remove and path in backup.files
+        ], warnings
     messages, commit_warnings = commit_legacy_cleanup(codex_home, backup)
     warnings.extend(commit_warnings)
     return messages, warnings
 
 
 def format_migration_state(state: MigrationState) -> str:
-    """Format migration state for display."""
+    if state.preserved_legacy:
+        if state.ownership_unknown:
+            return "current_with_preserved_legacy_ownership_unknown"
+        if state.legacy_modified:
+            return "current_with_preserved_legacy_modified"
+        return "current_with_preserved_legacy"
+    if state.ownership_unknown:
+        return "legacy_ownership_unknown"
     if state.migration_complete:
         return "migration_complete"
     if state.mixed:
