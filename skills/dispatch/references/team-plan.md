@@ -2,7 +2,7 @@
 
 TeamPlan is the lightweight coordination contract for tasks that need more than one delegated responsibility at the same time or need machine-checkable dependency and integration order.
 
-It does not choose models, replace Main, create another planner, or impose a project-level child-count target. `router-core.md` still decides whether delegation is useful and which specialist role owns each responsibility. Main remains the integration and acceptance owner.
+It does not choose models, replace Main, create another planner, or impose a project-level child-count target. `router-core.md` still decides whether delegation is useful and which specialist role owns each delegated responsibility. Main remains the integration and acceptance owner.
 
 ## 1. When TeamPlan is required
 
@@ -68,7 +68,9 @@ ownership
 done_when
 ```
 
-Allowed roles come from `../../../policy-contract.json`. TeamPlan records the role currently assigned by the router; it does not independently choose that role or its model.
+Allowed roles come from `../../../policy-contract.json`. `role` records the delegated Subagent role assigned by the router for that plan revision. TeamPlan does not define a `main` role and does not independently choose a role or model.
+
+If Recovery later performs `main_takeover`, delegated execution for that unit ends and Main continues the stable responsibility. Recovery owns that execution-state transition; TeamPlan does not rewrite the unit to an invalid `role: main`.
 
 TeamPlan does not duplicate the full child packet. The responsibility packet still carries intent, mutation authority, decision rights, interfaces, evidence, optional Handoff Capsule, current failure, and stop conditions.
 
@@ -84,6 +86,8 @@ Do not use integration order to hide an unresolved execution dependency. If a un
 
 A Handoff Capsule may carry already-accepted evidence across a dependency boundary, but it does not make an unresolved predecessor accepted and it does not replace `depends_on`.
 
+A taken-over unit becomes dependency-satisfied only after Main completes and accepts that same responsibility. The old child being stopped does not satisfy downstream dependencies by itself.
+
 ## 4. Ownership
 
 `ownership.write` lists the relative paths the unit may own for source mutation when its responsibility packet separately grants `bounded-source-write` mutation authority.
@@ -96,7 +100,7 @@ Read-only roles, as defined by `policy-contract.json`, must not declare write ow
 
 Units that are structurally ready at the same time must not declare overlapping write paths. If they would collide, add a real dependency, repartition ownership, or serialize the work.
 
-A user-requested takeover that moves responsibility ownership to Main is a coordination change. Settle the old child owner first under `recovery.md` and `interaction.md`, then revise TeamPlan when the ownership/assigned role recorded by the plan changes.
+During `main_takeover`, the unit's existing ownership scope can remain the scope of the stable responsibility. Main may act inside that scope only after Recovery has safely settled the old owner. If takeover also changes ownership paths or another structural fact, revise TeamPlan.
 
 ## 5. Integration
 
@@ -111,19 +115,21 @@ Completion order does not decide integration order. Main integrates accepted out
 Create a new TeamPlan revision only when coordination structure changes materially, including:
 
 ```text
-role assignment
+delegated role assignment
 dependency
-ownership
+ownership scope
 deliverable
 scope
 acceptance
 ```
 
-New evidence, a Handoff Capsule refresh, steering that stays within the same responsibility, or an implementation detail does not require a revision by itself. A role change requires a revision only when TeamPlan is active; the router remains the authority that decides the new role.
+New evidence, a Handoff Capsule refresh, steering that stays within the same responsibility, a pure `main_takeover`, or an implementation detail does not require a revision by itself.
+
+A delegated Agent role change requires a revision when TeamPlan is active; the router remains the authority that decides the new Agent role. `main_takeover` is a Recovery transition out of delegated execution and is not encoded as a new TeamPlan role.
 
 Revision 1 uses `supersedes_revision: null`. Every later revision must point to the direct previous revision.
 
-Keep the same `unit_id` across revisions only when the responsibility identity remains the same. `goal` and `output` therefore stay stable for that unit. A role may change after blocker-driven rerouting, and ownership, dependencies, scope, or acceptance may be revised, without resetting responsibility identity. If the goal or output is materially split, replaced, or redefined, use a new unit ID. This keeps the recovery attempt budget bound to one stable responsibility instead of resetting it through plan revision.
+Keep the same `unit_id` across revisions only when the responsibility identity remains the same. `goal` and `output` therefore stay stable for that unit. A delegated role may change after blocker-driven rerouting, and ownership, dependencies, scope, or acceptance may be revised, without resetting responsibility identity. If the goal or output is materially split, replaced, or redefined, use a new unit ID. This keeps the recovery attempt budget bound to one stable responsibility instead of resetting it through plan revision.
 
 Already-dispatched work remains bound to the plan truth it received. Do not silently rewrite a running responsibility. When a structural change affects active work, pause new dispatch, settle or safely invalidate the affected responsibility, then dispatch against the new revision.
 
@@ -135,8 +141,8 @@ Before multi-responsibility dispatch, validate the plan:
 python scripts/validate_team_plan.py /path/to/team-plan.json
 ```
 
-The validator checks the exact schema shape, unit identity, roles from `policy-contract.json`, dependency validity and cycles, safe ownership paths, ready-layer write collisions, revision shape, and integration order.
+The validator checks the exact schema shape, unit identity, delegated roles from `policy-contract.json`, dependency validity and cycles, safe ownership paths, ready-layer write collisions, revision shape, and integration order.
 
 When TeamPlan revisions are recorded in a recovery ledger, the ledger validator also rejects reuse of one `unit_id` for a changed goal or output.
 
-It intentionally does not impose standard/expanded team sizes, fixed waves, model routing, Provider routing, or a private scheduler. Native Codex capacity remains the concurrency ceiling; Main still chooses the smallest useful active set.
+It intentionally does not impose standard/expanded team sizes, fixed waves, model routing, Provider routing, a `main` pseudo-role, or a private scheduler. Native Codex capacity remains the concurrency ceiling; Main still chooses the smallest useful active set.
