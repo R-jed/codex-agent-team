@@ -19,18 +19,22 @@ CANONICAL_BLOCKERS = {"contract", "judgment", "investigation", "stalled"}
 
 
 def contract() -> dict:
-    return json.loads(POLICY.read_text())
+    return json.loads(POLICY.read_text(encoding="utf-8"))
+
+
+def current_version() -> str:
+    return json.loads(MANIFEST.read_text(encoding="utf-8"))["version"]
 
 
 def test_skill_and_openai_metadata_keep_one_explicit_entrypoint():
-    skill = (SKILL / "SKILL.md").read_text()
+    skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     match = re.match(r"^---\n(.*?)\n---\n", skill, re.S)
     assert match
     frontmatter = yaml.safe_load(match.group(1))
     assert frontmatter["name"] == "codex-delegate"
     assert frontmatter["description"].strip()
 
-    openai = yaml.safe_load((SKILL / "agents" / "openai.yaml").read_text())
+    openai = yaml.safe_load((SKILL / "agents" / "openai.yaml").read_text(encoding="utf-8"))
     assert openai["interface"]["display_name"] == "Codex Delegate"
     assert "$codex-delegate:codex-delegate" in openai["interface"]["default_prompt"]
     assert openai["policy"]["allow_implicit_invocation"] is False
@@ -55,7 +59,7 @@ def test_policy_contract_is_the_single_machine_role_source():
     profile_files = {path.name for path in PROFILES.glob("*.toml")}
     assert profile_files == {spec["profile_file"] for spec in payload["roles"].values()}
     for spec in payload["roles"].values():
-        profile = tomllib.loads((PROFILES / spec["profile_file"]).read_text())
+        profile = tomllib.loads((PROFILES / spec["profile_file"]).read_text(encoding="utf-8"))
         assert profile["name"] == spec["agent_type"]
         assert profile["model"] == spec["model"]
         assert profile["model_reasoning_effort"] == spec["effort"]
@@ -65,7 +69,7 @@ def test_policy_contract_is_the_single_machine_role_source():
 def test_agent_profiles_do_not_invent_semantic_blockers():
     found: set[str] = set()
     for path in PROFILES.glob("*.toml"):
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         values = set(re.findall(r"blocker=([a-z_]+)", text))
         assert values <= CANONICAL_BLOCKERS, f"{path.name} has unsupported blockers: {values - CANONICAL_BLOCKERS}"
         found |= values
@@ -80,7 +84,7 @@ def test_runtime_policy_has_five_focused_owners():
         "guardrails.md",
         "final-review.md",
     }
-    skill = (SKILL / "SKILL.md").read_text()
+    skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     for name in ["router-core.md", "team-plan.md", "recovery.md", "guardrails.md", "final-review.md"]:
         assert f"references/{name}" in skill
     assert "policy-contract.json" in skill
@@ -90,15 +94,15 @@ def test_team_plan_and_recovery_do_not_define_fixed_fanout_policy():
     delegation = contract()["delegation"]
     assert set(delegation) == {"max_depth", "max_active_writers_per_workspace"}
 
-    team_plan = (REFS / "team-plan.md").read_text().lower()
-    recovery = (REFS / "recovery.md").read_text().lower()
+    team_plan = (REFS / "team-plan.md").read_text(encoding="utf-8").lower()
+    recovery = (REFS / "recovery.md").read_text(encoding="utf-8").lower()
     assert "native codex capacity remains the concurrency ceiling" in team_plan
     assert "two-attempt bound limits recovery" in recovery
     assert "not a team-size or concurrency limit" in recovery
 
 
 def test_policy_owned_final_review_contract_has_one_ship_verdict():
-    review = (REFS / "final-review.md").read_text()
+    review = (REFS / "final-review.md").read_text(encoding="utf-8")
     final_review = contract()["final_review"]
     triggers = set(final_review["trigger_codes"])
     assert triggers == {
@@ -120,8 +124,8 @@ def test_policy_owned_final_review_contract_has_one_ship_verdict():
 
 
 def test_static_routing_cases_match_policy_owned_role_routes():
-    schema = json.loads((ROOT / "evals" / "routing-case.schema.json").read_text())
-    cases = json.loads((ROOT / "evals" / "routing-cases.json").read_text())
+    schema = json.loads((ROOT / "evals" / "routing-case.schema.json").read_text(encoding="utf-8"))
+    cases = json.loads((ROOT / "evals" / "routing-cases.json").read_text(encoding="utf-8"))
     jsonschema.Draft202012Validator(schema).validate(cases)
     assert cases["schema_version"] == "2.0"
     roles = contract()["roles"]
@@ -137,14 +141,15 @@ def test_static_routing_cases_match_policy_owned_role_routes():
 
 def test_public_docs_keep_product_identity_while_ai_reference_points_to_policy_owners():
     directive = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
-    version = json.loads(MANIFEST.read_text())["version"]
+    version = current_version()
     for name in ["README.md", "README_EN.md"]:
-        text = (ROOT / name).read_text()
+        text = (ROOT / name).read_text(encoding="utf-8")
         assert directive in text
         assert "$codex-delegate:codex-delegate" in text
         assert version in text
         assert "Sol Solver" in text
 
-    ai = (ROOT / "README_AI.md").read_text()
+    ai = (ROOT / "README_AI.md").read_text(encoding="utf-8")
+    assert f"Current version:     {version}" in ai
     for name in ["router-core.md", "team-plan.md", "recovery.md", "guardrails.md", "final-review.md", "policy-contract.json"]:
         assert name in ai

@@ -6,6 +6,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "plugins" / "codex-delegate" / "scripts" / "review-artifact.py"
@@ -108,6 +110,7 @@ def test_untracked_deliverable_is_bound_and_content_changes_invalidate(tmp_path:
     assert payload["untracked"][0]["mode"] == "100644"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="Windows does not expose POSIX executable mode semantics")
 def test_untracked_executable_mode_is_part_of_identity(tmp_path: Path):
     repo = init_repo(tmp_path)
     tool = repo / "tool.sh"

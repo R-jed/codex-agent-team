@@ -18,7 +18,7 @@ UPGRADE = "codex plugin marketplace upgrade codex-delegate"
 
 
 def test_plugin_manifest_and_marketplace_use_canonical_identity():
-    payload = json.loads(PLUGIN.read_text())
+    payload = json.loads(PLUGIN.read_text(encoding="utf-8"))
     assert payload["name"] == "codex-delegate"
     assert payload["version"] == EXPECTED_VERSION
     assert payload["skills"] == "./skills/"
@@ -28,7 +28,7 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
     assert payload["interface"]["websiteURL"] == "https://github.com/R-jed/codex-delegate"
     assert SKILL.is_dir()
 
-    market = json.loads(MARKETPLACE.read_text())
+    market = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
     assert market == {
         "name": "codex-delegate",
         "interface": {"displayName": "Codex Delegate"},
@@ -44,12 +44,12 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
 
 
 def test_plugin_brand_assets_and_supported_components():
-    payload = json.loads(PLUGIN.read_text())
+    payload = json.loads(PLUGIN.read_text(encoding="utf-8"))
     interface = payload["interface"]
     assert interface["brandColor"] == "#2563EB"
     for field in ["composerIcon", "logo", "logoDark"]:
         asset = PLUGIN_ROOT / interface[field].removeprefix("./")
-        assert asset.is_file() and "<svg" in asset.read_text()
+        assert asset.is_file() and "<svg" in asset.read_text(encoding="utf-8")
     for unsupported in ["agents", "hooks", "mcpServers", "apps"]:
         assert unsupported not in payload
     for field in ["homepage", "repository"]:
@@ -58,7 +58,7 @@ def test_plugin_brand_assets_and_supported_components():
 
 
 def test_policy_contract_owns_the_five_packaged_profiles():
-    policy = json.loads(POLICY.read_text())
+    policy = json.loads(POLICY.read_text(encoding="utf-8"))
     assert policy["schema_version"] == 5
     assert set(policy["roles"]) == {"reader", "worker", "solver", "investigator", "advisor"}
     expected = {spec["profile_file"] for spec in policy["roles"].values()}
@@ -71,7 +71,7 @@ def test_policy_contract_owns_the_five_packaged_profiles():
 def test_third_party_mit_notice_is_packaged_without_repository_pointer():
     notice = PLUGIN_ROOT / "THIRD_PARTY_NOTICES.md"
     assert notice.is_file()
-    text = notice.read_text()
+    text = notice.read_text(encoding="utf-8")
     for phrase in [
         "MIT-licensed third-party material",
         "Copyright (c) 2026 Zhijian AI / Dapeng",
@@ -83,7 +83,7 @@ def test_third_party_mit_notice_is_packaged_without_repository_pointer():
 
 
 def test_skill_owns_profile_readiness_before_delegated_execution():
-    text = (SKILL / "SKILL.md").read_text()
+    text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert "../../scripts/install-agents.py" in text
     assert 'python "$installer"' in text
     assert 'python "$installer" --check' in text
@@ -92,7 +92,7 @@ def test_skill_owns_profile_readiness_before_delegated_execution():
 
 
 def test_install_doc_contains_the_two_current_install_and_update_paths():
-    text = INSTALL_DOC.read_text()
+    text = INSTALL_DOC.read_text(encoding="utf-8")
     for phrase in [
         "Option 1: Codex Plugin Marketplace",
         "Search for `codex-delegate`",
@@ -112,10 +112,10 @@ def test_install_doc_contains_the_two_current_install_and_update_paths():
 
 
 def test_readmes_and_ai_reference_share_the_current_install_contract():
-    payload = json.loads(PLUGIN.read_text())
+    payload = json.loads(PLUGIN.read_text(encoding="utf-8"))
     version = payload["version"]
     for name in ["README.md", "README_EN.md", "README_AI.md"]:
-        text = (ROOT / name).read_text()
+        text = (ROOT / name).read_text(encoding="utf-8")
         assert version in text
         assert "$codex-delegate:codex-delegate" in text
         assert "/plugins" in text

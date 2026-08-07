@@ -6,7 +6,7 @@ EVAL_DOC = ROOT / "docs" / "behavioral-evals.md"
 
 
 def test_local_eval_fixture_freezes_causal_controls_and_strategy_variable():
-    text = TEMPLATE.read_text()
+    text = TEMPLATE.read_text(encoding="utf-8")
     for field in [
         "workload_definition_hash",
         "base_revision",
@@ -31,7 +31,7 @@ def test_local_eval_fixture_freezes_causal_controls_and_strategy_variable():
 
 
 def test_behavioral_eval_protocol_keeps_controls_distinct_from_execution_strategy():
-    text = EVAL_DOC.read_text()
+    text = EVAL_DOC.read_text(encoding="utf-8")
     assert "Freeze controlled inputs" in text
     assert "exact user prompt bytes" in text
     assert "workload_definition_hash" in text

@@ -327,6 +327,16 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
 
     native_complete = route_complete(native, "native", violations)
     local_complete = route_complete(local, "local", violations)
+    runtime_required = expected.get("runtime_observation_required", False)
+    required_native_fields = CHILD_ROUTE_FIELDS + tuple(
+        field for field in IDENTITY_FIELDS if text(expected.get(field)) is not None
+    )
+    native_required_complete = native is not None and all(
+        native.get(field) is not None for field in required_native_fields
+    ) and not any(
+        f"native:{field}_mismatch" in violations for field in required_native_fields
+    )
+
     native_fields, local_fields = seen(native, CHILD_ROUTE_FIELDS), seen(local, CHILD_ROUTE_FIELDS)
     route_conflict = any(
         item == f"source_conflict:{field}" for item in violations for field in CHILD_ROUTE_FIELDS
@@ -354,14 +364,22 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
 
     wanted_parent = text(expected.get("parent_thread_id"))
     parent_conflict = "source_conflict:parent_thread_id" in violations or any("parent_thread_id_mismatch" in item for item in violations)
+    native_parent_observed = bool(native and native.get("parent_thread_id"))
+    local_parent_observed = bool(local and local.get("parent_thread_id"))
     if parent_conflict:
-        ancestry = {"status": "conflict", "source": evidence_source(bool(native), bool(local))}
+        ancestry = {
+            "status": "conflict",
+            "source": evidence_source(native_parent_observed, local_parent_observed),
+        }
     elif wanted_parent is None:
         ancestry = {"status": "not_required", "source": "none"}
-    elif not ((native and native.get("parent_thread_id")) or (local and local.get("parent_thread_id"))):
+    elif not (native_parent_observed or local_parent_observed):
         ancestry = {"status": "not_observed", "source": "none"}
     else:
-        ancestry = {"status": "matched", "source": evidence_source(bool(native), bool(local))}
+        ancestry = {
+            "status": "matched",
+            "source": evidence_source(native_parent_observed, local_parent_observed),
+        }
 
     if not expected.get("requires_enforced_read_only", False):
         permission = {"status": "not_required", "source": "none"}
@@ -388,12 +406,11 @@ def child_result(payload: dict[str, Any]) -> dict[str, Any]:
         or identity_conflict
         or any_source_conflict
     )
-    runtime_required = expected.get("runtime_observation_required", False)
     if conflict:
         status, decision = "mismatch", "quarantine"
     elif permission["status"] == "not_observed":
         status, decision = "not_exposed", "return_to_main_session"
-    elif runtime_required and not native_complete:
+    elif runtime_required and not native_required_complete:
         status, decision = "not_exposed", "return_to_main_session"
     elif not native_complete and not local_complete:
         status, decision = "not_exposed", "continue_configuration_only"

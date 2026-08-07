@@ -8,7 +8,7 @@ import argparse
 import json
 import re
 import sys
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 
@@ -87,7 +87,8 @@ def normalize_scope_path(value: Any) -> tuple[str | None, str | None]:
     if any(char in candidate for char in GLOB_CHARS):
         return None, "must not contain glob syntax"
     path = PurePosixPath(candidate)
-    if path.is_absolute() or candidate == "." or ".." in path.parts:
+    windows_path = PureWindowsPath(candidate)
+    if path.is_absolute() or windows_path.drive or candidate == "." or ".." in path.parts:
         return None, "must be a safe relative path"
     normalized = path.as_posix().rstrip("/")
     if not normalized:

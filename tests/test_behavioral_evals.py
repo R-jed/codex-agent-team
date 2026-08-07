@@ -87,7 +87,8 @@ def score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[str]:
                 "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
                 "runs": runs,
             }
-        )
+        ),
+        encoding="utf-8",
     )
     return subprocess.run(
         [sys.executable, str(SCORER), str(result_file), "--json"],
@@ -99,8 +100,8 @@ def score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[str]:
 
 
 def test_behavioral_registry_and_schema_remain_valid_measurement_surfaces():
-    workloads = json.loads(WORKLOADS.read_text())
-    schema = json.loads(SCHEMA.read_text())
+    workloads = json.loads(WORKLOADS.read_text(encoding="utf-8"))
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     assert workloads["schema_version"] == "4.0"
     assert workloads["suite"] == "codex-delegate-live-behavior"
     jsonschema.Draft202012Validator.check_schema(schema)
@@ -118,7 +119,7 @@ def test_behavioral_registry_and_schema_remain_valid_measurement_surfaces():
 
 
 def test_schema_requires_control_fields_and_rejects_unknown_run_fields():
-    schema = json.loads(SCHEMA.read_text())
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     payload = {
         "schema_version": "4.0",
         "suite": "codex-delegate-live-behavior",
@@ -205,7 +206,7 @@ def test_scorer_does_not_invent_missing_telemetry(tmp_path: Path):
 
 
 def test_behavioral_docs_explicitly_keep_eval_labels_out_of_runtime_policy():
-    docs = (ROOT / "docs" / "behavioral-evals.md").read_text().lower()
+    docs = (ROOT / "docs" / "behavioral-evals.md").read_text(encoding="utf-8").lower()
     for phrase in [
         "measurement surface",
         "historical runs stay comparable",

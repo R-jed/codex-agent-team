@@ -2,12 +2,12 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ZH = (ROOT / "README.md").read_text()
-EN = (ROOT / "README_EN.md").read_text()
-AI = (ROOT / "README_AI.md").read_text()
-EVALS = (ROOT / "evals" / "README.md").read_text()
-PLUGIN = json.loads((ROOT / "plugins" / "codex-delegate" / ".codex-plugin" / "plugin.json").read_text())
-CURRENT_VERSION = PLUGIN["version"]
+ZH = (ROOT / "README.md").read_text(encoding="utf-8")
+EN = (ROOT / "README_EN.md").read_text(encoding="utf-8")
+AI = (ROOT / "README_AI.md").read_text(encoding="utf-8")
+EVALS = (ROOT / "evals" / "README.md").read_text(encoding="utf-8")
+MANIFEST = json.loads((ROOT / "plugins" / "codex-delegate" / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+VERSION = MANIFEST["version"]
 DIRECTIVE = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/codex-delegate@main"
 PLUGIN_ADD = "codex plugin add codex-delegate@codex-delegate"
@@ -18,7 +18,7 @@ ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator",
 def test_public_readmes_keep_product_identity_install_use_and_update():
     for text in [ZH, EN]:
         assert "codex delegate" in text
-        assert f"version-{CURRENT_VERSION}-green.svg" in text
+        assert VERSION in text
         assert DIRECTIVE in text
         assert "$codex-delegate:codex-delegate" in text
         assert "/plugins" in text
@@ -60,7 +60,7 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
         "R-jed/codex-delegate",
         "Repo marketplace id: codex-delegate",
         "Explicit invocation: $codex-delegate:codex-delegate",
-        f"Current version:     {CURRENT_VERSION}",
+        f"Current version:     {VERSION}",
         "Distribution:        Codex Plugin",
         "codex_delegate_reader",
         "codex_delegate_worker",

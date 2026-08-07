@@ -10,8 +10,8 @@ POLICY = PLUGIN / "policy-contract.json"
 
 
 def test_runtime_evidence_is_diagnostic_not_default_hot_path():
-    guardrails = (SKILL / "references" / "guardrails.md").read_text()
-    router = (SKILL / "references" / "router-core.md").read_text()
+    guardrails = (SKILL / "references" / "guardrails.md").read_text(encoding="utf-8")
+    router = (SKILL / "references" / "router-core.md").read_text(encoding="utf-8")
     assert "Runtime evidence is on demand" in guardrails
     assert "Do not run runtime-evidence diagnostics for every ordinary child" in guardrails
     assert "Main-session Sol dedup is an optimization" in router
@@ -19,8 +19,8 @@ def test_runtime_evidence_is_diagnostic_not_default_hot_path():
 
 
 def test_runtime_verifier_supports_main_and_child_subjects_and_policy_reference():
-    verifier = (PLUGIN / "scripts" / "runtime-evidence.py").read_text()
-    policy = json.loads(POLICY.read_text())
+    verifier = (PLUGIN / "scripts" / "runtime-evidence.py").read_text(encoding="utf-8")
+    policy = json.loads(POLICY.read_text(encoding="utf-8"))
     assert 'subject == "main_session"' in verifier
     assert 'subject == "child"' in verifier
     assert "load_main_coverage_policy" in verifier
@@ -30,8 +30,8 @@ def test_runtime_verifier_supports_main_and_child_subjects_and_policy_reference(
 
 
 def test_exact_project_roles_have_no_cross_role_fallback():
-    policy = json.loads(POLICY.read_text())
-    skill = (SKILL / "SKILL.md").read_text()
+    policy = json.loads(POLICY.read_text(encoding="utf-8"))
+    skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert "Exact role mismatch fails closed" in skill
     assert set(spec["agent_type"] for spec in policy["roles"].values()) == {
         "codex_delegate_reader",
@@ -42,8 +42,16 @@ def test_exact_project_roles_have_no_cross_role_fallback():
     }
 
 
+def test_new_project_children_use_explicit_fresh_context():
+    skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+    runtime = (ROOT / "docs" / "native-subagent-runtime.md").read_text(encoding="utf-8")
+    assert "fork_turns: none" in skill
+    assert "Do not omit `fork_turns`" in skill
+    assert "fork_turns=none" in runtime
+
+
 def test_consent_writer_and_explicit_invocation_are_guardrail_owned():
-    guardrails = (SKILL / "references" / "guardrails.md").read_text()
+    guardrails = (SKILL / "references" / "guardrails.md").read_text(encoding="utf-8")
     for phrase in [
         "Project policy does not impose an ordinary numeric child ceiling",
         "Child count by itself is not a consent trigger",
@@ -53,22 +61,22 @@ def test_consent_writer_and_explicit_invocation_are_guardrail_owned():
     ]:
         assert phrase in guardrails
 
-    openai = (SKILL / "agents" / "openai.yaml").read_text()
+    openai = (SKILL / "agents" / "openai.yaml").read_text(encoding="utf-8")
     assert "allow_implicit_invocation: false" in openai
 
 
 def test_first_use_readiness_occurs_before_delegated_execution():
-    guardrails = (SKILL / "references" / "guardrails.md").read_text()
-    skill = (SKILL / "SKILL.md").read_text()
+    guardrails = (SKILL / "references" / "guardrails.md").read_text(encoding="utf-8")
+    skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert "First-use readiness before delegated execution" in guardrails
     assert "stop before delegated code execution" in skill
     assert "ensure required native roles are ready before delegated execution" in skill.lower()
 
 
 def test_profile_lifecycle_comes_from_policy_and_installer_not_user_docs():
-    policy = json.loads(POLICY.read_text())
+    policy = json.loads(POLICY.read_text(encoding="utf-8"))
     profiles = PLUGIN / "agent-profiles"
-    installer = (PLUGIN / "scripts" / "install-agents.py").read_text()
+    installer = (PLUGIN / "scripts" / "install-agents.py").read_text(encoding="utf-8")
     expected_files = {spec["profile_file"] for spec in policy["roles"].values()}
     assert {path.name for path in profiles.glob("*.toml")} == expected_files
     assert 'MANIFEST_NAME = ".codex-delegate-agents.json"' in installer
@@ -77,14 +85,14 @@ def test_profile_lifecycle_comes_from_policy_and_installer_not_user_docs():
 
 
 def test_process_history_is_not_a_final_review_trigger():
-    final_review = (SKILL / "references" / "final-review.md").read_text()
+    final_review = (SKILL / "references" / "final-review.md").read_text(encoding="utf-8")
     for phrase in ["Terra use", "Solver use", "recovery", "a large diff"]:
         assert phrase in final_review
     assert "is not a trigger by itself" in final_review
 
 
 def test_behavioral_evals_remain_measurement_not_runtime_policy():
-    docs = (ROOT / "docs" / "behavioral-evals.md").read_text().lower()
+    docs = (ROOT / "docs" / "behavioral-evals.md").read_text(encoding="utf-8").lower()
     for phrase in [
         "controlled paired workloads",
         "measurement surface",

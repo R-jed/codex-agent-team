@@ -11,12 +11,12 @@ POLICY = PLUGIN / "policy-contract.json"
 
 
 def contract():
-    return json.loads(POLICY.read_text())
+    return json.loads(POLICY.read_text(encoding="utf-8"))
 
 
 def test_final_review_is_linked_and_semantically_triggered():
-    skill = (SKILL / "SKILL.md").read_text()
-    review = (REFS / "final-review.md").read_text()
+    skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+    review = (REFS / "final-review.md").read_text(encoding="utf-8")
     assert "references/final-review.md" in skill
     assert "Candidate Ready" in review
     assert "Process history" in review
@@ -26,8 +26,8 @@ def test_final_review_is_linked_and_semantically_triggered():
 
 def test_current_advisor_route_matches_policy_and_is_fresh():
     spec = contract()["roles"]["advisor"]
-    advisor = tomllib.loads((PROFILES / spec["profile_file"]).read_text())
-    review = (REFS / "final-review.md").read_text()
+    advisor = tomllib.loads((PROFILES / spec["profile_file"]).read_text(encoding="utf-8"))
+    review = (REFS / "final-review.md").read_text(encoding="utf-8")
     assert "agent_type: codex_delegate_advisor" in review
     assert "fork_turns: none" in review
     assert advisor["name"] == spec["agent_type"]
@@ -37,7 +37,7 @@ def test_current_advisor_route_matches_policy_and_is_fresh():
 
 
 def test_review_lifecycle_remains_fail_closed_and_artifact_bound():
-    review = (REFS / "final-review.md").read_text()
+    review = (REFS / "final-review.md").read_text(encoding="utf-8")
     for phrase in [
         "review_artifact_id",
         "review-artifact.py",
@@ -55,8 +55,8 @@ def test_review_lifecycle_remains_fail_closed_and_artifact_bound():
 
 
 def test_sol_review_is_selective_outside_required_assurance():
-    router = (REFS / "router-core.md").read_text().lower()
-    review = (REFS / "final-review.md").read_text().lower()
+    router = (REFS / "router-core.md").read_text(encoding="utf-8").lower()
+    review = (REFS / "final-review.md").read_text(encoding="utf-8").lower()
     assert "final review" in router
     assert "candidate" in router and "independent second judgment" in router
     assert "process history" in review

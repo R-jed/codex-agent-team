@@ -151,9 +151,10 @@ def test_policy_read_only_roles_cannot_claim_write_ownership():
 
 
 def test_ownership_paths_fail_closed_on_unsafe_or_conflicting_paths():
-    payload = plan()
-    payload["units"][1]["ownership"] = {"write": ["../outside"], "forbidden": []}
-    assert any("safe relative path" in error for error in validate(payload)["errors"])
+    for unsafe in ["../outside", "C:/outside", "C:outside"]:
+        payload = plan()
+        payload["units"][1]["ownership"] = {"write": [unsafe], "forbidden": []}
+        assert any("safe relative path" in error for error in validate(payload)["errors"])
 
     payload = plan()
     payload["units"][1]["ownership"] = {"write": ["src"], "forbidden": ["src/generated"]}

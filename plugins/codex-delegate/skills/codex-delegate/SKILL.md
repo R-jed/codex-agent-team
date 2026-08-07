@@ -115,6 +115,8 @@ Use progressive fan-out from the ready work. Do not create fixed waves, poll to 
 
 Responsibility packet shape, mutation authority, decision rights, evidence reuse, and stop conditions are owned by `references/router-core.md` and `references/guardrails.md`.
 
+Spawn each new project child with `fork_turns: none`; the responsibility packet is the child's task context. Do not omit `fork_turns` and accidentally inherit the host's full-history default.
+
 When a child returns:
 
 1. inspect the actual artifact or evidence;
