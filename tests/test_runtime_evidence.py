@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-VERIFIER = ROOT / "plugins" / "codex-delegate" / "scripts" / "runtime-evidence.py"
+VERIFIER = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "runtime-evidence.py"
 THREAD = "11111111-1111-7111-8111-111111111111"
 PARENT = "00000000-0000-7000-8000-000000000000"
 
@@ -26,7 +26,7 @@ def expected(**overrides):
     value = {
         "thread_id": THREAD,
         "parent_thread_id": PARENT,
-        "agent_role": "codex_delegate_worker",
+        "agent_role": "subagents_dispatch_worker",
         "model": "gpt-5.6-luna",
         "effort": "max",
         "runtime_observation_required": False,
@@ -40,7 +40,7 @@ def observation(**overrides):
     value = {
         "thread_id": THREAD,
         "parent_thread_id": PARENT,
-        "agent_role": "codex_delegate_worker",
+        "agent_role": "subagents_dispatch_worker",
         "model": "gpt-5.6-luna",
         "effort": "max",
         "sandbox_policy_type": "workspace-write",
@@ -108,7 +108,7 @@ def test_complete_native_child_route_is_r1_and_complete_agreement_is_r2():
 
 def test_partial_native_child_route_never_counts_as_runtime_proof():
     result, data = run_verifier(
-        {"expected": expected(), "native": {"agent_role": "codex_delegate_worker"}}
+        {"expected": expected(), "native": {"agent_role": "subagents_dispatch_worker"}}
     )
     assert result.returncode == 0
     assert data["evidence_grade"] == "C1_configuration_only"
@@ -120,7 +120,7 @@ def test_runtime_required_rejects_partial_native_child_route():
     result, data = run_verifier(
         {
             "expected": expected(runtime_observation_required=True),
-            "native": {"agent_role": "codex_delegate_worker", "model": "gpt-5.6-luna"},
+            "native": {"agent_role": "subagents_dispatch_worker", "model": "gpt-5.6-luna"},
         }
     )
     assert result.returncode == 0 and data["decision"] == "return_to_main_session"

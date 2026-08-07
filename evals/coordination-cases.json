@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "codex-delegate-coordination-contract",
+  "suite": "subagents-dispatch-coordination-contract",
   "cases": [
     {
       "id": "upstream-workflow-remains-authoritative",

@@ -6,22 +6,22 @@ ZH = (ROOT / "README.md").read_text(encoding="utf-8")
 EN = (ROOT / "README_EN.md").read_text(encoding="utf-8")
 AI = (ROOT / "README_AI.md").read_text(encoding="utf-8")
 EVALS = (ROOT / "evals" / "README.md").read_text(encoding="utf-8")
-MANIFEST = json.loads((ROOT / "plugins" / "codex-delegate" / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+MANIFEST = json.loads((ROOT / "plugins" / "subagents-dispatch" / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
 VERSION = MANIFEST["version"]
 DIRECTIVE = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
-CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/codex-delegate@main"
-PLUGIN_ADD = "codex plugin add codex-delegate@codex-delegate"
-UPGRADE = "codex plugin marketplace upgrade codex-delegate"
-MAIN_SKILL = "$codex-delegate:codex-delegate"
-DOCTOR_SKILL = "$codex-delegate:codex-delegate-doctor"
+CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch@main"
+PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
+UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
+MAIN_SKILL = "$subagents-dispatch:dispatch"
+DOCTOR_SKILL = "$subagents-dispatch:doctor"
 ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator", "Sol Advisor"]
-LIGHT_LOGO = "plugins/codex-delegate/assets/codex-delegate-logo.svg#gh-light-mode-only"
-DARK_LOGO = "plugins/codex-delegate/assets/codex-delegate-logo-dark.svg#gh-dark-mode-only"
+LIGHT_LOGO = "plugins/subagents-dispatch/assets/subagents-dispatch-logo.svg#gh-light-mode-only"
+DARK_LOGO = "plugins/subagents-dispatch/assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only"
 
 
 def test_public_readmes_keep_product_identity_install_use_and_update():
     for text in [ZH, EN]:
-        assert "codex delegate" in text
+        assert "subagents-dispatch" in text
         assert VERSION in text
         assert DIRECTIVE in text
         assert MAIN_SKILL in text
@@ -30,7 +30,7 @@ def test_public_readmes_keep_product_identity_install_use_and_update():
         assert "/skills" in text
         assert CANONICAL_MARKETPLACE in text
         assert "--sparse .agents/plugins" in text
-        assert "--sparse plugins/codex-delegate" in text
+        assert "--sparse plugins/subagents-dispatch" in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
         assert "--ref main" not in text
@@ -51,11 +51,11 @@ def test_public_readmes_explain_the_current_repository_layout():
     for text in [ZH, EN]:
         for path in [
             ".agents/plugins/",
-            "plugins/codex-delegate/",
+            "plugins/subagents-dispatch/",
             "agent-profiles/",
             "policy-contract.json",
             "skills/",
-            "codex-delegate-doctor/",
+            "doctor/",
             "docs/",
             "evals/",
             "scripts/",
@@ -81,27 +81,27 @@ def test_public_readmes_keep_runtime_detail_bounded_and_link_deeper_docs():
 
 def test_ai_reference_is_an_index_to_canonical_policy_owners():
     for phrase in [
-        "R-jed/codex-delegate",
-        "Repo marketplace id: codex-delegate",
-        "Main invocation:     $codex-delegate:codex-delegate",
-        "Doctor invocation:   $codex-delegate:codex-delegate-doctor",
+        "R-jed/subagents-dispatch",
+        "Repo marketplace id: subagents-dispatch",
+        "Main invocation:     $subagents-dispatch:dispatch",
+        "Doctor invocation:   $subagents-dispatch:doctor",
         f"Current version:     {VERSION}",
         "Distribution:        Codex Plugin",
-        "codex_delegate_reader",
-        "codex_delegate_worker",
-        "codex_delegate_solver",
-        "codex_delegate_investigator",
-        "codex_delegate_advisor",
+        "subagents_dispatch_reader",
+        "subagents_dispatch_worker",
+        "subagents_dispatch_solver",
+        "subagents_dispatch_investigator",
+        "subagents_dispatch_advisor",
         "router-core.md",
         "team-plan.md",
         "recovery.md",
         "guardrails.md",
         "final-review.md",
         "policy-contract.json",
-        "codex-delegate-doctor/SKILL.md",
+        "doctor/SKILL.md",
         CANONICAL_MARKETPLACE,
         "--sparse .agents/plugins",
-        "--sparse plugins/codex-delegate",
+        "--sparse plugins/subagents-dispatch",
         PLUGIN_ADD,
         UPGRADE,
     ]:
@@ -129,9 +129,9 @@ def test_evals_readme_identifies_measurement_boundary_and_canonical_owners():
 
 
 def test_public_readme_visual_surface_uses_canonical_plugin_assets():
-    plugin_assets = ROOT / "plugins" / "codex-delegate" / "assets"
-    assert (plugin_assets / "codex-delegate-logo.svg").is_file()
-    assert (plugin_assets / "codex-delegate-logo-dark.svg").is_file()
+    plugin_assets = ROOT / "plugins" / "subagents-dispatch" / "assets"
+    assert (plugin_assets / "subagents-dispatch-logo.svg").is_file()
+    assert (plugin_assets / "subagents-dispatch-logo-dark.svg").is_file()
     assert not (ROOT / "docs" / "logo-light.svg").exists()
     assert not (ROOT / "docs" / "logo-dark.svg").exists()
 
@@ -141,5 +141,5 @@ def test_public_readme_visual_surface_uses_canonical_plugin_assets():
         assert DARK_LOGO in text
         assert "docs/logo-" not in text
         for line in text.splitlines():
-            if "<img" in line and "codex-delegate-logo" not in line and "shields.io" not in line:
+            if "<img" in line and "subagents-dispatch-logo" not in line and "shields.io" not in line:
                 raise AssertionError(f"Unexpected README image: {line}")

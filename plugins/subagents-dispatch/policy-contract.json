@@ -1,0 +1,64 @@
+{
+  "schema_version": 5,
+  "delegation": {
+    "max_depth": 1,
+    "max_active_writers_per_workspace": 1
+  },
+  "capability_dedup": {
+    "reference_role": "solver",
+    "reasoning_effort_order": ["minimal", "low", "medium", "high", "xhigh", "max"]
+  },
+  "roles": {
+    "reader": {
+      "profile_file": "subagents-dispatch-reader.toml",
+      "agent_type": "subagents_dispatch_reader",
+      "model": "gpt-5.6-luna",
+      "effort": "max",
+      "sandbox_intent": "read-only"
+    },
+    "worker": {
+      "profile_file": "subagents-dispatch-worker.toml",
+      "agent_type": "subagents_dispatch_worker",
+      "model": "gpt-5.6-luna",
+      "effort": "max",
+      "sandbox_intent": "workspace-write"
+    },
+    "solver": {
+      "profile_file": "subagents-dispatch-solver.toml",
+      "agent_type": "subagents_dispatch_solver",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "sandbox_intent": "workspace-write"
+    },
+    "investigator": {
+      "profile_file": "subagents-dispatch-investigator.toml",
+      "agent_type": "subagents_dispatch_investigator",
+      "model": "gpt-5.6-terra",
+      "effort": "xhigh",
+      "sandbox_intent": "read-only"
+    },
+    "advisor": {
+      "profile_file": "subagents-dispatch-advisor.toml",
+      "agent_type": "subagents_dispatch_advisor",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "sandbox_intent": "read-only"
+    }
+  },
+  "final_review": {
+    "trigger_codes": [
+      "user_requested",
+      "public_contract_change",
+      "persistent_state_change",
+      "security_boundary",
+      "authorization_boundary",
+      "data_integrity",
+      "concurrency_semantics",
+      "migration",
+      "verification_gap"
+    ],
+    "ship_verdict": "ship",
+    "correction_verdicts": ["fix-first", "rethink"],
+    "unresolved_verdict": "insufficient_evidence"
+  }
+}

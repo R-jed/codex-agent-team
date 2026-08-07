@@ -6,8 +6,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
-SKILL = PLUGIN / "skills" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+SKILL = PLUGIN / "skills" / "dispatch"
 GUARDRAILS = SKILL / "references" / "guardrails.md"
 RUNTIME_DOC = ROOT / "docs" / "native-subagent-runtime.md"
 RUNTIME_VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
@@ -70,7 +70,7 @@ def test_runtime_evidence_keeps_route_ancestry_and_permission_typed():
 
 def test_runtime_observation_required_needs_native_identity_and_ancestry():
     expected = {
-        "agent_role": "codex_delegate_reader",
+        "agent_role": "subagents_dispatch_reader",
         "model": "gpt-5.6-luna",
         "effort": "max",
         "thread_id": "child-1",
@@ -79,7 +79,7 @@ def test_runtime_observation_required_needs_native_identity_and_ancestry():
         "requires_enforced_read_only": False,
     }
     route = {
-        "agent_role": "codex_delegate_reader",
+        "agent_role": "subagents_dispatch_reader",
         "model": "gpt-5.6-luna",
         "effort": "max",
     }

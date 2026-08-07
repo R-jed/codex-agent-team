@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
 POLICY = PLUGIN / "policy-contract.json"
 VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
 

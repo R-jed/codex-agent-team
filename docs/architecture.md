@@ -1,6 +1,6 @@
 # Architecture
 
-codex delegate is a leadership and coordination policy over Codex Native Subagents. It does not implement a second Agent runtime, background scheduler, daemon, routing proxy, provider layer, or persistent DAG service.
+subagents-dispatch is a leadership and coordination policy over Codex Native Subagents. It does not implement a second Agent runtime, background scheduler, daemon, routing proxy, provider layer, or persistent DAG service.
 
 The user-facing Main session is the technical lead. It owns user intent, authorization, team composition, semantic decisions, integration, acceptance, and the final response.
 
@@ -61,15 +61,15 @@ There is no fixed Luna → Terra → Sol path and no fixed Agent count.
 
 ## Roles
 
-`plugins/codex-delegate/policy-contract.json` is the machine source of truth for role identity, model, effort, and sandbox intent.
+`plugins/subagents-dispatch/policy-contract.json` is the machine source of truth for role identity, model, effort, and sandbox intent.
 
 | Role | Agent type | Route | Responsibility |
 | --- | --- | --- | --- |
-| Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | bounded read-only factual evidence |
-| Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | clear bounded implementation after material behavior is decided |
-| Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | implementation with material judgment coupled to the write |
-| Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | broader read-only technical investigation after semantics are stable |
-| Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | material read-only judgment or fresh independent final review |
+| Reader | `subagents_dispatch_reader` | GPT-5.6 Luna `max` | bounded read-only factual evidence |
+| Worker | `subagents_dispatch_worker` | GPT-5.6 Luna `max` | clear bounded implementation after material behavior is decided |
+| Solver | `subagents_dispatch_solver` | GPT-5.6 Sol `high` | implementation with material judgment coupled to the write |
+| Investigator | `subagents_dispatch_investigator` | GPT-5.6 Terra `xhigh` | broader read-only technical investigation after semantics are stable |
+| Advisor | `subagents_dispatch_advisor` | GPT-5.6 Sol `high` | material read-only judgment or fresh independent final review |
 
 Role identity is distinct from model identity. A stronger model does not gain wider user authority.
 
@@ -81,7 +81,7 @@ Native Codex capacity is an upper bound, never a target. Zero children is normal
 
 Task size, file count, spare capacity, or one failed attempt does not select a role by itself.
 
-When another active Skill or accepted plan already owns goal, decomposition, stage order, dependencies, outputs, acceptance, or quality gates, codex delegate preserves that workflow and coordinates around it. It does not create a competing planner.
+When another active Skill or accepted plan already owns goal, decomposition, stage order, dependencies, outputs, acceptance, or quality gates, subagents-dispatch preserves that workflow and coordinates around it. It does not create a competing planner.
 
 ## Lightweight path and TeamPlan
 
@@ -155,7 +155,7 @@ UNKNOWN
 CLOSED
 ```
 
-`UNKNOWN` means the host evidence cannot establish current execution state. It is not failure. While UNKNOWN remains unresolved, codex delegate does not create replacement work or conflicting ownership.
+`UNKNOWN` means the host evidence cannot establish current execution state. It is not failure. While UNKNOWN remains unresolved, subagents-dispatch does not create replacement work or conflicting ownership.
 
 For confirmed failed work, recovery keeps two independent facts:
 
@@ -211,7 +211,7 @@ When required:
 
 ```text
 bind exact candidate with review-artifact.py
--> fresh codex_delegate_advisor
+-> fresh subagents_dispatch_advisor
 -> ship | fix-first | rethink | INSUFFICIENT_EVIDENCE
 ```
 

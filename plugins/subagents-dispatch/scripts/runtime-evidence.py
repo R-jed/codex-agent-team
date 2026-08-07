@@ -1,0 +1,471 @@
+#!/usr/bin/env python3
+"""Normalize optional subagents-dispatch runtime evidence.
+
+This helper is diagnostic. Ordinary routing must not depend on telemetry that the
+runtime did not expose. Main-session evidence only suppresses a redundant Sol uplift
+when the observed main route meets the policy reference. Child evidence verifies exact
+route, ancestry, and permission claims only when those facts are material.
+
+Route truth is kept in three layers when the host exposes them: requested, accepted,
+and observed. Platform acceptance never counts as observed runtime proof.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import sys
+from typing import Any, NoReturn
+
+ROOT = Path(__file__).resolve().parents[1]
+POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
+CHILD_ROUTE_FIELDS = ("agent_role", "model", "effort")
+MAIN_ROUTE_FIELDS = ("model", "effort")
+IDENTITY_FIELDS = ("thread_id", "parent_thread_id")
+PERMISSION_FIELDS = ("sandbox_policy_type", "permission_profile_type")
+OBSERVED_FIELDS = (*CHILD_ROUTE_FIELDS, *IDENTITY_FIELDS, *PERMISSION_FIELDS)
+READ_ONLY_SANDBOXES = {"read-only", "read_only", "readonly"}
+
+
+def fail(message: str) -> NoReturn:
+    raise SystemExit(f"ERROR: {message}")
+
+
+def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...]]:
+    try:
+        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
+        dedup = payload["capability_dedup"]
+        role = dedup["reference_role"]
+        order = dedup["reasoning_effort_order"]
+        reference = payload["roles"][role]
+        model = reference["model"]
+        effort = reference["effort"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        fail(f"invalid policy contract for capability dedup: {exc}")
+    if not isinstance(model, str) or not model.strip() or not isinstance(effort, str) or not effort.strip():
+        fail("capability dedup reference route is invalid")
+    if not isinstance(order, list) or not order or not all(isinstance(x, str) and x for x in order):
+        fail("reasoning_effort_order must be a non-empty string list")
+    normalized = tuple(x.strip().lower() for x in order)
+    if effort.strip().lower() not in normalized or len(set(normalized)) != len(normalized):
+        fail("reasoning_effort_order does not contain a unique reference effort")
+    return model.strip().lower(), effort.strip().lower(), normalized
+
+
+REFERENCE_MODEL, REFERENCE_EFFORT, EFFORT_ORDER = load_main_coverage_policy()
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Normalize subagents-dispatch runtime evidence.")
+    parser.add_argument("--input", type=Path, help="JSON input file; defaults to stdin.")
+    return parser.parse_args()
+
+
+def load_payload(path: Path | None) -> dict[str, Any]:
+    try:
+        raw = path.read_text(encoding="utf-8") if path else sys.stdin.read()
+        value = json.loads(raw)
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        fail(f"invalid runtime-evidence input: {exc}")
+    if not isinstance(value, dict):
+        fail("runtime-evidence input must be a JSON object")
+    return value
+
+
+def obj(value: Any, field: str) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        fail(f"{field} must be an object or null")
+    return value
+
+
+def text(value: Any) -> str | None:
+    return value.strip() if isinstance(value, str) and value.strip() else None
+
+
+def normalize(value: dict[str, Any] | None) -> dict[str, str | None] | None:
+    if value is None:
+        return None
+    allowed = {
+        "thread_id",
+        "parent_thread_id",
+        "agent_role",
+        "model",
+        "effort",
+        "sandbox_policy_type",
+        "permission_profile_type",
+        "runtime_version",
+        "record_format_version",
+    }
+    return {key: text(value.get(key)) for key in allowed}
+
+
+def seen(obs: dict[str, str | None] | None, fields: tuple[str, ...]) -> list[str]:
+    return [] if obs is None else [field for field in fields if obs.get(field) is not None]
+
+
+def evidence_source(native: bool, local: bool) -> str:
+    if native and local:
+        return "both"
+    if native:
+        return "native"
+    if local:
+        return "local"
+    return "none"
+
+
+def grade(native: bool, local: bool, conflict: bool) -> str:
+    if conflict:
+        return "X0_conflicted"
+    if native and local:
+        return "R2_runtime_reported_and_local_record_agree"
+    if native:
+        return "R1_runtime_reported"
+    if local:
+        return "L1_local_record_observed"
+    return "C1_configuration_only"
+
+
+def source_conflicts(native: dict[str, str | None] | None, local: dict[str, str | None] | None, fields: tuple[str, ...]) -> list[str]:
+    if native is None or local is None:
+        return []
+    return [
+        f"source_conflict:{field}"
+        for field in fields
+        if native.get(field) is not None and local.get(field) is not None and native[field] != local[field]
+    ]
+
+
+def layer_conflicts(
+    accepted: dict[str, str | None] | None,
+    observed: dict[str, str | None] | None,
+    fields: tuple[str, ...],
+) -> list[str]:
+    if accepted is None or observed is None:
+        return []
+    return [
+        f"accepted_observed_conflict:{field}"
+        for field in fields
+        if accepted.get(field) is not None
+        and observed.get(field) is not None
+        and accepted[field] != observed[field]
+    ]
+
+
+def requested_layer(requested: dict[str, Any] | None, fields: tuple[str, ...]) -> dict[str, Any]:
+    declared = {} if requested is None else {field: text(requested.get(field)) for field in fields}
+    visible = {field: value for field, value in declared.items() if value is not None}
+    return {
+        "status": "declared" if visible else "not_declared",
+        "fields": visible,
+    }
+
+
+def accepted_layer(
+    accepted: dict[str, str | None] | None,
+    fields: tuple[str, ...],
+    violations: list[str],
+) -> dict[str, Any]:
+    accepted_fields = seen(accepted, fields)
+    if any(item.startswith("accepted:") or item.startswith("accepted_observed_conflict:") for item in violations):
+        status = "conflict"
+    elif not accepted_fields:
+        status = "not_reported"
+    elif all(accepted and accepted.get(field) is not None for field in fields):
+        status = "matched"
+    else:
+        status = "partial"
+    return {
+        "status": status,
+        "fields": {field: accepted[field] for field in accepted_fields} if accepted is not None else {},
+    }
+
+
+def observed_layer(native: dict[str, str | None] | None, fields: tuple[str, ...], violations: list[str]) -> dict[str, Any]:
+    native_fields = seen(native, fields)
+    if any(
+        item.startswith("native:")
+        or item.startswith("accepted_observed_conflict:")
+        or item == f"source_conflict:{field}"
+        for item in violations
+        for field in fields
+    ):
+        status = "conflict"
+    elif not native_fields:
+        status = "not_observed"
+    elif all(native and native.get(field) is not None for field in fields):
+        status = "matched"
+    else:
+        status = "partial"
+    return {
+        "status": status,
+        "fields": {field: native[field] for field in native_fields} if native is not None else {},
+    }
+
+
+def model_matches(model: str) -> bool:
+    normalized = model.lower()
+    return normalized == REFERENCE_MODEL or normalized.startswith(REFERENCE_MODEL + "-")
+
+
+def effort_coverage(effort: str) -> str:
+    normalized = effort.lower()
+    if normalized not in EFFORT_ORDER:
+        return "unknown"
+    return "covered" if EFFORT_ORDER.index(normalized) >= EFFORT_ORDER.index(REFERENCE_EFFORT) else "uncovered"
+
+
+def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
+    requested = obj(payload.get("requested"), "requested")
+    accepted = normalize(obj(payload.get("accepted"), "accepted"))
+    native = normalize(obj(payload.get("native"), "native"))
+    local = normalize(obj(payload.get("local"), "local"))
+    violations = source_conflicts(native, local, MAIN_ROUTE_FIELDS)
+    if requested is not None and accepted is not None:
+        violations.extend(compare_expected(requested, accepted, "accepted", fields=MAIN_ROUTE_FIELDS))
+    violations.extend(layer_conflicts(accepted, native, MAIN_ROUTE_FIELDS))
+    native_fields, local_fields = seen(native, MAIN_ROUTE_FIELDS), seen(local, MAIN_ROUTE_FIELDS)
+    observed_fields = sorted(set(native_fields + local_fields))
+    native_complete = native is not None and all(native.get(field) for field in MAIN_ROUTE_FIELDS)
+    local_complete = local is not None and all(local.get(field) for field in MAIN_ROUTE_FIELDS)
+    conflict = bool(violations)
+
+    if conflict:
+        status = "conflict"
+    elif native_complete or local_complete:
+        status = "observed"
+    elif observed_fields:
+        status = "partial"
+    else:
+        status = "not_observed"
+
+    coverage = "unknown"
+    if native_complete and not conflict and native is not None:
+        model = str(native.get("model") or "")
+        effort = str(native.get("effort") or "")
+        coverage = "uncovered" if not model_matches(model) else effort_coverage(effort)
+
+    trusted = native_complete and not conflict
+    return {
+        "subject": "main_session",
+        "status": status,
+        "decision": "quarantine_main_route_claim" if conflict else "use_observed_coverage",
+        "evidence_grade": grade(native_complete, local_complete, conflict),
+        "truth_layers": {
+            "requested": requested_layer(requested, MAIN_ROUTE_FIELDS),
+            "accepted": accepted_layer(accepted, MAIN_ROUTE_FIELDS, violations),
+            "observed": observed_layer(native, MAIN_ROUTE_FIELDS, violations),
+        },
+        "route_evidence": {
+            "status": status,
+            "source": evidence_source(native_complete, local_complete),
+            "observed_fields": observed_fields,
+            "native_observed_fields": native_fields,
+            "local_observed_fields": local_fields,
+        },
+        "main_judgment_coverage": coverage,
+        "coverage_source": "trusted_session_metadata" if trusted else "not_observed",
+        "coverage_reference_model": REFERENCE_MODEL,
+        "coverage_reference_effort": REFERENCE_EFFORT,
+        "observed_main_model": native.get("model") if trusted and native is not None else None,
+        "observed_main_effort": native.get("effort") if trusted and native is not None else None,
+        "violations": sorted(set(violations)),
+    }
+
+
+def validate_expected(expected: dict[str, Any]) -> None:
+    missing = [field for field in CHILD_ROUTE_FIELDS if text(expected.get(field)) is None]
+    if missing:
+        fail("expected exact route is incomplete; missing: " + ", ".join(missing))
+    for flag in ("runtime_observation_required", "requires_enforced_read_only"):
+        if not isinstance(expected.get(flag, False), bool):
+            fail(f"expected.{flag} must be boolean when present")
+
+
+def compare_expected(
+    expected: dict[str, Any],
+    observation: dict[str, str | None],
+    label: str,
+    fields: tuple[str, ...] = (*IDENTITY_FIELDS, *CHILD_ROUTE_FIELDS),
+) -> list[str]:
+    violations: list[str] = []
+    for field in fields:
+        wanted, got = text(expected.get(field)), observation.get(field)
+        if wanted is not None and got is not None and wanted != got:
+            violations.append(f"{label}:{field}_mismatch")
+    return violations
+
+
+def route_complete(observation: dict[str, str | None] | None, label: str, violations: list[str]) -> bool:
+    if observation is None:
+        return False
+    return all(observation.get(field) is not None for field in CHILD_ROUTE_FIELDS) and not any(
+        f"{label}:{field}_mismatch" in violations for field in CHILD_ROUTE_FIELDS
+    )
+
+
+def child_result(payload: dict[str, Any]) -> dict[str, Any]:
+    expected = obj(payload.get("expected"), "expected")
+    if expected is None:
+        fail("expected is required for child evidence")
+    validate_expected(expected)
+    accepted = normalize(obj(payload.get("accepted"), "accepted"))
+    native = normalize(obj(payload.get("native"), "native"))
+    local = normalize(obj(payload.get("local"), "local"))
+
+    violations: list[str] = []
+    if accepted is not None:
+        violations.extend(compare_expected(expected, accepted, "accepted"))
+    if native is not None:
+        violations.extend(compare_expected(expected, native, "native"))
+    if local is not None:
+        violations.extend(compare_expected(expected, local, "local"))
+    violations.extend(source_conflicts(native, local, OBSERVED_FIELDS))
+    violations.extend(layer_conflicts(accepted, native, OBSERVED_FIELDS))
+
+    native_complete = route_complete(native, "native", violations)
+    local_complete = route_complete(local, "local", violations)
+    runtime_required = expected.get("runtime_observation_required", False)
+    required_native_fields = CHILD_ROUTE_FIELDS + tuple(
+        field for field in IDENTITY_FIELDS if text(expected.get(field)) is not None
+    )
+    native_required_complete = native is not None and all(
+        native.get(field) is not None for field in required_native_fields
+    ) and not any(
+        f"native:{field}_mismatch" in violations for field in required_native_fields
+    )
+
+    native_fields, local_fields = seen(native, CHILD_ROUTE_FIELDS), seen(local, CHILD_ROUTE_FIELDS)
+    route_conflict = any(
+        item == f"source_conflict:{field}" for item in violations for field in CHILD_ROUTE_FIELDS
+    ) or any(
+        f"{label}:{field}_mismatch" in violations
+        for label in ("accepted", "native", "local")
+        for field in CHILD_ROUTE_FIELDS
+    ) or any(item == f"accepted_observed_conflict:{field}" for item in violations for field in CHILD_ROUTE_FIELDS)
+    route_status = (
+        "conflict"
+        if route_conflict
+        else "matched"
+        if native_complete or local_complete
+        else "partial"
+        if native_fields or local_fields
+        else "not_observed"
+    )
+    route = {
+        "status": route_status,
+        "source": evidence_source(native_complete, local_complete),
+        "observed_fields": sorted(set(native_fields + local_fields)),
+        "native_observed_fields": native_fields,
+        "local_observed_fields": local_fields,
+    }
+
+    wanted_parent = text(expected.get("parent_thread_id"))
+    parent_conflict = "source_conflict:parent_thread_id" in violations or any("parent_thread_id_mismatch" in item for item in violations)
+    native_parent_observed = bool(native and native.get("parent_thread_id"))
+    local_parent_observed = bool(local and local.get("parent_thread_id"))
+    if parent_conflict:
+        ancestry = {
+            "status": "conflict",
+            "source": evidence_source(native_parent_observed, local_parent_observed),
+        }
+    elif wanted_parent is None:
+        ancestry = {"status": "not_required", "source": "none"}
+    elif not (native_parent_observed or local_parent_observed):
+        ancestry = {"status": "not_observed", "source": "none"}
+    else:
+        ancestry = {
+            "status": "matched",
+            "source": evidence_source(native_parent_observed, local_parent_observed),
+        }
+
+    if not expected.get("requires_enforced_read_only", False):
+        permission = {"status": "not_required", "source": "none"}
+    elif "source_conflict:sandbox_policy_type" in violations or "source_conflict:permission_profile_type" in violations:
+        permission = {"status": "conflict", "source": "both"}
+    elif native is None or native.get("sandbox_policy_type") is None:
+        permission = {"status": "not_observed", "source": "none"}
+        violations.append("permission:read_only_native_unobserved")
+    elif str(native["sandbox_policy_type"]).lower() in READ_ONLY_SANDBOXES:
+        permission = {"status": "matched", "source": "native"}
+    else:
+        permission = {"status": "broader_than_required", "source": "native"}
+        violations.append("permission:read_only_not_enforced")
+
+    identity_conflict = any(item.endswith("thread_id_mismatch") or item.startswith("source_conflict:thread_id") for item in violations)
+    any_source_conflict = any(
+        item.startswith("source_conflict:") or item.startswith("accepted_observed_conflict:")
+        for item in violations
+    )
+    conflict = (
+        route["status"] == "conflict"
+        or ancestry["status"] == "conflict"
+        or permission["status"] in {"broader_than_required", "conflict"}
+        or identity_conflict
+        or any_source_conflict
+    )
+    if conflict:
+        status, decision = "mismatch", "quarantine"
+    elif permission["status"] == "not_observed":
+        status, decision = "not_exposed", "return_to_main_session"
+    elif runtime_required and not native_required_complete:
+        status, decision = "not_exposed", "return_to_main_session"
+    elif not native_complete and not local_complete:
+        status, decision = "not_exposed", "continue_configuration_only"
+    else:
+        status, decision = "matched", "continue"
+
+    source_agreement = None
+    if native is not None and local is not None:
+        overlap = any(native.get(field) is not None and local.get(field) is not None for field in OBSERVED_FIELDS)
+        if overlap:
+            source_agreement = not any(item.startswith("source_conflict:") for item in violations)
+
+    def tri(value: str, failed: set[str]) -> bool | None:
+        if value == "matched":
+            return True
+        if value in failed:
+            return False
+        return None
+
+    return {
+        "subject": "child",
+        "status": status,
+        "decision": decision,
+        "evidence_grade": grade(native_complete, local_complete, conflict),
+        "truth_layers": {
+            "requested": requested_layer(expected, CHILD_ROUTE_FIELDS),
+            "accepted": accepted_layer(accepted, CHILD_ROUTE_FIELDS, violations),
+            "observed": observed_layer(native, CHILD_ROUTE_FIELDS, violations),
+        },
+        "route_evidence": route,
+        "ancestry_evidence": ancestry,
+        "permission_evidence": permission,
+        "configuration_match": tri(route["status"], {"conflict"}),
+        "runtime_reported": native_complete,
+        "local_record_observed": local_complete,
+        "source_agreement": source_agreement,
+        "permission_match": tri(permission["status"], {"broader_than_required", "conflict"}),
+        "ancestry_match": tri(ancestry["status"], {"conflict"}),
+        "violations": sorted(set(violations)),
+    }
+
+
+def main() -> None:
+    args = parse_args()
+    payload = load_payload(args.input)
+    subject = payload.get("subject", "child")
+    if subject == "main_session":
+        result = main_session_result(payload)
+    elif subject == "child":
+        result = child_result(payload)
+    else:
+        fail("subject must be 'main_session' or 'child'")
+    json.dump(result, sys.stdout, sort_keys=True, separators=(",", ":"))
+    sys.stdout.write("\n")
+
+
+if __name__ == "__main__":
+    main()

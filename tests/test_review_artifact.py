@@ -10,7 +10,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "plugins" / "codex-delegate" / "scripts" / "review-artifact.py"
+SCRIPT = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "review-artifact.py"
 
 
 def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -26,8 +26,8 @@ def init_repo(tmp_path: Path) -> Path:
     repo = tmp_path / "repo"
     repo.mkdir()
     git(repo, "init")
-    git(repo, "config", "user.email", "codex-delegate@example.invalid")
-    git(repo, "config", "user.name", "Codex Delegate Test")
+    git(repo, "config", "user.email", "subagents-dispatch@example.invalid")
+    git(repo, "config", "user.name", "subagents-dispatch Test")
     (repo / ".gitignore").write_text("ignored-cache/\n", encoding="utf-8")
     (repo / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
     git(repo, "add", ".gitignore", "app.py")

@@ -70,7 +70,7 @@ def score_process(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProce
         json.dumps(
             {
                 "schema_version": "4.0",
-                "suite": "codex-delegate-live-behavior",
+                "suite": "subagents-dispatch-live-behavior",
                 "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
                 "runs": runs,
             }
@@ -107,7 +107,7 @@ def test_schema_accepts_complete_final_review_telemetry():
     )
     payload = {
         "schema_version": "4.0",
-        "suite": "codex-delegate-live-behavior",
+        "suite": "subagents-dispatch-live-behavior",
         "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
         "runs": [candidate],
     }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and summarize paired codex delegate behavioral runs."""
+"""Validate and summarize paired subagents-dispatch behavioral runs."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import jsonschema
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
-POLICY = ROOT / "plugins" / "codex-delegate" / "policy-contract.json"
+POLICY = ROOT / "plugins" / "subagents-dispatch" / "policy-contract.json"
 
 PAIR_CONTROL_FIELDS = (
     "workload_definition_hash",
@@ -98,7 +98,7 @@ def fail(message: str) -> NoReturn:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Score paired codex delegate behavioral evals.")
+    parser = argparse.ArgumentParser(description="Score paired subagents-dispatch behavioral evals.")
     parser.add_argument("result", type=Path)
     parser.add_argument("--json", action="store_true")
     return parser.parse_args()

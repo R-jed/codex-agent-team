@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
-SKILL = PLUGIN / "skills" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+SKILL = PLUGIN / "skills" / "dispatch"
 ROUTER = SKILL / "references" / "router-core.md"
 GUARDRAILS = SKILL / "references" / "guardrails.md"
 TEAM_PLAN = SKILL / "references" / "team-plan.md"
@@ -15,7 +15,7 @@ COORDINATION_CASES = ROOT / "evals" / "coordination-cases.json"
 def cases() -> dict[str, dict]:
     payload = json.loads(COORDINATION_CASES.read_text())
     assert payload["schema_version"] == "1.0"
-    assert payload["suite"] == "codex-delegate-coordination-contract"
+    assert payload["suite"] == "subagents-dispatch-coordination-contract"
     return {case["id"]: case for case in payload["cases"]}
 
 

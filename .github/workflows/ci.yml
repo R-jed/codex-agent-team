@@ -34,7 +34,7 @@ jobs:
       - name: Validate plugin manifests
         shell: bash
         run: |
-          python -m json.tool plugins/codex-delegate/.codex-plugin/plugin.json >/dev/null
+          python -m json.tool plugins/subagents-dispatch/.codex-plugin/plugin.json >/dev/null
           python -m json.tool .agents/plugins/marketplace.json >/dev/null
       - name: Validate Plugin with pinned official OpenAI validator
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.11' }}
@@ -44,12 +44,12 @@ jobs:
           curl --fail --silent --show-error --location \
             "https://raw.githubusercontent.com/openai/codex/${OPENAI_CODEX_PLUGIN_VALIDATOR_REF}/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py" \
             --output "$validator"
-          python "$validator" plugins/codex-delegate
+          python "$validator" plugins/subagents-dispatch
       - run: pytest -q
       - name: Verify managed Agent profile lifecycle
         shell: bash
         run: |
-          target="$RUNNER_TEMP/codex-delegate-companion"
-          python plugins/codex-delegate/scripts/install-agents.py --codex-home "$target"
-          python plugins/codex-delegate/scripts/install-agents.py --codex-home "$target" --check
-          python plugins/codex-delegate/scripts/install-agents.py --codex-home "$target"
+          target="$RUNNER_TEMP/subagents-dispatch-companion"
+          python plugins/subagents-dispatch/scripts/install-agents.py --codex-home "$target"
+          python plugins/subagents-dispatch/scripts/install-agents.py --codex-home "$target" --check
+          python plugins/subagents-dispatch/scripts/install-agents.py --codex-home "$target"

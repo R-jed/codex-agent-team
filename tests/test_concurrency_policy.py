@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
-SKILL = PLUGIN / "skills" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+SKILL = PLUGIN / "skills" / "dispatch"
 ROUTER = SKILL / "references" / "router-core.md"
 GUARDRAILS = SKILL / "references" / "guardrails.md"
 POLICY = PLUGIN / "policy-contract.json"
@@ -34,7 +34,7 @@ def test_static_cases_cover_adaptive_fanout_and_material_compute_consent():
     parallel = cases["three-independent-readers-can-fanout"]
     assert parallel["expected"]["action"] == "delegate"
     assert len(parallel["expected"]["nodes"]) == 3
-    assert all(node["agent_type"] == "codex_delegate_reader" for node in parallel["expected"]["nodes"])
+    assert all(node["agent_type"] == "subagents_dispatch_reader" for node in parallel["expected"]["nodes"])
 
     consent = cases["material-compute-expansion-needs-consent"]
     assert consent["expected"]["action"] == "ask_consent"
@@ -59,6 +59,6 @@ def test_router_and_guardrails_own_adaptive_scheduling_and_writer_safety():
 
 def test_installer_lock_is_a_local_profile_lifecycle_mechanism():
     installer = (PLUGIN / "scripts" / "install-agents.py").read_text().lower()
-    assert 'lock_name = ".codex-delegate-agents.lock"' in installer
+    assert 'lock_name = ".subagents-dispatch-agents.lock"' in installer
     assert "def installer_lock(" in installer
     assert "lock_file(fd)" in installer

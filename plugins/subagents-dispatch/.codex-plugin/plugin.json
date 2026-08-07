@@ -1,0 +1,32 @@
+{
+  "name": "subagents-dispatch",
+  "version": "2.0.0",
+  "description": "Let the main Codex session lead a specialist Subagent team, delegating adaptively when extra native compute adds real value.",
+  "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
+  "homepage": "https://github.com/R-jed/subagents-dispatch#readme",
+  "repository": "https://github.com/R-jed/subagents-dispatch",
+  "license": "MIT",
+  "keywords": ["codex", "subagents", "delegation", "orchestration", "gpt-5.6"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "subagents-dispatch",
+    "shortDescription": "Adaptive delegation for reliable everyday development.",
+    "longDescription": "subagents-dispatch lets the current session act as team leader. It keeps work in Main when that is best, assigns distinct ready responsibilities to native Subagents when delegation adds value, chooses Luna, Terra, or Sol by capability need, coordinates dependencies and integration when several responsibilities are active, keeps recovery bounded when delegated work fails, preserves one-writer safety, uses fresh independent review only when the final artifact genuinely warrants it, and includes a Doctor Skill for installation, configuration, managed-profile, and upgrade diagnostics.",
+    "developerName": "R-jed",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/R-jed/subagents-dispatch",
+    "privacyPolicyURL": "https://github.com/R-jed/subagents-dispatch/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/R-jed/subagents-dispatch/blob/main/TERMS.md",
+    "brandColor": "#2563EB",
+    "composerIcon": "./assets/subagents-dispatch-composer-icon.svg",
+    "logo": "./assets/subagents-dispatch-logo.svg",
+    "logoDark": "./assets/subagents-dispatch-logo-dark.svg",
+    "screenshots": [],
+    "defaultPrompt": [
+      "Use $subagents-dispatch:dispatch to complete this task. Lead the work and delegate only when it adds value.",
+      "Use $subagents-dispatch:dispatch to review this change and add independent review only when needed.",
+      "Use $subagents-dispatch:doctor to diagnose this subagents-dispatch installation and configuration."
+    ]
+  }
+}

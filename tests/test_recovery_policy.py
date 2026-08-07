@@ -6,10 +6,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
 SCRIPTS = PLUGIN / "scripts"
 POLICY = PLUGIN / "policy-contract.json"
-SKILL_ROOT = PLUGIN / "skills" / "codex-delegate"
+SKILL_ROOT = PLUGIN / "skills" / "dispatch"
 RECOVERY = SKILL_ROOT / "references" / "recovery.md"
 LEDGER_SCRIPT = SCRIPTS / "validate_team_ledger.py"
 
@@ -17,7 +17,7 @@ LEDGER_SCRIPT = SCRIPTS / "validate_team_ledger.py"
 def load_ledger_validator():
     sys.path.insert(0, str(SCRIPTS))
     try:
-        spec = importlib.util.spec_from_file_location("codex_delegate_team_ledger", LEDGER_SCRIPT)
+        spec = importlib.util.spec_from_file_location("subagents_dispatch_team_ledger", LEDGER_SCRIPT)
         assert spec and spec.loader
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -35,7 +35,7 @@ def attempt(
     revision=None,
     task_id="task-1",
     attempt_no=1,
-    agent_type="codex_delegate_reader",
+    agent_type="subagents_dispatch_reader",
     agent_id="agent-1",
     state="COMPLETED",
     followups=0,
@@ -194,11 +194,11 @@ def test_multiple_units_require_team_plan_and_policy_role_binding():
         "active_team_plan_revision": 1,
         "attempts": [
             attempt(revision=1),
-            attempt(unit_id="U2", revision=1, task_id="task-2", agent_type="codex_delegate_worker", agent_id="agent-2"),
+            attempt(unit_id="U2", revision=1, task_id="task-2", agent_type="subagents_dispatch_worker", agent_id="agent-2"),
         ],
     }
     assert validate(payload)["ledger_valid"] is True
-    payload["attempts"][1]["agent_type"] = "codex_delegate_reader"
+    payload["attempts"][1]["agent_type"] = "subagents_dispatch_reader"
     assert any("does not match TeamPlan role" in error for error in validate(payload)["errors"])
 
 
@@ -263,7 +263,7 @@ def test_role_can_change_across_plan_revision_without_resetting_unit_identity():
             attempt(
                 unit_id="U2",
                 revision=1,
-                agent_type="codex_delegate_worker",
+                agent_type="subagents_dispatch_worker",
                 state="FAILED",
                 adopted=False,
                 failure_origin="quality_failure",
@@ -274,7 +274,7 @@ def test_role_can_change_across_plan_revision_without_resetting_unit_identity():
                 revision=2,
                 task_id="task-2",
                 attempt_no=2,
-                agent_type="codex_delegate_solver",
+                agent_type="subagents_dispatch_solver",
                 agent_id="agent-2",
                 state="RUNNING",
                 adopted=False,

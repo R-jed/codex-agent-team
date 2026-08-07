@@ -5,13 +5,13 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
 SCRIPT = PLUGIN / "scripts" / "validate_team_plan.py"
 POLICY = PLUGIN / "policy-contract.json"
 
 
 def load_validator():
-    spec = importlib.util.spec_from_file_location("codex_delegate_team_plan", SCRIPT)
+    spec = importlib.util.spec_from_file_location("subagents_dispatch_team_plan", SCRIPT)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

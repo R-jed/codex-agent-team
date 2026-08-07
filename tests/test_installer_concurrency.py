@@ -10,11 +10,11 @@ import time
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-INSTALLER = ROOT / "plugins" / "codex-delegate" / "scripts" / "install-agents.py"
+INSTALLER = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "install-agents.py"
 
 
 def load_installer():
-    spec = importlib.util.spec_from_file_location("codex_delegate_installer", INSTALLER)
+    spec = importlib.util.spec_from_file_location("subagents_dispatch_installer", INSTALLER)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

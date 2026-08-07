@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
-SKILL = PLUGIN / "skills" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+SKILL = PLUGIN / "skills" / "dispatch"
 POLICY = PLUGIN / "policy-contract.json"
 
 
@@ -34,11 +34,11 @@ def test_exact_project_roles_have_no_cross_role_fallback():
     skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert "Exact role mismatch fails closed" in skill
     assert set(spec["agent_type"] for spec in policy["roles"].values()) == {
-        "codex_delegate_reader",
-        "codex_delegate_worker",
-        "codex_delegate_solver",
-        "codex_delegate_investigator",
-        "codex_delegate_advisor",
+        "subagents_dispatch_reader",
+        "subagents_dispatch_worker",
+        "subagents_dispatch_solver",
+        "subagents_dispatch_investigator",
+        "subagents_dispatch_advisor",
     }
 
 
@@ -79,8 +79,8 @@ def test_profile_lifecycle_comes_from_policy_and_installer_not_user_docs():
     installer = (PLUGIN / "scripts" / "install-agents.py").read_text(encoding="utf-8")
     expected_files = {spec["profile_file"] for spec in policy["roles"].values()}
     assert {path.name for path in profiles.glob("*.toml")} == expected_files
-    assert 'MANIFEST_NAME = ".codex-delegate-agents.json"' in installer
-    assert 'LOCK_NAME = ".codex-delegate-agents.lock"' in installer
+    assert 'MANIFEST_NAME = ".subagents-dispatch-agents.json"' in installer
+    assert 'LOCK_NAME = ".subagents-dispatch-agents.lock"' in installer
     assert "policy-contract.json" in installer
 
 

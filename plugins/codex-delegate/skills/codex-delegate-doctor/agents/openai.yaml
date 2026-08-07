@@ -1,7 +1,0 @@
-interface:
-  display_name: "Codex Delegate Doctor"
-  short_description: "Diagnose and maintain Codex Delegate installation health"
-  default_prompt: "Use $codex-delegate:codex-delegate-doctor to diagnose this Codex Delegate installation and configuration."
-
-policy:
-  allow_implicit_invocation: false

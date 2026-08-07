@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "skill_name": "codex-delegate",
+  "skill_name": "subagents-dispatch",
   "cases": [
     {"id": "ordinary-route-observation-unavailable", "input": {"route_assurance": "profile_locked", "runtime_observation_required": false}, "expected": {"decision": "continue_configuration_only", "route_status": "not_observed", "evidence_grade": "C1_configuration_only"}},
     {"id": "native-runtime-route-complete", "input": {"native_fields": ["agent_role", "model", "effort"]}, "expected": {"decision": "continue", "route_status": "matched", "evidence_grade": "R1_runtime_reported"}},

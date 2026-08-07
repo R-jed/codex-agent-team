@@ -1,10 +1,10 @@
 # Native Subagent Runtime Contract
 
-codex delegate uses Codex Native Subagents and child threads directly. It does not create another Agent runtime, persistent scheduler, daemon, thread pool, or routing proxy.
+subagents-dispatch uses Codex Native Subagents and child threads directly. It does not create another Agent runtime, persistent scheduler, daemon, thread pool, or routing proxy.
 
 The distinction is deliberate:
 
-| Native Codex | codex delegate |
+| Native Codex | subagents-dispatch |
 | --- | --- |
 | runs the main session and child threads | decides whether delegation helps and which exact project role is useful |
 | exposes whatever capacity/wait/update/runtime metadata the build supports | uses only observed capability without inventing a universal runtime contract |
@@ -16,7 +16,7 @@ The distinction is deliberate:
 The product user command is:
 
 ```text
-$codex-delegate:codex-delegate <task>
+$subagents-dispatch:dispatch <task>
 ```
 
 Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled. The user chooses when adaptive delegation is worth applying.
@@ -25,18 +25,18 @@ Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invo
 
 The exact project roles use Codex's native custom-Agent TOML mechanism. Personal custom Agents are stored under the active Codex home `agents` directory, normally `~/.codex/agents/`.
 
-When an explicit task actually needs a child, role readiness is checked before delegated implementation starts. If profiles are missing, codex delegate asks permission, runs the bundled installer and `--check`, then verifies the role surface. The installer is a project-specific lifecycle and ownership layer around native custom Agent files; it is not a second runtime.
+When an explicit task actually needs a child, role readiness is checked before delegated implementation starts. If profiles are missing, subagents-dispatch asks permission, runs the bundled installer and `--check`, then verifies the role surface. The installer is a project-specific lifecycle and ownership layer around native custom Agent files; it is not a second runtime.
 
 If the current Codex thread cannot discover newly provisioned roles until restart, the task stops before child writing and resumes in a fresh thread.
 
 ## Current exact roles
 
 ```text
-codex_delegate_reader        -> gpt-5.6-luna  / max   / read-only
-codex_delegate_worker        -> gpt-5.6-luna  / max   / workspace-write
-codex_delegate_solver        -> gpt-5.6-sol   / high  / workspace-write
-codex_delegate_investigator  -> gpt-5.6-terra / xhigh / read-only
-codex_delegate_advisor       -> gpt-5.6-sol   / high  / read-only
+subagents_dispatch_reader        -> gpt-5.6-luna  / max   / read-only
+subagents_dispatch_worker        -> gpt-5.6-luna  / max   / workspace-write
+subagents_dispatch_solver        -> gpt-5.6-sol   / high  / workspace-write
+subagents_dispatch_investigator  -> gpt-5.6-terra / xhigh / read-only
+subagents_dispatch_advisor       -> gpt-5.6-sol   / high  / read-only
 ```
 
 Responsibility semantics follow the current model guidance:
@@ -64,7 +64,7 @@ Main-session route evidence is optional optimization data.
 
 Only when the router has already established that material judgment needs Sol capability may trusted current-session model/effort metadata be used to avoid a redundant Advisor/Solver call.
 
-`policy-contract.json` owns the capability reference. `plugins/codex-delegate/scripts/runtime-evidence.py` normalizes observed metadata.
+`policy-contract.json` owns the capability reference. `plugins/subagents-dispatch/scripts/runtime-evidence.py` normalizes observed metadata.
 
 Current reference is Solver, GPT-5.6 Sol `high`:
 
@@ -144,7 +144,7 @@ B completes
 -> start C while A remains active only if the runtime exposes B completion and reusable capacity
 ```
 
-If the runtime exposes only a barrier, codex delegate degrades to that surface. It does not simulate event-driven behavior with model-mediated busy polling.
+If the runtime exposes only a barrier, subagents-dispatch degrades to that surface. It does not simulate event-driven behavior with model-mediated busy polling.
 
 Child progress observability is separate:
 
@@ -159,7 +159,7 @@ A wake-up event does not imply deterministic insight into child progress.
 
 ## Capacity
 
-codex delegate has no project-level ordinary numeric child ceiling and no target Agent count.
+subagents-dispatch has no project-level ordinary numeric child ceiling and no target Agent count.
 
 The main session chooses the active set from responsibilities that are ready, distinct, non-duplicative, worth delegating, and safe to run now. It may use several child Agents when a task contains several independent valuable lanes. It may use none when delegation adds no value.
 
@@ -173,7 +173,7 @@ user scope and compute consent
 native runtime capacity
 ```
 
-Current Codex exposes a host-level concurrent-thread cap through its own Agent configuration. codex delegate does not override or mirror that number in project policy. The host capacity is treated as an upper bound, never a target to fill.
+Current Codex exposes a host-level concurrent-thread cap through its own Agent configuration. subagents-dispatch does not override or mirror that number in project policy. The host capacity is treated as an upper bound, never a target to fill.
 
 A single observed or configured capacity value applies only to that runtime/environment. Do not turn it into a permanent product constant.
 
@@ -185,8 +185,8 @@ One canonical physical checkout has one active writing actor inside the current 
 
 ```text
 main session while mutating
-codex_delegate_worker
-codex_delegate_solver
+subagents_dispatch_worker
+subagents_dispatch_solver
 ```
 
 When a child writer owns the checkout, Main can continue read-only analysis but waits for ownership handoff before integration writes.
@@ -231,6 +231,6 @@ If a runtime shows stale slots, blocking close operations, missing completion si
 
 ## User-facing takeaway
 
-codex delegate lets the main session lead a specialist team whose size follows the task. It decides when additional native compute is useful and keeps that delegation inside a small set of quality and safety boundaries. Native Codex decides how many threads can actually run and how sessions and child threads execute.
+subagents-dispatch lets the main session lead a specialist team whose size follows the task. It decides when additional native compute is useful and keeps that delegation inside a small set of quality and safety boundaries. Native Codex decides how many threads can actually run and how sessions and child threads execute.
 
 This separation lets the Plugin improve daily development without becoming a second orchestration runtime.

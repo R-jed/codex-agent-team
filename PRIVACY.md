@@ -2,17 +2,17 @@
 
 Last updated: 2026-08-05
 
-codex delegate is a skills-only Codex plugin. The project does not operate a developer-controlled server, analytics service, account system, advertising system, or telemetry endpoint.
+subagents-dispatch is a skills-only Codex plugin. The project does not operate a developer-controlled server, analytics service, account system, advertising system, or telemetry endpoint.
 
 ## Data collected by the project
 
-The codex delegate project does not collect, transmit to the maintainer, sell, or retain personal data, conversation content, repository content, credentials, or usage telemetry through the plugin.
+The subagents-dispatch project does not collect, transmit to the maintainer, sell, or retain personal data, conversation content, repository content, credentials, or usage telemetry through the plugin.
 
 The plugin runs inside the user's Codex environment and may work with files, repositories, tools, and context that the user has already made available to Codex. Data handling performed by OpenAI Codex or by tools and services that the user enables is governed by those services' own terms, privacy policies, and workspace settings.
 
 ## Local configuration
 
-When delegation requires the plugin's managed custom Agent roles, codex delegate may ask for permission to install five TOML Agent profiles plus an ownership receipt and installer lock under the user's `CODEX_HOME`. These local files contain plugin configuration and ownership/synchronization metadata. They do not contain project-operated credentials, conversation transcripts, or usage telemetry, and they are not sent to the project maintainer.
+When delegation requires the plugin's managed custom Agent roles, subagents-dispatch may ask for permission to install five TOML Agent profiles plus an ownership receipt and installer lock under the user's `CODEX_HOME`. These local files contain plugin configuration and ownership/synchronization metadata. They do not contain project-operated credentials, conversation transcripts, or usage telemetry, and they are not sent to the project maintainer.
 
 ## Recipients
 
@@ -24,7 +24,7 @@ The project retains no user data collected through the plugin. Managed local con
 
 ## User controls
 
-Users can disable or uninstall codex delegate, decline managed Agent profile provisioning, and remove the plugin's managed local configuration. Because the project does not operate a user account or remote data store, there is no project-held personal data account to delete.
+Users can disable or uninstall subagents-dispatch, decline managed Agent profile provisioning, and remove the plugin's managed local configuration. Because the project does not operate a user account or remote data store, there is no project-held personal data account to delete.
 
 ## Security and privacy reports
 

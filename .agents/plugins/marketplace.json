@@ -1,14 +1,14 @@
 {
-  "name": "codex-delegate",
+  "name": "subagents-dispatch",
   "interface": {
-    "displayName": "Codex Delegate"
+    "displayName": "subagents-dispatch"
   },
   "plugins": [
     {
-      "name": "codex-delegate",
+      "name": "subagents-dispatch",
       "source": {
         "source": "local",
-        "path": "./plugins/codex-delegate"
+        "path": "./plugins/subagents-dispatch"
       },
       "policy": {
         "installation": "AVAILABLE",

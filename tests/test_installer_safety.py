@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-INSTALLER = ROOT / "plugins" / "codex-delegate" / "scripts" / "install-agents.py"
+INSTALLER = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "install-agents.py"
 
 
 def run_installer(target: Path, *extra: str):
@@ -14,8 +14,8 @@ def test_installer_refuses_different_same_filename_profile(tmp_path):
     target = tmp_path / "codex-home"
     agents = target / "agents"
     agents.mkdir(parents=True)
-    (agents / "codex-delegate-worker.toml").write_text(
-        'name = "codex_delegate_worker"\nmodel = "gpt-5.6-terra"\ndeveloper_instructions = "custom"\n'
+    (agents / "subagents-dispatch-worker.toml").write_text(
+        'name = "subagents_dispatch_worker"\nmodel = "gpt-5.6-terra"\ndeveloper_instructions = "custom"\n'
     )
     result = run_installer(target)
     assert result.returncode != 0
@@ -27,7 +27,7 @@ def test_installer_refuses_same_current_reserved_role_name_in_different_file(tmp
     agents = target / "agents"
     agents.mkdir(parents=True)
     (agents / "my-custom-worker.toml").write_text(
-        'name = "codex_delegate_worker"\nmodel = "gpt-5.6-terra"\ndeveloper_instructions = "custom"\n'
+        'name = "subagents_dispatch_worker"\nmodel = "gpt-5.6-terra"\ndeveloper_instructions = "custom"\n'
     )
     result = run_installer(target)
     assert result.returncode != 0
@@ -39,7 +39,7 @@ def test_installer_refuses_symlinked_lock(tmp_path):
     target.mkdir()
     external = tmp_path / "external-lock"
     external.write_bytes(b"\0")
-    (target / ".codex-delegate-agents.lock").symlink_to(external)
+    (target / ".subagents-dispatch-agents.lock").symlink_to(external)
     result = run_installer(target)
     assert result.returncode != 0
     assert "Refusing symlinked installer lock" in result.stdout + result.stderr

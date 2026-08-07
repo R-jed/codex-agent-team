@@ -1,6 +1,6 @@
 # Security Policy
 
-codex delegate controls delegation policy. It does not replace Codex sandboxing, approval policies, operating-system permissions, repository access controls, or the user's own authorization boundaries.
+subagents-dispatch controls delegation policy. It does not replace Codex sandboxing, approval policies, operating-system permissions, repository access controls, or the user's own authorization boundaries.
 
 Please report security issues through GitHub private vulnerability reporting when it is available for this repository. Avoid publishing exploit details before a maintainer has had a reasonable opportunity to review them.
 

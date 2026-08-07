@@ -9,8 +9,8 @@ import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
-SKILL = PLUGIN / "skills" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+SKILL = PLUGIN / "skills" / "dispatch"
 REFS = SKILL / "references"
 PROFILES = PLUGIN / "agent-profiles"
 POLICY = PLUGIN / "policy-contract.json"
@@ -31,12 +31,12 @@ def test_skill_and_openai_metadata_keep_one_explicit_entrypoint():
     match = re.match(r"^---\n(.*?)\n---\n", skill, re.S)
     assert match
     frontmatter = yaml.safe_load(match.group(1))
-    assert frontmatter["name"] == "codex-delegate"
+    assert frontmatter["name"] == "dispatch"
     assert frontmatter["description"].strip()
 
     openai = yaml.safe_load((SKILL / "agents" / "openai.yaml").read_text(encoding="utf-8"))
-    assert openai["interface"]["display_name"] == "Codex Delegate"
-    assert "$codex-delegate:codex-delegate" in openai["interface"]["default_prompt"]
+    assert openai["interface"]["display_name"] == "Dispatch"
+    assert "$subagents-dispatch:dispatch" in openai["interface"]["default_prompt"]
     assert openai["policy"]["allow_implicit_invocation"] is False
 
 
@@ -145,7 +145,7 @@ def test_public_docs_keep_product_identity_while_ai_reference_points_to_policy_o
     for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text(encoding="utf-8")
         assert directive in text
-        assert "$codex-delegate:codex-delegate" in text
+        assert "$subagents-dispatch:dispatch" in text
         assert version in text
         assert "Sol Solver" in text
 

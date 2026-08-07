@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "codex delegate live behavioral result",
+  "title": "subagents-dispatch live behavioral result",
   "type": "object",
   "required": ["schema_version", "suite", "runtime", "runs"],
   "properties": {
     "schema_version": {"const": "4.0"},
-    "suite": {"const": "codex-delegate-live-behavior"},
+    "suite": {"const": "subagents-dispatch-live-behavior"},
     "runtime": {
       "type": "object",
       "required": ["codex_version", "date"],

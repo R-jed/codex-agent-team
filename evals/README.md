@@ -11,7 +11,7 @@ This folder contains test data used to check routing, coordination, recovery, an
 
 The adaptive-routing checks cover both sides of the policy: several independent ready responsibilities may run together when useful, while duplicate, speculative, or low-value work stays out of the active team. The project does not use a fixed ordinary child-Agent count as the routing target.
 
-The coordination cases protect parallel correctness after delegation. They check that codex delegate preserves upstream workflow truth, does not confuse filesystem isolation with semantic independence, does not let a verification or read-only responsibility acquire source-write authority, respects explicit integration dependencies, and never relabels an accepted/configured route as an observed runtime route.
+The coordination cases protect parallel correctness after delegation. They check that subagents-dispatch preserves upstream workflow truth, does not confuse filesystem isolation with semantic independence, does not let a verification or read-only responsibility acquire source-write authority, respects explicit integration dependencies, and never relabels an accepted/configured route as an observed runtime route.
 
 Machine-checkable TeamPlan and recovery invariants are covered directly by `tests/test_team_plan.py` and `tests/test_recovery_policy.py`. Those tests exercise dependency cycles, ready-layer write collisions, plan revision, unit/task identity, bounded attempts, UNKNOWN replacement suppression, and lifecycle/adoption consistency.
 

@@ -16,7 +16,7 @@ SCORER = ROOT / "scripts" / "score-behavioral-evals.py"
 
 
 def load_scorer_module():
-    spec = importlib.util.spec_from_file_location("codex_delegate_behavioral_scorer", SCORER)
+    spec = importlib.util.spec_from_file_location("subagents_dispatch_behavioral_scorer", SCORER)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -83,7 +83,7 @@ def score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[str]:
         json.dumps(
             {
                 "schema_version": "4.0",
-                "suite": "codex-delegate-live-behavior",
+                "suite": "subagents-dispatch-live-behavior",
                 "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
                 "runs": runs,
             }
@@ -103,7 +103,7 @@ def test_behavioral_registry_and_schema_remain_valid_measurement_surfaces():
     workloads = json.loads(WORKLOADS.read_text(encoding="utf-8"))
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     assert workloads["schema_version"] == "4.0"
-    assert workloads["suite"] == "codex-delegate-live-behavior"
+    assert workloads["suite"] == "subagents-dispatch-live-behavior"
     jsonschema.Draft202012Validator.check_schema(schema)
     ids = {item["id"] for item in workloads["workloads"]}
     assert len(ids) == len(workloads["workloads"])
@@ -122,7 +122,7 @@ def test_schema_requires_control_fields_and_rejects_unknown_run_fields():
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     payload = {
         "schema_version": "4.0",
-        "suite": "codex-delegate-live-behavior",
+        "suite": "subagents-dispatch-live-behavior",
         "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
         "runs": [base_run("raw_prompt_luna"), base_run("bounded_luna")],
     }

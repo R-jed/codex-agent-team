@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="plugins/codex-delegate/assets/codex-delegate-logo.svg#gh-light-mode-only" alt="codex delegate" width="112">
-  <img src="plugins/codex-delegate/assets/codex-delegate-logo-dark.svg#gh-dark-mode-only" alt="codex delegate" width="112">
+  <img src="plugins/subagents-dispatch/assets/subagents-dispatch-logo.svg#gh-light-mode-only" alt="subagents-dispatch" width="112">
+  <img src="plugins/subagents-dispatch/assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only" alt="subagents-dispatch" width="112">
 </p>
 
-<h1 align="center">codex-delegate-Plugin</h1>
+<h1 align="center">subagents-dispatch</h1>
 
 <p align="center"><strong>一个Codex subagents框架。</strong></p>
 
@@ -12,14 +12,14 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.0.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-%E5%8E%9F%E7%94%9F%20Subagents-111827.svg" alt="Codex 原生 Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-codex delegate 是一个 Codex Plugin。用户只需要给出开发目标，当前主会话负责判断哪些工作自己完成、哪些值得交给专门的 Agent，并负责最后的整合、验证和交付。
+subagents-dispatch 是一个 Codex Plugin。用户只需要给出开发目标，当前主会话负责判断哪些工作自己完成、哪些值得交给专门的 Agent，并负责最后的整合、验证和交付。
 
 你不需要自己挑模型，不需要规定 Agent 数量，也不需要设计 Luna、Terra、Sol 的执行顺序。
 
@@ -28,17 +28,17 @@ codex delegate 是一个 Codex Plugin。用户只需要给出开发目标，当�
 ### 方式一：Codex 插件市场
 
 1. 在 Codex 中打开 **Plugins**。Codex CLI 也可以输入 `/plugins`。
-2. 搜索 `codex-delegate`。
-3. 打开 **Codex Delegate**，点击 `+` 安装。
+2. 搜索 `subagents-dispatch`。
+3. 打开 **subagents-dispatch**，点击 `+` 安装。
 4. 安装后开启新的 Codex 会话。
 
 ### 方式二：命令行
 
 ```bash
-codex plugin marketplace add R-jed/codex-delegate@main \
+codex plugin marketplace add R-jed/subagents-dispatch@main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-delegate && \
-codex plugin add codex-delegate@codex-delegate
+  --sparse plugins/subagents-dispatch && \
+codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
 安装后开启新的 Codex 会话。
@@ -48,13 +48,13 @@ codex plugin add codex-delegate@codex-delegate
 开发任务使用主 Skill：
 
 ```text
-$codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
+$subagents-dispatch:dispatch 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
 
 安装、配置、Marketplace 和 Agent profile 诊断使用 Doctor：
 
 ```text
-$codex-delegate:codex-delegate-doctor 检查我的 Codex Delegate 安装和配置。
+$subagents-dispatch:doctor 检查我的 subagents-dispatch 安装和配置。
 ```
 
 Doctor 默认只诊断。只有用户明确要求修复、安装或升级时才会修改状态。
@@ -65,19 +65,19 @@ Doctor 默认只诊断。只有用户明确要求修复、安装或升级时才�
 
 ### 插件市场
 
-打开 **Plugins**，在已安装插件中找到 **Codex Delegate** 并安装可用更新，然后开启新的 Codex 会话。
+打开 **Plugins**，在已安装插件中找到 **subagents-dispatch** 并安装可用更新，然后开启新的 Codex 会话。
 
 ### 命令行
 
 ```bash
-codex plugin marketplace upgrade codex-delegate && \
-codex plugin add codex-delegate@codex-delegate
+codex plugin marketplace upgrade subagents-dispatch && \
+codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
 也可以让 Doctor 执行升级并检查升级后的状态：
 
 ```text
-$codex-delegate:codex-delegate-doctor 升级 Codex Delegate，并告诉我升级后还需要做什么。
+$subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还需要做什么。
 ```
 
 更新后开启新的 Codex 会话。
@@ -94,7 +94,7 @@ $codex-delegate:codex-delegate-doctor 升级 Codex Delegate，并告诉我升级
 | Terra Investigator | 做更大范围的只读技术调查和证据整理 |
 | Sol Advisor | 做重要技术判断，或对高影响结果进行独立复核 |
 
-有些任务完全由主会话完成，有些任务会同时使用多个 Agent。codex delegate 不预设固定 Agent 数量，也不会为了填满并发额度而创建 Agent。
+有些任务完全由主会话完成，有些任务会同时使用多个 Agent。subagents-dispatch 不预设固定 Agent 数量，也不会为了填满并发额度而创建 Agent。
 
 任务之间存在依赖时，主会话负责决定启动顺序、写入范围和最终整合。修改不同文件也不自动等于可以安全并行。
 
@@ -106,7 +106,7 @@ $codex-delegate:codex-delegate-doctor 升级 Codex Delegate，并告诉我升级
 - 子 Agent 不能自行扩大权限、修改范围或外部影响。
 - Agent 自己说“完成了”不算验证，最终以实际文件、代码和测试结果为准。
 - Doctor 默认只读诊断；修复、安装和升级必须来自用户明确请求。
-- codex delegate 直接使用 Codex 原生 Subagents，不运行独立 Agent runtime、后台 daemon 或外部路由服务。
+- subagents-dispatch 直接使用 Codex 原生 Subagents，不运行独立 Agent runtime、后台 daemon 或外部路由服务。
 
 更完整的协调、恢复、运行证据和独立复核规则见 [架构说明](docs/architecture.md)。
 
@@ -115,22 +115,22 @@ $codex-delegate:codex-delegate-doctor 升级 Codex Delegate，并告诉我升级
 ```text
 .
 ├── .agents/plugins/                  # Codex Marketplace 注册
-├── plugins/codex-delegate/           # 可安装的 Plugin 包
+├── plugins/subagents-dispatch/           # 可安装的 Plugin 包
 │   ├── .codex-plugin/                # Plugin manifest
 │   ├── agent-profiles/               # 五个原生 Subagent 配置
 │   ├── assets/                       # Plugin 图标与 README Logo
 │   ├── policy-contract.json          # 机器可读的角色与核心约束
 │   ├── scripts/                      # installer、校验器与运行证据工具
 │   └── skills/
-│       ├── codex-delegate/           # 主委托 Skill 与运行规则
-│       └── codex-delegate-doctor/    # 安装、配置、profiles 与升级诊断
+│       ├── subagents-dispatch/           # 主委托 Skill 与运行规则
+│       └── doctor/    # 安装、配置、profiles 与升级诊断
 ├── docs/                             # 安装、架构与运行边界文档
 ├── evals/                            # 静态与行为评估数据
 ├── scripts/                          # 仓库级验证工具
 └── tests/                            # 回归、打包与跨平台测试
 ```
 
-Plugin 的运行核心集中在 `plugins/codex-delegate/`。根目录的 `docs/`、`evals/`、`scripts/` 和 `tests/` 主要服务于说明、验证和发布质量。
+Plugin 的运行核心集中在 `plugins/subagents-dispatch/`。根目录的 `docs/`、`evals/`、`scripts/` 和 `tests/` 主要服务于说明、验证和发布质量。
 
 ## 文档
 

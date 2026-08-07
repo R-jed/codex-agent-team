@@ -2,15 +2,15 @@
 
 Last updated: 2026-08-05
 
-These terms apply to the codex delegate plugin distributed from `R-jed/codex-delegate`.
+These terms apply to the subagents-dispatch plugin distributed from `R-jed/subagents-dispatch`.
 
 ## Open-source software
 
-codex delegate is provided under the MIT License. The repository's `LICENSE` file governs copying, modification, distribution, and use of the software.
+subagents-dispatch is provided under the MIT License. The repository's `LICENSE` file governs copying, modification, distribution, and use of the software.
 
 ## Use with Codex
 
-codex delegate runs within OpenAI Codex and uses capabilities available to the user's Codex environment. Use of Codex itself remains subject to OpenAI's applicable terms, policies, workspace controls, and service availability. Use of any third-party tool or service enabled by the user remains subject to that provider's terms.
+subagents-dispatch runs within OpenAI Codex and uses capabilities available to the user's Codex environment. Use of Codex itself remains subject to OpenAI's applicable terms, policies, workspace controls, and service availability. Use of any third-party tool or service enabled by the user remains subject to that provider's terms.
 
 ## User responsibility
 

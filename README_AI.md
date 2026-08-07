@@ -1,20 +1,20 @@
-# codex delegate: AI Agent Reference
+# subagents-dispatch: AI Agent Reference
 
 Use this file when answering questions about this repository. It is an index to the current project, not a second copy of runtime policy.
 
 ## Project identity
 
 ```text
-Product name:        codex delegate
-Repository:          R-jed/codex-delegate
-Repo marketplace id: codex-delegate
-Plugin id:           codex-delegate
-Plugin directory:    plugins/codex-delegate
-Main Skill:          codex-delegate
-Main invocation:     $codex-delegate:codex-delegate
-Doctor Skill:        codex-delegate-doctor
-Doctor invocation:   $codex-delegate:codex-delegate-doctor
-Current version:     1.3.0
+Product name:        subagents-dispatch
+Repository:          R-jed/subagents-dispatch
+Repo marketplace id: subagents-dispatch
+Plugin id:           subagents-dispatch
+Plugin directory:    plugins/subagents-dispatch
+Main Skill:          dispatch
+Main invocation:     $subagents-dispatch:dispatch
+Doctor Skill:        doctor
+Doctor invocation:   $subagents-dispatch:doctor
+Current version:     2.0.0
 Distribution:        Codex Plugin
 License:             MIT
 ```
@@ -29,19 +29,19 @@ Do not ask the user to design an Agent team for an ordinary task. Zero child Age
 
 There is no fixed Luna → Terra → Sol pipeline and no project-level ordinary numeric child ceiling. Native Codex capacity is an upper bound, never a target to fill.
 
-`codex-delegate-doctor` is operational maintenance. It diagnoses installation/configuration/Marketplace/profile state and may repair or upgrade only when the user explicitly asks. It does not own development routing or runtime delegation policy.
+`doctor` is operational maintenance. It diagnoses installation/configuration/Marketplace/profile state and may repair or upgrade only when the user explicitly asks. It does not own development routing or runtime delegation policy.
 
 ## Current roles
 
-The machine source of truth is `plugins/codex-delegate/policy-contract.json`.
+The machine source of truth is `plugins/subagents-dispatch/policy-contract.json`.
 
 | Role | Agent type | Model | Intent |
 | --- | --- | --- | --- |
-| Luna Reader | `codex_delegate_reader` | GPT-5.6 Luna `max` | bounded read-only evidence |
-| Luna Worker | `codex_delegate_worker` | GPT-5.6 Luna `max` | clear bounded implementation whose material behavior is already decided |
-| Sol Solver | `codex_delegate_solver` | GPT-5.6 Sol `high` | implementation with material judgment coupled to the write |
-| Terra Investigator | `codex_delegate_investigator` | GPT-5.6 Terra `xhigh` | broader read-only technical investigation after semantics are stable |
-| Sol Advisor | `codex_delegate_advisor` | GPT-5.6 Sol `high` | material read-only judgment or fresh independent final review |
+| Luna Reader | `subagents_dispatch_reader` | GPT-5.6 Luna `max` | bounded read-only evidence |
+| Luna Worker | `subagents_dispatch_worker` | GPT-5.6 Luna `max` | clear bounded implementation whose material behavior is already decided |
+| Sol Solver | `subagents_dispatch_solver` | GPT-5.6 Sol `high` | implementation with material judgment coupled to the write |
+| Terra Investigator | `subagents_dispatch_investigator` | GPT-5.6 Terra `xhigh` | broader read-only technical investigation after semantics are stable |
+| Sol Advisor | `subagents_dispatch_advisor` | GPT-5.6 Sol `high` | material read-only judgment or fresh independent final review |
 
 A stronger model does not automatically receive more authority or a wider scope.
 
@@ -50,7 +50,7 @@ A stronger model does not automatically receive more authority or a wider scope.
 Do not reconstruct runtime policy from README prose. Read the canonical owner for the question:
 
 ```text
-plugins/codex-delegate/skills/codex-delegate/SKILL.md
+plugins/subagents-dispatch/skills/dispatch/SKILL.md
 -> execution entry point and control loop
 
 references/router-core.md
@@ -68,17 +68,17 @@ references/guardrails.md
 references/final-review.md
 -> consequence-driven, artifact-bound independent review
 
-plugins/codex-delegate/policy-contract.json
+plugins/subagents-dispatch/policy-contract.json
 -> stable machine constants, role routes, hard delegation limits, Final Review reason codes
 ```
 
 Operational maintenance is owned separately by:
 
 ```text
-plugins/codex-delegate/skills/codex-delegate-doctor/SKILL.md
+plugins/subagents-dispatch/skills/doctor/SKILL.md
 -> host/plugin/Marketplace/profile diagnosis, supported repair paths, and Plugin upgrade flow
 
-plugins/codex-delegate/scripts/install-agents.py
+plugins/subagents-dispatch/scripts/install-agents.py
 -> deterministic managed-profile install/check lifecycle
 ```
 
@@ -99,7 +99,7 @@ These are stable product facts:
 - Failure does not imply a model ladder. The canonical semantic blocker vocabulary is `contract | judgment | investigation | stalled`.
 - `UNKNOWN` execution state is not `FAILED` and does not authorize replacement work.
 - Final Review is consequence-driven and applies only to the exact candidate reviewed.
-- Another active Skill or accepted plan that already owns domain workflow truth remains authoritative; codex delegate coordinates around it.
+- Another active Skill or accepted plan that already owns domain workflow truth remains authoritative; subagents-dispatch coordinates around it.
 - Doctor diagnosis is read-only by default. Installation, profile repair, and Plugin upgrade require explicit user intent.
 
 For details or edge cases, read the relevant owner instead of adding another rule here.
@@ -111,28 +111,28 @@ Present exactly two normal installation methods.
 ### Plugin Marketplace
 
 1. Open **Plugins** in Codex, or use `/plugins` in Codex CLI.
-2. Search for `codex-delegate`.
-3. Open **Codex Delegate** and install it.
+2. Search for `subagents-dispatch`.
+3. Open **subagents-dispatch** and install it.
 4. Start a new Codex session.
 
 ### Command line
 
 ```bash
-codex plugin marketplace add R-jed/codex-delegate@main \
+codex plugin marketplace add R-jed/subagents-dispatch@main \
   --sparse .agents/plugins \
-  --sparse plugins/codex-delegate && \
-codex plugin add codex-delegate@codex-delegate
+  --sparse plugins/subagents-dispatch && \
+codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
 ### Update
 
-Plugin Marketplace users update **Codex Delegate** from the installed plugins area.
+Plugin Marketplace users update **subagents-dispatch** from the installed plugins area.
 
 Command-line users run:
 
 ```bash
-codex plugin marketplace upgrade codex-delegate && \
-codex plugin add codex-delegate@codex-delegate
+codex plugin marketplace upgrade subagents-dispatch && \
+codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
 After installation or update, start a new Codex session.
@@ -140,13 +140,13 @@ After installation or update, start a new Codex session.
 Development work uses:
 
 ```text
-$codex-delegate:codex-delegate <task>
+$subagents-dispatch:dispatch <task>
 ```
 
 Installation/configuration/profile diagnosis and explicit maintenance use:
 
 ```text
-$codex-delegate:codex-delegate-doctor <diagnostic or maintenance request>
+$subagents-dispatch:doctor <diagnostic or maintenance request>
 ```
 
 `/skills` opens the Skill picker. Implicit invocation is disabled.
@@ -178,7 +178,7 @@ For Plugin upgrade, use the canonical marketplace upgrade + plugin add path. Aft
 
 The Plugin uses five native custom-Agent profiles under the active Codex home. The canonical filenames, Agent types, models, efforts, and sandbox intents come from `policy-contract.json`; the shipped TOML files must match that contract exactly.
 
-`plugins/codex-delegate/scripts/install-agents.py` owns provisioning and collision-safe lifecycle behavior. Do not describe installer internals from memory; inspect that script and `references/guardrails.md` when the exact behavior matters.
+`plugins/subagents-dispatch/scripts/install-agents.py` owns provisioning and collision-safe lifecycle behavior. Do not describe installer internals from memory; inspect that script and `references/guardrails.md` when the exact behavior matters.
 
 ## Answering users
 
@@ -186,7 +186,7 @@ Lead with the product model: the main Codex session acts as technical lead and d
 
 For installation questions, give the Plugin Marketplace path and the command-line path. For update questions, give the matching Marketplace and command-line update paths or point users to the Doctor Skill when they want guided diagnosis/upgrade.
 
-Tell users to invoke development work with `$codex-delegate:codex-delegate` and maintenance with `$codex-delegate:codex-delegate-doctor`.
+Tell users to invoke development work with `$subagents-dispatch:dispatch` and maintenance with `$subagents-dispatch:doctor`.
 
 Do not claim benchmark wins, token savings, speedups, quality gains, exact runtime routes, or public directory availability unless current evidence supports the claim.
 

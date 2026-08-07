@@ -8,22 +8,22 @@ from urllib.parse import urlparse
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
+PLUGIN_ROOT = ROOT / "plugins" / "subagents-dispatch"
 MANIFEST = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
-MAIN_SKILL_ROOT = SKILLS_ROOT / "codex-delegate"
-DOCTOR_SKILL_ROOT = SKILLS_ROOT / "codex-delegate-doctor"
+MAIN_SKILL_ROOT = SKILLS_ROOT / "dispatch"
+DOCTOR_SKILL_ROOT = SKILLS_ROOT / "doctor"
 MAIN_OPENAI_YAML = MAIN_SKILL_ROOT / "agents" / "openai.yaml"
 DOCTOR_OPENAI_YAML = DOCTOR_SKILL_ROOT / "agents" / "openai.yaml"
 POLICY = PLUGIN_ROOT / "policy-contract.json"
-MAIN_INVOCATION = "$codex-delegate:codex-delegate"
-DOCTOR_INVOCATION = "$codex-delegate:codex-delegate-doctor"
+MAIN_INVOCATION = "$subagents-dispatch:dispatch"
+DOCTOR_INVOCATION = "$subagents-dispatch:doctor"
 
 
 def test_plugin_manifest_has_public_legal_links_and_stays_skills_only():
     payload = json.loads(MANIFEST.read_text(encoding="utf-8"))
     interface = payload["interface"]
-    assert payload["name"] == "codex-delegate"
+    assert payload["name"] == "subagents-dispatch"
     assert payload["skills"] == "./skills/"
     for unsupported_component in ["mcpServers", "apps", "hooks"]:
         assert unsupported_component not in payload

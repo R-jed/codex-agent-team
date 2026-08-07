@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "skill_name": "codex-delegate",
+  "skill_name": "subagents-dispatch",
   "cases": [
     {
       "id": "single-file-clear-fix",
@@ -32,7 +32,7 @@
           {
             "unit_id": "U1",
             "role": "reader",
-            "agent_type": "codex_delegate_reader",
+            "agent_type": "subagents_dispatch_reader",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "none"
@@ -50,7 +50,7 @@
           {
             "unit_id": "U1",
             "role": "worker",
-            "agent_type": "codex_delegate_worker",
+            "agent_type": "subagents_dispatch_worker",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "bounded-source-write"
@@ -69,7 +69,7 @@
           {
             "unit_id": "U1",
             "role": "advisor",
-            "agent_type": "codex_delegate_advisor",
+            "agent_type": "subagents_dispatch_advisor",
             "model": "gpt-5.6-sol",
             "effort": "high",
             "mutation_authority": "none"
@@ -88,7 +88,7 @@
           {
             "unit_id": "U1",
             "role": "solver",
-            "agent_type": "codex_delegate_solver",
+            "agent_type": "subagents_dispatch_solver",
             "model": "gpt-5.6-sol",
             "effort": "high",
             "mutation_authority": "bounded-source-write"
@@ -118,7 +118,7 @@
           {
             "unit_id": "U1",
             "role": "worker",
-            "agent_type": "codex_delegate_worker",
+            "agent_type": "subagents_dispatch_worker",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "bounded-source-write"
@@ -137,7 +137,7 @@
           {
             "unit_id": "U1",
             "role": "investigator",
-            "agent_type": "codex_delegate_investigator",
+            "agent_type": "subagents_dispatch_investigator",
             "model": "gpt-5.6-terra",
             "effort": "xhigh",
             "mutation_authority": "none"
@@ -157,7 +157,7 @@
           {
             "unit_id": "U1",
             "role": "advisor",
-            "agent_type": "codex_delegate_advisor",
+            "agent_type": "subagents_dispatch_advisor",
             "model": "gpt-5.6-sol",
             "effort": "high",
             "mutation_authority": "none"
@@ -176,7 +176,7 @@
           {
             "unit_id": "U1",
             "role": "worker",
-            "agent_type": "codex_delegate_worker",
+            "agent_type": "subagents_dispatch_worker",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "bounded-source-write"
@@ -196,7 +196,7 @@
           {
             "unit_id": "U1",
             "role": "worker",
-            "agent_type": "codex_delegate_worker",
+            "agent_type": "subagents_dispatch_worker",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "bounded-source-write"
@@ -214,7 +214,7 @@
           {
             "unit_id": "U1",
             "role": "reader",
-            "agent_type": "codex_delegate_reader",
+            "agent_type": "subagents_dispatch_reader",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "none"
@@ -222,7 +222,7 @@
           {
             "unit_id": "U2",
             "role": "reader",
-            "agent_type": "codex_delegate_reader",
+            "agent_type": "subagents_dispatch_reader",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "none"
@@ -230,7 +230,7 @@
           {
             "unit_id": "U3",
             "role": "reader",
-            "agent_type": "codex_delegate_reader",
+            "agent_type": "subagents_dispatch_reader",
             "model": "gpt-5.6-luna",
             "effort": "max",
             "mutation_authority": "none"
@@ -269,7 +269,7 @@
           {
             "unit_id": "U1",
             "role": "advisor",
-            "agent_type": "codex_delegate_advisor",
+            "agent_type": "subagents_dispatch_advisor",
             "model": "gpt-5.6-sol",
             "effort": "high",
             "mutation_authority": "none",

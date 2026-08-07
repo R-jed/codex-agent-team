@@ -3,8 +3,8 @@ import json
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
-SKILL = PLUGIN / "skills" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+SKILL = PLUGIN / "skills" / "dispatch"
 REFS = SKILL / "references"
 PROFILES = PLUGIN / "agent-profiles"
 POLICY = PLUGIN / "policy-contract.json"
@@ -28,7 +28,7 @@ def test_current_advisor_route_matches_policy_and_is_fresh():
     spec = contract()["roles"]["advisor"]
     advisor = tomllib.loads((PROFILES / spec["profile_file"]).read_text(encoding="utf-8"))
     review = (REFS / "final-review.md").read_text(encoding="utf-8")
-    assert "agent_type: codex_delegate_advisor" in review
+    assert "agent_type: subagents_dispatch_advisor" in review
     assert "fork_turns: none" in review
     assert advisor["name"] == spec["agent_type"]
     assert advisor["model"] == spec["model"]

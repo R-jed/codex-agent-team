@@ -5,44 +5,44 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
+PLUGIN_ROOT = ROOT / "plugins" / "subagents-dispatch"
 PLUGIN = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
-MAIN_SKILL = SKILLS_ROOT / "codex-delegate"
-DOCTOR_SKILL = SKILLS_ROOT / "codex-delegate-doctor"
+MAIN_SKILL = SKILLS_ROOT / "dispatch"
+DOCTOR_SKILL = SKILLS_ROOT / "doctor"
 INSTALL_DOC = ROOT / "docs" / "plugin-installation.md"
 POLICY = PLUGIN_ROOT / "policy-contract.json"
-EXPECTED_VERSION = "1.3.0"
-CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/codex-delegate@main"
-PLUGIN_ADD = "codex plugin add codex-delegate@codex-delegate"
-UPGRADE = "codex plugin marketplace upgrade codex-delegate"
+EXPECTED_VERSION = "2.0.0"
+CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch@main"
+PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
+UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
 
 
 def test_plugin_manifest_and_marketplace_use_canonical_identity():
     payload = json.loads(PLUGIN.read_text(encoding="utf-8"))
-    assert payload["name"] == "codex-delegate"
+    assert payload["name"] == "subagents-dispatch"
     assert payload["version"] == EXPECTED_VERSION
     assert payload["skills"] == "./skills/"
-    assert payload["repository"] == "https://github.com/R-jed/codex-delegate"
-    assert payload["homepage"] == "https://github.com/R-jed/codex-delegate#readme"
-    assert payload["interface"]["displayName"] == "Codex Delegate"
-    assert payload["interface"]["websiteURL"] == "https://github.com/R-jed/codex-delegate"
+    assert payload["repository"] == "https://github.com/R-jed/subagents-dispatch"
+    assert payload["homepage"] == "https://github.com/R-jed/subagents-dispatch#readme"
+    assert payload["interface"]["displayName"] == "subagents-dispatch"
+    assert payload["interface"]["websiteURL"] == "https://github.com/R-jed/subagents-dispatch"
     assert {path.name for path in SKILLS_ROOT.iterdir() if path.is_dir()} == {
-        "codex-delegate",
-        "codex-delegate-doctor",
+        "dispatch",
+        "doctor",
     }
     assert (MAIN_SKILL / "SKILL.md").is_file()
     assert (DOCTOR_SKILL / "SKILL.md").is_file()
 
     market = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
     assert market == {
-        "name": "codex-delegate",
-        "interface": {"displayName": "Codex Delegate"},
+        "name": "subagents-dispatch",
+        "interface": {"displayName": "subagents-dispatch"},
         "plugins": [
             {
-                "name": "codex-delegate",
-                "source": {"source": "local", "path": "./plugins/codex-delegate"},
+                "name": "subagents-dispatch",
+                "source": {"source": "local", "path": "./plugins/subagents-dispatch"},
                 "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
                 "category": "Productivity",
             }
@@ -62,7 +62,7 @@ def test_plugin_brand_assets_and_supported_components():
     for field in ["homepage", "repository"]:
         parsed = urlparse(payload[field])
         assert parsed.scheme == "https" and parsed.netloc
-    assert any("$codex-delegate:codex-delegate-doctor" in prompt for prompt in interface["defaultPrompt"])
+    assert any("$subagents-dispatch:doctor" in prompt for prompt in interface["defaultPrompt"])
 
 
 def test_policy_contract_owns_the_five_packaged_profiles():
@@ -72,8 +72,8 @@ def test_policy_contract_owns_the_five_packaged_profiles():
     expected = {spec["profile_file"] for spec in policy["roles"].values()}
     assert len(expected) == 5
     assert {p.name for p in (PLUGIN_ROOT / "agent-profiles").glob("*.toml")} == expected
-    assert all(name.startswith("codex-delegate-") for name in expected)
-    assert all(spec["agent_type"].startswith("codex_delegate_") for spec in policy["roles"].values())
+    assert all(name.startswith("subagents-dispatch-") for name in expected)
+    assert all(spec["agent_type"].startswith("subagents_dispatch_") for spec in policy["roles"].values())
 
 
 def test_third_party_mit_notice_is_packaged_without_repository_pointer():
@@ -111,7 +111,7 @@ def test_doctor_reuses_supported_diagnostics_and_existing_installer():
         CANONICAL_MARKETPLACE,
         PLUGIN_ADD,
         UPGRADE,
-        "$codex-delegate:codex-delegate-doctor",
+        "$subagents-dispatch:doctor",
     ]:
         assert phrase in text
     assert "Diagnosis is read-only by default" in text
@@ -125,16 +125,16 @@ def test_install_doc_contains_the_two_current_install_and_update_paths():
     text = INSTALL_DOC.read_text(encoding="utf-8")
     for phrase in [
         "Option 1: Codex Plugin Marketplace",
-        "Search for `codex-delegate`",
+        "Search for `subagents-dispatch`",
         "/plugins",
         "Option 2: Command-line installation",
         CANONICAL_MARKETPLACE,
         "--sparse .agents/plugins",
-        "--sparse plugins/codex-delegate",
+        "--sparse plugins/subagents-dispatch",
         PLUGIN_ADD,
         "## Update",
         UPGRADE,
-        "$codex-delegate:codex-delegate",
+        "$subagents-dispatch:dispatch",
         "/skills",
     ]:
         assert phrase in text
@@ -147,11 +147,25 @@ def test_readmes_and_ai_reference_share_the_current_install_contract():
     for name in ["README.md", "README_EN.md", "README_AI.md"]:
         text = (ROOT / name).read_text(encoding="utf-8")
         assert version in text
-        assert "$codex-delegate:codex-delegate" in text
-        assert "$codex-delegate:codex-delegate-doctor" in text
+        assert "$subagents-dispatch:dispatch" in text
+        assert "$subagents-dispatch:doctor" in text
         assert "/plugins" in text
         assert CANONICAL_MARKETPLACE in text
         assert "--sparse .agents/plugins" in text
-        assert "--sparse plugins/codex-delegate" in text
+        assert "--sparse plugins/subagents-dispatch" in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
+
+
+def test_retired_public_identity_is_absent_from_current_tree():
+    retired_hyphen = "codex" + "-delegate"
+    retired_snake = "codex" + "_delegate"
+    for path in ROOT.rglob("*"):
+        if not path.is_file() or ".git" in path.parts:
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        assert retired_hyphen not in content, path
+        assert retired_snake not in content, path

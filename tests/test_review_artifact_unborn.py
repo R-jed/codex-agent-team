@@ -5,7 +5,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "plugins" / "codex-delegate" / "scripts" / "review-artifact.py"
+SCRIPT = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "review-artifact.py"
 
 
 def git(repo: Path, *args: str) -> None:

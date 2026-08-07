@@ -7,13 +7,13 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "codex-delegate"
+PLUGIN = ROOT / "plugins" / "subagents-dispatch"
 INSTALLER = PLUGIN / "scripts" / "install-agents.py"
 PROFILE_SOURCE = PLUGIN / "agent-profiles"
 POLICY = json.loads((PLUGIN / "policy-contract.json").read_text())
 CURRENT_FILES = tuple(spec["profile_file"] for spec in POLICY["roles"].values())
-CURRENT_MANIFEST = ".codex-delegate-agents.json"
-CURRENT_LOCK = ".codex-delegate-agents.lock"
+CURRENT_MANIFEST = ".subagents-dispatch-agents.json"
+CURRENT_LOCK = ".subagents-dispatch-agents.lock"
 
 
 def run(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
@@ -50,7 +50,7 @@ def test_fresh_install_creates_only_current_managed_profiles(tmp_path: Path):
     manifest = json.loads((home / CURRENT_MANIFEST).read_text())
     assert (home / CURRENT_LOCK).read_bytes() == b"\0"
     assert manifest["schema_version"] == 1
-    assert manifest["managed_by"] == "codex-delegate"
+    assert manifest["managed_by"] == "subagents-dispatch"
     assert set(manifest["profile_hashes"]) == set(CURRENT_FILES)
 
 
@@ -120,7 +120,7 @@ def test_current_manifest_can_add_missing_managed_profile_without_touching_exist
         (agents / filename).write_bytes(data)
         hashes[filename] = sha(data)
     (home / CURRENT_MANIFEST).write_text(
-        json.dumps({"schema_version": 1, "managed_by": "codex-delegate", "profile_hashes": hashes})
+        json.dumps({"schema_version": 1, "managed_by": "subagents-dispatch", "profile_hashes": hashes})
     )
     before = {filename: (agents / filename).read_bytes() for filename in existing_files}
 

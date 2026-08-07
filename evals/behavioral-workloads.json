@@ -1,6 +1,6 @@
 {
   "schema_version": "4.0",
-  "suite": "codex-delegate-live-behavior",
+  "suite": "subagents-dispatch-live-behavior",
   "note": "These are frozen workload shapes for real paired Codex sessions. This file contains no claimed benchmark results.",
   "workloads": [
     {
