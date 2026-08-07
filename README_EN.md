@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="plugins/subagents-dispatch/assets/subagents-dispatch-logo.svg#gh-light-mode-only" alt="subagents-dispatch" width="112">
-  <img src="plugins/subagents-dispatch/assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only" alt="subagents-dispatch" width="112">
+  <img src="assets/subagents-dispatch-logo.svg#gh-light-mode-only" alt="subagents-dispatch" width="112">
+  <img src="assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only" alt="subagents-dispatch" width="112">
 </p>
 
 <h1 align="center">subagents-dispatch</h1>
@@ -26,9 +26,7 @@ Model selection, agent count, and execution order are all decided by the main se
 ## Install
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch@main \
-  --sparse .agents/plugins \
-  --sparse plugins/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch && \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
@@ -106,22 +104,20 @@ See [Architecture](docs/architecture.md) for coordination, recovery, and review 
 ```text
 .
 ├── .agents/plugins/                  # Codex Marketplace registration
-├── plugins/subagents-dispatch/       # installable Plugin package
-│   ├── .codex-plugin/                # Plugin manifest
-│   ├── agent-profiles/               # five Native Subagent profiles
-│   ├── assets/                       # Plugin icons and README logo
-│   ├── policy-contract.json          # machine-readable roles and hard constraints
-│   ├── scripts/                      # installer, validators, and runtime evidence tools
-│   └── skills/
-│       ├── dispatch/                 # main delegation Skill and runtime rules
-│       └── doctor/                   # install, config, profile, and upgrade diagnostics
+├── .codex-plugin/                    # Plugin manifest
+├── agent-profiles/                   # five Native Subagent profiles
+├── assets/                           # Plugin icons and README logo
+├── policy-contract.json              # machine-readable roles and hard constraints
+├── scripts/                          # installer, validators, and runtime evidence tools
+├── skills/
+│   ├── dispatch/                     # main delegation Skill and runtime rules
+│   └── doctor/                       # install, config, profile, and upgrade diagnostics
 ├── docs/                             # installation, architecture, and runtime documentation
 ├── evals/                            # static and behavioral evaluation data
-├── scripts/                          # repository-level validation tools
 └── tests/                            # regression, packaging, and cross-platform tests
 ```
 
-The runtime core lives under `plugins/subagents-dispatch/`. Root-level `docs/`, `evals/`, `scripts/`, and `tests/` support documentation, validation, and release quality.
+The runtime core lives at the repository root.
 
 ## Documentation
 

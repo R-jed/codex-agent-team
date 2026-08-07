@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "subagents-dispatch"
+PLUGIN_ROOT = ROOT
 PLUGIN = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"

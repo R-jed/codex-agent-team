@@ -33,7 +33,7 @@ There is no fixed Luna → Terra → Sol pipeline and no project-level ordinary 
 
 ## Current roles
 
-The machine source of truth is `plugins/subagents-dispatch/policy-contract.json`.
+The machine source of truth is `policy-contract.json`.
 
 | Role | Agent type | Model | Intent |
 | --- | --- | --- | --- |
@@ -50,7 +50,7 @@ A stronger model does not automatically receive more authority or a wider scope.
 Do not reconstruct runtime policy from README prose. Read the canonical owner for the question:
 
 ```text
-plugins/subagents-dispatch/skills/dispatch/SKILL.md
+skills/dispatch/SKILL.md
 -> execution entry point and control loop
 
 references/router-core.md
@@ -68,17 +68,17 @@ references/guardrails.md
 references/final-review.md
 -> consequence-driven, artifact-bound independent review
 
-plugins/subagents-dispatch/policy-contract.json
+policy-contract.json
 -> stable machine constants, role routes, hard delegation limits, Final Review reason codes
 ```
 
 Operational maintenance is owned separately by:
 
 ```text
-plugins/subagents-dispatch/skills/doctor/SKILL.md
+skills/doctor/SKILL.md
 -> host/plugin/Marketplace/profile diagnosis, supported repair paths, and Plugin upgrade flow
 
-plugins/subagents-dispatch/scripts/install-agents.py
+scripts/install-agents.py
 -> deterministic managed-profile install/check lifecycle
 ```
 
@@ -118,9 +118,7 @@ Present exactly two normal installation methods.
 ### Command line
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch@main \
-  --sparse .agents/plugins \
-  --sparse plugins/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch && \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
@@ -178,7 +176,7 @@ For Plugin upgrade, use the canonical marketplace upgrade + plugin add path. Aft
 
 The Plugin uses five native custom-Agent profiles under the active Codex home. The canonical filenames, Agent types, models, efforts, and sandbox intents come from `policy-contract.json`; the shipped TOML files must match that contract exactly.
 
-`plugins/subagents-dispatch/scripts/install-agents.py` owns provisioning and collision-safe lifecycle behavior. Do not describe installer internals from memory; inspect that script and `references/guardrails.md` when the exact behavior matters.
+`scripts/install-agents.py` owns provisioning and collision-safe lifecycle behavior. Do not describe installer internals from memory; inspect that script and `references/guardrails.md` when the exact behavior matters.
 
 ## Answering users
 

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+PLUGIN = ROOT
 SCRIPT = PLUGIN / "scripts" / "validate_team_plan.py"
 POLICY = PLUGIN / "policy-contract.json"
 

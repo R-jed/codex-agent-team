@@ -14,7 +14,7 @@
 |------|------|
 | 源码文件 | 7 个 Python 脚本，2,378 行 |
 | 测试文件 | 26 个，3,312 行 |
-| 插件目录 | plugins/subagents-dispatch/（原 codex-delegate 重命名） |
+| 插件目录 | （原 codex-delegate 重命名） |
 | Skills | dispatch + doctor |
 | Evals | routing-cases, coordination-cases, behavioral-workloads, runtime-assurance-cases |
 | CI | .github/workflows/ci.yml（pytest + codex 官方 validator） |
@@ -249,7 +249,7 @@ Plugin manifest、Skill metadata、host 注入 prompt 中的 namespaced identity
 
 #### 2. 修正 Marketplace 分发 source，并做真实安装 smoke test
 
-重新核对当前 OpenAI Plugin 文档。Plugin 位于 `plugins/subagents-dispatch/` 子目录时，Marketplace source 必须使用当前平台支持的子目录 source contract，并明确 path。不要只验证 JSON syntax。
+重新核对当前 OpenAI Plugin 文档。Plugin 位于 `` 子目录时，Marketplace source 必须使用当前平台支持的子目录 source contract，并明确 path。不要只验证 JSON syntax。
 
 修改 `.agents/plugins/marketplace.json` 和对应 contract tests。测试必须验证平台语义，避免把实现对象原样复制为 expected JSON。
 

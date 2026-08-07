@@ -1,7 +1,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCES = ROOT / "plugins" / "subagents-dispatch" / "skills" / "dispatch" / "references"
+REFERENCES = ROOT / "skills" / "dispatch" / "references"
 
 
 def test_explicit_invocation_can_cover_first_required_final_review():
@@ -16,8 +16,6 @@ def test_explicit_invocation_can_cover_first_required_final_review():
 def test_implicit_invocation_is_disabled_instead_of_needing_extra_consent_policy():
     openai = (
         ROOT
-        / "plugins"
-        / "subagents-dispatch"
         / "skills"
         / "dispatch"
         / "agents"

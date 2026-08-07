@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="plugins/subagents-dispatch/assets/subagents-dispatch-logo.svg#gh-light-mode-only" alt="subagents-dispatch" width="112">
-  <img src="plugins/subagents-dispatch/assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only" alt="subagents-dispatch" width="112">
+  <img src="assets/subagents-dispatch-logo.svg#gh-light-mode-only" alt="subagents-dispatch" width="112">
+  <img src="assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only" alt="subagents-dispatch" width="112">
 </p>
 
 <h1 align="center">subagents-dispatch</h1>
@@ -45,9 +45,7 @@
 ## 安装
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch@main \
-  --sparse .agents/plugins \
-  --sparse plugins/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch && \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
@@ -110,18 +108,16 @@ codex plugin add subagents-dispatch@subagents-dispatch
 ```text
 .
 ├── .agents/plugins/                  # Codex Marketplace 注册
-├── plugins/subagents-dispatch/       # 可安装的 Plugin 包
-│   ├── .codex-plugin/                # Plugin manifest
-│   ├── agent-profiles/               # 五个原生 Subagent 配置
-│   ├── assets/                       # Plugin 图标与 README Logo
-│   ├── policy-contract.json          # 机器可读的角色与核心约束
-│   ├── scripts/                      # installer、校验器与运行证据工具
-│   └── skills/
-│       ├── dispatch/                 # 主委托 Skill 与运行规则
-│       └── doctor/                   # 安装、配置、profiles 与升级诊断
+├── .codex-plugin/                    # Plugin manifest
+├── agent-profiles/                   # 五个原生 Subagent 配置
+├── assets/                           # Plugin 图标与 README Logo
+├── policy-contract.json              # 机器可读的角色与核心约束
+├── scripts/                          # installer、校验器与运行证据工具
+├── skills/
+│   ├── dispatch/                     # 主委托 Skill 与运行规则
+│   └── doctor/                       # 安装、配置、profiles 与升级诊断
 ├── docs/                             # 安装、架构与运行边界文档
 ├── evals/                            # 静态与行为评估数据
-├── scripts/                          # 仓库级验证工具
 └── tests/                            # 回归、打包与跨平台测试
 ```
 

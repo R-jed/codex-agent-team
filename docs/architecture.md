@@ -61,7 +61,7 @@ There is no fixed Luna → Terra → Sol path and no fixed Agent count.
 
 ## Roles
 
-`plugins/subagents-dispatch/policy-contract.json` is the machine source of truth for role identity, model, effort, and sandbox intent.
+`policy-contract.json` is the machine source of truth for role identity, model, effort, and sandbox intent.
 
 | Role | Agent type | Route | Responsibility |
 | --- | --- | --- | --- |

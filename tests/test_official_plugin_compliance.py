@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_ROOT = ROOT / "plugins" / "subagents-dispatch"
+PLUGIN_ROOT = ROOT
 MANIFEST = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 SKILLS_ROOT = PLUGIN_ROOT / "skills"
 MAIN_SKILL_ROOT = SKILLS_ROOT / "dispatch"

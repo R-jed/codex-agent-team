@@ -3,7 +3,7 @@ import json
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+PLUGIN = ROOT
 ADVISOR = PLUGIN / "agent-profiles" / "subagents-dispatch-advisor.toml"
 REVIEW = PLUGIN / "skills" / "dispatch" / "references" / "final-review.md"
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"

@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-VERIFIER = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "runtime-evidence.py"
+VERIFIER = ROOT / "scripts" / "runtime-evidence.py"
 THREAD = "11111111-1111-7111-8111-111111111111"
 PARENT = "00000000-0000-7000-8000-000000000000"
 

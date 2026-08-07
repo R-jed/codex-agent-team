@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+PLUGIN = ROOT
 SCRIPTS = PLUGIN / "scripts"
 POLICY = PLUGIN / "policy-contract.json"
 SKILL_ROOT = PLUGIN / "skills" / "dispatch"

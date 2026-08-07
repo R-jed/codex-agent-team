@@ -13,4 +13,4 @@ Consult the current OpenAI documentation when platform behavior, Plugin packagin
 
 OpenAI surfaces can change independently of this repository. Re-check the current documentation and actual Codex behavior before changing platform-facing claims.
 
-Project behavior remains owned by `plugins/subagents-dispatch/policy-contract.json`, `plugins/subagents-dispatch/skills/dispatch/SKILL.md`, and the five files under `plugins/subagents-dispatch/skills/dispatch/references/`.
+Project behavior remains owned by `policy-contract.json`, `skills/dispatch/SKILL.md`, and the five files under `skills/dispatch/references/`.

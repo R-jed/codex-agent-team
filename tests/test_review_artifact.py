@@ -10,7 +10,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "review-artifact.py"
+SCRIPT = ROOT / "scripts" / "review-artifact.py"
 
 
 def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:

@@ -9,7 +9,7 @@ import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+PLUGIN = ROOT
 SKILL = PLUGIN / "skills" / "dispatch"
 REFS = SKILL / "references"
 PROFILES = PLUGIN / "agent-profiles"

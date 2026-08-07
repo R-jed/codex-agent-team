@@ -64,7 +64,7 @@ Main-session route evidence is optional optimization data.
 
 Only when the router has already established that material judgment needs Sol capability may trusted current-session model/effort metadata be used to avoid a redundant Advisor/Solver call.
 
-`policy-contract.json` owns the capability reference. `plugins/subagents-dispatch/scripts/runtime-evidence.py` normalizes observed metadata.
+`policy-contract.json` owns the capability reference. `scripts/runtime-evidence.py` normalizes observed metadata.
 
 Current reference is Solver, GPT-5.6 Sol `high`:
 

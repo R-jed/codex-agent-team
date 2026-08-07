@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "subagents-dispatch"
+PLUGIN = ROOT
 INSTALLER = PLUGIN / "scripts" / "install-agents.py"
 DOCTOR = PLUGIN / "scripts" / "doctor.py"
 PROFILE_SOURCE = PLUGIN / "agent-profiles"

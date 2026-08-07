@@ -3,9 +3,7 @@
 Copy and run:
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch@main \
-  --sparse .agents/plugins \
-  --sparse plugins/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch && \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 

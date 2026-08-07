@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-INSTALLER = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "install-agents.py"
+INSTALLER = ROOT / "scripts" / "install-agents.py"
 
 
 def run_installer(target: Path, *extra: str):

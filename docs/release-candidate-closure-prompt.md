@@ -10,13 +10,13 @@ README.md
 README_EN.md
 README_AI.md
 docs/plugin-installation.md
-plugins/subagents-dispatch/.codex-plugin/plugin.json
+.codex-plugin/plugin.json
 .agents/plugins/marketplace.json
-plugins/subagents-dispatch/skills/dispatch/SKILL.md
-plugins/subagents-dispatch/skills/doctor/SKILL.md
-plugins/subagents-dispatch/scripts/install-agents.py
-plugins/subagents-dispatch/scripts/legacy_migration.py
-plugins/subagents-dispatch/scripts/doctor.py
+skills/dispatch/SKILL.md
+skills/doctor/SKILL.md
+scripts/install-agents.py
+scripts/legacy_migration.py
+scripts/doctor.py
 scripts/pre-push-ci.sh
 .github/workflows/ci.yml
 ```
@@ -75,7 +75,7 @@ Host namespaced    /subagents-dispatch:dispatch /subagents-dispatch:doctor
 Plugin 实际位于：
 
 ```text
-plugins/subagents-dispatch/
+
 ```
 
 若当前官方规范仍要求子目录 Plugin 使用 `git-subdir + path`，按规范修复 source。不要只做 JSON syntax test。更新 packaging tests，使其验证平台语义。
