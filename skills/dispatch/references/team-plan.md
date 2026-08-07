@@ -68,9 +68,9 @@ ownership
 done_when
 ```
 
-Allowed roles come from `../../policy-contract.json`. TeamPlan records the role currently assigned by the router; it does not independently choose that role or its model.
+Allowed roles come from `../../../policy-contract.json`. TeamPlan records the role currently assigned by the router; it does not independently choose that role or its model.
 
-TeamPlan does not duplicate the full child packet. The responsibility packet still carries intent, mutation authority, decision rights, interfaces, evidence, current failure, and stop conditions.
+TeamPlan does not duplicate the full child packet. The responsibility packet still carries intent, mutation authority, decision rights, interfaces, evidence, optional Handoff Capsule, current failure, and stop conditions.
 
 ## 3. Dependency truth
 
@@ -81,6 +81,8 @@ A unit is structurally ready only when all units named in `depends_on` have been
 Different files do not prove semantic independence. Shared APIs, schemas, migrations, lockfiles, generated artifacts, persistent state, external systems, or other shared interfaces remain Main-level semantic checks even when the validator sees disjoint paths.
 
 Do not use integration order to hide an unresolved execution dependency. If a unit cannot make safe progress until another unit establishes missing semantics or evidence, that dependency belongs in `depends_on`.
+
+A Handoff Capsule may carry already-accepted evidence across a dependency boundary, but it does not make an unresolved predecessor accepted and it does not replace `depends_on`.
 
 ## 4. Ownership
 
@@ -93,6 +95,8 @@ Filesystem ownership does not create mutation authority. The responsibility pack
 Read-only roles, as defined by `policy-contract.json`, must not declare write ownership.
 
 Units that are structurally ready at the same time must not declare overlapping write paths. If they would collide, add a real dependency, repartition ownership, or serialize the work.
+
+A user-requested takeover that moves responsibility ownership to Main is a coordination change. Settle the old child owner first under `recovery.md` and `interaction.md`, then revise TeamPlan when the ownership/assigned role recorded by the plan changes.
 
 ## 5. Integration
 
@@ -115,7 +119,7 @@ scope
 acceptance
 ```
 
-New evidence or an implementation detail does not require a revision by itself. A role change requires a revision only when TeamPlan is active; the router remains the authority that decides the new role.
+New evidence, a Handoff Capsule refresh, steering that stays within the same responsibility, or an implementation detail does not require a revision by itself. A role change requires a revision only when TeamPlan is active; the router remains the authority that decides the new role.
 
 Revision 1 uses `supersedes_revision: null`. Every later revision must point to the direct previous revision.
 
@@ -128,7 +132,7 @@ Already-dispatched work remains bound to the plan truth it received. Do not sile
 Before multi-responsibility dispatch, validate the plan:
 
 ```bash
-python plugins/subagents-dispatch/scripts/validate_team_plan.py /path/to/team-plan.json
+python scripts/validate_team_plan.py /path/to/team-plan.json
 ```
 
 The validator checks the exact schema shape, unit identity, roles from `policy-contract.json`, dependency validity and cycles, safe ownership paths, ready-layer write collisions, revision shape, and integration order.
