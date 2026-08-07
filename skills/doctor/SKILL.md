@@ -143,7 +143,7 @@ Do not require users to know hidden CLI parameters. The normal Doctor upgrade/re
 Only when installation is explicitly requested and the Plugin is not already installed, use the canonical commands:
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 

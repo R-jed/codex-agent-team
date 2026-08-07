@@ -45,7 +45,7 @@
 ## 安装
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
