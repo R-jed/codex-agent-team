@@ -25,15 +25,6 @@ subagents-dispatch 是一个 Codex Plugin。你给出开发目标，主会话判
 
 ## 安装
 
-### 方式一：Codex 插件市场
-
-1. 在 Codex 中打开 **Plugins**。Codex CLI 也可以输入 `/plugins`。
-2. 搜索 `subagents-dispatch`。
-3. 打开 **subagents-dispatch**，点击 `+` 安装。
-4. 安装后开启新的 Codex 会话。
-
-### 方式二：命令行
-
 ```bash
 codex plugin marketplace add R-jed/subagents-dispatch@main \
   --sparse .agents/plugins \
@@ -42,6 +33,8 @@ codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
 安装后开启新的 Codex 会话。
+
+安装完成后，可以在 Codex 的 **Plugins** 中找到 **subagents-dispatch**。
 
 ## 开始使用
 

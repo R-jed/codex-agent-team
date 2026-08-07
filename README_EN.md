@@ -25,15 +25,6 @@ Model selection, agent count, and execution order are all decided by the main se
 
 ## Install
 
-### Option 1: Codex Plugin Marketplace
-
-1. Open **Plugins** in Codex. Codex CLI users can also enter `/plugins`.
-2. Search for `subagents-dispatch`.
-3. Open **subagents-dispatch** and select `+` to install it.
-4. Start a new Codex session after installation.
-
-### Option 2: Command line
-
 ```bash
 codex plugin marketplace add R-jed/subagents-dispatch@main \
   --sparse .agents/plugins \
@@ -42,6 +33,8 @@ codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
 Start a new Codex session after installation.
+
+After installation, you can find **subagents-dispatch** in Codex **Plugins**.
 
 ## Quick start
 

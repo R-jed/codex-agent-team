@@ -122,10 +122,6 @@ def test_doctor_reuses_supported_diagnostics_and_existing_installer():
 def test_install_doc_contains_the_two_current_install_and_update_paths():
     text = INSTALL_DOC.read_text(encoding="utf-8")
     for phrase in [
-        "Option 1: Codex Plugin Marketplace",
-        "Search for `subagents-dispatch`",
-        "/plugins",
-        "Option 2: Command-line installation",
         CANONICAL_MARKETPLACE,
         "--sparse .agents/plugins",
         "--sparse plugins/subagents-dispatch",

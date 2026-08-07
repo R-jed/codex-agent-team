@@ -38,11 +38,7 @@ def test_public_readmes_keep_product_identity_install_use_and_update():
             assert role in text
 
     assert "## 安装" in ZH and "## 开始使用" in ZH and "## 更新" in ZH
-    assert "### 方式一：Codex 插件市场" in ZH
-    assert "### 方式二：命令行" in ZH
     assert "## Install" in EN and "## Quick start" in EN and "## Update" in EN
-    assert "### Option 1: Codex Plugin Marketplace" in EN
-    assert "### Option 2: Command line" in EN
 
 
 def test_public_readmes_explain_the_current_repository_layout():
