@@ -76,7 +76,7 @@ def test_check_is_non_mutating_and_repeat_install_is_noop(tmp_path: Path):
     assert state(home) == before
     repeat = run(home)
     assert repeat.returncode == 0, repeat.stderr
-    assert "no changes made" in repeat.stdout
+    assert "no current-profile changes made" in repeat.stdout
     assert state(home) == before
 
 
