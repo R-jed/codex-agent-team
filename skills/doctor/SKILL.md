@@ -112,7 +112,7 @@ python "$installer"
 python "$installer" --check
 ```
 
-The installer owns collision detection, one-process locking, ownership receipts, safe upgrades, rollback, and exact profile verification. Do not bypass it by copying TOML files manually.
+The installer owns collision detection, OS locking, ownership receipts, safe upgrades, rollback, and exact profile verification. Do not bypass it by copying TOML files manually.
 
 If the current Codex session still cannot discover a required custom Agent role after a successful repair, ask the user to start a fresh Codex session before testing the role surface again.
 
@@ -124,19 +124,24 @@ When diagnosing or repairing, check for legacy `codex-delegate` installation sta
 python "$installer" --legacy-status
 ```
 
-If legacy state is detected (`legacy_only`, `mixed`, or `legacy_modified`), inform the user and offer migration:
+For clean `legacy_only` or `mixed` state, offer migration when the user has requested repair or upgrade:
 
 ```bash
 python "$installer" --migrate-legacy
 ```
 
-The migration:
-- Removes legacy files only when their hash matches the legacy manifest ownership
-- Preserves modified legacy files with a warning
-- Installs current profiles safely
-- Is idempotent on rerun
+The migration contract is fail closed:
 
-Do not require users to know hidden CLI parameters. The normal Doctor upgrade/repair flow should detect and handle legacy state automatically.
+- the migrator acquires the legacy compatibility lock before the current installer lock;
+- files are removed only when their current bytes still match the legacy ownership receipt and the pre-mutation snapshot;
+- the legacy lock file remains in place during the compatibility period;
+- modified, unowned, symlinked, invalid-manifest, or otherwise unproven legacy state is preserved;
+- current profile installation and ownership receipt updates are rolled back if the migration transaction fails;
+- preserved legacy ownership evidence remains available for explicit review.
+
+When the state is `current_with_preserved_legacy_modified` or `current_with_preserved_legacy_ownership_unknown`, do not repeatedly run migration trying to force cleanup. Report the preserved files and ask the user how they want to handle those legacy customizations. Automatic migration must never delete them merely to reach a clean state.
+
+Do not require users to know hidden CLI parameters. Doctor should interpret the state and use the supported installer only when mutation is already authorized.
 
 ## 4. Install the Plugin from the command line
 
@@ -165,9 +170,10 @@ Do not continue by running the old package's installer as if it were the upgrade
 1. ask the user to start a fresh Codex session;
 2. invoke `/doctor` again;
 3. let the new Doctor run `python "$installer" --check` against the newly selected package;
-4. check for legacy state with `python "$installer" --legacy-status`;
-5. if legacy state is detected, offer migration with `python "$installer" --migrate-legacy`;
-6. if the new package reports stale managed profiles, repair them through its own installer and verify again.
+4. check legacy state with `python "$installer" --legacy-status`;
+5. for clean legacy state, offer `python "$installer" --migrate-legacy` when the user has authorized migration;
+6. for preserved modified or ownership-unknown legacy state, report it and stop automatic cleanup;
+7. if the new package reports stale managed profiles, repair them through its own installer and verify again.
 
 This prevents an older running Skill from overwriting newer Agent profile templates.
 
@@ -175,6 +181,6 @@ This prevents an older running Skill from overwriting newer Agent profile templa
 
 If a supported Codex CLI command fails, preserve the command, exit status when available, and concise stderr. Diagnose from that evidence before proposing mutation.
 
-Do not delete caches, marketplaces, Plugin state, Agent profiles, or Codex configuration speculatively. Do not use `marketplace remove` as a generic reset. Prefer the smallest supported repair that addresses the evidenced failure.
+Do not delete caches, marketplaces, Plugin state, Agent profiles, legacy files, or Codex configuration speculatively. Do not use `marketplace remove` as a generic reset. Prefer the smallest supported repair that addresses the evidenced failure.
 
 If the Plugin inventory and filesystem/package evidence disagree, report the disagreement as `UNKNOWN` or `WARN` and ask for a fresh Codex session before destructive action.
