@@ -48,13 +48,13 @@ Start a new Codex session after installation.
 Use the main Skill for development work:
 
 ```text
-$subagents-dispatch:dispatch Deep review this change, fix the issues you find, and run the relevant tests.
+/subagents-dispatch:dispatch Deep review this change, fix the issues you find, and run the relevant tests.
 ```
 
 Use the Doctor for installation, configuration, Marketplace, and managed Agent profile diagnostics:
 
 ```text
-$subagents-dispatch:doctor Check my subagents-dispatch installation and configuration.
+/subagents-dispatch:doctor Check my subagents-dispatch installation and configuration.
 ```
 
 Doctor is read-only by default. It changes state only when the user explicitly asks to repair, install, or upgrade.
@@ -77,7 +77,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 You can also ask Doctor to perform the upgrade and check what remains afterward:
 
 ```text
-$subagents-dispatch:doctor Upgrade subagents-dispatch and tell me what I need to do after the upgrade.
+/subagents-dispatch:doctor Upgrade subagents-dispatch and tell me what I need to do after the upgrade.
 ```
 
 Start a new Codex session after updating.

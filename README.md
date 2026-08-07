@@ -48,13 +48,13 @@ codex plugin add subagents-dispatch@subagents-dispatch
 开发任务使用主 Skill：
 
 ```text
-$subagents-dispatch:dispatch 深度检查这个改动，修复发现的问题并运行相关测试。
+/subagents-dispatch:dispatch 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
 
 安装、配置、Marketplace 和 Agent profile 诊断使用 Doctor：
 
 ```text
-$subagents-dispatch:doctor 检查我的 subagents-dispatch 安装和配置。
+/subagents-dispatch:doctor 检查我的 subagents-dispatch 安装和配置。
 ```
 
 Doctor 默认只诊断。只有用户明确要求修复、安装或升级时才会修改状态。
@@ -77,7 +77,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 也可以让 Doctor 执行升级并检查升级后的状态：
 
 ```text
-$subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还需要做什么。
+/subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还需要做什么。
 ```
 
 更新后开启新的 Codex 会话。
