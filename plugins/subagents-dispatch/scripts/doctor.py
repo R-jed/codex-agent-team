@@ -10,6 +10,11 @@ from pathlib import Path
 import sys
 import tomllib
 
+# Windows compatibility: force UTF-8 output
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 from legacy_migration import (
     LEGACY_MANIFEST_NAME,
     LEGACY_LOCK_NAME,
