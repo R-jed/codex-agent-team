@@ -63,11 +63,13 @@ Takeover settles the previous owner before Main assumes the responsibility. For 
 
 ## Compact execution receipt
 
-When a task actually spawns at least one child, normal completion ends with one factual line such as:
+When a task actually spawns at least one child, its terminal response ends with one factual line, whether the task completed or stopped blocked/partial. For example:
 
 ```text
 Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
 ```
+
+A blocked task can report the blocker just as compactly, while preserving `UNKNOWN` when runtime state is unresolved.
 
 The receipt reports inspectable orchestration facts. It does not expose hidden reasoning or raw child transcripts. It does not estimate token usage or currency cost from model names or elapsed time. Exact model or usage details require actual host evidence.
 
