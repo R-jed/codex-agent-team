@@ -16,8 +16,8 @@ DOCTOR_SKILL_ROOT = SKILLS_ROOT / "doctor"
 MAIN_OPENAI_YAML = MAIN_SKILL_ROOT / "agents" / "openai.yaml"
 DOCTOR_OPENAI_YAML = DOCTOR_SKILL_ROOT / "agents" / "openai.yaml"
 POLICY = PLUGIN_ROOT / "policy-contract.json"
-MAIN_INVOCATION = "$subagents-dispatch:dispatch"
-DOCTOR_INVOCATION = "$subagents-dispatch:doctor"
+MAIN_INVOCATION = "/subagents-dispatch:dispatch"
+DOCTOR_INVOCATION = "/subagents-dispatch:doctor"
 
 
 def test_plugin_manifest_has_public_legal_links_and_stays_skills_only():
