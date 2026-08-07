@@ -6,6 +6,7 @@
   },
   "capability_dedup": {
     "reference_role": "solver",
+    "model_aliases": ["gpt-5.6"],
     "reasoning_effort_order": ["minimal", "low", "medium", "high", "xhigh", "max"]
   },
   "roles": {
