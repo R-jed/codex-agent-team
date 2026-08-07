@@ -61,7 +61,7 @@ understand outcome + acceptance
 -> integrate accepted outputs
 -> verify the combined candidate
 -> run independent Final Review only when the candidate requires it
--> deliver
+-> deliver or report the exact blocker
 -> append one compact factual execution receipt when a child was actually spawned
 ```
 
@@ -105,6 +105,8 @@ When no current dispatch state exists, Status reports no active delegated respon
 
 Steering gives focused guidance to one current attempt while preserving responsibility identity, role, ownership, authority, and acceptance. A requested change that materially alters those facts returns to Main for normal reroute, TeamPlan revision, takeover, or authorization handling.
 
+If the current Host cannot steer the active child, subagents-dispatch reports that limitation rather than simulating steering with a retry or replacement Agent.
+
 ### Takeover
 
 Takeover is the user-visible form of `main_takeover`. The user may request it before automatic recovery is exhausted.
@@ -115,13 +117,14 @@ Takeover is represented as Recovery state rather than a new TeamPlan role. TeamP
 
 ## Execution Receipt
 
-When real delegation occurred, the normal completion report adds one compact factual receipt, for example:
+When real delegation occurred, the terminal response adds one compact factual receipt whether the work completed successfully or ended blocked/partial, for example:
 
 ```text
 Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
+Dispatch: Worker blocked · takeover pending on UNKNOWN writer · Final Review not reached
 ```
 
-A receipt may summarize semantic roles, retry/recovery/takeover facts, and Final Review state. It does not expose private chain-of-thought or raw child transcripts.
+A receipt may summarize semantic roles, retry/recovery/takeover facts, blocker state, and Final Review state. It does not expose private chain-of-thought or raw child transcripts.
 
 Configured/requested model identity is not reported as observed runtime identity. Token and currency cost are not estimated. Exact model or usage information may appear only when a supported host surface supplies attributable evidence.
 

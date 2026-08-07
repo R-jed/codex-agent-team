@@ -65,11 +65,13 @@ Takeover 会先处理原来的 Agent 所有权。遇到写入任务时，原写�
 
 ## 执行摘要
 
-只要本次任务确实启动过子 Agent，完成时会附上一行简短的 Dispatch 摘要，例如：
+只要本次任务确实启动过子 Agent，本轮终态回复都会附上一行简短的 Dispatch 摘要。任务正常完成、部分完成或因阻塞停止时都适用，例如：
 
 ```text
 Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
 ```
+
+遇到阻塞时也可以用同样简短的方式报告 blocker，并在运行状态无法确认时原样保留 `UNKNOWN`。
 
 摘要只展示可以验证的调度事实，不展示隐藏推理、原始子 Agent 对话，也不会根据模型名称或运行时长猜 Token 和费用。
 
