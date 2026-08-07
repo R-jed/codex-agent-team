@@ -144,17 +144,18 @@ def detect_legacy_state(codex_home: Path) -> MigrationState:
 
 
 def collect_legacy_files(codex_home: Path) -> dict[str, bytes]:
-    """Snapshot regular, non-symlink legacy files for rollback and drift checks."""
+    """Snapshot mutable legacy data for rollback and drift checks.
+
+    The legacy lock is deliberately excluded. Migration holds that lock while this
+    function runs, Windows may deny a second read handle, and the lock is never a
+    cleanup target or rollback payload.
+    """
     agents_dir = codex_home / "agents"
     files: dict[str, bytes] = {}
 
     legacy_manifest_path = codex_home / LEGACY_MANIFEST_NAME
     if legacy_manifest_path.is_file() and not legacy_manifest_path.is_symlink():
         files[LEGACY_MANIFEST_NAME] = legacy_manifest_path.read_bytes()
-
-    legacy_lock_path = codex_home / LEGACY_LOCK_NAME
-    if legacy_lock_path.is_file() and not legacy_lock_path.is_symlink():
-        files[LEGACY_LOCK_NAME] = legacy_lock_path.read_bytes()
 
     if agents_dir.is_dir():
         for filename in LEGACY_PROFILE_FILES:
