@@ -6,9 +6,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT
-POLICY = PLUGIN / "policy-contract.json"
-VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
+POLICY = ROOT / "policy-contract.json"
+VERIFIER = ROOT / "scripts" / "runtime-evidence.py"
 
 
 def run_main(model: str | None = None, effort: str | None = None) -> dict:
@@ -29,7 +28,7 @@ def run_main(model: str | None = None, effort: str | None = None) -> dict:
     return json.loads(result.stdout)
 
 
-def test_policy_owns_capability_dedup_reference_route():
+def test_policy_owns_capability_dedup_reference_route_and_aliases():
     policy = json.loads(POLICY.read_text())
     dedup = policy["capability_dedup"]
     role = dedup["reference_role"]
@@ -40,15 +39,17 @@ def test_policy_owns_capability_dedup_reference_route():
     assert role == "solver"
     assert reference["model"] == "gpt-5.6-sol"
     assert reference["effort"] == "high"
+    assert dedup["model_aliases"] == ["gpt-5.6"]
     assert order.index("medium") < order.index("high") < order.index("xhigh") < order.index("max")
 
 
-def test_capability_dedup_requires_reference_model_and_sufficient_effort():
-    assert run_main("gpt-5.6-sol", "high")["main_judgment_coverage"] == "covered"
-    assert run_main("gpt-5.6-sol", "xhigh")["main_judgment_coverage"] == "covered"
-    assert run_main("gpt-5.6-sol", "max")["main_judgment_coverage"] == "covered"
+def test_capability_dedup_requires_reference_model_or_declared_alias_and_sufficient_effort():
+    for model in ["gpt-5.6-sol", "gpt-5.6"]:
+        assert run_main(model, "high")["main_judgment_coverage"] == "covered"
+        assert run_main(model, "xhigh")["main_judgment_coverage"] == "covered"
+        assert run_main(model, "max")["main_judgment_coverage"] == "covered"
+        assert run_main(model, "medium")["main_judgment_coverage"] == "uncovered"
 
-    assert run_main("gpt-5.6-sol", "medium")["main_judgment_coverage"] == "uncovered"
     assert run_main("gpt-5.6-sol", "low")["main_judgment_coverage"] == "uncovered"
     assert run_main("gpt-5.6-luna", "max")["main_judgment_coverage"] == "uncovered"
 
@@ -57,6 +58,7 @@ def test_unknown_effort_on_matching_model_does_not_suppress_sol_uplift():
     data = run_main("gpt-5.6-sol", "future-effort")
     assert data["main_judgment_coverage"] == "unknown"
     assert data["coverage_reference_model"] == "gpt-5.6-sol"
+    assert data["coverage_reference_model_aliases"] == ["gpt-5.6"]
     assert data["coverage_reference_effort"] == "high"
 
 
