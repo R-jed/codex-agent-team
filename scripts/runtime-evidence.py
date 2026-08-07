@@ -32,12 +32,13 @@ def fail(message: str) -> NoReturn:
     raise SystemExit(f"ERROR: {message}")
 
 
-def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...]]:
+def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...], tuple[str, ...]]:
     try:
         payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
         dedup = payload["capability_dedup"]
         role = dedup["reference_role"]
         order = dedup["reasoning_effort_order"]
+        aliases = dedup.get("model_aliases", [])
         reference = payload["roles"][role]
         model = reference["model"]
         effort = reference["effort"]
@@ -47,13 +48,18 @@ def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...]]:
         fail("capability dedup reference route is invalid")
     if not isinstance(order, list) or not order or not all(isinstance(x, str) and x for x in order):
         fail("reasoning_effort_order must be a non-empty string list")
-    normalized = tuple(x.strip().lower() for x in order)
-    if effort.strip().lower() not in normalized or len(set(normalized)) != len(normalized):
+    if not isinstance(aliases, list) or not all(isinstance(x, str) and x.strip() for x in aliases):
+        fail("model_aliases must be a string list when present")
+    normalized_order = tuple(x.strip().lower() for x in order)
+    normalized_aliases = tuple(x.strip().lower() for x in aliases)
+    if effort.strip().lower() not in normalized_order or len(set(normalized_order)) != len(normalized_order):
         fail("reasoning_effort_order does not contain a unique reference effort")
-    return model.strip().lower(), effort.strip().lower(), normalized
+    if len(set(normalized_aliases)) != len(normalized_aliases):
+        fail("model_aliases contains duplicates")
+    return model.strip().lower(), effort.strip().lower(), normalized_order, normalized_aliases
 
 
-REFERENCE_MODEL, REFERENCE_EFFORT, EFFORT_ORDER = load_main_coverage_policy()
+REFERENCE_MODEL, REFERENCE_EFFORT, EFFORT_ORDER, REFERENCE_MODEL_ALIASES = load_main_coverage_policy()
 
 
 def parse_args() -> argparse.Namespace:
@@ -207,7 +213,7 @@ def observed_layer(native: dict[str, str | None] | None, fields: tuple[str, ...]
 
 def model_matches(model: str) -> bool:
     normalized = model.lower()
-    if REFERENCE_MODEL == "gpt-5.6-sol" and normalized == "gpt-5.6":
+    if normalized in REFERENCE_MODEL_ALIASES:
         return True
     return normalized == REFERENCE_MODEL or normalized.startswith(REFERENCE_MODEL + "-")
 
@@ -270,6 +276,7 @@ def main_session_result(payload: dict[str, Any]) -> dict[str, Any]:
         "main_judgment_coverage": coverage,
         "coverage_source": "trusted_session_metadata" if trusted else "not_observed",
         "coverage_reference_model": REFERENCE_MODEL,
+        "coverage_reference_model_aliases": list(REFERENCE_MODEL_ALIASES),
         "coverage_reference_effort": REFERENCE_EFFORT,
         "observed_main_model": native.get("model") if trusted and native is not None else None,
         "observed_main_effort": native.get("effort") if trusted and native is not None else None,
