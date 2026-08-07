@@ -15,6 +15,16 @@ import tomllib
 from typing import NoReturn
 import uuid
 
+from legacy_migration import (
+    LEGACY_MANIFEST_NAME,
+    LEGACY_LOCK_NAME,
+    LEGACY_PROFILE_FILES,
+    detect_legacy_state,
+    format_migration_state,
+    load_legacy_manifest,
+    migrate_legacy_to_current,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_SOURCE = ROOT / "agent-profiles"
 POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
@@ -145,6 +155,16 @@ def parse_args() -> argparse.Namespace:
         help="Codex home directory (default: $CODEX_HOME or ~/.codex).",
     )
     parser.add_argument("--check", action="store_true", help="Verify current managed state without mutation.")
+    parser.add_argument(
+        "--migrate-legacy",
+        action="store_true",
+        help="Migrate from legacy codex-delegate installation before installing.",
+    )
+    parser.add_argument(
+        "--legacy-status",
+        action="store_true",
+        help="Show legacy migration status without mutation.",
+    )
     return parser.parse_args()
 
 
@@ -360,9 +380,28 @@ def rollback(
     return errors
 
 
-def install_locked(codex_home: Path, check_only: bool) -> None:
+def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = False) -> None:
     agents_dir = codex_home / "agents"
     manifest_path = codex_home / MANIFEST_NAME
+
+    # Handle legacy migration BEFORE preflight checks to avoid role name conflicts
+    if migrate_legacy and not check_only:
+        legacy_state = detect_legacy_state(codex_home)
+        if legacy_state.legacy_only or legacy_state.mixed:
+            print(f"Legacy state detected: {format_migration_state(legacy_state)}")
+            migration_messages, migration_warnings = migrate_legacy_to_current(
+                codex_home,
+                PROFILE_SOURCE,
+                PROFILE_FILES,
+            )
+            for msg in migration_messages:
+                print(f"  {msg}")
+            for warning in migration_warnings:
+                print(f"  WARNING: {warning}")
+        elif legacy_state.migration_complete:
+            print("Legacy migration already complete; no legacy files found.")
+        else:
+            print("No legacy installation detected.")
 
     validate_sources()
     preflight_agents_dir(agents_dir, check_only=check_only)
@@ -420,18 +459,48 @@ def install_locked(codex_home: Path, check_only: bool) -> None:
     )
 
 
-def install(codex_home: Path, check_only: bool) -> None:
+def install(codex_home: Path, check_only: bool, migrate_legacy: bool = False) -> None:
     codex_home = codex_home.expanduser()
     if codex_home.is_symlink():
         fail(f"Refusing symlinked Codex home: {codex_home}")
     codex_home = codex_home.resolve()
     with installer_lock(codex_home, check_only=check_only):
-        install_locked(codex_home, check_only)
+        install_locked(codex_home, check_only, migrate_legacy)
+
+
+def show_legacy_status(codex_home: Path) -> None:
+    """Show legacy migration status without mutation."""
+    codex_home = codex_home.expanduser()
+    if codex_home.is_symlink():
+        fail(f"Refusing symlinked Codex home: {codex_home}")
+    codex_home = codex_home.resolve()
+
+    legacy_state = detect_legacy_state(codex_home)
+    state_name = format_migration_state(legacy_state)
+
+    print(f"Legacy migration status: {state_name}")
+    print(f"  Legacy only: {legacy_state.legacy_only}")
+    print(f"  Current only: {legacy_state.current_only}")
+    print(f"  Mixed: {legacy_state.mixed}")
+    print(f"  Legacy modified: {legacy_state.legacy_modified}")
+    print(f"  Migration complete: {legacy_state.migration_complete}")
+
+    if legacy_state.legacy_only or legacy_state.mixed:
+        legacy_manifest_path = codex_home / LEGACY_MANIFEST_NAME
+        legacy_manifest = load_legacy_manifest(legacy_manifest_path)
+        if legacy_manifest:
+            print(f"  Legacy manifest: {legacy_manifest_path}")
+            print(f"  Legacy schema version: {legacy_manifest.schema_version}")
+            print(f"  Legacy managed by: {legacy_manifest.managed_by}")
+            print(f"  Legacy profiles: {', '.join(legacy_manifest.profile_hashes.keys())}")
 
 
 def main() -> None:
     args = parse_args()
-    install(args.codex_home, args.check)
+    if args.legacy_status:
+        show_legacy_status(args.codex_home)
+    else:
+        install(args.codex_home, args.check, args.migrate_legacy)
 
 
 if __name__ == "__main__":

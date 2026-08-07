@@ -14,6 +14,10 @@ INSTALLER = ROOT / "plugins" / "subagents-dispatch" / "scripts" / "install-agent
 
 
 def load_installer():
+    # Add scripts directory to sys.path so legacy_migration can be found
+    scripts_dir = str(INSTALLER.parent)
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
     spec = importlib.util.spec_from_file_location("subagents_dispatch_installer", INSTALLER)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
