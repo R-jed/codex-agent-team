@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and summarize paired Codex Delegate Routing V4 live runs."""
+"""Validate and summarize paired codex delegate behavioral runs."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ import jsonschema
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
+POLICY = ROOT / "plugins" / "codex-delegate" / "policy-contract.json"
 
 PAIR_CONTROL_FIELDS = (
     "workload_definition_hash",
@@ -97,7 +98,7 @@ def fail(message: str) -> NoReturn:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Score paired Codex Delegate Routing V4 live evals.")
+    parser = argparse.ArgumentParser(description="Score paired codex delegate behavioral evals.")
     parser.add_argument("result", type=Path)
     parser.add_argument("--json", action="store_true")
     return parser.parse_args()
@@ -125,7 +126,64 @@ def metric_summary(runs: list[dict[str, Any]], metric: Metric) -> float | int | 
 
 
 def workload_specs(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return {item["id"]: item for item in payload["workloads"]}
+    specs: dict[str, dict[str, Any]] = {}
+    for item in payload["workloads"]:
+        workload_id = item.get("id")
+        if not isinstance(workload_id, str) or not workload_id:
+            fail("behavioral workload registry contains an invalid workload id")
+        if workload_id in specs:
+            fail(f"behavioral workload registry duplicates workload id {workload_id!r}")
+        specs[workload_id] = item
+    return specs
+
+
+def final_review_contract(payload: dict[str, Any]) -> tuple[str, set[str], str]:
+    try:
+        review = payload["final_review"]
+        ship = review["ship_verdict"]
+        correction = set(review["correction_verdicts"])
+        unresolved = review["unresolved_verdict"]
+    except (KeyError, TypeError) as exc:
+        fail(f"invalid final-review policy contract: {exc}")
+    if not isinstance(ship, str) or not ship or not isinstance(unresolved, str) or not unresolved:
+        fail("invalid final-review verdict constants")
+    if not correction or not all(isinstance(item, str) and item for item in correction):
+        fail("invalid final-review correction verdicts")
+    if ship in correction or unresolved == ship or unresolved in correction:
+        fail("final-review verdict partitions overlap")
+    return ship, correction, unresolved
+
+
+def validate_run_semantics(runs: list[dict[str, Any]], policy: dict[str, Any]) -> None:
+    ship, correction, unresolved = final_review_contract(policy)
+    allowed_review_verdicts = {ship, *correction, unresolved, "incomplete", "declined"}
+    for index, run in enumerate(runs):
+        peak = run.get("peak_active_children")
+        if isinstance(peak, int) and not isinstance(peak, bool) and peak > run["agent_count"]:
+            fail(f"run {index} peak_active_children exceeds agent_count")
+
+        requirement = run.get("final_review_requirement")
+        verdict = run.get("final_review_verdict")
+        attempts = run.get("final_review_attempts")
+        gate = run.get("final_review_gate_satisfied")
+        triggers = run.get("final_review_trigger_reasons", [])
+        caught = run.get("review_caught_material_issue")
+
+        if verdict is not None and verdict not in allowed_review_verdicts:
+            fail(f"run {index} has unsupported final_review_verdict {verdict!r}")
+        if verdict is not None and (attempts is None or attempts < 1):
+            fail(f"run {index} records a final_review_verdict without a review attempt")
+        if caught is True and (attempts is None or attempts < 1):
+            fail(f"run {index} records a material review catch without a review attempt")
+        if requirement == "required" and not triggers:
+            fail(f"run {index} requires Final Review without a trigger reason")
+        if gate is True:
+            if requirement != "required":
+                fail(f"run {index} satisfies a Final Review gate that was not required")
+            if attempts is None or attempts < 1:
+                fail(f"run {index} satisfies Final Review without a review attempt")
+            if verdict != ship:
+                fail(f"run {index} satisfies Final Review without the ship verdict")
 
 
 def declared_primary_modes(spec: dict[str, Any]) -> list[str] | None:
@@ -333,6 +391,7 @@ def main() -> None:
         payload = json.loads(args.result.read_text(encoding="utf-8"))
         schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
         workloads_payload = json.loads(WORKLOADS.read_text(encoding="utf-8"))
+        policy = json.loads(POLICY.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         fail(str(exc))
 
@@ -342,9 +401,11 @@ def main() -> None:
         fail(f"result schema validation failed: {exc.message}")
 
     if workloads_payload.get("schema_version") != "4.0":
-        fail("behavioral workload registry is not Routing V4")
+        fail("behavioral workload registry schema is not 4.0")
 
-    summary = build_summary(payload, workload_specs(workloads_payload))
+    specs = workload_specs(workloads_payload)
+    validate_run_semantics(payload["runs"], policy)
+    summary = build_summary(payload, specs)
     if args.json:
         json.dump(summary, sys.stdout, indent=2, sort_keys=True)
         sys.stdout.write("\n")

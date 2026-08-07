@@ -11,6 +11,7 @@ MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
 SKILL = PLUGIN_ROOT / "skills" / "codex-delegate"
 INSTALL_DOC = ROOT / "docs" / "plugin-installation.md"
 POLICY = PLUGIN_ROOT / "policy-contract.json"
+EXPECTED_VERSION = "1.2.0"
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/codex-delegate@main"
 PLUGIN_ADD = "codex plugin add codex-delegate@codex-delegate"
 UPGRADE = "codex plugin marketplace upgrade codex-delegate"
@@ -19,7 +20,7 @@ UPGRADE = "codex plugin marketplace upgrade codex-delegate"
 def test_plugin_manifest_and_marketplace_use_canonical_identity():
     payload = json.loads(PLUGIN.read_text())
     assert payload["name"] == "codex-delegate"
-    assert payload["version"] == "1.1.0"
+    assert payload["version"] == EXPECTED_VERSION
     assert payload["skills"] == "./skills/"
     assert payload["repository"] == "https://github.com/R-jed/codex-delegate"
     assert payload["homepage"] == "https://github.com/R-jed/codex-delegate#readme"
@@ -28,15 +29,18 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
     assert SKILL.is_dir()
 
     market = json.loads(MARKETPLACE.read_text())
-    assert market["name"] == "codex-delegate"
-    assert market["plugins"] == [
-        {
-            "name": "codex-delegate",
-            "source": {"source": "local", "path": "./plugins/codex-delegate"},
-            "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
-            "category": "Productivity",
-        }
-    ]
+    assert market == {
+        "name": "codex-delegate",
+        "interface": {"displayName": "Codex Delegate"},
+        "plugins": [
+            {
+                "name": "codex-delegate",
+                "source": {"source": "local", "path": "./plugins/codex-delegate"},
+                "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+                "category": "Productivity",
+            }
+        ],
+    }
 
 
 def test_plugin_brand_assets_and_supported_components():
@@ -53,19 +57,18 @@ def test_plugin_brand_assets_and_supported_components():
         assert parsed.scheme == "https" and parsed.netloc
 
 
-def test_only_current_five_profiles_are_packaged():
+def test_policy_contract_owns_the_five_packaged_profiles():
     policy = json.loads(POLICY.read_text())
-    assert policy["schema_version"] == 4
+    assert policy["schema_version"] == 5
     assert set(policy["roles"]) == {"reader", "worker", "solver", "investigator", "advisor"}
     expected = {spec["profile_file"] for spec in policy["roles"].values()}
     assert len(expected) == 5
     assert {p.name for p in (PLUGIN_ROOT / "agent-profiles").glob("*.toml")} == expected
     assert all(name.startswith("codex-delegate-") for name in expected)
     assert all(spec["agent_type"].startswith("codex_delegate_") for spec in policy["roles"].values())
-    assert policy["roles"]["solver"]["profile_file"] == "codex-delegate-solver.toml"
 
 
-def test_third_party_mit_notice_is_packaged_without_source_pointer():
+def test_third_party_mit_notice_is_packaged_without_repository_pointer():
     notice = PLUGIN_ROOT / "THIRD_PARTY_NOTICES.md"
     assert notice.is_file()
     text = notice.read_text()
@@ -77,23 +80,18 @@ def test_third_party_mit_notice_is_packaged_without_source_pointer():
     ]:
         assert phrase in text
     assert "github.com/" not in text
-    assert "upstream revision" not in text
 
 
-def test_skill_owns_current_profile_setup_before_delegated_execution():
+def test_skill_owns_profile_readiness_before_delegated_execution():
     text = (SKILL / "SKILL.md").read_text()
     assert "../../scripts/install-agents.py" in text
+    assert 'python "$installer"' in text
     assert 'python "$installer" --check' in text
-    assert ".codex-delegate-agents.json" in text
-    assert "$codex-delegate:codex-delegate" in text
-    assert "native custom-Agent TOML mechanism" in text
-    assert "Complete readiness before delegated execution" in text
+    assert "Exact role mismatch fails closed" in text
     assert "stop before delegated code execution" in text
-    assert not (ROOT / "scripts" / "install.py").exists()
-    assert not (ROOT / "scripts" / "doctor.py").exists()
 
 
-def test_install_doc_contains_only_current_install_and_update_paths():
+def test_install_doc_contains_the_two_current_install_and_update_paths():
     text = INSTALL_DOC.read_text()
     for phrase in [
         "Option 1: Codex Plugin Marketplace",
@@ -110,25 +108,15 @@ def test_install_doc_contains_only_current_install_and_update_paths():
         "/skills",
     ]:
         assert phrase in text
-    for phrase in [
-        "different source",
-        "Source conflict",
-        "marketplace remove",
-        "config.toml",
-        "historical installation",
-        "old source",
-    ]:
-        assert phrase not in text
     assert "--ref main" not in text
 
 
-def test_readmes_and_ai_reference_share_clean_dual_install_contract():
-    directive = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
-    for name in ["README.md", "README_EN.md"]:
+def test_readmes_and_ai_reference_share_the_current_install_contract():
+    payload = json.loads(PLUGIN.read_text())
+    version = payload["version"]
+    for name in ["README.md", "README_EN.md", "README_AI.md"]:
         text = (ROOT / name).read_text()
-        assert directive in text
-        assert "1.1.0" in text
-        assert "Sol Solver" in text
+        assert version in text
         assert "$codex-delegate:codex-delegate" in text
         assert "/plugins" in text
         assert CANONICAL_MARKETPLACE in text
@@ -136,20 +124,3 @@ def test_readmes_and_ai_reference_share_clean_dual_install_contract():
         assert "--sparse plugins/codex-delegate" in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
-        assert "marketplace remove" not in text
-        assert "different source" not in text
-
-    ai = (ROOT / "README_AI.md").read_text()
-    assert "Current version:     1.1.0" in ai
-    assert "Repo marketplace id: codex-delegate" in ai
-    assert "Explicit invocation: $codex-delegate:codex-delegate" in ai
-    assert "Distribution:        Codex Plugin" in ai
-    assert "codex_delegate_solver" in ai
-    assert "codex-delegate-solver.toml" in ai
-    assert "codex_delegate_advisor" in ai
-    assert "Plugin Marketplace" in ai
-    assert "Command line" in ai
-    assert CANONICAL_MARKETPLACE in ai
-    assert "marketplace remove" not in ai
-    assert "source mismatch" not in ai
-    assert "no project-level ordinary numeric child ceiling" in ai

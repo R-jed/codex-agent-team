@@ -8,12 +8,15 @@ The live suite uses controlled paired workloads to test product hypotheses witho
 
 `evals/` is a measurement surface.
 
-Some schema/mode names remain from earlier Routing V4 experiments so historical runs stay comparable. They are experiment labels only. The current runtime router is defined by the compact Skill policy in:
+Some schema/mode names remain from earlier Routing V4 experiments so historical runs stay comparable. They are experiment labels only. The current runtime policy is owned by:
 
 ```text
 router-core.md
+team-plan.md
+recovery.md
 guardrails.md
 final-review.md
+policy-contract.json
 ```
 
 Do not make the Skill maintain an ontology merely because an eval field exists.
@@ -282,7 +285,7 @@ python scripts/score-behavioral-evals.py path/to/result.json
 
 The scorer validates schema and controlled pairing first. Primary candidate-minus-baseline deltas are produced only for each workload's declared pair. Cross-workload mode aggregates are descriptive inventory, not controlled comparisons.
 
-## Release evidence rule
+## Evidence rule
 
 Do not claim improved quality, lower cost, reduced rework, Solver superiority, Terra value, onboarding improvement, or review efficiency until named live workloads on named runtime versions support that claim.
 

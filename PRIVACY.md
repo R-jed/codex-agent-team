@@ -12,7 +12,7 @@ The plugin runs inside the user's Codex environment and may work with files, rep
 
 ## Local configuration
 
-When delegation requires the plugin's managed custom Agent roles, codex delegate may ask for permission to install five TOML Agent profiles and one ownership receipt under the user's `CODEX_HOME`. These local files contain plugin configuration and ownership metadata. They do not contain project-operated credentials, conversation transcripts, or telemetry, and they are not sent to the project maintainer.
+When delegation requires the plugin's managed custom Agent roles, codex delegate may ask for permission to install five TOML Agent profiles plus an ownership receipt and installer lock under the user's `CODEX_HOME`. These local files contain plugin configuration and ownership/synchronization metadata. They do not contain project-operated credentials, conversation transcripts, or usage telemetry, and they are not sent to the project maintainer.
 
 ## Recipients
 

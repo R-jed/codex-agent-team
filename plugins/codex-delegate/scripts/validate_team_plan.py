@@ -12,12 +12,56 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+POLICY_CONTRACT_PATH = PLUGIN_ROOT / "policy-contract.json"
 CURRENT_SCHEMA_VERSION = "1.0"
 PLANNING_SOURCES = {"ad_hoc", "accepted_plan", "codex_plan", "upstream_skill"}
-ROLES = {"reader", "worker", "solver", "investigator", "advisor"}
-READ_ONLY_ROLES = {"reader", "investigator", "advisor"}
 UNIT_ID_PATTERN = re.compile(r"^U[1-9][0-9]*$")
 GLOB_CHARS = set("*?[]{}")
+TOP_LEVEL_FIELDS = {
+    "schema_version",
+    "revision",
+    "supersedes_revision",
+    "planning_source",
+    "source_refs",
+    "root_goal",
+    "units",
+    "integration_owner",
+    "integration_order",
+    "final_verification",
+    "revision_reason",
+}
+UNIT_FIELDS = {
+    "unit_id",
+    "role",
+    "goal",
+    "output",
+    "depends_on",
+    "ownership",
+    "done_when",
+}
+
+
+def load_role_policy() -> tuple[set[str], set[str]]:
+    try:
+        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
+        roles = payload["roles"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise RuntimeError(f"invalid policy contract: {exc}") from exc
+    if not isinstance(roles, dict) or not roles:
+        raise RuntimeError("policy contract must define TeamPlan roles")
+    role_names = set(roles)
+    read_only = {
+        role
+        for role, spec in roles.items()
+        if isinstance(spec, dict) and spec.get("sandbox_intent") == "read-only"
+    }
+    if len(read_only) == 0 or any(not isinstance(role, str) or not role for role in role_names):
+        raise RuntimeError("policy contract contains invalid TeamPlan role definitions")
+    return role_names, read_only
+
+
+ROLES, READ_ONLY_ROLES = load_role_policy()
 
 
 def load_input(source: str) -> Any:
@@ -64,7 +108,7 @@ def validate_team_plan_payload(payload: Any) -> dict[str, Any]:
         "team_plan_valid": False,
         "schema_version": None,
         "revision": None,
-        "worker_count": 0,
+        "unit_count": 0,
         "ready_layers": [],
         "errors": [],
         "warnings": [],
@@ -74,6 +118,13 @@ def validate_team_plan_payload(payload: Any) -> dict[str, Any]:
     if not isinstance(payload, dict):
         errors.append("TeamPlan must be a JSON object")
         return result
+
+    missing_fields = TOP_LEVEL_FIELDS - set(payload)
+    extra_fields = set(payload) - TOP_LEVEL_FIELDS
+    if missing_fields:
+        errors.append("TeamPlan is missing fields: " + ", ".join(sorted(missing_fields)))
+    if extra_fields:
+        errors.append("TeamPlan has unsupported fields: " + ", ".join(sorted(extra_fields)))
 
     schema_version = payload.get("schema_version")
     revision = payload.get("revision")
@@ -93,7 +144,7 @@ def validate_team_plan_payload(payload: Any) -> dict[str, Any]:
 
     source = payload.get("planning_source")
     source_refs = payload.get("source_refs")
-    if source not in PLANNING_SOURCES:
+    if not isinstance(source, str) or source not in PLANNING_SOURCES:
         errors.append("planning_source is not supported")
     if not isinstance(source_refs, list) or not all(nonempty_string(item) for item in source_refs):
         errors.append("source_refs must be an array of non-empty strings")
@@ -113,7 +164,7 @@ def validate_team_plan_payload(payload: Any) -> dict[str, Any]:
     if not isinstance(units, list):
         errors.append("units must be an array")
         return result
-    result["worker_count"] = len(units)
+    result["unit_count"] = len(units)
     if len(units) < 2:
         errors.append("TeamPlan requires at least two delegated units")
 
@@ -128,18 +179,12 @@ def validate_team_plan_payload(payload: Any) -> dict[str, Any]:
             errors.append(f"{prefix} must be an object")
             continue
 
-        expected_fields = {
-            "unit_id",
-            "role",
-            "goal",
-            "output",
-            "depends_on",
-            "ownership",
-            "done_when",
-        }
-        extra_fields = set(unit) - expected_fields
-        if extra_fields:
-            errors.append(f"{prefix} has unsupported fields: {', '.join(sorted(extra_fields))}")
+        missing_unit_fields = UNIT_FIELDS - set(unit)
+        extra_unit_fields = set(unit) - UNIT_FIELDS
+        if missing_unit_fields:
+            errors.append(f"{prefix} is missing fields: {', '.join(sorted(missing_unit_fields))}")
+        if extra_unit_fields:
+            errors.append(f"{prefix} has unsupported fields: {', '.join(sorted(extra_unit_fields))}")
 
         unit_id = unit.get("unit_id")
         if not nonempty_string(unit_id) or UNIT_ID_PATTERN.fullmatch(unit_id) is None:
@@ -153,7 +198,7 @@ def validate_team_plan_payload(payload: Any) -> dict[str, Any]:
         units_by_id[unit_id] = unit
 
         role = unit.get("role")
-        if role not in ROLES:
+        if not isinstance(role, str) or role not in ROLES:
             errors.append(f"{unit_id} has unsupported role")
         for field in ("goal", "output", "done_when"):
             if not nonempty_string(unit.get(field)):
@@ -194,7 +239,7 @@ def validate_team_plan_payload(payload: Any) -> dict[str, Any]:
                 errors.append(f"{unit_id} ownership.{field} contains duplicates")
 
         write_scopes[unit_id] = normalized_scopes["write"]
-        if role in READ_ONLY_ROLES and normalized_scopes["write"]:
+        if isinstance(role, str) and role in READ_ONLY_ROLES and normalized_scopes["write"]:
             errors.append(f"{unit_id} read-only role must not declare write ownership")
         for write_path in normalized_scopes["write"]:
             for forbidden_path in normalized_scopes["forbidden"]:

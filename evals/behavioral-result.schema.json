@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Codex Delegate Routing V4 live behavioral result",
+  "title": "codex delegate live behavioral result",
   "type": "object",
   "required": ["schema_version", "suite", "runtime", "runs"],
   "properties": {
@@ -68,21 +68,21 @@
           "dependency_kind": {
             "enum": ["evidence", "bounded_execution", "judgment", "judgment_coupled_execution", "technical_investigation", "mixed"]
           },
-          "execution_route": {"type": ["string", "null"]},
+          "execution_route": {"type": ["string", "null"], "minLength": 1},
           "permissions_fingerprint": {"type": "string", "minLength": 1},
           "tool_surface_fingerprint": {"type": "string", "minLength": 1},
           "acceptance_rubric_id": {"type": "string", "minLength": 1},
           "success": {"type": "boolean"},
           "acceptance_score": {"type": ["number", "null"], "minimum": 0},
-          "decision": {"type": "string"},
+          "decision": {"type": "string", "minLength": 1},
           "agent_count": {"type": "integer", "minimum": 0},
           "peak_active_children": {"type": ["integer", "null"], "minimum": 0},
           "ready_dependencies": {"type": ["integer", "null"], "minimum": 0},
-          "dependency_ids": {"type": "array", "items": {"type": "string"}},
+          "dependency_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
           "runtime_slot_waits": {"type": "integer", "minimum": 0},
-          "roles": {"type": "array", "items": {"enum": ["reader", "worker", "solver", "investigator", "advisor"]}},
+          "roles": {"type": "array", "items": {"enum": ["reader", "worker", "solver", "investigator", "advisor"]}, "uniqueItems": true},
           "route_evidence_grade": {"type": ["string", "null"]},
-          "policy_violations": {"type": "array", "items": {"type": "string"}},
+          "policy_violations": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
           "scope_violations": {"type": "integer", "minimum": 0},
           "wrong_edits": {"type": "integer", "minimum": 0},
           "regressions": {"type": "integer", "minimum": 0},
@@ -122,7 +122,7 @@
           "duplicate_dependency_calls": {"type": "integer", "minimum": 0},
           "notes": {"type": ["string", "null"]}
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     }
   },

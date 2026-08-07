@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "plugins" / "codex-delegate" / "scripts" / "validate_team_plan.py"
+PLUGIN = ROOT / "plugins" / "codex-delegate"
+SCRIPT = PLUGIN / "scripts" / "validate_team_plan.py"
+POLICY = PLUGIN / "policy-contract.json"
 
 
 def load_validator():
@@ -58,13 +60,20 @@ def validate(payload):
     return VALIDATOR.validate_team_plan_payload(payload)
 
 
-def test_valid_plan_derives_dependency_layers_without_numeric_wave_policy():
+def test_validator_derives_role_and_read_only_sets_from_policy_contract():
+    policy = json.loads(POLICY.read_text())
+    assert VALIDATOR.ROLES == set(policy["roles"])
+    assert VALIDATOR.READ_ONLY_ROLES == {
+        role for role, spec in policy["roles"].items() if spec["sandbox_intent"] == "read-only"
+    }
+
+
+def test_valid_plan_derives_dependency_layers_without_worker_count_alias():
     result = validate(plan())
     assert result["team_plan_valid"] is True
     assert result["ready_layers"] == [["U1"], ["U2"]]
-    source = SCRIPT.read_text()
-    for retired in ["max_planned_workers", "max_worker_attempts", "max_new_workers_per_wave", "scale_profile"]:
-        assert retired not in source
+    assert result["unit_count"] == 2
+    assert "worker_count" not in result
 
 
 def test_team_plan_is_only_for_multi_responsibility_coordination():
@@ -74,6 +83,26 @@ def test_team_plan_is_only_for_multi_responsibility_coordination():
     result = validate(payload)
     assert result["team_plan_valid"] is False
     assert "TeamPlan requires at least two delegated units" in result["errors"]
+
+
+def test_plan_and_unit_shapes_fail_closed_on_unknown_fields():
+    payload = plan()
+    payload["unexpected"] = True
+    assert any("unsupported fields" in error for error in validate(payload)["errors"])
+
+    payload = plan()
+    payload["units"][0]["unexpected"] = True
+    assert any("unsupported fields" in error for error in validate(payload)["errors"])
+
+
+def test_malformed_enum_values_fail_closed_instead_of_crashing():
+    payload = plan()
+    payload["planning_source"] = ["ad_hoc"]
+    assert "planning_source is not supported" in validate(payload)["errors"]
+
+    payload = plan()
+    payload["units"][0]["role"] = ["reader"]
+    assert "U1 has unsupported role" in validate(payload)["errors"]
 
 
 def test_duplicate_unknown_self_and_cycle_dependencies_fail_closed():
@@ -112,8 +141,8 @@ def test_ready_units_cannot_claim_overlapping_write_ownership():
     assert any("overlapping write scope" in error for error in result["errors"])
 
 
-def test_read_only_roles_cannot_claim_write_ownership():
-    for role in ["reader", "investigator", "advisor"]:
+def test_policy_read_only_roles_cannot_claim_write_ownership():
+    for role in VALIDATOR.READ_ONLY_ROLES:
         payload = plan()
         payload["units"][0]["role"] = role
         payload["units"][0]["ownership"]["write"] = ["src/read_only_violation.py"]
@@ -123,17 +152,11 @@ def test_read_only_roles_cannot_claim_write_ownership():
 
 def test_ownership_paths_fail_closed_on_unsafe_or_conflicting_paths():
     payload = plan()
-    payload["units"][1]["ownership"] = {
-        "write": ["../outside"],
-        "forbidden": [],
-    }
+    payload["units"][1]["ownership"] = {"write": ["../outside"], "forbidden": []}
     assert any("safe relative path" in error for error in validate(payload)["errors"])
 
     payload = plan()
-    payload["units"][1]["ownership"] = {
-        "write": ["src"],
-        "forbidden": ["src/generated"],
-    }
+    payload["units"][1]["ownership"] = {"write": ["src"], "forbidden": ["src/generated"]}
     assert any("overlaps its forbidden scope" in error for error in validate(payload)["errors"])
 
 
@@ -165,11 +188,7 @@ def test_revision_chain_and_upstream_sources_are_explicit():
     assert validate(upstream)["team_plan_valid"] is True
 
 
-def test_unit_contract_stays_small_and_role_vocabulary_is_codex_delegate_native():
-    payload = plan()
-    payload["units"][0]["unexpected"] = True
-    assert any("unsupported fields" in error for error in validate(payload)["errors"])
-
+def test_role_vocabulary_rejects_unknown_role():
     payload = plan()
     payload["units"][0]["role"] = "researcher"
     assert "U1 has unsupported role" in validate(payload)["errors"]

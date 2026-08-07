@@ -1,5 +1,7 @@
-from pathlib import Path
+from __future__ import annotations
+
 import json
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "codex-delegate"
@@ -7,89 +9,56 @@ SKILL = PLUGIN / "skills" / "codex-delegate"
 ROUTER = SKILL / "references" / "router-core.md"
 GUARDRAILS = SKILL / "references" / "guardrails.md"
 POLICY = PLUGIN / "policy-contract.json"
+ROUTING_CASES = ROOT / "evals" / "routing-cases.json"
 
 
-def policy():
+def policy() -> dict:
     return json.loads(POLICY.read_text())
 
 
-def test_scheduler_is_completion_driven_without_product_hard_child_count():
-    text = (ROUTER.read_text() + (SKILL / "SKILL.md").read_text()).lower()
-    for phrase in [
-        "smallest useful active set",
-        "ready frontier",
-        "progressive fan-out",
-        "native codex capacity",
-        "process an exposed child completion",
-        "artificial wave barrier",
-    ]:
-        assert phrase in text
-    assert "fixed team size" in text
-    assert "ordinary numeric child ceiling" in text
+def routing_cases() -> dict[str, dict]:
+    payload = json.loads(ROUTING_CASES.read_text())
+    assert payload["schema_version"] == "2.0"
+    return {case["id"]: case for case in payload["cases"]}
 
 
-def test_machine_contract_keeps_only_hard_delegation_limits():
-    delegation = policy()["delegation"]
-    assert delegation == {
+def test_machine_contract_keeps_only_the_two_hard_delegation_limits():
+    assert policy()["delegation"] == {
         "max_depth": 1,
         "max_active_writers_per_workspace": 1,
     }
-    assert "baseline_concurrent_children" not in delegation
-    assert "max_concurrent_children" not in delegation
 
 
-def test_static_eval_allows_parallel_readers_and_cost_based_consent():
-    payload = json.loads((ROOT / "evals" / "routing-cases.json").read_text())
-    by_id = {case["id"]: case for case in payload["evals"]}
-
-    parallel = by_id["three-independent-readers-can-fanout"]
+def test_static_cases_cover_adaptive_fanout_and_material_compute_consent():
+    cases = routing_cases()
+    parallel = cases["three-independent-readers-can-fanout"]
     assert parallel["expected"]["action"] == "delegate"
     assert len(parallel["expected"]["nodes"]) == 3
     assert all(node["agent_type"] == "codex_delegate_reader" for node in parallel["expected"]["nodes"])
 
-    consent = by_id["material-compute-expansion-needs-consent"]
+    consent = cases["material-compute-expansion-needs-consent"]
     assert consent["expected"]["action"] == "ask_consent"
     assert consent["expected"]["consent_reason"] == "material_compute_expansion"
 
 
-def test_guardrails_prevent_agent_sprawl_without_count_threshold():
-    text = GUARDRAILS.read_text().lower()
-    for phrase in [
-        "native capacity is a ceiling, never a reason to fill slots",
-        "another active owner already covers the same unchanged responsibility",
-        "the work is speculative",
-        "child count by itself is not a consent trigger",
-        "materially expanding",
-    ]:
-        assert phrase in text
-    assert "more than two simultaneous children" not in text
-
-
-def test_writer_safety_is_workspace_scoped_and_depth_one():
-    delegation = policy()["delegation"]
-    guardrails = GUARDRAILS.read_text().lower()
-    assert delegation["max_active_writers_per_workspace"] == 1
-    assert delegation["max_depth"] == 1
-    assert "one canonical physical checkout has at most one active writing actor" in guardrails
-    assert "main session when mutating the checkout" in guardrails
-    assert "luna worker" in guardrails
-    assert "sol solver" in guardrails
-    assert "genuine filesystem isolation" in guardrails
-    assert "delegation depth is one" in guardrails
-
-
-def test_stalled_lane_has_one_clean_retry_not_universal_retry_loop():
+def test_router_and_guardrails_own_adaptive_scheduling_and_writer_safety():
     router = ROUTER.read_text().lower()
-    assert "stalled" in router
-    assert "at most one clean retry" in router
-    assert "materially improved packet" in router
-    assert "failed luna attempt never directly means" in router
-
-
-def test_installer_lock_is_separate_from_session_level_scheduler_claims():
     guardrails = GUARDRAILS.read_text().lower()
+
+    for concept in ["ready frontier", "progressive fan-out", "native codex capacity"]:
+        assert concept in router
+    for concept in [
+        "one writer per canonical checkout",
+        "filesystem isolation",
+        "semantic independence",
+        "child count by itself is not a consent trigger",
+        "delegation depth is one",
+    ]:
+        assert concept in guardrails
+
+
+def test_installer_lock_is_a_local_profile_lifecycle_mechanism():
     installer = (PLUGIN / "scripts" / "install-agents.py").read_text().lower()
-    assert "cross-session locking" in guardrails
     assert 'lock_name = ".codex-delegate-agents.lock"' in installer
     assert "def installer_lock(" in installer
     assert "lock_file(fd)" in installer

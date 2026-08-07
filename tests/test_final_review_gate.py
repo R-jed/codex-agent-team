@@ -48,8 +48,10 @@ def test_review_lifecycle_remains_fail_closed_and_artifact_bound():
         "Any deliverable mutation after review invalidates the old verdict",
     ]:
         assert phrase in review
-    assert contract()["final_review"]["completion_verdicts"] == ["ship", "fix-first", "rethink"]
-    assert contract()["final_review"]["unresolved_verdict"] == "insufficient_evidence"
+    final_review = contract()["final_review"]
+    assert final_review["ship_verdict"] == "ship"
+    assert final_review["correction_verdicts"] == ["fix-first", "rethink"]
+    assert final_review["unresolved_verdict"] == "insufficient_evidence"
 
 
 def test_sol_review_is_selective_outside_required_assurance():

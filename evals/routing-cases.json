@@ -1,263 +1,293 @@
 {
-  "schema_version": "4.0",
+  "schema_version": "2.0",
   "skill_name": "codex-delegate",
-  "evals": [
+  "cases": [
     {
       "id": "single-file-clear-fix",
       "category": "delegation",
       "input": {"task": "Fix one known return-value bug and run its focused unit test."},
-      "expected": {"action": "main_session", "dependency_kind": "bounded_execution", "nodes": [], "main_reason": "no_distinct_delegation_benefit"}
+      "expected": {
+        "action": "main_session",
+        "nodes": [],
+        "main_reason": "no_distinct_delegation_benefit"
+      }
     },
     {
       "id": "many-files-alone-is-not-benefit",
       "category": "delegation",
       "input": {"task": "The repository is large but the bug is already isolated to one helper and one test."},
-      "expected": {"action": "main_session", "dependency_kind": "bounded_execution", "nodes": [], "main_reason": "file_count_alone_is_insufficient"}
-    },
-    {
-      "id": "large-read-luna-reader",
-      "category": "classification",
-      "input": {"task": "Trace a large authentication path and return compact reusable evidence without edits."},
       "expected": {
-        "action": "delegate",
-        "dependency_kind": "evidence",
-        "nodes": [{"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"}]
+        "action": "main_session",
+        "nodes": [],
+        "main_reason": "file_count_alone_is_insufficient"
       }
     },
     {
-      "id": "bounded-luna-worker",
-      "category": "classification",
-      "input": {"task": "Implement a bounded fix where desired behavior, invariants, acceptance, and tests are already explicit."},
+      "id": "bounded-read-uses-reader",
+      "category": "role_choice",
+      "input": {"task": "Trace the authentication call path and return compact evidence without edits."},
       "expected": {
         "action": "delegate",
-        "dependency_kind": "bounded_execution",
-        "nodes": [{"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_worker", "route_assurance": "profile_locked"}]
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "reader",
+            "agent_type": "codex_delegate_reader",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "none"
+          }
+        ]
       }
     },
     {
-      "id": "contractable-but-judgment-coupled-is-not-luna",
-      "category": "classification",
-      "input": {"task": "Refactor cache invalidation across modules. Scope and tests are known, but the implementation must repeatedly choose compatibility and state semantics. The main session is non-Sol."},
+      "id": "bounded-implementation-uses-worker",
+      "category": "role_choice",
+      "input": {"task": "Implement a fully specified local fix whose behavior and acceptance are already decided."},
       "expected": {
         "action": "delegate",
-        "dependency_kind": "judgment_coupled_execution",
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "worker",
+            "agent_type": "codex_delegate_worker",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "bounded-source-write"
+          }
+        ]
+      }
+    },
+    {
+      "id": "judgment-before-writing-uses-advisor",
+      "category": "role_choice",
+      "input": {"task": "Choose a material compatibility policy before implementation; Main is below the Sol reference capability."},
+      "expected": {
+        "action": "delegate",
         "main_judgment_coverage": "uncovered",
-        "nodes": [{"dependency_id": "D01", "responsibility": "solver", "model": "gpt-5.6-sol", "effort": "high", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_solver", "route_assurance": "profile_locked"}]
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "advisor",
+            "agent_type": "codex_delegate_advisor",
+            "model": "gpt-5.6-sol",
+            "effort": "high",
+            "mutation_authority": "none"
+          }
+        ]
       }
     },
     {
-      "id": "sol-main-keeps-judgment-coupled-work",
-      "category": "main_coverage",
-      "input": {"task": "Perform the same judgment-coupled cache refactor while trusted current-session metadata identifies a Sol main session."},
-      "expected": {"action": "main_session", "dependency_kind": "judgment_coupled_execution", "main_judgment_coverage": "covered", "nodes": [], "main_reason": "sol_capability_already_covered"}
-    },
-    {
-      "id": "non-sol-main-material-judgment-uses-advisor",
-      "category": "main_coverage",
-      "input": {"task": "Choose the compatibility policy before implementation. Trusted current-session metadata identifies a non-Sol main session."},
+      "id": "judgment-coupled-writing-uses-solver",
+      "category": "role_choice",
+      "input": {"task": "Refactor state handling where consequential compatibility decisions continue during implementation; Main is below the Sol reference capability."},
       "expected": {
         "action": "delegate",
-        "dependency_kind": "judgment",
         "main_judgment_coverage": "uncovered",
-        "nodes": [{"dependency_id": "D01", "responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_advisor", "route_assurance": "profile_locked"}]
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "solver",
+            "agent_type": "codex_delegate_solver",
+            "model": "gpt-5.6-sol",
+            "effort": "high",
+            "mutation_authority": "bounded-source-write"
+          }
+        ]
       }
     },
     {
-      "id": "unknown-main-material-judgment-uses-advisor",
+      "id": "sol-main-keeps-judgment-work",
       "category": "main_coverage",
-      "input": {"task": "A material API behavior decision remains and the main-session model is not observable."},
+      "input": {"task": "Perform the same judgment-heavy work while trusted runtime evidence shows Main meets the Sol reference route."},
       "expected": {
-        "action": "delegate",
-        "dependency_kind": "judgment",
-        "main_judgment_coverage": "unknown",
-        "nodes": [{"dependency_id": "D01", "responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_advisor", "route_assurance": "profile_locked"}]
+        "action": "main_session",
+        "main_judgment_coverage": "covered",
+        "nodes": [],
+        "main_reason": "main_capability_already_covers_judgment"
       }
     },
     {
       "id": "unknown-main-routine-work-does-not-buy-sol",
       "category": "main_coverage",
-      "input": {"task": "The main model is not observable. Implement a fully specified local fix with deterministic tests."},
+      "input": {"task": "Main route is not observable. Implement a fully specified local fix with deterministic tests."},
       "expected": {
         "action": "delegate",
-        "dependency_kind": "bounded_execution",
         "main_judgment_coverage": "unknown",
-        "nodes": [{"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_worker", "route_assurance": "profile_locked"}]
-      }
-    },
-    {
-      "id": "ambiguous-behavior-is-judgment-not-worker-contract",
-      "category": "classification",
-      "input": {"task": "Improve checkout retry semantics without deciding which externally visible behavior may change."},
-      "expected": {"action": "main_session", "dependency_kind": "judgment", "nodes": [], "stop_reason": "CONTRACT_GAP", "main_reason": "task_truth_missing_before_write"}
-    },
-    {
-      "id": "luna-material-judgment-emerged-reclassifies",
-      "category": "reclassification",
-      "input": {"task": "A bounded Luna implementation exposes an unresolved state-semantics decision that materially changes behavior. Main coverage is non-Sol."},
-      "expected": {
-        "action": "delegate",
-        "stop_reason": "JUDGMENT_REQUIRED",
-        "reclassified_from": "bounded_execution",
-        "reclassified_to": "judgment_coupled_execution",
-        "main_judgment_coverage": "uncovered",
-        "nodes": [{"dependency_id": "D01", "responsibility": "solver", "model": "gpt-5.6-sol", "effort": "high", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_solver", "route_assurance": "profile_locked"}]
-      }
-    },
-    {
-      "id": "luna-local-defect-stays-luna",
-      "category": "reclassification",
-      "input": {"task": "A bounded Luna patch fails one deterministic test because of an identified local off-by-one error; semantics remain unchanged."},
-      "expected": {
-        "action": "delegate",
-        "dependency_kind": "bounded_execution",
-        "progress_signal": "blocked",
-        "nodes": [{"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_worker", "route_assurance": "profile_locked"}]
-      }
-    },
-    {
-      "id": "execution-stall-clean-restart-same-kind",
-      "category": "progress",
-      "input": {"task": "The same bounded dependency repeats the same deterministic failure without new evidence, but its classification remains valid."},
-      "expected": {
-        "action": "delegate",
-        "dependency_kind": "bounded_execution",
-        "stop_reason": "EXECUTION_STALL",
-        "progress_signal": "unchanged",
-        "nodes": [{"dependency_id": "D01", "responsibility": "worker", "model": "gpt-5.6-luna", "effort": "max", "write_intent": true, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_worker", "route_assurance": "profile_locked", "clean_restart": true}]
-      }
-    },
-    {
-      "id": "technical-gap-after-semantics-stable",
-      "category": "reclassification",
-      "input": {"task": "Desired concurrency semantics are already decided. Execution exposes one narrow difficult lock-order question."},
-      "expected": {
-        "action": "delegate",
-        "stop_reason": "TECHNICAL_GAP",
-        "reclassified_from": "bounded_execution",
-        "reclassified_to": "technical_investigation",
-        "nodes": [{"dependency_id": "D02", "responsibility": "investigator", "model": "gpt-5.6-terra", "effort": "xhigh", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_investigator", "route_assurance": "profile_locked", "unresolved_delta_only": true}]
-      }
-    },
-    {
-      "id": "claimed-technical-gap-with-ambiguous-semantics-does-not-use-terra",
-      "category": "reclassification",
-      "input": {"task": "Luna requests Terra, but the remaining blocker is actually an unresolved ordering-semantics decision. Main coverage is non-Sol."},
-      "expected": {
-        "action": "delegate",
-        "stop_reason": "JUDGMENT_REQUIRED",
-        "reclassified_from": "bounded_execution",
-        "reclassified_to": "judgment",
-        "main_judgment_coverage": "uncovered",
-        "nodes": [{"dependency_id": "D01", "responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_advisor", "route_assurance": "profile_locked"}]
-      }
-    },
-    {
-      "id": "solver-can-expose-technical-investigation",
-      "category": "reclassification",
-      "input": {"task": "Sol Solver resolves all semantic choices but discovers one narrow difficult compiler/runtime interaction."},
-      "expected": {
-        "action": "delegate",
-        "stop_reason": "TECHNICAL_GAP",
-        "reclassified_from": "judgment_coupled_execution",
-        "reclassified_to": "technical_investigation",
-        "nodes": [{"dependency_id": "D02", "responsibility": "investigator", "model": "gpt-5.6-terra", "effort": "xhigh", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_investigator", "route_assurance": "profile_locked", "unresolved_delta_only": true}]
-      }
-    },
-    {
-      "id": "sol-main-still-needs-independent-public-contract-review",
-      "category": "lifecycle",
-      "input": {"task": "A Sol main session implemented a public API compatibility change and deterministic verification passes."},
-      "expected": {
-        "action": "delegate",
-        "main_judgment_coverage": "covered",
-        "independent_review_required": true,
-        "nodes": [{"dependency_id": "R01", "responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_advisor", "route_assurance": "profile_locked"}]
-      }
-    },
-    {
-      "id": "terra-use-alone-does-not-force-final-review",
-      "category": "lifecycle",
-      "input": {"task": "Terra resolved one narrow technical fact; final implementation has complete deterministic coverage and no semantic review trigger."},
-      "expected": {"action": "main_session", "nodes": [], "independent_review_required": false, "main_reason": "process_history_is_not_review_trigger"}
-    },
-    {
-      "id": "solver-use-alone-does-not-force-final-review",
-      "category": "lifecycle",
-      "input": {"task": "Sol Solver completed a bounded internal refactor. No public, state, security, authorization, integrity, concurrency, migration, user-request, or verification-gap trigger remains."},
-      "expected": {"action": "main_session", "nodes": [], "independent_review_required": false, "main_reason": "process_history_is_not_review_trigger"}
-    },
-    {
-      "id": "verification-gap-forces-independent-review",
-      "category": "lifecycle",
-      "input": {"task": "Tests pass, but a material compatibility consequence cannot be deterministically covered."},
-      "expected": {
-        "action": "delegate",
-        "independent_review_required": true,
-        "nodes": [{"dependency_id": "R01", "responsibility": "advisor", "model": "gpt-5.6-sol", "effort": "high", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_advisor", "route_assurance": "profile_locked"}]
-      }
-    },
-    {
-      "id": "two-independent-readers",
-      "category": "routing",
-      "input": {"task": "Map two independent read-only subsystems in parallel."},
-      "expected": {
-        "action": "delegate",
-        "dependency_kind": "evidence",
         "nodes": [
-          {"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"},
-          {"dependency_id": "D02", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"}
+          {
+            "unit_id": "U1",
+            "role": "worker",
+            "agent_type": "codex_delegate_worker",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "bounded-source-write"
+          }
+        ]
+      }
+    },
+    {
+      "id": "stable-read-heavy-investigation-uses-terra",
+      "category": "role_choice",
+      "input": {"task": "Desired semantics are fixed. Investigate a difficult compiler/runtime interaction across a broad read-only surface."},
+      "expected": {
+        "action": "delegate",
+        "task_blocker": "investigation",
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "investigator",
+            "agent_type": "codex_delegate_investigator",
+            "model": "gpt-5.6-terra",
+            "effort": "xhigh",
+            "mutation_authority": "none"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ambiguous-semantics-do-not-use-terra",
+      "category": "rerouting",
+      "input": {"task": "A Worker asks for broader investigation, but the remaining blocker is actually an unresolved externally visible ordering decision."},
+      "expected": {
+        "action": "delegate",
+        "task_blocker": "judgment",
+        "recovery_action": "semantic_reroute",
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "advisor",
+            "agent_type": "codex_delegate_advisor",
+            "model": "gpt-5.6-sol",
+            "effort": "high",
+            "mutation_authority": "none"
+          }
+        ]
+      }
+    },
+    {
+      "id": "local-defect-can-retry-same-worker",
+      "category": "rerouting",
+      "input": {"task": "A bounded Worker attempt fails one deterministic test because of an identified local off-by-one defect; semantics remain unchanged."},
+      "expected": {
+        "action": "delegate",
+        "recovery_action": "same_role_retry",
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "worker",
+            "agent_type": "codex_delegate_worker",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "bounded-source-write"
+          }
+        ]
+      }
+    },
+    {
+      "id": "stalled-work-does-not-create-a-model-ladder",
+      "category": "rerouting",
+      "input": {"task": "The same bounded responsibility repeats the same failure without new evidence or acceptance progress."},
+      "expected": {
+        "action": "delegate",
+        "task_blocker": "stalled",
+        "recovery_action": "same_role_retry",
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "worker",
+            "agent_type": "codex_delegate_worker",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "bounded-source-write"
+          }
         ]
       }
     },
     {
       "id": "three-independent-readers-can-fanout",
-      "category": "routing",
-      "input": {"task": "Map three independent read-only subsystems in parallel; each has a distinct evidence lane and can make progress now."},
+      "category": "fanout",
+      "input": {"task": "Map three independent read-only subsystems; each has a distinct ready evidence responsibility."},
       "expected": {
         "action": "delegate",
-        "dependency_kind": "evidence",
         "nodes": [
-          {"dependency_id": "D01", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"},
-          {"dependency_id": "D02", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"},
-          {"dependency_id": "D03", "responsibility": "reader", "model": "gpt-5.6-luna", "effort": "max", "write_intent": false, "workspace": "main", "fork_turns": "none", "agent_type": "codex_delegate_reader", "route_assurance": "profile_locked"}
+          {
+            "unit_id": "U1",
+            "role": "reader",
+            "agent_type": "codex_delegate_reader",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "none"
+          },
+          {
+            "unit_id": "U2",
+            "role": "reader",
+            "agent_type": "codex_delegate_reader",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "none"
+          },
+          {
+            "unit_id": "U3",
+            "role": "reader",
+            "agent_type": "codex_delegate_reader",
+            "model": "gpt-5.6-luna",
+            "effort": "max",
+            "mutation_authority": "none"
+          }
         ]
       }
     },
     {
       "id": "material-compute-expansion-needs-consent",
       "category": "consent",
-      "input": {"task": "The useful ordinary path is already exhausted; the proposed next step adds repeated expensive Solver, Advisor, and Investigator calls without new evidence."},
-      "expected": {"action": "ask_consent", "nodes": [], "consent_reason": "material_compute_expansion"}
+      "input": {"task": "The useful ordinary path is exhausted; the next proposal materially expands expensive delegated compute without new evidence."},
+      "expected": {
+        "action": "ask_consent",
+        "nodes": [],
+        "consent_reason": "material_compute_expansion"
+      }
     },
     {
-      "id": "worker-and-solver-share-one-writer-domain",
+      "id": "unproven-child-write-is-rejected",
       "category": "safety",
-      "input": {"task": "Run Luna Worker and Sol Solver concurrently against the same physical checkout."},
-      "expected": {"action": "reject_result", "nodes": [], "policy_violation": "unsafe_shared_write_parallelism"}
+      "input": {"task": "A child reports source edits outside its granted mutation authority."},
+      "expected": {
+        "action": "reject_result",
+        "nodes": [],
+        "policy_violation": "mutation_authority_exceeded"
+      }
     },
     {
-      "id": "nested-delegation-observed",
-      "category": "safety",
-      "input": {"task": "A child unexpectedly spawned a descendant."},
-      "expected": {"action": "reject_result", "nodes": [], "policy_violation": "nested_delegation"}
+      "id": "public-contract-change-requires-fresh-review",
+      "category": "final_review",
+      "input": {"task": "The candidate changes a public API contract and ordinary deterministic verification passes."},
+      "expected": {
+        "action": "delegate",
+        "independent_review_required": true,
+        "nodes": [
+          {
+            "unit_id": "U1",
+            "role": "advisor",
+            "agent_type": "codex_delegate_advisor",
+            "model": "gpt-5.6-sol",
+            "effort": "high",
+            "mutation_authority": "none",
+            "fresh_context": true
+          }
+        ]
+      }
     },
     {
-      "id": "required-solver-route-unavailable",
-      "category": "routing",
-      "input": {"task": "A non-Sol main has a judgment-coupled write dependency but codex_delegate_solver is unavailable."},
-      "expected": {"action": "main_session", "dependency_kind": "judgment_coupled_execution", "main_judgment_coverage": "uncovered", "nodes": [], "main_reason": "project_profile_unavailable"}
-    },
-    {
-      "id": "implicit-sol-capability-uplift-needs-consent",
-      "category": "consent",
-      "input": {"task": "The Skill was invoked implicitly and a material judgment dependency would add Sol Advisor or Solver without clear user authorization."},
-      "expected": {"action": "ask_consent", "nodes": [], "consent_reason": "implicit_sol_cost"}
-    },
-    {
-      "id": "duplicate-running-dependency-rejected",
-      "category": "progress",
-      "input": {"task": "Dependency D01 already has an active owner and another child is proposed for the same unchanged dependency."},
-      "expected": {"action": "main_session", "nodes": [], "main_reason": "dependency_already_running"}
+      "id": "process-history-alone-does-not-force-review",
+      "category": "final_review",
+      "input": {"task": "The task used Solver and recovery, but the final candidate has no consequence-driven review trigger and no verification gap."},
+      "expected": {
+        "action": "main_session",
+        "independent_review_required": false,
+        "nodes": [],
+        "main_reason": "process_history_is_not_review_trigger"
+      }
     }
   ]
 }

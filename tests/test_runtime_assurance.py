@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -6,14 +9,11 @@ SKILL = PLUGIN / "skills" / "codex-delegate"
 GUARDRAILS = SKILL / "references" / "guardrails.md"
 RUNTIME_DOC = ROOT / "docs" / "native-subagent-runtime.md"
 RUNTIME_VERIFIER = PLUGIN / "scripts" / "runtime-evidence.py"
-LEGACY_INSPECTOR = SKILL / "scripts" / "inspect-runtime.py"
-LEGACY_VERIFIER = SKILL / "scripts" / "verify-runtime.py"
+RUNTIME_CASES = ROOT / "evals" / "runtime-assurance-cases.json"
 
 
 def test_runtime_assurance_uses_one_optional_normalized_verifier():
     assert RUNTIME_VERIFIER.is_file()
-    assert not LEGACY_INSPECTOR.exists()
-    assert not LEGACY_VERIFIER.exists()
     guardrails = GUARDRAILS.read_text().lower()
     runtime = RUNTIME_DOC.read_text().lower()
     assert "runtime-evidence.py" in guardrails
@@ -51,3 +51,15 @@ def test_runtime_evidence_keeps_route_ancestry_and_permission_typed():
         "X0_conflicted",
     ]:
         assert grade in verifier
+
+
+def test_runtime_assurance_fixture_uses_current_return_target():
+    payload = json.loads(RUNTIME_CASES.read_text())
+    assert payload["schema_version"] == "2.0"
+    decisions = {
+        case["expected"].get("decision")
+        for case in payload["cases"]
+        if "decision" in case["expected"]
+    }
+    assert "return_to_main_session" in decisions
+    assert "return_to_root" not in decisions

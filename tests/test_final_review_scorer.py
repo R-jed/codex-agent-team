@@ -64,7 +64,7 @@ def run(mode: str) -> dict:
     }
 
 
-def score(tmp_path: Path, runs: list[dict]) -> dict:
+def score_process(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[str]:
     result_path = tmp_path / "result.json"
     result_path.write_text(
         json.dumps(
@@ -77,13 +77,17 @@ def score(tmp_path: Path, runs: list[dict]) -> dict:
         ),
         encoding="utf-8",
     )
-    result = subprocess.run(
+    return subprocess.run(
         [sys.executable, str(SCORER), str(result_path), "--json"],
         cwd=ROOT,
         text=True,
         capture_output=True,
         check=False,
     )
+
+
+def score(tmp_path: Path, runs: list[dict]) -> dict:
+    result = score_process(tmp_path, runs)
     assert result.returncode == 0, result.stderr
     return json.loads(result.stdout)
 
@@ -117,7 +121,7 @@ def test_scorer_reports_final_review_cost_and_artifact_deltas(tmp_path: Path):
         {
             "final_review_requirement": "required",
             "final_review_trigger_reasons": ["public_contract_change"],
-            "final_review_attempts": 1,
+            "final_review_attempts": 2,
             "final_review_verdict": "ship",
             "final_review_gate_satisfied": True,
             "review_findings": 1,
@@ -129,7 +133,7 @@ def test_scorer_reports_final_review_cost_and_artifact_deltas(tmp_path: Path):
 
     summary = score(tmp_path, [baseline, candidate])
     comparison = summary["pairs"]["final-review-metrics-1"]["comparison"]
-    assert comparison["metric_deltas"]["final_review_attempts"] == 1
+    assert comparison["metric_deltas"]["final_review_attempts"] == 2
     assert comparison["metric_deltas"]["review_artifact_verify_failures"] == 1
     assert comparison["metric_deltas"]["post_review_mutations"] == 1
     assert comparison["metric_deltas"]["review_findings"] == 1
@@ -138,10 +142,53 @@ def test_scorer_reports_final_review_cost_and_artifact_deltas(tmp_path: Path):
     assert mode["final_review_required_runs"] == 1
     assert mode["final_review_satisfied_runs"] == 1
     assert mode["final_review_unsatisfied_required_runs"] == 0
-    assert mode["final_review_attempts"] == 1
-    assert mode["final_review_yield"] == 1.0
+    assert mode["final_review_attempts"] == 2
+    assert mode["final_review_yield"] == 0.5
     assert mode["review_artifact_verify_failures"] == 1
     assert mode["post_review_mutations"] == 1
+
+
+def test_scorer_rejects_satisfied_gate_without_ship_verdict(tmp_path: Path):
+    baseline = run("raw_prompt_luna")
+    candidate = run("bounded_luna")
+    candidate.update(
+        {
+            "final_review_requirement": "required",
+            "final_review_trigger_reasons": ["public_contract_change"],
+            "final_review_attempts": 1,
+            "final_review_verdict": "fix-first",
+            "final_review_gate_satisfied": True,
+        }
+    )
+    result = score_process(tmp_path, [baseline, candidate])
+    assert result.returncode != 0
+    assert "without the ship verdict" in result.stderr
+
+
+def test_scorer_rejects_required_review_without_trigger_reason(tmp_path: Path):
+    baseline = run("raw_prompt_luna")
+    candidate = run("bounded_luna")
+    candidate.update(
+        {
+            "final_review_requirement": "required",
+            "final_review_trigger_reasons": [],
+            "final_review_attempts": 1,
+            "final_review_verdict": "ship",
+            "final_review_gate_satisfied": True,
+        }
+    )
+    result = score_process(tmp_path, [baseline, candidate])
+    assert result.returncode != 0
+    assert "without a trigger reason" in result.stderr
+
+
+def test_scorer_rejects_verdict_without_review_attempt(tmp_path: Path):
+    baseline = run("raw_prompt_luna")
+    candidate = run("bounded_luna")
+    candidate["final_review_verdict"] = "ship"
+    result = score_process(tmp_path, [baseline, candidate])
+    assert result.returncode != 0
+    assert "without a review attempt" in result.stderr
 
 
 def test_scorer_keeps_missing_final_review_telemetry_explicitly_empty(tmp_path: Path):

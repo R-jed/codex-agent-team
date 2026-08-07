@@ -10,13 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "codex-delegate"
 INSTALLER = PLUGIN / "scripts" / "install-agents.py"
 PROFILE_SOURCE = PLUGIN / "agent-profiles"
-CURRENT_FILES = (
-    "codex-delegate-reader.toml",
-    "codex-delegate-worker.toml",
-    "codex-delegate-solver.toml",
-    "codex-delegate-investigator.toml",
-    "codex-delegate-advisor.toml",
-)
+POLICY = json.loads((PLUGIN / "policy-contract.json").read_text())
+CURRENT_FILES = tuple(spec["profile_file"] for spec in POLICY["roles"].values())
 CURRENT_MANIFEST = ".codex-delegate-agents.json"
 CURRENT_LOCK = ".codex-delegate-agents.lock"
 
@@ -45,7 +40,7 @@ def state(root: Path) -> dict[str, bytes]:
     }
 
 
-def test_fresh_install_creates_only_current_managed_generation(tmp_path: Path):
+def test_fresh_install_creates_only_current_managed_profiles(tmp_path: Path):
     home = tmp_path / "codex-home"
     result = run(home)
     assert result.returncode == 0, result.stderr
@@ -88,7 +83,7 @@ def test_check_is_non_mutating_and_repeat_install_is_noop(tmp_path: Path):
 def test_modified_current_profile_is_not_overwritten_without_current_ownership(tmp_path: Path):
     home = tmp_path / "codex-home"
     assert run(home).returncode == 0
-    profile = home / "agents" / "codex-delegate-solver.toml"
+    profile = home / "agents" / POLICY["roles"]["solver"]["profile_file"]
     profile.write_bytes(profile.read_bytes() + b"\n# user change\n")
     (home / CURRENT_MANIFEST).unlink()
     before = profile.read_bytes()
@@ -101,7 +96,7 @@ def test_modified_current_profile_is_not_overwritten_without_current_ownership(t
 def test_previous_current_profile_can_upgrade_with_exact_current_manifest(tmp_path: Path):
     home = tmp_path / "codex-home"
     assert run(home).returncode == 0
-    profile = home / "agents" / "codex-delegate-worker.toml"
+    profile = home / "agents" / POLICY["roles"]["worker"]["profile_file"]
     previous = profile.read_bytes() + b"\n# previous managed generation\n"
     profile.write_bytes(previous)
     manifest_path = home / CURRENT_MANIFEST
@@ -113,28 +108,27 @@ def test_previous_current_profile_can_upgrade_with_exact_current_manifest(tmp_pa
     assert profile.read_bytes() == (PROFILE_SOURCE / profile.name).read_bytes()
 
 
-def test_current_manifest_can_add_new_managed_profile_without_touching_existing_profiles(tmp_path: Path):
+def test_current_manifest_can_add_missing_managed_profile_without_touching_existing_profiles(tmp_path: Path):
     home = tmp_path / "codex-home"
     agents = home / "agents"
     agents.mkdir(parents=True)
-    old_generation = [name for name in CURRENT_FILES if name != "codex-delegate-solver.toml"]
+    missing = POLICY["roles"]["solver"]["profile_file"]
+    existing_files = [name for name in CURRENT_FILES if name != missing]
     hashes = {}
-    for filename in old_generation:
+    for filename in existing_files:
         data = (PROFILE_SOURCE / filename).read_bytes()
         (agents / filename).write_bytes(data)
         hashes[filename] = sha(data)
     (home / CURRENT_MANIFEST).write_text(
         json.dumps({"schema_version": 1, "managed_by": "codex-delegate", "profile_hashes": hashes})
     )
-    before = {filename: (agents / filename).read_bytes() for filename in old_generation}
+    before = {filename: (agents / filename).read_bytes() for filename in existing_files}
 
     result = run(home)
 
     assert result.returncode == 0, result.stderr
-    assert (agents / "codex-delegate-solver.toml").read_bytes() == (
-        PROFILE_SOURCE / "codex-delegate-solver.toml"
-    ).read_bytes()
-    assert {filename: (agents / filename).read_bytes() for filename in old_generation} == before
+    assert (agents / missing).read_bytes() == (PROFILE_SOURCE / missing).read_bytes()
+    assert {filename: (agents / filename).read_bytes() for filename in existing_files} == before
     assert run(home, "--check").returncode == 0
 
 

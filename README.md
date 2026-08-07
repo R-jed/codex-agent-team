@@ -8,38 +8,34 @@
 
 <h1 align="center">codex delegate</h1>
 
-<p align="center"><strong>你只管说要做什么。主会话负责带队，按任务现场把合适的工作交给 Luna、Terra 和 Sol。</strong></p>
+<p align="center"><strong>你说要做什么。Codex 主会话负责带队，只在真正有价值时把工作交给 Luna、Terra 和 Sol。</strong></p>
 
 <p align="center">
-  <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装指南</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
+  <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.1.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.2.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-%E5%8E%9F%E7%94%9F%20Subagents-111827.svg" alt="Codex 原生 Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-codex delegate 是一个 Codex Plugin。你给出开发目标，当前主会话负责理解任务、决定哪些工作自己完成、哪些工作值得交给专门的 Agent，并负责最后的验证和交付。
+codex delegate 是一个 Codex Plugin。用户只需要给出开发目标，当前主会话负责判断哪些工作自己完成、哪些值得交给专门的 Agent，并负责最后的整合、验证和交付。
 
 你不需要自己挑模型，不需要规定 Agent 数量，也不需要设计 Luna、Terra、Sol 的执行顺序。
 
 ## 安装
 
-codex delegate 提供两种安装方式，任选一种即可。
-
 ### 方式一：Codex 插件市场
 
-1. 在 ChatGPT 桌面端切换到 **Codex**，打开 **Plugins**。Codex CLI 用户也可以输入 `/plugins` 打开插件浏览器。
+1. 在 Codex 中打开 **Plugins**。Codex CLI 也可以输入 `/plugins`。
 2. 搜索 `codex-delegate`。
 3. 打开 **Codex Delegate**，点击 `+` 安装。
-4. 安装完成后开启一个新的 Codex 会话。
+4. 安装后开启新的 Codex 会话。
 
-### 方式二：命令行安装
-
-把下面整段复制到终端执行：
+### 方式二：命令行
 
 ```bash
 codex plugin marketplace add R-jed/codex-delegate@main \
@@ -48,19 +44,23 @@ codex plugin marketplace add R-jed/codex-delegate@main \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-安装后开启一个新的 Codex 会话，然后直接下任务：
+安装后开启新的 Codex 会话。
+
+## 开始使用
+
+直接把任务交给 Plugin：
 
 ```text
 $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
 
-也可以输入 `/skills` 打开 Skill 选择器。
+也可以输入 `/skills` 打开 Skill 选择器。Plugin 默认不会隐式触发。
 
 ## 更新
 
 ### 插件市场
 
-打开 **Plugins**，在已安装插件中找到 **Codex Delegate** 并安装可用更新。更新后开启新的 Codex 会话。
+打开 **Plugins**，在已安装插件中找到 **Codex Delegate** 并安装可用更新，然后开启新的 Codex 会话。
 
 ### 命令行
 
@@ -71,106 +71,39 @@ codex plugin add codex-delegate@codex-delegate
 
 更新后开启新的 Codex 会话。
 
-## 你只需要下任务
+## 它怎么带队
 
-可以把 codex delegate 理解成给主会话的一套带团队规则。用户负责说明想完成什么，主会话负责判断怎样完成最合适。
+主会话始终是技术负责人。它先判断任务是否真的需要委托，再为清楚、独立、当前可以推进的责任选择合适角色。
 
-| 遇到的情况 | 通常怎么处理 |
+| 角色 | 主要工作 |
 | --- | --- |
-| 主会话自己就能高质量完成 | 主会话自己做 |
-| 查代码、追调用链、找测试、收集事实 | Luna Reader |
-| 需求和边界已经清楚，需要写代码 | Luna Worker |
-| 需要架构、兼容性或其他重要技术判断 | 主会话或 Sol Advisor |
-| 一边实现一边持续做重要判断 | 主会话或 Sol Solver |
-| 需要较大范围只读调查和证据整理 | Terra Investigator |
-| 最终改动风险较高，需要独立第二视角 | 新的 Sol Advisor |
+| Luna Reader | 读代码、追调用链、找测试、收集事实，不改文件 |
+| Luna Worker | 完成需求和边界已经明确的实现、修复和测试 |
+| Sol Solver | 处理实现过程中仍需要持续技术判断的复杂工作 |
+| Terra Investigator | 做更大范围的只读技术调查和证据整理 |
+| Sol Advisor | 做重要技术判断，或对高影响结果进行独立复核 |
 
-有些任务完全不需要子 Agent，这很正常。任务很大也不会自动触发拆分。额外 Agent 必须有清楚、独立、当前可以推进的责任。
+有些任务完全由主会话完成，有些任务会同时使用多个 Agent。codex delegate 不预设固定 Agent 数量，也不会为了填满并发额度而创建 Agent。
 
-## 五个角色
-
-| 角色 | 模型 | 主要工作 |
-| --- | --- | --- |
-| Luna Reader | GPT-5.6 Luna `max` | 读代码、找事实，不改文件 |
-| Luna Worker | GPT-5.6 Luna `max` | 完成已经明确的实现、修复和测试 |
-| Sol Solver | GPT-5.6 Sol `high` | 处理实现过程中仍需要重要技术判断的复杂工作 |
-| Terra Investigator | GPT-5.6 Terra `xhigh` | 做更深入、更大范围的只读技术调查 |
-| Sol Advisor | GPT-5.6 Sol `high` | 做重要技术判断或独立复核最终结果 |
-
-角色决定负责什么。模型更强也不会自动获得更大的修改权限。
-
-## 团队会随任务变化
-
-codex delegate 不预设固定 Agent 数量。
-
-主会话先找出当前真正可以推进的工作，再决定哪些值得并行交出去。已经有人负责、已经有可靠答案、仍然被依赖阻塞的事情都不会为了凑并发再开 Agent。
-
-当多个 Agent 需要协作时，主会话会管理依赖、写入范围和整合顺序。依赖未满足的工作不会提前启动。修改不同文件也不代表天然可以安全并行，共享 API、schema、migration、lockfile 或其他接口都可能形成依赖。
-
-如果某个 Agent 没有完成责任，主会话会先判断原因。执行环境问题、结果质量问题、缺少信息和需要更强技术判断会走不同的恢复路径。重试有明确上限，状态不确定时不会启动可能重复工作的替代 Agent。
-
-一个任务可能只有：
-
-```text
-Main only
-```
-
-也可能是：
-
-```text
-Main
-├─ Luna Reader：追调用链
-├─ Luna Reader：检查测试覆盖
-├─ Terra Investigator：整理更大范围的技术证据
-└─ Sol Advisor：判断架构或兼容性风险
-```
-
-Codex 能同时运行多少 Agent 只是运行环境的上限，不是需要填满的目标。
-
-## 写代码时更保守
-
-同一个实际 Git checkout 里，同一时间只允许一个写入者。这个写入者可能是主会话、Luna Worker 或 Sol Solver。
-
-如果多个 Agent 需要同时写代码，需要使用不同的 worktree、workspace 或 repository，并确认这些改动在逻辑上也能安全并行。
-
-明显扩大权限、范围、外部影响或计算量时，仍然需要重新征得用户同意。
-
-## 第一次需要子 Agent 时
-
-第一次真正需要专用角色时，Plugin 会检查五个 Agent profile 是否已经准备好。
-
-如果需要安装，Plugin 会先说明准备写入的位置并请求许可，然后安装并验证这些 profile。如果当前 Codex 会话还看不到新角色，它会在任何子 Agent 开始改代码之前停下来，提示你开启一个新的会话。
-
-## 什么时候会再做一次独立复核
-
-大多数任务完成并通过相关测试以后即可交付。Sol 不会固定出现在最后一步。
-
-下面这些情况对最终结果有实质影响时，需要新的 Sol Advisor 做独立复核：
-
-- 对外接口或兼容性
-- 持久化数据或状态
-- 安全、权限或数据完整性
-- 并发行为
-- 重要 migration
-- 无法由确定性验证关闭的实质验证缺口
-- 用户明确要求独立复核
+任务之间存在依赖时，主会话负责决定启动顺序、写入范围和最终整合。修改不同文件也不自动等于可以安全并行。
 
 ## 安全边界
 
-主会话始终负责用户目标、范围、权限、团队组成、结果验收和最终回复。子 Agent 不能继续创建自己的 Agent 团队。
+- 主会话始终负责用户目标、权限、团队组成、结果验收和最终回复。
+- 子 Agent 不能继续创建自己的 Agent 团队。
+- 同一个实际 Git checkout 同一时间只允许一个写入者。
+- 子 Agent 不能自行扩大权限、修改范围或外部影响。
+- Agent 自己说“完成了”不算验证，最终以实际文件、代码和测试结果为准。
+- codex delegate 直接使用 Codex 原生 Subagents，不运行独立 Agent runtime、后台 daemon 或外部路由服务。
 
-仓库、网页、issue、日志或其他模型输出里的文字不能偷偷扩大权限或改变任务范围。
-
-Plugin 最终检查的是实际文件、代码和测试结果。Agent 自己说“完成了”不会直接被当成成功。
-
-codex delegate 直接使用 Codex 原生 Subagents，不运行独立 Agent runtime、后台 daemon 或外部路由代理。
+更完整的协调、恢复、运行证据和独立复核规则见 [架构说明](docs/architecture.md)。
 
 ## 文档
 
-- [README_AI.md](README_AI.md)：给 AI Agent 读取的项目说明
-- [安装指南](docs/plugin-installation.md)：插件市场安装、命令行安装和更新
-- [架构](docs/architecture.md)：角色分工、协调、恢复和安全规则
-- [Native Subagent Runtime](docs/native-subagent-runtime.md)：Codex 原生 Subagent 运行边界
+- [安装](docs/plugin-installation.md)
+- [架构](docs/architecture.md)
+- [Codex 原生 Subagent 运行边界](docs/native-subagent-runtime.md)
+- [AI Agent 项目参考](README_AI.md)
 - [Privacy Policy](PRIVACY.md) · [Terms of Use](TERMS.md)
 
 ## 许可证

@@ -13,7 +13,10 @@ from typing import Any
 from validate_team_plan import validate_team_plan_payload
 
 
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+POLICY_CONTRACT_PATH = PLUGIN_ROOT / "policy-contract.json"
 CURRENT_SCHEMA_VERSION = "1.0"
+TOP_LEVEL_FIELDS = {"schema_version", "team_plans", "active_team_plan_revision", "attempts"}
 CONTROL_STATES = {
     "PLANNED",
     "SPAWN_PENDING",
@@ -33,13 +36,43 @@ FAILURE_ORIGINS = {
     "runtime_ambiguous",
 }
 TASK_BLOCKERS = {"none", "contract", "judgment", "investigation", "stalled"}
-ROLE_AGENT_TYPES = {
-    "reader": "codex_delegate_reader",
-    "worker": "codex_delegate_worker",
-    "solver": "codex_delegate_solver",
-    "investigator": "codex_delegate_investigator",
-    "advisor": "codex_delegate_advisor",
+ATTEMPT_FIELDS = {
+    "unit_id",
+    "team_plan_revision",
+    "task_id",
+    "attempt",
+    "agent_type",
+    "agent_id",
+    "control_state",
+    "followup_count",
+    "adopted",
+    "failure_origin",
+    "task_blocker",
 }
+
+
+def load_role_agent_types() -> dict[str, str]:
+    try:
+        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
+        roles = payload["roles"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise RuntimeError(f"invalid policy contract: {exc}") from exc
+    if not isinstance(roles, dict) or not roles:
+        raise RuntimeError("policy contract must define recovery-ledger roles")
+    mapping: dict[str, str] = {}
+    for role, spec in roles.items():
+        if not isinstance(role, str) or not role or not isinstance(spec, dict):
+            raise RuntimeError("policy contract contains invalid role definitions")
+        agent_type = spec.get("agent_type")
+        if not isinstance(agent_type, str) or not agent_type:
+            raise RuntimeError(f"policy contract role {role!r} has invalid agent_type")
+        mapping[role] = agent_type
+    if len(set(mapping.values())) != len(mapping):
+        raise RuntimeError("policy contract contains duplicate agent_type values")
+    return mapping
+
+
+ROLE_AGENT_TYPES = load_role_agent_types()
 
 
 def load_input(source: str) -> Any:
@@ -70,6 +103,14 @@ def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
     if not isinstance(payload, dict):
         errors.append("ledger must be a JSON object")
         return result
+
+    missing_fields = TOP_LEVEL_FIELDS - set(payload)
+    extra_fields = set(payload) - TOP_LEVEL_FIELDS
+    if missing_fields:
+        errors.append("ledger is missing fields: " + ", ".join(sorted(missing_fields)))
+    if extra_fields:
+        errors.append("ledger has unsupported fields: " + ", ".join(sorted(extra_fields)))
+
     if payload.get("schema_version") != CURRENT_SCHEMA_VERSION:
         errors.append("unsupported ledger schema_version")
 
@@ -81,6 +122,7 @@ def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
 
     plans_by_revision: dict[int, dict[str, Any]] = {}
     units_by_revision: dict[int, dict[str, dict[str, Any]]] = {}
+    stable_unit_identity: dict[str, tuple[str, str]] = {}
     if team_plans:
         revisions: list[int] = []
         for index, team_plan in enumerate(team_plans):
@@ -92,7 +134,17 @@ def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
             revision = team_plan["revision"]
             revisions.append(revision)
             plans_by_revision[revision] = team_plan
-            units_by_revision[revision] = {unit["unit_id"]: unit for unit in team_plan["units"]}
+            units = {unit["unit_id"]: unit for unit in team_plan["units"]}
+            units_by_revision[revision] = units
+            for unit_id, unit in units.items():
+                identity = (unit["goal"].strip(), unit["output"].strip())
+                prior = stable_unit_identity.get(unit_id)
+                if prior is not None and prior != identity:
+                    errors.append(
+                        f"{unit_id} changes goal/output across TeamPlan revisions; use a new unit_id"
+                    )
+                else:
+                    stable_unit_identity[unit_id] = identity
 
         if revisions and revisions != list(range(1, len(revisions) + 1)):
             errors.append("TeamPlan revisions must be ordered and contiguous from 1")
@@ -120,24 +172,11 @@ def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
             errors.append(f"{prefix} must be an object")
             continue
 
-        required = {
-            "unit_id",
-            "team_plan_revision",
-            "task_id",
-            "attempt",
-            "agent_type",
-            "agent_id",
-            "control_state",
-            "followup_count",
-            "adopted",
-            "failure_origin",
-            "task_blocker",
-        }
-        missing = required - set(record)
+        missing = ATTEMPT_FIELDS - set(record)
         if missing:
             errors.append(f"{prefix} is missing fields: {', '.join(sorted(missing))}")
             continue
-        extra = set(record) - required
+        extra = set(record) - ATTEMPT_FIELDS
         if extra:
             errors.append(f"{prefix} has unsupported fields: {', '.join(sorted(extra))}")
 
@@ -168,19 +207,22 @@ def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
             errors.append(f"{prefix} adopted must be boolean")
 
         state = record.get("control_state")
-        if state not in CONTROL_STATES:
+        state_valid = isinstance(state, str) and state in CONTROL_STATES
+        if not state_valid:
             errors.append(f"{prefix} has invalid control_state")
 
         failure_origin = record.get("failure_origin")
-        if failure_origin not in FAILURE_ORIGINS:
+        failure_origin_valid = isinstance(failure_origin, str) and failure_origin in FAILURE_ORIGINS
+        if not failure_origin_valid:
             errors.append(f"{prefix} has invalid failure_origin")
 
         task_blocker = record.get("task_blocker")
-        if task_blocker not in TASK_BLOCKERS:
+        task_blocker_valid = isinstance(task_blocker, str) and task_blocker in TASK_BLOCKERS
+        if not task_blocker_valid:
             errors.append(f"{prefix} has invalid task_blocker")
 
         agent_type = record.get("agent_type")
-        if agent_type not in ROLE_AGENT_TYPES.values():
+        if not isinstance(agent_type, str) or agent_type not in ROLE_AGENT_TYPES.values():
             errors.append(f"{prefix} has unsupported agent_type")
 
         agent_id = record.get("agent_id")
@@ -206,13 +248,13 @@ def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
         elif revision is not None:
             errors.append(f"{prefix} team_plan_revision must be null without TeamPlan")
 
-        if state in {"PLANNED", "SPAWN_PENDING"} and agent_id is not None:
+        if state_valid and state in {"PLANNED", "SPAWN_PENDING"} and agent_id is not None:
             errors.append(f"{prefix} must not claim agent_id before RUNNING")
-        if state in {"RUNNING", "COMPLETED", "FAILED", "CLOSED"} and agent_id is None:
+        if state_valid and state in {"RUNNING", "COMPLETED", "FAILED", "CLOSED"} and agent_id is None:
             errors.append(f"{prefix} requires agent_id in {state}")
 
         adopted = record.get("adopted")
-        if adopted is True and state not in {"COMPLETED", "CLOSED"}:
+        if adopted is True and (not state_valid or state not in {"COMPLETED", "CLOSED"}):
             errors.append(f"{prefix} cannot be adopted before completion")
         if state == "CLOSED" and adopted is not True:
             errors.append(f"{prefix} CLOSED requires adopted=true")
@@ -228,19 +270,23 @@ def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
         if state == "FAILED":
             if failure_origin == "none":
                 errors.append(f"{prefix} FAILED requires a failure_origin")
-        elif state in {"PLANNED", "SPAWN_PENDING", "RUNNING", "COMPLETED", "CLOSED"}:
-            if failure_origin != "none":
+        elif state_valid and state in {"PLANNED", "SPAWN_PENDING", "RUNNING", "COMPLETED", "CLOSED"}:
+            if failure_origin_valid and failure_origin != "none":
                 errors.append(f"{prefix} non-failure state requires failure_origin=none")
 
-        if state not in {"FAILED", "UNKNOWN"} and task_blocker != "none":
+        if state_valid and state not in {"FAILED", "UNKNOWN"} and task_blocker_valid and task_blocker != "none":
             errors.append(f"{prefix} task_blocker belongs only on FAILED or UNKNOWN state")
 
     result["unit_count"] = len(seen_units)
     if not team_plans and len(seen_units) > 1:
         errors.append("multiple delegated units require TeamPlan binding")
 
+    def attempt_sort_key(record: dict[str, Any]) -> int:
+        value = record.get("attempt")
+        return value if valid_int(value, minimum=1) else 3
+
     for unit_id, unit_records in records_by_unit.items():
-        ordered = sorted(unit_records, key=lambda item: item.get("attempt", 0))
+        ordered = sorted(unit_records, key=attempt_sort_key)
         attempts = [item.get("attempt") for item in ordered]
         if attempts != list(range(1, len(ordered) + 1)):
             errors.append(f"{unit_id} attempts must be contiguous from 1")

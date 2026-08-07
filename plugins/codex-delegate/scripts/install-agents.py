@@ -22,7 +22,6 @@ MANIFEST_NAME = ".codex-delegate-agents.json"
 LOCK_NAME = ".codex-delegate-agents.lock"
 MANIFEST_SCHEMA = 1
 MANAGED_BY = "codex-delegate"
-POLICY_SCHEMA = 4
 ROLE_KEYS = {"reader", "worker", "solver", "investigator", "advisor"}
 
 
@@ -105,8 +104,8 @@ def load_policy_contract() -> dict:
         payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         fail(f"Invalid codex delegate policy contract {POLICY_CONTRACT_PATH}: {exc}")
-    if not isinstance(payload, dict) or payload.get("schema_version") != POLICY_SCHEMA:
-        fail(f"Unsupported codex delegate policy contract: {POLICY_CONTRACT_PATH}")
+    if not isinstance(payload, dict):
+        fail(f"Invalid codex delegate policy contract object: {POLICY_CONTRACT_PATH}")
     roles = payload.get("roles")
     if not isinstance(roles, dict) or set(roles) != ROLE_KEYS:
         fail("Policy contract must define reader, worker, solver, investigator, and advisor roles")

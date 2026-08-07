@@ -1,16 +1,30 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
 import sys
 
 import jsonschema
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
 SCORER = ROOT / "scripts" / "score-behavioral-evals.py"
+
+
+def load_scorer_module():
+    spec = importlib.util.spec_from_file_location("codex_delegate_behavioral_scorer", SCORER)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+SCORER_MODULE = load_scorer_module()
 
 
 def base_run(mode: str) -> dict:
@@ -91,6 +105,7 @@ def test_behavioral_registry_and_schema_remain_valid_measurement_surfaces():
     assert workloads["suite"] == "codex-delegate-live-behavior"
     jsonschema.Draft202012Validator.check_schema(schema)
     ids = {item["id"] for item in workloads["workloads"]}
+    assert len(ids) == len(workloads["workloads"])
     assert {
         "bounded-implementation",
         "judgment-coupled-nonsol",
@@ -102,7 +117,7 @@ def test_behavioral_registry_and_schema_remain_valid_measurement_surfaces():
     } <= ids
 
 
-def test_schema_requires_control_fields_but_execution_route_can_vary():
+def test_schema_requires_control_fields_and_rejects_unknown_run_fields():
     schema = json.loads(SCHEMA.read_text())
     payload = {
         "schema_version": "4.0",
@@ -117,6 +132,22 @@ def test_schema_requires_control_fields_but_execution_route_can_vary():
         invalid_run.pop(field)
         invalid = {**payload, "runs": [base_run("raw_prompt_luna"), invalid_run]}
         assert list(jsonschema.Draft202012Validator(schema).iter_errors(invalid))
+
+    unknown = base_run("bounded_luna")
+    unknown["input_toknes"] = 100
+    invalid = {**payload, "runs": [base_run("raw_prompt_luna"), unknown]}
+    assert list(jsonschema.Draft202012Validator(schema).iter_errors(invalid))
+
+
+def test_workload_registry_duplicate_ids_fail_closed():
+    duplicate = {
+        "workloads": [
+            {"id": "same", "expected": {}},
+            {"id": "same", "expected": {}},
+        ]
+    }
+    with pytest.raises(SystemExit, match="duplicates workload id"):
+        SCORER_MODULE.workload_specs(duplicate)
 
 
 def test_scorer_enforces_pair_controls_and_reports_primary_delta(tmp_path: Path):
@@ -141,6 +172,15 @@ def test_scorer_enforces_pair_controls_and_reports_primary_delta(tmp_path: Path)
     result = score(tmp_path, [base_run("raw_prompt_luna"), changed])
     assert result.returncode != 0
     assert "controlled field 'main_judgment_coverage'" in result.stderr
+
+
+def test_scorer_rejects_impossible_peak_concurrency(tmp_path: Path):
+    baseline = base_run("raw_prompt_luna")
+    candidate = base_run("bounded_luna")
+    candidate["peak_active_children"] = 2
+    result = score(tmp_path, [baseline, candidate])
+    assert result.returncode != 0
+    assert "peak_active_children exceeds agent_count" in result.stderr
 
 
 def test_execution_route_is_allowed_to_be_the_experimental_variable(tmp_path: Path):

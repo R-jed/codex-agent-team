@@ -1,6 +1,6 @@
 # Local Eval Fixture Template
 
-Use this template before starting any formal paired live behavioral run from `HEADOFF.md`.
+Use this template before starting a formal paired live behavioral run.
 
 The workload registry defines experiment shapes. This file freezes the minimum local information needed to compare a baseline and candidate reproducibly. Experimental labels in `evals/` do not define the runtime router.
 
@@ -51,4 +51,4 @@ Rules:
 - If a controlled input changes, create a new fixture version, pair id, and workload-definition hash.
 - Missing runtime telemetry remains missing. Do not invent main-route or token facts merely to complete the fixture.
 - Do not place credentials, private transcripts, hidden reasoning, or unrelated local paths in the fixture.
-- Store a sanitized copy or equivalent reproduction data with `LOCAL_VALIDATION_REPORT.md` when safe.
+- Keep the sanitized fixture or equivalent reproduction data with the corresponding eval result when safe.

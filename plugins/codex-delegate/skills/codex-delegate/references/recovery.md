@@ -1,10 +1,10 @@
 # Recovery
 
-Recovery governs one delegated responsibility after dispatch. It keeps execution bounded, distinguishes uncertain state from confirmed failure, and returns semantic decisions to the correct owner instead of turning failure into a model ladder.
+Recovery owns what happens to one delegated responsibility after dispatch. It distinguishes uncertain runtime state from confirmed failure and keeps retries bounded without turning failure into a model ladder.
 
-`router-core.md` still decides which role is correct for the responsibility. `team-plan.md` owns dependency and integration truth. This file owns attempt identity, native lifecycle, failure classification, retry bounds, and Main takeover.
+`router-core.md` decides which capability the unresolved work needs. `team-plan.md` owns dependency, assigned role, ownership, and integration truth when TeamPlan is active. This file owns attempt identity, lifecycle, failure classification, retry bounds, and Main takeover.
 
-## 1. Identity
+## Identity
 
 Every delegated Agent attempt has:
 
@@ -17,11 +17,11 @@ attempt
 
 `unit_id` identifies the stable responsibility. `task_id` identifies one concrete Agent attempt and must be unique. A retry keeps the same `unit_id` and uses a new `task_id`.
 
-When no TeamPlan is needed, a single delegated responsibility still gets a stable `unit_id` and unique `task_id`; `team_plan_revision` remains absent.
+Without TeamPlan, the single delegated responsibility still gets a stable `unit_id` and unique `task_id`; `team_plan_revision` is null/absent as required by the ledger representation.
 
-## 2. Native lifecycle
+## Native lifecycle
 
-Use this state vocabulary for native Agent execution:
+Use only:
 
 ```text
 PLANNED
@@ -36,20 +36,16 @@ CLOSED
 Normal accepted execution is:
 
 ```text
-PLANNED
--> SPAWN_PENDING
--> RUNNING
--> COMPLETED
--> CLOSED
+PLANNED -> SPAWN_PENDING -> RUNNING -> COMPLETED -> CLOSED
 ```
 
-A confirmed unsuccessful attempt enters `FAILED`.
+`COMPLETED` means the Agent produced a complete result. Main has not necessarily accepted it yet.
 
-If creation, identity, completion, or current Agent state cannot be established from the host evidence available to Main, enter `UNKNOWN`.
+Use `FAILED` only for a confirmed unsuccessful attempt.
 
-UNKNOWN is not failure.
+Use `UNKNOWN` when available host evidence cannot establish creation, identity, completion, or current Agent state. UNKNOWN is not failure.
 
-While a unit has an unresolved `UNKNOWN` attempt:
+While an attempt remains UNKNOWN:
 
 ```text
 no replacement Agent
@@ -59,15 +55,13 @@ no conflicting ownership reassignment
 no claim that the attempt failed
 ```
 
-Wait for useful host evidence when available. If the host never exposes enough evidence to resolve the ambiguity, Main must preserve the uncertainty and avoid duplicate mutation risk rather than invent a definitive state.
+Wait for useful native evidence when available. If the runtime never exposes enough evidence to resolve the ambiguity, preserve the uncertainty and avoid duplicate mutation risk. Do not build a private scheduler or busy-poll to manufacture state.
 
-Do not build a private scheduler, poll continuously, or manufacture lifecycle telemetry that Codex does not expose.
+## Failure classification
 
-## 3. Two-axis failure classification
+For a confirmed failed attempt, record both axes.
 
-When an attempt is confirmed unsuccessful, classify both the execution origin and any remaining task blocker.
-
-Record the execution axis as `failure_origin`:
+Execution origin:
 
 ```text
 none
@@ -79,7 +73,9 @@ quality_failure
 runtime_ambiguous
 ```
 
-Record the semantic axis as `task_blocker`:
+`runtime_ambiguous` is reserved for an UNKNOWN record; it does not mean a confirmed failed execution.
+
+Semantic blocker:
 
 ```text
 none
@@ -89,48 +85,48 @@ investigation
 stalled
 ```
 
-These axes answer different questions.
+These axes answer different questions: what is known about execution, and what unresolved task need remains. Do not invent additional blocker values in Agent profiles or local recovery logic.
 
 Examples:
 
 ```text
 runtime_unavailable + none
--> the responsibility may still belong to the same role
+-> same role may still be correct
 
 quality_failure + judgment
--> the implementation exposed a material decision and the Sol path is now required
+-> resolve the material decision through Main/Sol
 
 quality_failure + contract
--> Main repairs missing task truth before another child can proceed
+-> Main repairs missing task truth
 
 runtime_ambiguous
--> state is UNKNOWN, not a candidate for immediate replacement
+-> UNKNOWN; do not replace
 ```
 
-Do not convert infrastructure failure into a capability judgment.
+Infrastructure failure is not capability evidence.
 
-## 4. Bounded correction and attempts
+## Bounded correction
 
-A unit may use at most:
+One unchanged unit may use at most:
 
 ```text
 2 Agent attempts
 1 focused follow-up on an existing Agent
 ```
 
-The focused follow-up is only for a complete result that is close enough to correct that the same Agent and same role still fit. It carries the precise failure, preserved valid evidence, acceptance, and explicit DO NOT REDO facts.
+A focused follow-up is only for a complete result that is close enough to acceptance that the same Agent, role, responsibility, and authority still fit. It carries the exact failure and preserves valid evidence and DO NOT REDO facts.
 
-A follow-up does not create a new `task_id` because it is the same Agent attempt.
+A follow-up stays inside the same attempt and does not create a new `task_id`.
 
-If the follow-up still fails, or if a follow-up is not appropriate, Main diagnoses the two failure axes before deciding whether a second Agent attempt is allowed.
+A second Agent attempt is allowed only after the first attempt is confirmed FAILED and Main has a concrete reason that another attempt is policy-compatible. The new attempt gets a new `task_id`.
 
-After the second Agent attempt fails, Main takes ownership or reports the exact blocker. Do not create a third Agent attempt for the same unchanged unit.
+After the second Agent attempt fails, Main takes ownership or reports the exact blocker. Do not create a third Agent attempt for the unchanged unit.
 
-The two-attempt bound is a recovery limit, not a team-size or concurrency limit.
+The two-attempt bound limits recovery. It is not a team-size or concurrency limit.
 
-## 5. Allowed recovery actions
+## Allowed recovery actions
 
-Recovery is constrained to these actions:
+Use only:
 
 ```text
 same_agent_followup
@@ -145,53 +141,49 @@ Use once when the result is complete, the role remains correct, and a narrow cor
 
 ### same_role_retry
 
-Use a new Agent attempt only when the responsibility and role remain correct and the retry packet is materially improved by new evidence or a concrete correction hypothesis.
-
-Runtime unavailability, a transient tool failure, or a confirmed failed attempt with `task_blocker: none` can justify this path when the role remains policy-compatible.
+Use a new Agent attempt when responsibility and role remain correct and the retry packet is materially improved by new evidence, a concrete correction hypothesis, or a confirmed transient execution problem.
 
 ### semantic_reroute
 
-Use only when the remaining task blocker changes the required capability:
+Use only when the remaining semantic blocker changes the capability required:
 
 ```text
 contract -> Main repairs task truth or acceptance
 judgment -> capable Main or Sol Advisor/Solver
-investigation -> Terra Investigator only when semantics are stable, read-only, and no material judgment remains
-stalled -> same-role retry only if the role is still correct; otherwise Main takes over
+investigation -> Terra Investigator only when semantics are stable, the work is read-only, and broader investigation is actually useful
+stalled -> same-role retry only if the role remains correct; otherwise Main takes over
 ```
 
 Failure itself never means Luna -> Terra -> Sol.
+
+If TeamPlan is active and semantic rerouting changes the unit's assigned role, create a new TeamPlan revision before the replacement attempt. Keep the same `unit_id` only when its goal and output remain the same. Role reassignment does not reset the attempt budget.
 
 ### main_takeover
 
 Main takes ownership when recovery is exhausted, the safe route is unclear, authority would need to widen, or continuing delegation no longer adds value.
 
-## 6. Recovery and TeamPlan
+## TeamPlan revisions
 
-A retry does not create a new TeamPlan unit. It remains another attempt for the same `unit_id`.
+A retry by itself does not create a new TeamPlan revision.
 
-A routing or execution failure does not revise TeamPlan by itself.
+Revise TeamPlan only when coordination truth changes materially, including assigned role, dependency, ownership, deliverable, scope, or acceptance. A materially redefined goal/output is a new responsibility and requires a new `unit_id`.
 
-Create a new TeamPlan revision only when recovery evidence changes task structure such as dependency, ownership, deliverable, scope, or acceptance.
+Already-dispatched work remains bound to the revision it received. If a revision affects active work, pause new dispatch until affected attempts are safely settled or invalidated.
 
-If a new revision affects running work, pause new dispatch and preserve each active attempt's original plan binding until it is safely settled or invalidated.
+## Adoption and close
 
-## 7. Adoption and close
+Main inspects actual artifacts/evidence and marks an attempt adopted only when acceptance is supported.
 
-`COMPLETED` means the Agent produced a complete result. It does not mean Main accepted it.
+An adopted completed native Agent should be closed when the host exposes that control. `CLOSED` is lifecycle state, not correctness proof.
 
-Main inspects the actual artifact/evidence and sets the attempt as adopted only when acceptance is supported.
+## Ledger validation
 
-An adopted completed native Agent should be closed when the host exposes that control. `CLOSED` is a lifecycle state, not proof that the work was correct; acceptance still belongs to Main.
-
-## 8. Ledger validation
-
-For tasks that need machine-checkable recovery state, validate the in-context or persisted ledger with:
+When machine-checkable recovery state is genuinely useful, validate it with:
 
 ```bash
 python plugins/codex-delegate/scripts/validate_team_ledger.py /path/to/ledger.json
 ```
 
-The validator checks unique task and Agent identity, TeamPlan revision binding, per-unit attempt sequence and limits, UNKNOWN replacement suppression, follow-up bounds, and basic lifecycle/adoption consistency.
+The validator checks exact record shape, policy-owned role bindings, TeamPlan revision binding, stable unit goal/output identity, unique task and Agent identity, attempt sequence, the two-attempt bound, follow-up bound, UNKNOWN replacement suppression, and lifecycle/adoption consistency.
 
-Do not create a persistent ledger for ordinary short work solely because this validator exists. Keep state in context unless cross-session recovery, multiple long-lived worktrees, strict audit, or another real recovery need justifies durable state. Reuse an upstream ledger when one already owns task state.
+Do not create a persistent ledger for ordinary short work merely because a validator exists. Keep state in context unless cross-session recovery, multiple long-lived worktrees, strict audit, or another real need justifies durable state. Reuse an upstream state source when one already owns the task.
