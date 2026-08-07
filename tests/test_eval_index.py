@@ -12,6 +12,7 @@ def test_eval_index_links_current_measurement_artifacts():
         "LOCAL_EVAL_FIXTURE_TEMPLATE.md",
         "routing-cases.json",
         "coordination-cases.json",
+        "interaction-cases.json",
         "runtime-assurance-cases.json",
         "../docs/behavioral-evals.md",
     ]:

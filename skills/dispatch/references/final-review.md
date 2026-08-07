@@ -10,7 +10,7 @@ It is an assurance decision, not another execution stage and not a penalty for w
 
 ## 1. When review is required
 
-Use the semantic trigger codes in `../../policy-contract.json`.
+Use the semantic trigger codes in `../../../policy-contract.json`.
 
 A fresh independent review is required when the current artifact materially involves:
 
@@ -76,7 +76,7 @@ fork_turns: none
 
 Fresh context is required even when the main session is already Sol, Sol Solver implemented part of the work, or Sol Advisor previously answered a planning question. Those uses provide capability, not independent acceptance of the final integrated candidate.
 
-Give the reviewer compressed facts, the actual candidate, acceptance conditions, verification results, and known residual risks. Do not pass dead-end narration or tell the reviewer that another actor already believes the candidate is correct.
+Give the reviewer compressed facts, the actual candidate, acceptance conditions, verification results, and known residual risks. A Handoff Capsule may contribute Main-accepted facts/evidence, but the final reviewer still receives the exact current candidate and must not rely on stale capsule state. Do not pass raw child transcripts, dead-end narration, or tell the reviewer that another actor already believes the candidate is correct.
 
 Return:
 

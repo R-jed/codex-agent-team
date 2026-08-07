@@ -8,7 +8,7 @@ The product goal is simple: delegate only when doing so improves the task, use L
 
 Do not build a model ladder, fixed team size, or Agent pipeline before understanding the task.
 
-`team-plan.md` owns multi-responsibility dependency and integration truth. `recovery.md` owns native attempt lifecycle and bounded recovery. This file owns delegation value, role selection, responsibility semantics, and the Main-level ready frontier.
+`team-plan.md` owns multi-responsibility dependency and integration truth. `recovery.md` owns native attempt lifecycle and bounded recovery. `handoff-capsule.md` owns compact accepted-evidence transfer between responsibilities. This file owns delegation value, role selection, responsibility semantics, and the Main-level ready frontier.
 
 ## 1. Minimal task state
 
@@ -116,7 +116,7 @@ Demanding, ambiguous, multi-step technical reasoning that still requires materia
 
 Main-session model identity never changes authority. It is consulted only when material judgment already requires Sol capability and trusted current-session metadata is already available or inexpensive to obtain.
 
-The policy-owned reference role is defined in `../../policy-contract.json`. `../../scripts/runtime-evidence.py` can normalize exact model/effort metadata when this optimization matters.
+The policy-owned reference role is defined in `../../../policy-contract.json`. `../../../scripts/runtime-evidence.py` can normalize exact model/effort metadata when this optimization matters.
 
 ```text
 covered
@@ -152,6 +152,7 @@ INTERFACES AND INVARIANTS
 DECISION RIGHTS
 ACCEPTANCE
 VALID EVIDENCE / DO NOT REDO
+HANDOFF CAPSULE, when useful
 CURRENT FAILURE, if any
 INTEGRATION AFTER, when needed
 STOP WHEN
@@ -169,6 +170,8 @@ implement -> bounded-source-write only when the packet explicitly grants bounded
 ```
 
 Use `declared-output-only` when a responsibility may create or update a named report, generated output, or other explicit deliverable without gaining general source-edit authority.
+
+A Handoff Capsule is optional. Use it only when Main has already accepted evidence that would otherwise require meaningful repeated discovery. The capsule does not grant authority or transmit raw child reasoning. Its exact semantics live in `handoff-capsule.md`.
 
 `INTEGRATION AFTER` is optional. It expresses integration order, not permission to execute through an unresolved semantic dependency.
 
@@ -200,6 +203,8 @@ material_decisions, if any
 ```
 
 A child report is a claim. Main verifies actual artifact state and relevant checks before acceptance.
+
+Only after that verification may Main promote supported facts/evidence into a Handoff Capsule for another responsibility. A child does not author settled inherited truth for its peers.
 
 ## 7. Blocked work means reroute, not escalation
 
@@ -252,7 +257,8 @@ Use progressive fan-out. Start with the smallest useful active set, then grow it
 understand current work
 -> start useful ready responsibilities
 -> consume an exposed completion
--> merge valid evidence
+-> verify and merge valid evidence
+-> create/update a compact capsule only when it prevents meaningful repeated discovery
 -> update the ready frontier
 -> start another child only if a new responsibility is now ready and still worth delegating
 ```
@@ -267,7 +273,7 @@ For accepted outputs with `INTEGRATION AFTER`, Main remains the integration owne
 
 Empty capacity is never a reason to start Solver, Advisor, or Investigator. Repeated expensive parallel or serial calls that materially expand compute require consent under `guardrails.md`.
 
-Process an exposed child completion when useful instead of imposing an artificial wave barrier. Reuse valid evidence and suppress repeated discovery.
+Process an exposed child completion when useful instead of imposing an artificial wave barrier. Reuse valid evidence and accepted capsules to suppress repeated discovery, but revalidate any capsule whose evidence may have become stale.
 
 ## 9. Completion
 

@@ -1,31 +1,64 @@
 # Native Subagent Runtime Contract
 
-subagents-dispatch uses Codex Native Subagents and child threads directly. It does not create another Agent runtime, persistent scheduler, daemon, thread pool, or routing proxy.
+subagents-dispatch uses Codex Native Subagents and child threads directly. It does not create another Agent runtime, persistent scheduler, daemon, thread pool, routing proxy, control server, or telemetry collector.
 
 The distinction is deliberate:
 
 | Native Codex | subagents-dispatch |
 | --- | --- |
 | runs the main session and child threads | decides whether delegation helps and which exact project role is useful |
-| exposes whatever capacity/wait/update/runtime metadata the build supports | uses only observed capability without inventing a universal runtime contract |
-| provides custom Agent configuration and sandbox/tool surfaces | adds one-writer, consent, trust, and exact-role boundaries |
+| exposes whatever capacity/wait/update/control/runtime metadata the build supports | uses only observed capability without inventing a universal runtime contract |
+| provides custom Agent configuration and sandbox/tool surfaces | adds one-writer, consent, trust, exact-role, and interaction-control boundaries |
+| can expose native child status/control surfaces | maps explicit user Status/Steer/Takeover requests onto those surfaces when available |
 | returns child output | verifies claims against the actual artifact and relevant evidence |
 
-## Explicit entry point
+## Explicit entry point and control intents
 
-The product user command is:
+Normal execution:
 
 ```text
 /dispatch <task>
 ```
 
-Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled. The user chooses when adaptive delegation is worth applying.
+Explicit interaction controls:
+
+```text
+/dispatch preview <task>
+/dispatch status
+/dispatch steer <unit_id>: <guidance>
+/dispatch takeover <unit_id>
+```
+
+Codex CLI/IDE users may also open the Skill picker with `/skills`. Implicit invocation is disabled. The user chooses when adaptive delegation or dispatch control is worth applying.
+
+Preview does not touch the native child runtime. Status is a one-shot observation. Steer and Takeover use native child-control capability when the current Host exposes it. The Plugin does not emulate unavailable Host controls with a background controller.
+
+## Native control boundary
+
+Current Codex Subagents documentation exposes user-facing management of Agent threads, including inspecting Agents and asking Codex to steer, stop, or close child work. subagents-dispatch treats that native surface as the control primitive.
+
+The Plugin adds semantic safety around it:
+
+```text
+Steer
+-> same responsibility / attempt / role / authority
+
+Takeover
+-> request child stop when needed
+-> prove old owner is no longer active
+-> verify/preserve useful evidence
+-> transfer responsibility to Main
+```
+
+For a writing child, Main remains read-only until the previous writer is confirmed stopped/terminal/closed. If native state cannot be established, it stays `UNKNOWN`. The Plugin does not claim a successful takeover or start conflicting mutation.
 
 ## First-use readiness
 
 The exact project roles use Codex's native custom-Agent TOML mechanism. Personal custom Agents are stored under the active Codex home `agents` directory, normally `~/.codex/agents/`.
 
 When an explicit task actually needs a child, role readiness is checked before delegated implementation starts. If profiles are missing, subagents-dispatch asks permission, runs the bundled installer and `--check`, then verifies the role surface. The installer is a project-specific lifecycle and ownership layer around native custom Agent files; it is not a second runtime.
+
+Preview and Status do not provision missing profiles solely to make a read-only answer richer.
 
 If the current Codex thread cannot discover newly provisioned roles until restart, the task stops before child writing and resumes in a fresh thread.
 
@@ -52,7 +85,7 @@ Sol Advisor/Solver
 -> demanding, ambiguous, multi-step material judgment and judgment-coupled implementation
 ```
 
-Terra is not an escalation rung above Luna. A difficult technical problem that still requires demanding or material judgment belongs on the Sol path.
+Terra is an investigation lane rather than an automatic escalation destination. A difficult technical problem that still requires demanding or material judgment belongs on the Sol path.
 
 Model-specific delegation requires the exact current profile. There is no built-in-role substitution or hidden model ladder.
 
@@ -115,7 +148,23 @@ Use runtime diagnostics when the claim actually depends on runtime observation, 
 
 Do not run these checks as routine ceremony for every bounded child. Exact profile configuration plus real artifact verification may be sufficient when runtime route proof is not part of acceptance.
 
-Configured values never become observed values by assumption.
+Configured values never become observed values by assumption. Execution Receipts follow this same rule.
+
+## Token and usage boundary
+
+Codex App Server can expose thread token-usage update events to clients. That is a Host/client API surface and is not assumed to be available inside this Skill execution path.
+
+Therefore subagents-dispatch 2.1 does not add a private App Server client, hook-based telemetry collector, transcript scraper, or token estimator.
+
+```text
+attributable exact Host usage available
+-> may report exact usage when useful
+
+usage surface unavailable to the Skill
+-> usage remains unavailable
+```
+
+Currency cost is also left unreported unless a future supported surface supplies exact attributable billing semantics. Model name, output length, and elapsed time are insufficient evidence.
 
 ## Completion and wait surface
 
@@ -157,6 +206,8 @@ structured_live
 
 A wake-up event does not imply deterministic insight into child progress.
 
+`/dispatch status` reads the best current evidence once and returns. It does not turn this completion surface into a private poll loop.
+
 ## Capacity
 
 subagents-dispatch has no project-level ordinary numeric child ceiling and no target Agent count.
@@ -173,11 +224,9 @@ user scope and compute consent
 native runtime capacity
 ```
 
-Current Codex exposes a host-level concurrent-thread cap through its own Agent configuration. subagents-dispatch does not override or mirror that number in project policy. The host capacity is treated as an upper bound, never a target to fill.
+The Host capacity is treated as an upper bound, never a target to fill. A single observed or configured capacity value applies only to that runtime/environment.
 
-A single observed or configured capacity value applies only to that runtime/environment. Do not turn it into a permanent product constant.
-
-Material compute expansion is governed by `guardrails.md`. Child count alone is not the trigger: several narrow read-only Luna lanes can be ordinary, while repeated expensive Sol/Terra loops can require renewed consent at a lower count.
+Material compute expansion is governed by `skills/dispatch/references/guardrails.md`. Child count alone is not the trigger.
 
 ## Writer ownership
 
@@ -191,28 +240,28 @@ subagents_dispatch_solver
 
 When a child writer owns the checkout, Main can continue read-only analysis but waits for ownership handoff before integration writes.
 
-Concurrent writers require genuine filesystem isolation such as separate worktrees/workspaces/repositories.
+Takeover follows the same boundary. A stop request is an action request; Main waits for evidence that the old writer is actually no longer active before writing.
 
-This session-local rule cannot exclude another Codex session, editor, hook, or external process. Current safety relies on recommended isolation plus drift detection and fail-closed behavior. Cross-session coordination must be validated empirically before a stronger mechanism is added.
+Concurrent writers require genuine filesystem isolation such as separate worktrees/workspaces/repositories plus semantic independence or explicit dependency/integration order.
+
+This session-local rule cannot exclude another Codex session, editor, hook, or external process. Current safety relies on recommended isolation plus drift detection and fail-closed behavior. Cross-session coordination must be validated empirically before a stronger mechanism is claimed.
 
 ## Context transfer
 
-Children normally use fresh context (`fork_turns=none`) and receive a compact responsibility packet from `references/router-core.md`.
+Children normally use fresh context (`fork_turns=none`) and receive a compact responsibility packet from `skills/dispatch/references/router-core.md`.
 
-Fresh context does not mean repeated discovery. Pass only task-local truth:
+Fresh context does not require repeated discovery. When Main has already verified material evidence that a later responsibility can reuse, it may add a Handoff Capsule from `skills/dispatch/references/handoff-capsule.md`:
 
 ```text
-outcome
-scope
+artifact refs
+accepted facts/evidence
 interfaces/invariants
-decision rights
-acceptance
-valid evidence / DO NOT REDO
-current failure, if any
-stop condition
+DO NOT REDO
+open questions
+staleness conditions
 ```
 
-Do not transfer private reasoning or dead-end narration.
+The capsule contains distilled accepted task truth. It excludes private reasoning, raw transcripts, copied source files, and unverified child claims. Relevant drift invalidates affected facts until narrow re-verification.
 
 ## Delegation depth
 
@@ -227,10 +276,10 @@ Unexpected descendants are outside the supported product contract.
 
 Process completed/no-longer-needed children promptly and close them when the native surface supports it so capacity can recover.
 
-If a runtime shows stale slots, blocking close operations, missing completion signals, absent route metadata, or other limitations, record the exact build and adapt product claims. Do not hide runtime limitations behind policy wording.
+If a runtime shows stale slots, blocking close operations, missing completion signals, absent route metadata, unresolved stop state, or other limitations, record the exact build and adapt product claims. Do not hide runtime limitations behind policy wording.
 
 ## User-facing takeaway
 
-subagents-dispatch lets the main session lead a specialist team whose size follows the task. It decides when additional native compute is useful and keeps that delegation inside a small set of quality and safety boundaries. Native Codex decides how many threads can actually run and how sessions and child threads execute.
+subagents-dispatch lets the main session lead a specialist team whose size follows the task. The user can preview the likely delegation, inspect or steer active responsibilities, and safely take work back into Main. Reusable context stays small and evidence-bound.
 
-This separation lets the Plugin improve daily development without becoming a second orchestration runtime.
+Native Codex still owns thread execution and native control. This separation adds daily usability without turning the Plugin into a second orchestration runtime.

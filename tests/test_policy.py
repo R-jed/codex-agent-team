@@ -16,6 +16,15 @@ PROFILES = PLUGIN / "agent-profiles"
 POLICY = PLUGIN / "policy-contract.json"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 CANONICAL_BLOCKERS = {"contract", "judgment", "investigation", "stalled"}
+RUNTIME_OWNERS = {
+    "interaction.md",
+    "router-core.md",
+    "handoff-capsule.md",
+    "team-plan.md",
+    "recovery.md",
+    "guardrails.md",
+    "final-review.md",
+}
 
 
 def contract() -> dict:
@@ -76,16 +85,10 @@ def test_agent_profiles_do_not_invent_semantic_blockers():
     assert CANONICAL_BLOCKERS <= found
 
 
-def test_runtime_policy_has_five_focused_owners():
-    assert {path.name for path in REFS.glob("*.md")} == {
-        "router-core.md",
-        "team-plan.md",
-        "recovery.md",
-        "guardrails.md",
-        "final-review.md",
-    }
+def test_runtime_policy_has_focused_owners():
+    assert {path.name for path in REFS.glob("*.md")} == RUNTIME_OWNERS
     skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
-    for name in ["router-core.md", "team-plan.md", "recovery.md", "guardrails.md", "final-review.md"]:
+    for name in RUNTIME_OWNERS:
         assert f"references/{name}" in skill
     assert "policy-contract.json" in skill
 
@@ -97,7 +100,7 @@ def test_team_plan_and_recovery_do_not_define_fixed_fanout_policy():
     team_plan = (REFS / "team-plan.md").read_text(encoding="utf-8").lower()
     recovery = (REFS / "recovery.md").read_text(encoding="utf-8").lower()
     assert "native codex capacity remains the concurrency ceiling" in team_plan
-    assert "two-attempt bound limits recovery" in recovery
+    assert "two-attempt bound limits automatic delegated recovery" in recovery
     assert "not a team-size or concurrency limit" in recovery
 
 
@@ -148,16 +151,18 @@ def test_public_docs_keep_product_identity_while_ai_reference_points_to_policy_o
         assert "/dispatch" in text
         assert version in text
         assert "Sol Solver" in text
+        assert "/dispatch preview" in text
+        assert "/dispatch takeover" in text
 
     ai = (ROOT / "README_AI.md").read_text(encoding="utf-8")
     assert f"Current version:     {version}" in ai
-    for name in ["router-core.md", "team-plan.md", "recovery.md", "guardrails.md", "final-review.md", "policy-contract.json"]:
+    for name in [*sorted(RUNTIME_OWNERS), "policy-contract.json"]:
         assert name in ai
 
 
 def test_canonical_docs_use_user_command_not_namespaced_identity():
-    """guardrails.md, native-subagent-runtime.md, final-review.md must show /dispatch not /subagents-dispatch:dispatch."""
     user_facing_files = {
+        REFS / "interaction.md": ["/dispatch"],
         REFS / "guardrails.md": ["/dispatch"],
         REFS / "final-review.md": ["/dispatch"],
         ROOT / "docs" / "native-subagent-runtime.md": ["/dispatch"],
@@ -172,7 +177,6 @@ def test_canonical_docs_use_user_command_not_namespaced_identity():
 
 
 def test_readme_ai_distinguishes_user_command_from_internal_identity():
-    """README_AI.md must show both /dispatch (user) and /subagents-dispatch:dispatch (internal)."""
     ai = (ROOT / "README_AI.md").read_text(encoding="utf-8")
     assert "User command:        /dispatch" in ai
     assert "Internal identity:   /subagents-dispatch:dispatch" in ai
