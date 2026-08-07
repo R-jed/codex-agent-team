@@ -186,3 +186,262 @@ test_review_artifact.py, test_runtime_assurance.py
 | 新发现（遗漏） | 3 |
 
 推翻率 30% — 原始审查存在误判，主要集中在对 Python 标准库行为的误解（Path 方法异常类型、首次安装语义）和文件定位错误。
+
+---
+
+## 十、Release Candidate 对抗性复核与证据校正
+
+> 本节优先级高于前文的 P0/P1/P2 排序。前文保留为第一轮本地审查记录，其中部分结论已被后续代码证据、GitHub Actions 原始日志和真实 Codex 运行界面推翻或重新定级。
+>
+> 当前目标不是创建 tag 或 GitHub Release。当前目标是把仓库收敛到一个可冻结的 Release Candidate SHA，并让所有 release gate 有可重复证据。
+
+### 10.1 已推翻或重新定级的结论
+
+1. `全部 26 个测试文件仅用 subprocess` 和 `无直接 import 模块的单元测试` 不成立。`tests/test_installer_concurrency.py` 已直接 import installer 并做 fault injection。测试方法应按风险选择，不能把 direct import 比例本身当 release blocker。
+2. `scripts/pre-push-ci.sh` 使用 ImageMagick `import` 的结论不成立。当前脚本没有该命令。真正问题是它忽略核心测试并吞掉 pytest 原始退出状态，存在 false green。
+3. `没有 conftest.py`、`共享 fixture 不足`、`direct unit test 比例低` 属于维护性问题。除非它们对应一个无法验证的高风险行为，否则不作为 release P0。
+4. 用户调用命令已经由真实 Codex 运行界面验证。用户在命令选择器里看到 `Dispatch` 和 `Doctor`，实际用户入口是 `/dispatch` 和 `/doctor`。选择 `/dispatch` 后，Codex 会在 composer 中注入 namespaced prompt，例如 `/subagents-dispatch:dispatch ...`。因此必须区分：
+
+```text
+Plugin ID:          subagents-dispatch
+Skill identity:     subagents-dispatch:dispatch / subagents-dispatch:doctor
+User command:       /dispatch /doctor
+Host namespaced use:/subagents-dispatch:dispatch /subagents-dispatch:doctor
+```
+
+不要把用户文档里的 `/dispatch`、`/doctor` 改回 `$...`。也不要机械地把 Plugin metadata 内部 namespaced identity 改成短命令。用户文档和 host/internal metadata 是两个 surface。
+
+### 10.2 当前 release gate
+
+当前状态判定：`NO-GO`。在下面的顺序收口完成前，不创建新的 version tag，不创建 GitHub Release。
+
+| ID | 级别 | Gate | 当前判断 |
+|----|------|------|----------|
+| RC-01 | Blocker | 当前 HEAD GitHub Actions 全绿 | FAIL，最新 HEAD 有 pytest failure |
+| RC-02 | Blocker | Marketplace source 与当前 OpenAI Plugin 子目录分发契约一致 | 待修复并重新验证 |
+| RC-03 | Blocker | legacy codex-delegate 安装可通过正常升级路径安全收敛 | 未闭环 |
+| RC-04 | Blocker | legacy/current installer 在迁移期不会并发修改同一 CODEX_HOME | 未证明 |
+| RC-05 | Blocker | version identity 无冲突 | FAIL，GitHub 已存在 `v1.0.0`，其目标 commit 内 Plugin version 为 `2.0.0` |
+| RC-06 | High | Doctor 只有一个 managed-profile 健康真相源 | 未满足，`doctor.py` 自己维护了一套较弱校验 |
+| RC-07 | High | 本地 pre-push gate 不产生 false green | 未满足 |
+| RC-08 | High | README / README_EN / README_AI / Doctor / install doc 使用同一安装契约 | 未满足 |
+| RC-09 | Medium | release tree 不包含本地开发环境残留 | `skills-lock.json` 需确认用途 |
+| RC-10 | Governance | `main` 的 release candidate 不会绕过 required CI | 当前 branch protection 未建立 |
+
+### 10.3 顺序收口计划
+
+以下顺序有依赖关系。不要并行修改相互拥有同一契约的文件，避免测试和文档跟着错误假设一起变绿。
+
+#### 1. 固定用户命令与内部 Skill identity 的边界
+
+用户面统一为：
+
+```text
+/dispatch <task>
+/doctor <diagnostic or maintenance request>
+```
+
+`/skills` 保留为 Skill picker。
+
+检查并修正 README、README_EN、安装文档等用户可见 surface，避免要求用户手动输入 `/subagents-dispatch:dispatch` 或 `/subagents-dispatch:doctor`。
+
+Plugin manifest、Skill metadata、host 注入 prompt 中的 namespaced identity 不要因为用户入口变短而机械替换。以真实 Codex 安装后的 command picker 和 composer 行为作为 acceptance evidence。
+
+#### 2. 修正 Marketplace 分发 source，并做真实安装 smoke test
+
+重新核对当前 OpenAI Plugin 文档。Plugin 位于 `plugins/subagents-dispatch/` 子目录时，Marketplace source 必须使用当前平台支持的子目录 source contract，并明确 path。不要只验证 JSON syntax。
+
+修改 `.agents/plugins/marketplace.json` 和对应 contract tests。测试必须验证平台语义，避免把实现对象原样复制为 expected JSON。
+
+然后在干净 Codex 环境完成：
+
+```text
+add marketplace
+install plugin
+fresh session
+command picker shows Dispatch and Doctor
+/dispatch can be selected
+/doctor can be selected
+```
+
+记录实际命令、Codex version、Plugin version 和结果。
+
+#### 3. 把 legacy migration 接入正常升级流程
+
+当前 `legacy_migration.py` 和 `--migrate-legacy` 只是底层能力。老用户不能依赖知道隐藏参数才能完成升级。
+
+Doctor 的 upgrade/repair flow 必须显式检测 legacy state，并在需要 mutation 时通过 canonical installer migration path 完成迁移。普通 `--check` 继续保持只读，不暗中迁移。
+
+必须覆盖：
+
+```text
+legacy only
+current only
+mixed
+legacy modified
+corrupt legacy manifest
+partial legacy state
+migration complete
+```
+
+#### 4. 建立跨代 installer 互斥
+
+当前旧版本使用 `.codex-delegate-agents.lock`，新版本使用 `.subagents-dispatch-agents.lock`。仅检测或删除旧 lock 文件不能证明并发安全。
+
+设计明确的 migration lock ordering。迁移期间必须保证旧 installer 和新 installer 不会同时修改同一 `CODEX_HOME/agents`。
+
+新增真实 held-lock contention test。测试必须让另一个进程实际持有 legacy lock，再启动 migration，验证阻塞、失败关闭或其他明确的安全行为。只创建一个 lock 文件不算 contention test。
+
+#### 5. 修正 legacy ownership 测试
+
+`test_modified_legacy_profile_preserved` 当前 fixture 逻辑错误。它在修改 profile 后把修改后的 hash 写回 manifest，因此验证的是“manifest 拥有修改版本，可以删除”。
+
+正确场景应为：
+
+```text
+legacy install writes file + manifest hash
+user modifies file afterwards
+migration sees current hash != ownership hash
+modified legacy file is preserved
+warning is emitted
+current profiles are installed safely
+rerun remains idempotent
+```
+
+同时补充 corrupt manifest、symlink、partial ownership 和 rollback failure 边界。
+
+#### 6. 删除 Doctor 的第二套 managed-profile 真相源
+
+`doctor.py --check` 不应自己维护一套弱化 profile validator。managed Agent profiles 的 exact health 由 `install-agents.py --check` 拥有。
+
+Doctor 可以组合：
+
+```text
+installer exact verifier
+legacy migration detector
+Codex host / marketplace diagnostics
+```
+
+不要再通过只检查 TOML `name` 来声明安装 healthy。model、reasoning effort、sandbox、developer instructions 或 shipped bytes 被修改时，Doctor 必须和 installer 给出一致结论。
+
+#### 7. 重构 pre-push gate，让它与 GitHub CI 同真相源
+
+当前 `scripts/pre-push-ci.sh` 不得忽略 `tests/test_policy.py` 等核心测试，也不得通过 `|| true` 后解析文本来决定 pytest 是否成功。
+
+目标：
+
+```text
+pytest nonzero => pre-push nonzero
+collection error => pre-push nonzero
+validator failure => pre-push nonzero
+installer smoke failure => pre-push nonzero
+all required checks pass => zero
+```
+
+优先让本地 gate 复用和 `.github/workflows/ci.yml` 相同的命令或同一个 repo-level verification script，减少两套 CI 逻辑漂移。
+
+#### 8. 收敛安装与升级文档为一个 canonical contract
+
+当前 README / README_EN / README_AI / Doctor SKILL / `docs/plugin-installation.md` 存在两套安装命令。
+
+建立一个 canonical owner，并让其他文档引用或严格测试该 contract。至少统一：
+
+```text
+marketplace add
+plugin add
+upgrade
+fresh session requirement
+legacy upgrade handling
+user command /dispatch
+user command /doctor
+/skills picker
+```
+
+测试不要只断言几个 substring 同时存在，因为两套相互冲突的命令也能通过这种测试。
+
+#### 9. 清理 release tree 与低风险代码问题
+
+确认 `skills-lock.json` 是否只是本地开发 Skill 管理器自动生成。如果它不是项目构建、测试或 Plugin runtime 的真实依赖，删除并加入适当 ignore，避免把维护者本机环境表达成项目依赖。
+
+同时处理已确认低风险问题：
+
+```text
+legacy_migration unlink TOCTOU
+corrupt manifest 处理策略
+manifest loader 重复或不一致
+requirements-dev 可复现性
+```
+
+不要为了“函数覆盖率”进行无边界测试重构。只对安全关键状态机和当前无法验证的失败路径增加直接单元测试或 fault injection。
+
+#### 10. 处理版本身份和仓库治理，但不要自动创建 release
+
+GitHub 当前已经存在 `v1.0.0` tag，而该 tag 指向的 commit 内 `.codex-plugin/plugin.json` 声明 `2.0.0`。这是版本身份冲突。
+
+本地 Agent不得静默移动或删除已发布 tag。先输出证据并等待用户决定：
+
+```text
+若 v1.0.0 是误创建且从未对外承诺，可在用户明确授权后删除
+若已有人使用，保留历史，正式 release 使用与 manifest 一致的新版本，并在 release notes 解释异常
+```
+
+同时检查 `main` branch protection / ruleset。Release Candidate 应要求完整 CI 成功后才能进入发布。
+
+#### 11. 冻结 Release Candidate SHA 并重新跑完整证据链
+
+所有代码和文档修改完成后，选一个唯一 candidate SHA。之后不要继续修改该 SHA 的内容。
+
+必须获得：
+
+```text
+GitHub Actions on R-jed/subagents-dispatch
+Ubuntu Python 3.11 PASS
+Ubuntu Python 3.12 PASS
+macOS Python 3.11 PASS
+Windows Python 3.11 PASS
+pinned official OpenAI Plugin validator PASS
+full pytest PASS
+managed profile lifecycle PASS
+legacy migration tests PASS
+real Plugin install smoke PASS
+/dispatch runtime smoke PASS
+/doctor runtime smoke PASS
+```
+
+任何一项失败，candidate 作废，修复后生成新的 SHA 重新验证。
+
+#### 12. 重写本报告为 candidate-bound 最终报告
+
+最终 `docs/deep-review-report.md` 不再使用“当前分支”“当前本地状态”作为核心证据。最终报告必须绑定：
+
+```text
+candidate commit SHA
+Plugin version
+GitHub Actions run id / URL
+exact test count
+OpenAI validator result
+marketplace/install smoke evidence
+legacy migration acceptance evidence
+/dispatch and /doctor runtime evidence
+remaining accepted risks
+version tag decision
+```
+
+只有最终报告结论为 `GO`，并且用户明确要求发布之后，才进入 version tag / GitHub Release 创建阶段。
+
+### 10.4 Release Candidate GO 标准
+
+全部满足才允许进入正式 tag/release：
+
+- HEAD/candidate CI 全绿，没有 skipped-away core failures。
+- Marketplace source 与当前 OpenAI 子目录 Plugin 分发契约一致，并通过真实安装验证。
+- 用户调用 `/dispatch`、`/doctor` 在真实 Codex command surface 可用。
+- legacy-only、mixed、modified、partial、corrupt、rerun、真实 lock contention 都有明确并通过的 acceptance test。
+- Doctor 和 installer 对 managed-profile health 没有相互冲突的定义。
+- pre-push 与 GitHub CI 不会出现同一 commit 一个 green 一个 red 的结构性差异。
+- 所有用户文档只有一个安装和升级 contract。
+- version identity 已经解释并收敛，错误历史 tag 未被静默改写。
+- release tree 无明显本地开发环境残留。
+- candidate SHA 冻结后完整 evidence chain 全绿。
+
+当前结论：`NO-GO`。本节中的顺序收口全部完成并重新对抗性验证后，再把结论更新为 `GO` 或继续保留 `NO-GO`。
