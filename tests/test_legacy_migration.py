@@ -1,4 +1,4 @@
-"""Tests for legacy codex-delegate → subagents-dispatch migration."""
+"""Tests for legacy codex-delegate -> subagents-dispatch migration."""
 
 from __future__ import annotations
 
@@ -8,17 +8,16 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT
-INSTALLER = PLUGIN / "scripts" / "install-agents.py"
-DOCTOR = PLUGIN / "scripts" / "doctor.py"
-PROFILE_SOURCE = PLUGIN / "agent-profiles"
-POLICY = json.loads((PLUGIN / "policy-contract.json").read_text())
+INSTALLER = ROOT / "scripts" / "install-agents.py"
+DOCTOR = ROOT / "scripts" / "doctor.py"
+PROFILE_SOURCE = ROOT / "agent-profiles"
+POLICY = json.loads((ROOT / "policy-contract.json").read_text())
 CURRENT_FILES = tuple(spec["profile_file"] for spec in POLICY["roles"].values())
 CURRENT_MANIFEST = ".subagents-dispatch-agents.json"
 CURRENT_LOCK = ".subagents-dispatch-agents.lock"
-
-# Legacy constants
 LEGACY_MANIFEST = ".codex-delegate-agents.json"
 LEGACY_LOCK = ".codex-delegate-agents.lock"
 LEGACY_PROFILE_FILES = (
@@ -55,326 +54,263 @@ def run_doctor(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def state(root: Path) -> dict[str, bytes]:
+def snapshot(root: Path) -> dict[str, bytes]:
     if not root.exists():
         return {}
     return {
         path.relative_to(root).as_posix(): path.read_bytes()
         for path in root.rglob("*")
-        if path.is_file()
+        if path.is_file() and not path.is_symlink()
     }
 
 
-def create_legacy_profile_content(original_content: bytes, role_name: str) -> bytes:
-    """Create legacy profile content with codex-delegate role names."""
-    content = original_content.decode("utf-8")
-    # Replace subagents_dispatch_ with codex_delegate_
-    content = content.replace("subagents_dispatch_", "codex_delegate_")
-    return content.encode("utf-8")
+def legacy_content_for(index: int) -> bytes:
+    source = PROFILE_SOURCE / CURRENT_FILES[index]
+    return source.read_bytes().replace(b"subagents_dispatch_", b"codex_delegate_")
 
 
-def create_legacy_installation(home: Path, *, modified: bool = False) -> None:
-    """Create a legacy codex-delegate installation."""
+def create_legacy_installation(home: Path) -> dict[str, bytes]:
     agents_dir = home / "agents"
     agents_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create legacy profiles with codex-delegate role names
-    profile_hashes = {}
-    for i, legacy_name in enumerate(LEGACY_PROFILE_FILES):
-        source = PROFILE_SOURCE / CURRENT_FILES[i]
-        target = agents_dir / legacy_name
-        content = create_legacy_profile_content(source.read_bytes(), legacy_name)
-        if modified and i == 0:  # Modify first profile
-            content += b"\n# user modification\n"
-        target.write_bytes(content)
+    contents: dict[str, bytes] = {}
+    profile_hashes: dict[str, str] = {}
+    for index, legacy_name in enumerate(LEGACY_PROFILE_FILES):
+        content = legacy_content_for(index)
+        (agents_dir / legacy_name).write_bytes(content)
+        contents[legacy_name] = content
         profile_hashes[legacy_name] = sha(content)
 
-    # Create legacy manifest
     manifest = {
         "schema_version": 1,
         "managed_by": LEGACY_MANAGED_BY,
         "profile_hashes": profile_hashes,
     }
-    (home / LEGACY_MANIFEST).write_text(json.dumps(manifest, indent=2) + "\n")
-
-    # Create legacy lock
+    (home / LEGACY_MANIFEST).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     (home / LEGACY_LOCK).write_bytes(b"\0")
+    return contents
+
+
+def assert_current_installation(home: Path) -> None:
+    assert (home / CURRENT_MANIFEST).is_file()
+    assert (home / CURRENT_LOCK).is_file()
+    for filename in CURRENT_FILES:
+        assert (home / "agents" / filename).is_file()
+    check = run_installer(home, "--check")
+    assert check.returncode == 0, check.stdout + check.stderr
 
 
 def test_clean_v1_migration(tmp_path: Path):
-    """Test clean migration from legacy v1 installation."""
     home = tmp_path / "codex-home"
     create_legacy_installation(home)
 
-    # Verify legacy state before migration
-    doctor_result = run_doctor(home, "--legacy")
-    assert doctor_result.returncode == 0
-    assert "legacy_only" in doctor_result.stdout
+    before = run_doctor(home, "--legacy")
+    assert before.returncode == 0
+    assert "legacy_only" in before.stdout
 
-    # Run migration
     result = run_installer(home, "--migrate-legacy")
-    assert result.returncode == 0
+    assert result.returncode == 0, result.stdout + result.stderr
     assert "Legacy state detected" in result.stdout
-    assert "Removed legacy file" in result.stdout
-
-    # Verify legacy files removed
     assert not (home / LEGACY_MANIFEST).exists()
-    assert (home / LEGACY_LOCK).exists()  # preserved for cross-generation safety
+    assert (home / LEGACY_LOCK).exists()
     for filename in LEGACY_PROFILE_FILES:
         assert not (home / "agents" / filename).exists()
+    assert_current_installation(home)
 
-    # Verify current installation
-    assert (home / CURRENT_MANIFEST).exists()
-    for filename in CURRENT_FILES:
-        assert (home / "agents" / filename).exists()
-
-    # Verify migration complete state
-    doctor_result = run_doctor(home, "--legacy")
-    assert doctor_result.returncode == 0
-    assert "migration_complete" in doctor_result.stdout
+    after = run_doctor(home, "--legacy")
+    assert after.returncode == 0
+    assert "migration_complete" in after.stdout
 
 
-def test_modified_legacy_profile_preserved(tmp_path: Path):
-    """Test that modified legacy profiles are preserved during migration.
-
-    Correct scenario:
-    1. Legacy install writes file + manifest hash
-    2. User modifies file afterwards
-    3. Migration sees current hash != ownership hash
-    4. Modified legacy file is preserved
-    5. Warning is emitted
-    6. Current profiles are installed safely
-    7. Rerun remains idempotent
-    """
+def test_modified_legacy_profile_is_preserved_with_ownership_receipt(tmp_path: Path):
     home = tmp_path / "codex-home"
-    agents_dir = home / "agents"
-    agents_dir.mkdir(parents=True, exist_ok=True)
+    originals = create_legacy_installation(home)
+    modified_name = LEGACY_PROFILE_FILES[0]
+    modified = originals[modified_name] + b"\n# user modification\n"
+    (home / "agents" / modified_name).write_bytes(modified)
 
-    # Step 1: Create legacy installation with ORIGINAL content
-    profile_hashes = {}
-    original_contents = {}
-    for i, legacy_name in enumerate(LEGACY_PROFILE_FILES):
-        source = PROFILE_SOURCE / CURRENT_FILES[i]
-        target = agents_dir / legacy_name
-        content = create_legacy_profile_content(source.read_bytes(), legacy_name)
-        target.write_bytes(content)
-        original_contents[legacy_name] = content
-        profile_hashes[legacy_name] = sha(content)
-
-    # Record original hash in manifest
-    manifest = {
-        "schema_version": 1,
-        "managed_by": LEGACY_MANAGED_BY,
-        "profile_hashes": profile_hashes,
-    }
-    (home / LEGACY_MANIFEST).write_text(json.dumps(manifest, indent=2) + "\n")
-    (home / LEGACY_LOCK).write_bytes(b"\0")
-
-    # Step 2: User modifies first profile AFTER installation
-    modified_profile = LEGACY_PROFILE_FILES[0]
-    modified_content = original_contents[modified_profile] + b"\n# user modification\n"
-    (agents_dir / modified_profile).write_bytes(modified_content)
-
-    # Step 3-5: Run migration - should preserve modified file and emit warning
     result = run_installer(home, "--migrate-legacy")
-    assert result.returncode == 0
-
-    # Modified profile should be PRESERVED (not deleted)
-    assert (agents_dir / modified_profile).exists()
-    assert (agents_dir / modified_profile).read_bytes() == modified_content
-
-    # Unmodified profiles should be removed
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "WARNING" in result.stdout
+    assert (home / "agents" / modified_name).read_bytes() == modified
+    assert (home / LEGACY_MANIFEST).is_file(), "ownership receipt must remain while modified legacy state remains"
     for filename in LEGACY_PROFILE_FILES[1:]:
-        assert not (agents_dir / filename).exists()
+        assert not (home / "agents" / filename).exists()
+    assert_current_installation(home)
 
-    # Warning should be emitted
-    assert "Preserved modified legacy file" in result.stdout or "WARNING" in result.stdout
+    doctor = run_doctor(home, "--legacy")
+    assert "current_with_preserved_legacy_modified" in doctor.stdout
+    assert "Do not repeat automatic migration" in doctor.stdout
 
-    # Step 6: Current profiles installed safely
-    assert (home / CURRENT_MANIFEST).exists()
-    for filename in CURRENT_FILES:
-        assert (home / "agents" / filename).exists()
-
-    # Step 7: Rerun is idempotent
-    result2 = run_installer(home, "--migrate-legacy")
-    assert result2.returncode == 0
-    # Modified legacy file still preserved
-    assert (agents_dir / modified_profile).exists()
+    state_after_first = snapshot(home)
+    rerun = run_installer(home, "--migrate-legacy")
+    assert rerun.returncode == 0, rerun.stdout + rerun.stderr
+    assert snapshot(home) == state_after_first
 
 
-def test_old_new_mixed_state(tmp_path: Path):
-    """Test migration from mixed legacy and current state."""
+def test_old_new_clean_mixed_state_converges(tmp_path: Path):
     home = tmp_path / "codex-home"
-
-    # Install current first
-    result = run_installer(home)
-    assert result.returncode == 0
-
-    # Add legacy files on top
+    assert run_installer(home).returncode == 0
     create_legacy_installation(home)
 
-    # Verify mixed state
-    doctor_result = run_doctor(home, "--legacy")
-    assert doctor_result.returncode == 0
-    assert "mixed" in doctor_result.stdout
+    before = run_doctor(home, "--legacy")
+    assert "mixed" in before.stdout
 
-    # Run migration
     result = run_installer(home, "--migrate-legacy")
-    assert result.returncode == 0
-
-    # Verify legacy files removed
+    assert result.returncode == 0, result.stdout + result.stderr
     assert not (home / LEGACY_MANIFEST).exists()
-    assert (home / LEGACY_LOCK).exists()  # preserved for cross-generation safety
+    assert (home / LEGACY_LOCK).exists()
     for filename in LEGACY_PROFILE_FILES:
         assert not (home / "agents" / filename).exists()
-
-    # Verify current installation intact
-    assert (home / CURRENT_MANIFEST).exists()
-    for filename in CURRENT_FILES:
-        assert (home / "agents" / filename).exists()
+    assert_current_installation(home)
 
 
-def test_legacy_lock_contention(tmp_path: Path):
-    """Test that legacy lock doesn't block migration."""
+def test_partial_legacy_state_migrates_owned_files(tmp_path: Path):
     home = tmp_path / "codex-home"
-    create_legacy_installation(home)
-
-    # Verify legacy lock exists
-    assert (home / LEGACY_LOCK).exists()
-
-    # Run migration - should succeed
-    result = run_installer(home, "--migrate-legacy")
-    assert result.returncode == 0
-
-    # Verify legacy lock preserved for cross-generation safety
-    assert (home / LEGACY_LOCK).exists()
-
-
-def test_partial_migration(tmp_path: Path):
-    """Test migration with partial legacy state (only some files)."""
-    home = tmp_path / "codex-home"
-    agents_dir = home / "agents"
-    agents_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create only manifest and one profile
-    source_content = (PROFILE_SOURCE / CURRENT_FILES[0]).read_bytes()
-    legacy_content = create_legacy_profile_content(source_content, LEGACY_PROFILE_FILES[0])
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    content = legacy_content_for(0)
     manifest = {
         "schema_version": 1,
         "managed_by": LEGACY_MANAGED_BY,
-        "profile_hashes": {
-            LEGACY_PROFILE_FILES[0]: sha(legacy_content),
-        },
+        "profile_hashes": {LEGACY_PROFILE_FILES[0]: sha(content)},
     }
-    (home / LEGACY_MANIFEST).write_text(json.dumps(manifest, indent=2) + "\n")
-    (agents_dir / LEGACY_PROFILE_FILES[0]).write_bytes(legacy_content)
+    (home / LEGACY_MANIFEST).write_text(json.dumps(manifest), encoding="utf-8")
+    (agents / LEGACY_PROFILE_FILES[0]).write_bytes(content)
 
-    # Run migration
     result = run_installer(home, "--migrate-legacy")
-    assert result.returncode == 0
-
-    # Verify partial legacy removed
+    assert result.returncode == 0, result.stdout + result.stderr
     assert not (home / LEGACY_MANIFEST).exists()
-    assert not (agents_dir / LEGACY_PROFILE_FILES[0]).exists()
-
-    # Verify current installation created
-    assert (home / CURRENT_MANIFEST).exists()
-    for filename in CURRENT_FILES:
-        assert (home / "agents" / filename).exists()
+    assert not (agents / LEGACY_PROFILE_FILES[0]).exists()
+    assert_current_installation(home)
 
 
-def test_migration_rerun_idempotent(tmp_path: Path):
-    """Test that migration is idempotent."""
+def test_clean_migration_rerun_is_idempotent(tmp_path: Path):
     home = tmp_path / "codex-home"
     create_legacy_installation(home)
+    first = run_installer(home, "--migrate-legacy")
+    assert first.returncode == 0
+    state_after_first = snapshot(home)
 
-    # Run migration first time
-    result1 = run_installer(home, "--migrate-legacy")
-    assert result1.returncode == 0
-    assert "Legacy state detected" in result1.stdout
-
-    # Record state after first migration
-    state_after_first = state(home)
-
-    # Run migration again - should be noop
-    result2 = run_installer(home, "--migrate-legacy")
-    assert result2.returncode == 0
-    assert "Legacy migration already complete" in result2.stdout
-
-    # State should be unchanged
-    assert state(home) == state_after_first
+    second = run_installer(home, "--migrate-legacy")
+    assert second.returncode == 0
+    assert "Legacy migration already complete" in second.stdout
+    assert snapshot(home) == state_after_first
 
 
-def test_doctor_legacy_diagnostics(tmp_path: Path):
-    """Test doctor legacy diagnostics output."""
+def test_unowned_legacy_profile_preserves_manifest_and_reaches_explicit_terminal_state(tmp_path: Path):
     home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
 
-    # Test with no installation - state is unknown
-    result = run_doctor(home, "--legacy")
-    assert result.returncode == 0
-    assert "unknown" in result.stdout
+    known_hashes: dict[str, str] = {}
+    for index, legacy_name in enumerate(LEGACY_PROFILE_FILES[:2]):
+        content = legacy_content_for(index)
+        (agents / legacy_name).write_bytes(content)
+        known_hashes[legacy_name] = sha(content)
 
-    # Test with legacy only
-    create_legacy_installation(home)
-    result = run_doctor(home, "--legacy")
-    assert result.returncode == 0
-    assert "legacy_only" in result.stdout
-    assert "Manifest:" in result.stdout
+    unowned = LEGACY_PROFILE_FILES[4]
+    (agents / unowned).write_bytes(b'name = "custom_legacy_agent"\n')
+    (home / LEGACY_MANIFEST).write_text(
+        json.dumps({"schema_version": 1, "managed_by": LEGACY_MANAGED_BY, "profile_hashes": known_hashes}),
+        encoding="utf-8",
+    )
 
-    # Test with current only (after migration)
-    run_installer(home, "--migrate-legacy")
-    result = run_doctor(home, "--legacy")
-    assert result.returncode == 0
-    assert "migration_complete" in result.stdout
-
-
-def test_doctor_check_excludes_migration(tmp_path: Path):
-    """Test that --check doesn't trigger migration."""
-    home = tmp_path / "codex-home"
-    create_legacy_installation(home)
-
-    # Record state before
-    state_before = state(home)
-
-    # Run check - should not mutate, but will fail because current installation missing
-    result = run_doctor(home, "--check")
-    assert result.returncode == 1  # Fails because current installation missing
-    assert state(home) == state_before  # But no mutation occurred
-
-
-def test_ownership_hash_verification(tmp_path: Path):
-    """Test that only files with matching ownership hash are removed."""
-    home = tmp_path / "codex-home"
-    agents_dir = home / "agents"
-    agents_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create legacy manifest with only some profiles
-    profile_hashes = {}
-    for i, legacy_name in enumerate(LEGACY_PROFILE_FILES[:3]):
-        source = PROFILE_SOURCE / CURRENT_FILES[i]
-        target = agents_dir / legacy_name
-        target.write_bytes(source.read_bytes())
-        profile_hashes[legacy_name] = sha(source.read_bytes())
-
-    # Add extra profile NOT in manifest
-    extra_profile = agents_dir / LEGACY_PROFILE_FILES[4]
-    extra_profile.write_bytes(b"extra content not in manifest")
-
-    manifest = {
-        "schema_version": 1,
-        "managed_by": LEGACY_MANAGED_BY,
-        "profile_hashes": profile_hashes,
-    }
-    (home / LEGACY_MANIFEST).write_text(json.dumps(manifest, indent=2) + "\n")
-
-    # Run migration
     result = run_installer(home, "--migrate-legacy")
-    assert result.returncode == 0
+    assert result.returncode == 0, result.stdout + result.stderr
+    for filename in LEGACY_PROFILE_FILES[:2]:
+        assert not (agents / filename).exists()
+    assert (agents / unowned).exists()
+    assert (home / LEGACY_MANIFEST).exists()
+    assert_current_installation(home)
 
-    # Verify profiles in manifest were removed
-    for filename in LEGACY_PROFILE_FILES[:3]:
-        assert not (agents_dir / filename).exists()
+    doctor = run_doctor(home, "--legacy")
+    assert "current_with_preserved_legacy_ownership_unknown" in doctor.stdout
+    assert "explicitly" in doctor.stdout.lower()
 
-    # Verify profile NOT in manifest was preserved
-    assert extra_profile.exists()
-    assert extra_profile.read_bytes() == b"extra content not in manifest"
+
+def test_corrupt_legacy_manifest_is_preserved_and_never_authorizes_deletion(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    legacy_profile = agents / LEGACY_PROFILE_FILES[0]
+    legacy_profile.write_bytes(legacy_content_for(0))
+    corrupt = b'{"managed_by":"codex-delegate","profile_hashes":'
+    (home / LEGACY_MANIFEST).write_bytes(corrupt)
+
+    result = run_installer(home, "--migrate-legacy")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert legacy_profile.exists()
+    assert (home / LEGACY_MANIFEST).read_bytes() == corrupt
+    assert "ownership is unknown" in result.stdout
+    assert_current_installation(home)
+
+    doctor = run_doctor(home, "--legacy")
+    assert "current_with_preserved_legacy_ownership_unknown" in doctor.stdout
+    assert "invalid or unreadable" in doctor.stdout
+
+
+def test_preserved_legacy_reserved_role_collision_fails_before_mutation(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    originals = create_legacy_installation(home)
+    conflict = LEGACY_PROFILE_FILES[0]
+    current_role = POLICY["roles"]["reader"]["agent_type"]
+    modified = originals[conflict].replace(b"codex_delegate_reader", current_role.encode()) + b"\n# changed\n"
+    (home / "agents" / conflict).write_bytes(modified)
+    state_before = snapshot(home)
+
+    result = run_installer(home, "--migrate-legacy")
+    assert result.returncode != 0
+    assert "reserved current role name" in (result.stdout + result.stderr)
+    assert not (home / CURRENT_MANIFEST).exists()
+    # Lock files may be initialized by the attempted migration, but owned legacy data must be unchanged.
+    assert (home / "agents" / conflict).read_bytes() == modified
+    assert (home / LEGACY_MANIFEST).read_bytes() == state_before[LEGACY_MANIFEST]
+    for filename in LEGACY_PROFILE_FILES[1:]:
+        assert (home / "agents" / filename).read_bytes() == state_before[f"agents/{filename}"]
+
+
+def test_legacy_manifest_symlink_is_never_removed(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    agents = home / "agents"
+    agents.mkdir(parents=True)
+    (agents / LEGACY_PROFILE_FILES[0]).write_bytes(legacy_content_for(0))
+    target = tmp_path / "external-manifest.json"
+    target.write_text("external", encoding="utf-8")
+    manifest_path = home / LEGACY_MANIFEST
+    try:
+        manifest_path.symlink_to(target)
+    except (OSError, NotImplementedError):
+        pytest.skip("symlink creation unavailable")
+
+    result = run_installer(home, "--migrate-legacy")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert manifest_path.is_symlink()
+    assert target.read_text(encoding="utf-8") == "external"
+    assert (agents / LEGACY_PROFILE_FILES[0]).exists()
+    assert_current_installation(home)
+
+
+def test_doctor_check_is_read_only_for_legacy_only_state(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    create_legacy_installation(home)
+    before = snapshot(home)
+
+    result = run_doctor(home, "--check")
+    assert result.returncode == 1
+    assert snapshot(home) == before
+
+
+def test_doctor_legacy_diagnostics_for_empty_and_clean_states(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    empty = run_doctor(home, "--legacy")
+    assert empty.returncode == 0
+    assert "unknown" in empty.stdout
+
+    create_legacy_installation(home)
+    legacy = run_doctor(home, "--legacy")
+    assert "legacy_only" in legacy.stdout
+    assert "Manifest:" in legacy.stdout
+
+    assert run_installer(home, "--migrate-legacy").returncode == 0
+    current = run_doctor(home, "--legacy")
+    assert "migration_complete" in current.stdout
