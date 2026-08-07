@@ -153,3 +153,30 @@ def test_public_docs_keep_product_identity_while_ai_reference_points_to_policy_o
     assert f"Current version:     {version}" in ai
     for name in ["router-core.md", "team-plan.md", "recovery.md", "guardrails.md", "final-review.md", "policy-contract.json"]:
         assert name in ai
+
+
+def test_canonical_docs_use_user_command_not_namespaced_identity():
+    """guardrails.md, native-subagent-runtime.md, final-review.md must show /dispatch not /subagents-dispatch:dispatch."""
+    user_facing_files = {
+        REFS / "guardrails.md": ["/dispatch"],
+        REFS / "final-review.md": ["/dispatch"],
+        ROOT / "docs" / "native-subagent-runtime.md": ["/dispatch"],
+    }
+    for path, required in user_facing_files.items():
+        text = path.read_text(encoding="utf-8")
+        for cmd in required:
+            assert cmd in text, f"{path.name} missing user command {cmd!r}"
+        assert "/subagents-dispatch:dispatch" not in text, (
+            f"{path.name} leaks namespaced identity to user-facing content"
+        )
+
+
+def test_readme_ai_distinguishes_user_command_from_internal_identity():
+    """README_AI.md must show both /dispatch (user) and /subagents-dispatch:dispatch (internal)."""
+    ai = (ROOT / "README_AI.md").read_text(encoding="utf-8")
+    assert "User command:        /dispatch" in ai
+    assert "Internal identity:   /subagents-dispatch:dispatch" in ai
+    assert "Doctor command:      /doctor" in ai
+    assert "Internal identity:   /subagents-dispatch:doctor" in ai
+    assert "Plugin directory:    ." in ai
+    assert "plugins/subagents-dispatch" not in ai

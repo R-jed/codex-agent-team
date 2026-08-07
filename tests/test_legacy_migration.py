@@ -119,7 +119,7 @@ def test_clean_v1_migration(tmp_path: Path):
 
     # Verify legacy files removed
     assert not (home / LEGACY_MANIFEST).exists()
-    assert not (home / LEGACY_LOCK).exists()
+    assert (home / LEGACY_LOCK).exists()  # preserved for cross-generation safety
     for filename in LEGACY_PROFILE_FILES:
         assert not (home / "agents" / filename).exists()
 
@@ -224,7 +224,7 @@ def test_old_new_mixed_state(tmp_path: Path):
 
     # Verify legacy files removed
     assert not (home / LEGACY_MANIFEST).exists()
-    assert not (home / LEGACY_LOCK).exists()
+    assert (home / LEGACY_LOCK).exists()  # preserved for cross-generation safety
     for filename in LEGACY_PROFILE_FILES:
         assert not (home / "agents" / filename).exists()
 
@@ -246,8 +246,8 @@ def test_legacy_lock_contention(tmp_path: Path):
     result = run_installer(home, "--migrate-legacy")
     assert result.returncode == 0
 
-    # Verify legacy lock removed
-    assert not (home / LEGACY_LOCK).exists()
+    # Verify legacy lock preserved for cross-generation safety
+    assert (home / LEGACY_LOCK).exists()
 
 
 def test_partial_migration(tmp_path: Path):

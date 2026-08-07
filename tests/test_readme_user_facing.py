@@ -90,8 +90,10 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
     for phrase in [
         "R-jed/subagents-dispatch",
         "Repo marketplace id: subagents-dispatch",
-        f"Main invocation:     {MAIN_SKILL_NAMESPACED}",
-        f"Doctor invocation:   {DOCTOR_SKILL_NAMESPACED}",
+        f"User command:        {MAIN_SKILL}",
+        f"Internal identity:   {MAIN_SKILL_NAMESPACED}",
+        f"Doctor command:      {DOCTOR_SKILL}",
+        f"Internal identity:   {DOCTOR_SKILL_NAMESPACED}",
         f"Current version:     {VERSION}",
         "Distribution:        Codex Plugin",
         "subagents_dispatch_reader",

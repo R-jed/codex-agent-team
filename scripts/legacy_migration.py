@@ -162,8 +162,9 @@ def can_safely_remove_legacy(
     # Legacy manifest itself can be removed if we're migrating
     result[LEGACY_MANIFEST_NAME] = True
 
-    # Legacy lock can be removed
-    result[LEGACY_LOCK_NAME] = True
+    # Legacy lock: preserved during compatibility period
+    # Cross-generation contention tests depend on both lock files coexisting
+    result[LEGACY_LOCK_NAME] = False
 
     # Legacy profiles: only if hash matches manifest ownership
     if legacy_manifest and agents_dir.is_dir():

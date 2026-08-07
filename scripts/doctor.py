@@ -92,7 +92,8 @@ def check_current_installation(codex_home: Path) -> tuple[bool, list[str]]:
                 timeout=30,
             )
             if result.returncode != 0:
-                issues.append(f"Installer --check failed: {result.stdout.strip()}")
+                detail = (result.stderr.strip() or result.stdout.strip() or "unknown error")
+                issues.append(f"Installer --check failed: {detail}")
         except subprocess.TimeoutExpired:
             issues.append("Installer --check timed out")
         except Exception as exc:

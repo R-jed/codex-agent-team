@@ -9,11 +9,13 @@ Product name:        subagents-dispatch
 Repository:          R-jed/subagents-dispatch
 Repo marketplace id: subagents-dispatch
 Plugin id:           subagents-dispatch
-Plugin directory:    plugins/subagents-dispatch
+Plugin directory:    .
 Main Skill:          dispatch
-Main invocation:     /subagents-dispatch:dispatch
+User command:        /dispatch
+Internal identity:   /subagents-dispatch:dispatch
 Doctor Skill:        doctor
-Doctor invocation:   /subagents-dispatch:doctor
+Doctor command:      /doctor
+Internal identity:   /subagents-dispatch:doctor
 Current version:     2.0.0
 Distribution:        Codex Plugin
 License:             MIT
