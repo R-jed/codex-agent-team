@@ -3,9 +3,9 @@
   <img src="plugins/codex-delegate/assets/codex-delegate-logo-dark.svg#gh-dark-mode-only" alt="codex delegate" width="112">
 </p>
 
-<h1 align="center">codex delegate</h1>
+<h1 align="center">codex-delegate-Plugin</h1>
 
-<p align="center"><strong>你说要做什么。Codex 主会话负责带队，只在真正有价值时把工作交给 Luna、Terra 和 Sol。</strong></p>
+<p align="center"><strong>一个Codex subagents框架。</strong></p>
 
 <p align="center">
   <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
