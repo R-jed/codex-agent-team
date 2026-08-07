@@ -55,6 +55,7 @@ def test_public_readmes_explain_the_current_repository_layout():
             "agent-profiles/",
             "policy-contract.json",
             "skills/",
+            "dispatch/",
             "doctor/",
             "docs/",
             "evals/",
@@ -62,6 +63,8 @@ def test_public_readmes_explain_the_current_repository_layout():
             "tests/",
         ]:
             assert path in text
+        assert "│       ├── dispatch/" in text
+        assert "│       └── doctor/" in text
 
 
 def test_public_readmes_keep_runtime_detail_bounded_and_link_deeper_docs():
