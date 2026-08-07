@@ -1,6 +1,6 @@
 {
   "name": "codex-delegate",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Let the main Codex session lead a specialist Subagent team, delegating adaptively when extra native compute adds real value.",
   "author": {"name": "R-jed", "url": "https://github.com/R-jed"},
   "homepage": "https://github.com/R-jed/codex-delegate#readme",
@@ -11,7 +11,7 @@
   "interface": {
     "displayName": "Codex Delegate",
     "shortDescription": "Adaptive delegation for reliable everyday development.",
-    "longDescription": "Codex Delegate lets the current session act as team leader. It keeps work in Main when that is best, assigns distinct ready responsibilities to native Subagents when delegation adds value, chooses Luna, Terra, or Sol by capability need, coordinates dependencies and integration when several responsibilities are active, keeps recovery bounded when delegated work fails, preserves one-writer safety, and uses fresh independent review only when the final artifact genuinely warrants it.",
+    "longDescription": "Codex Delegate lets the current session act as team leader. It keeps work in Main when that is best, assigns distinct ready responsibilities to native Subagents when delegation adds value, chooses Luna, Terra, or Sol by capability need, coordinates dependencies and integration when several responsibilities are active, keeps recovery bounded when delegated work fails, preserves one-writer safety, uses fresh independent review only when the final artifact genuinely warrants it, and includes a Doctor Skill for installation, configuration, managed-profile, and upgrade diagnostics.",
     "developerName": "R-jed",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
@@ -26,7 +26,8 @@
     "defaultPrompt": [
       "Use $codex-delegate:codex-delegate to complete this task. Lead the work and delegate only when it adds value.",
       "Use $codex-delegate:codex-delegate to implement this change with the right specialists and useful parallelism.",
-      "Use $codex-delegate:codex-delegate to review this change and add independent review only when needed."
+      "Use $codex-delegate:codex-delegate to review this change and add independent review only when needed.",
+      "Use $codex-delegate:codex-delegate-doctor to diagnose this Codex Delegate installation and configuration."
     ]
   }
 }
