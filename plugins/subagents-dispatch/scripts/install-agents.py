@@ -385,23 +385,44 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
     manifest_path = codex_home / MANIFEST_NAME
 
     # Handle legacy migration BEFORE preflight checks to avoid role name conflicts
+    # During migration, acquire legacy lock to prevent concurrent legacy installer
     if migrate_legacy and not check_only:
-        legacy_state = detect_legacy_state(codex_home)
-        if legacy_state.legacy_only or legacy_state.mixed:
-            print(f"Legacy state detected: {format_migration_state(legacy_state)}")
-            migration_messages, migration_warnings = migrate_legacy_to_current(
-                codex_home,
-                PROFILE_SOURCE,
-                PROFILE_FILES,
-            )
-            for msg in migration_messages:
-                print(f"  {msg}")
-            for warning in migration_warnings:
-                print(f"  WARNING: {warning}")
-        elif legacy_state.migration_complete:
-            print("Legacy migration already complete; no legacy files found.")
-        else:
-            print("No legacy installation detected.")
+        legacy_lock_path = codex_home / LEGACY_LOCK_NAME
+        legacy_lock_fd = None
+        try:
+            # Acquire legacy lock if it exists
+            if legacy_lock_path.exists() and not legacy_lock_path.is_symlink():
+                try:
+                    legacy_lock_fd = os.open(legacy_lock_path, os.O_RDWR)
+                    lock_file(legacy_lock_fd)
+                except OSError:
+                    # Legacy lock not available, proceed with migration anyway
+                    pass
+
+            legacy_state = detect_legacy_state(codex_home)
+            if legacy_state.legacy_only or legacy_state.mixed:
+                print(f"Legacy state detected: {format_migration_state(legacy_state)}")
+                migration_messages, migration_warnings = migrate_legacy_to_current(
+                    codex_home,
+                    PROFILE_SOURCE,
+                    PROFILE_FILES,
+                )
+                for msg in migration_messages:
+                    print(f"  {msg}")
+                for warning in migration_warnings:
+                    print(f"  WARNING: {warning}")
+            elif legacy_state.migration_complete:
+                print("Legacy migration already complete; no legacy files found.")
+            else:
+                print("No legacy installation detected.")
+        finally:
+            # Release legacy lock
+            if legacy_lock_fd is not None:
+                try:
+                    unlock_file(legacy_lock_fd)
+                    os.close(legacy_lock_fd)
+                except OSError:
+                    pass
 
     validate_sources()
     preflight_agents_dir(agents_dir, check_only=check_only)

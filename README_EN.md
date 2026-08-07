@@ -26,7 +26,9 @@ Model selection, agent count, and execution order are all decided by the main se
 ## Install
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch
+codex plugin marketplace add R-jed/subagents-dispatch@main \
+  --sparse .agents/plugins \
+  --sparse plugins/subagents-dispatch && \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
@@ -37,13 +39,13 @@ The plugin is installed after running the command. Start a new Codex session to 
 Use the main Skill for development work:
 
 ```text
-/subagents-dispatch:dispatch Deep review this change, fix the issues you find, and run the relevant tests.
+/dispatch Deep review this change, fix the issues you find, and run the relevant tests.
 ```
 
 Use the Doctor for installation, configuration, Marketplace, and managed Agent profile diagnostics:
 
 ```text
-/subagents-dispatch:doctor Check my subagents-dispatch installation and configuration.
+/doctor Check my subagents-dispatch installation and configuration.
 ```
 
 Doctor is read-only by default. It changes state only when the user explicitly asks to repair, install, or upgrade.
@@ -66,7 +68,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 You can also ask Doctor to perform the upgrade and check what remains afterward:
 
 ```text
-/subagents-dispatch:doctor Upgrade subagents-dispatch and tell me what I need to do after the upgrade.
+/doctor Upgrade subagents-dispatch and tell me what I need to do after the upgrade.
 ```
 
 Start a new Codex session after updating.

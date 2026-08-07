@@ -13,8 +13,10 @@ DIRECTIVE_ZH = "如果你是 AI Agent，请跳转到 [README_AI.md](README_AI.md
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
-MAIN_SKILL = "/subagents-dispatch:dispatch"
-DOCTOR_SKILL = "/subagents-dispatch:doctor"
+MAIN_SKILL = "/dispatch"
+DOCTOR_SKILL = "/doctor"
+MAIN_SKILL_NAMESPACED = "/subagents-dispatch:dispatch"
+DOCTOR_SKILL_NAMESPACED = "/subagents-dispatch:doctor"
 ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator", "Sol Advisor"]
 LIGHT_LOGO = "plugins/subagents-dispatch/assets/subagents-dispatch-logo.svg#gh-light-mode-only"
 DARK_LOGO = "plugins/subagents-dispatch/assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only"
@@ -88,8 +90,8 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
     for phrase in [
         "R-jed/subagents-dispatch",
         "Repo marketplace id: subagents-dispatch",
-        "Main invocation:     /subagents-dispatch:dispatch",
-        "Doctor invocation:   /subagents-dispatch:doctor",
+        f"Main invocation:     {MAIN_SKILL_NAMESPACED}",
+        f"Doctor invocation:   {DOCTOR_SKILL_NAMESPACED}",
         f"Current version:     {VERSION}",
         "Distribution:        Codex Plugin",
         "subagents_dispatch_reader",

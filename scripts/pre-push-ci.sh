@@ -53,21 +53,22 @@ else
 fi
 echo ""
 
-# 4. Run tests (exclude known dependency issues)
+# 4. Run tests (all tests, no exclusions)
 echo "--- Tests ---"
-TEST_OUTPUT=$(python3 -m pytest tests/ -q --tb=line \
-    --ignore=tests/test_behavioral_evals.py \
-    --ignore=tests/test_final_review_scorer.py \
-    --ignore=tests/test_final_review_workloads.py \
-    --ignore=tests/test_policy.py \
-    2>&1) || true
+TEST_OUTPUT=$(python3 -m pytest tests/ -q --tb=line 2>&1)
+TEST_EXIT=$?
 TEST_COUNT=$(echo "$TEST_OUTPUT" | grep -oE '^[0-9]+ passed' | head -1 || echo "0 passed")
-FAILED_COUNT=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ failed' | head -1 || echo "0 failed")
 
 echo "$TEST_OUTPUT"
 
-if echo "$FAILED_COUNT" | grep -qvE '^0 failed$'; then
-    fail "Tests have failures: $FAILED_COUNT"
+# Check for failures, errors, or collection errors
+if [ $TEST_EXIT -ne 0 ]; then
+    fail "Tests failed with exit code $TEST_EXIT"
+fi
+
+# Also check for specific failure patterns
+if echo "$TEST_OUTPUT" | grep -qE '[0-9]+ failed|[0-9]+ error'; then
+    fail "Tests have failures"
 fi
 pass "Tests: $TEST_COUNT"
 echo ""

@@ -19,6 +19,8 @@
 
 > **如果你是 AI Agent，请跳转到 [README_AI.md](README_AI.md) 并严格按照说明操作。**
 
+> **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
+
 你给目标，主会话决定怎么做。简单的自己来，复杂的叫人帮忙，最后负责整合和验证。
 
 ## 效果对比
@@ -32,7 +34,7 @@
 有了 subagents-dispatch：
 
 ```text
-/subagents-dispatch:dispatch 实现用户列表页面，支持分页和搜索
+/dispatch 实现用户列表页面，支持分页和搜索
 ```
 
 主会话会：
@@ -43,7 +45,9 @@
 ## 安装
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch
+codex plugin marketplace add R-jed/subagents-dispatch@main \
+  --sparse .agents/plugins \
+  --sparse plugins/subagents-dispatch && \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
@@ -54,13 +58,13 @@ codex plugin add subagents-dispatch@subagents-dispatch
 开发任务：
 
 ```text
-/subagents-dispatch:dispatch <你的任务描述>
+/dispatch <你的任务描述>
 ```
 
 诊断和维护：
 
 ```text
-/subagents-dispatch:doctor <诊断或维护请求>
+/doctor <诊断或维护请求>
 ```
 
 Doctor 默认只读，不会主动修改状态。也可以输入 `/skills` 打开 Skill 选择器。
@@ -75,7 +79,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 也可以让 Doctor 执行升级：
 
 ```text
-/subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还需要做什么。
+/doctor 升级 subagents-dispatch，并告诉我升级后还需要做什么。
 ```
 
 ## 工作原理

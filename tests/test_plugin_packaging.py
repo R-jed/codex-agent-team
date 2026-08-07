@@ -16,6 +16,8 @@ POLICY = PLUGIN_ROOT / "policy-contract.json"
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
+USER_COMMAND_DISPATCH = "/dispatch"
+USER_COMMAND_DOCTOR = "/doctor"
 
 
 def test_plugin_manifest_and_marketplace_use_canonical_identity():
@@ -130,7 +132,7 @@ def test_install_doc_contains_the_two_current_install_and_update_paths():
         PLUGIN_ADD,
         "## Update",
         UPGRADE,
-        "/subagents-dispatch:dispatch",
+        USER_COMMAND_DISPATCH,
         "/skills",
     ]:
         assert phrase in text
@@ -142,8 +144,8 @@ def test_readmes_and_ai_reference_share_the_current_install_contract():
     for name in ["README.md", "README_EN.md", "README_AI.md"]:
         text = (ROOT / name).read_text(encoding="utf-8")
         assert version in text
-        assert "/subagents-dispatch:dispatch" in text
-        assert "/subagents-dispatch:doctor" in text
+        assert USER_COMMAND_DISPATCH in text
+        assert USER_COMMAND_DOCTOR in text
         assert "/plugins" in text
         assert CANONICAL_MARKETPLACE in text
         assert PLUGIN_ADD in text

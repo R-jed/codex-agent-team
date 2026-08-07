@@ -214,7 +214,7 @@ def migrate_legacy_to_current(
             continue
         if can_remove:
             if not dry_run:
-                target.unlink()
+                target.unlink(missing_ok=True)
             messages.append(f"Removed legacy file: {relative_path}")
         else:
             warnings.append(f"Preserved modified legacy file: {relative_path}")

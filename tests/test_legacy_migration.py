@@ -135,23 +135,33 @@ def test_clean_v1_migration(tmp_path: Path):
 
 
 def test_modified_legacy_profile_preserved(tmp_path: Path):
-    """Test that modified legacy profiles are preserved during migration."""
+    """Test that modified legacy profiles are preserved during migration.
+
+    Correct scenario:
+    1. Legacy install writes file + manifest hash
+    2. User modifies file afterwards
+    3. Migration sees current hash != ownership hash
+    4. Modified legacy file is preserved
+    5. Warning is emitted
+    6. Current profiles are installed safely
+    7. Rerun remains idempotent
+    """
     home = tmp_path / "codex-home"
     agents_dir = home / "agents"
     agents_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create legacy installation with modified profile
-    # The modification changes the hash, so it won't match manifest
+    # Step 1: Create legacy installation with ORIGINAL content
     profile_hashes = {}
+    original_contents = {}
     for i, legacy_name in enumerate(LEGACY_PROFILE_FILES):
         source = PROFILE_SOURCE / CURRENT_FILES[i]
         target = agents_dir / legacy_name
         content = create_legacy_profile_content(source.read_bytes(), legacy_name)
-        if i == 0:  # Modify first profile
-            content += b"\n# user modification\n"
         target.write_bytes(content)
+        original_contents[legacy_name] = content
         profile_hashes[legacy_name] = sha(content)
 
+    # Record original hash in manifest
     manifest = {
         "schema_version": 1,
         "managed_by": LEGACY_MANAGED_BY,
@@ -160,24 +170,36 @@ def test_modified_legacy_profile_preserved(tmp_path: Path):
     (home / LEGACY_MANIFEST).write_text(json.dumps(manifest, indent=2) + "\n")
     (home / LEGACY_LOCK).write_bytes(b"\0")
 
-    # Run migration
+    # Step 2: User modifies first profile AFTER installation
+    modified_profile = LEGACY_PROFILE_FILES[0]
+    modified_content = original_contents[modified_profile] + b"\n# user modification\n"
+    (agents_dir / modified_profile).write_bytes(modified_content)
+
+    # Step 3-5: Run migration - should preserve modified file and emit warning
     result = run_installer(home, "--migrate-legacy")
     assert result.returncode == 0
 
-    # All profiles should be removed since hash matches manifest
-    # (we stored the modified hash in manifest)
-    for filename in LEGACY_PROFILE_FILES:
+    # Modified profile should be PRESERVED (not deleted)
+    assert (agents_dir / modified_profile).exists()
+    assert (agents_dir / modified_profile).read_bytes() == modified_content
+
+    # Unmodified profiles should be removed
+    for filename in LEGACY_PROFILE_FILES[1:]:
         assert not (agents_dir / filename).exists()
 
-    # Verify current installation created
+    # Warning should be emitted
+    assert "Preserved modified legacy file" in result.stdout or "WARNING" in result.stdout
+
+    # Step 6: Current profiles installed safely
     assert (home / CURRENT_MANIFEST).exists()
     for filename in CURRENT_FILES:
         assert (home / "agents" / filename).exists()
 
-    # Verify migration complete state
-    doctor_result = run_doctor(home, "--legacy")
-    assert doctor_result.returncode == 0
-    assert "migration_complete" in doctor_result.stdout
+    # Step 7: Rerun is idempotent
+    result2 = run_installer(home, "--migrate-legacy")
+    assert result2.returncode == 0
+    # Modified legacy file still preserved
+    assert (agents_dir / modified_profile).exists()
 
 
 def test_old_new_mixed_state(tmp_path: Path):

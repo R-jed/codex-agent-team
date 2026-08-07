@@ -116,6 +116,28 @@ The installer owns collision detection, one-process locking, ownership receipts,
 
 If the current Codex session still cannot discover a required custom Agent role after a successful repair, ask the user to start a fresh Codex session before testing the role surface again.
 
+### Legacy migration
+
+When diagnosing or repairing, check for legacy `codex-delegate` installation state:
+
+```bash
+python "$installer" --legacy-status
+```
+
+If legacy state is detected (`legacy_only`, `mixed`, or `legacy_modified`), inform the user and offer migration:
+
+```bash
+python "$installer" --migrate-legacy
+```
+
+The migration:
+- Removes legacy files only when their hash matches the legacy manifest ownership
+- Preserves modified legacy files with a warning
+- Installs current profiles safely
+- Is idempotent on rerun
+
+Do not require users to know hidden CLI parameters. The normal Doctor upgrade/repair flow should detect and handle legacy state automatically.
+
 ## 4. Install the Plugin from the command line
 
 Only when installation is explicitly requested and the Plugin is not already installed, use the canonical commands:
@@ -143,9 +165,11 @@ codex plugin add subagents-dispatch@subagents-dispatch
 Do not continue by running the old package's installer as if it were the upgraded package. After a successful Plugin upgrade:
 
 1. ask the user to start a fresh Codex session;
-2. invoke `/subagents-dispatch:doctor` again;
+2. invoke `/doctor` again;
 3. let the new Doctor run `python "$installer" --check` against the newly selected package;
-4. if the new package reports stale managed profiles, repair them through its own installer and verify again.
+4. check for legacy state with `python "$installer" --legacy-status`;
+5. if legacy state is detected, offer migration with `python "$installer" --migrate-legacy`;
+6. if the new package reports stale managed profiles, repair them through its own installer and verify again.
 
 This prevents an older running Skill from overwriting newer Agent profile templates.
 

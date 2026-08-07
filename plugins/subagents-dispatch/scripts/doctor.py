@@ -45,7 +45,10 @@ def parse_args() -> argparse.Namespace:
 
 
 def check_current_installation(codex_home: Path) -> tuple[bool, list[str]]:
-    """Check current subagents-dispatch installation."""
+    """Check current subagents-dispatch installation.
+
+    Uses install-agents.py --check as the canonical verifier for managed profiles.
+    """
     issues: list[str] = []
     agents_dir = codex_home / "agents"
     manifest_path = codex_home / ".subagents-dispatch-agents.json"
@@ -76,26 +79,26 @@ def check_current_installation(codex_home: Path) -> tuple[bool, list[str]]:
     if lock_path.exists() and lock_path.is_symlink():
         issues.append("Installer lock is a symlink")
 
-    # Check profiles
-    if agents_dir.is_dir():
+    # Use canonical installer for profile verification
+    # This ensures Doctor and installer have consistent health definitions
+    installer_path = Path(__file__).parent / "install-agents.py"
+    if installer_path.is_file():
         try:
-            policy_path = Path(__file__).parent.parent / "policy-contract.json"
-            policy = json.loads(policy_path.read_text(encoding="utf-8"))
-            for role, spec in policy["roles"].items():
-                profile_path = agents_dir / spec["profile_file"]
-                if not profile_path.is_file():
-                    issues.append(f"Missing profile: {spec['profile_file']}")
-                elif profile_path.is_symlink():
-                    issues.append(f"Profile is a symlink: {spec['profile_file']}")
-                else:
-                    try:
-                        data = tomllib.loads(profile_path.read_text(encoding="utf-8"))
-                        if data.get("name") != spec["agent_type"]:
-                            issues.append(f"Profile {spec['profile_file']} name mismatch: {data.get('name')!r}")
-                    except (OSError, UnicodeError, tomllib.TOMLDecodeError) as exc:
-                        issues.append(f"Invalid profile {spec['profile_file']}: {exc}")
-        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-            issues.append(f"Cannot load policy contract: {exc}")
+            import subprocess
+            result = subprocess.run(
+                [sys.executable, str(installer_path), "--codex-home", str(codex_home), "--check"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            if result.returncode != 0:
+                issues.append(f"Installer --check failed: {result.stdout.strip()}")
+        except subprocess.TimeoutExpired:
+            issues.append("Installer --check timed out")
+        except Exception as exc:
+            issues.append(f"Installer --check error: {exc}")
+    else:
+        issues.append("Installer not found")
 
     return len(issues) == 0, issues
 
