@@ -18,7 +18,6 @@ import uuid
 from legacy_migration import (
     LEGACY_MANIFEST_NAME,
     LEGACY_LOCK_NAME,
-    LEGACY_PROFILE_FILES,
     backup_legacy_files,
     commit_legacy_cleanup,
     detect_legacy_state,
@@ -68,14 +67,21 @@ def unlock_file(fd: int) -> None:
 
 
 @contextmanager
-def installer_lock(codex_home: Path, *, check_only: bool):
-    lock_path = codex_home / LOCK_NAME
+def named_installer_lock(
+    codex_home: Path,
+    lock_name: str,
+    *,
+    check_only: bool,
+    label: str,
+):
+    """Acquire one regular-file OS lock, refusing symlink substitution."""
+    lock_path = codex_home / lock_name
     if check_only and not codex_home.is_dir():
         fail(f"Required Codex home is missing: {codex_home}")
     if not check_only:
         codex_home.mkdir(parents=True, exist_ok=True)
     if lock_path.is_symlink():
-        fail(f"Refusing symlinked installer lock: {lock_path}")
+        fail(f"Refusing symlinked {label} lock: {lock_path}")
 
     flags = os.O_RDWR | (0 if check_only else os.O_CREAT)
     if hasattr(os, "O_NOFOLLOW"):
@@ -83,15 +89,16 @@ def installer_lock(codex_home: Path, *, check_only: bool):
     try:
         fd = os.open(lock_path, flags, 0o600)
     except OSError as exc:
-        fail(f"Could not open installer lock {lock_path}: {exc}")
+        fail(f"Could not open {label} lock {lock_path}: {exc}")
+
     locked = False
     try:
         metadata = os.fstat(fd)
         if not stat.S_ISREG(metadata.st_mode):
-            fail(f"Installer lock is not a regular file: {lock_path}")
+            fail(f"{label.capitalize()} lock is not a regular file: {lock_path}")
         if metadata.st_size == 0:
             if check_only:
-                fail(f"Installer lock is missing initialization state: {lock_path}")
+                fail(f"{label.capitalize()} lock is missing initialization state: {lock_path}")
             os.write(fd, b"\0")
             os.fsync(fd)
         lock_file(fd)
@@ -101,6 +108,17 @@ def installer_lock(codex_home: Path, *, check_only: bool):
         if locked:
             unlock_file(fd)
         os.close(fd)
+
+
+@contextmanager
+def installer_lock(codex_home: Path, *, check_only: bool):
+    with named_installer_lock(
+        codex_home,
+        LOCK_NAME,
+        check_only=check_only,
+        label="installer",
+    ):
+        yield
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -390,9 +408,7 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
     agents_dir = codex_home / "agents"
     manifest_path = codex_home / MANIFEST_NAME
 
-    # Phase 1: Legacy backup (snapshot only, no mutation)
     legacy_backup = None
-    legacy_state = None
     if migrate_legacy and not check_only:
         legacy_state = detect_legacy_state(codex_home)
         if legacy_state.legacy_only or legacy_state.mixed:
@@ -405,11 +421,16 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
         else:
             print("No legacy installation detected.")
 
-    # Phase 2: All preflight checks (BEFORE any destructive operations)
     validate_sources()
     preflight_agents_dir(agents_dir, check_only=check_only)
     manifest = load_manifest(manifest_path)
-    pending_cleanup = {Path(p).name for p in legacy_backup.files} if legacy_backup else None
+    pending_cleanup = None
+    if legacy_backup is not None:
+        pending_cleanup = {
+            Path(relative_path).name
+            for relative_path, can_remove in legacy_backup.removal_map.items()
+            if can_remove and relative_path.startswith("agents/")
+        }
     upgrades = preflight_profiles(
         agents_dir,
         check_only=check_only,
@@ -424,42 +445,43 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
         print("CHECK PASSED: subagents-dispatch managed Agent profiles and ownership state are exact.")
         return
 
-    # Phase 3: Commit legacy cleanup (after preflight, before profile install)
-    if legacy_backup is not None:
-        cleanup_messages, cleanup_warnings = commit_legacy_cleanup(codex_home, legacy_backup)
-        for msg in cleanup_messages:
-            print(f"  {msg}")
-        for warning in cleanup_warnings:
-            print(f"  WARNING: {warning}")
-
-    profiles_exact = agents_dir.is_dir() and all(
-        (agents_dir / filename).is_file()
-        and not (agents_dir / filename).is_symlink()
-        and (agents_dir / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
-        for filename in PROFILE_FILES
-    )
-    if profiles_exact and manifest == desired_manifest():
-        print("Managed Agent profiles already installed exactly; no changes made.")
-        return
-
-    # Phase 4: Install current profiles (with rollback on failure)
-    codex_home.mkdir(parents=True, exist_ok=True)
-    agents_dir.mkdir(parents=True, exist_ok=True)
     previous_manifest = manifest_path.read_bytes() if manifest_path.is_file() else None
     created: list[Path] = []
     backups: dict[Path, Path] = {}
+    current_mutation_started = False
 
     try:
-        apply_profile_changes(agents_dir, upgrades, created, backups)
-        verify_profiles(agents_dir)
-        write_manifest(manifest_path, desired_manifest())
-        verify_profiles(agents_dir)
-    except BaseException as exc:
-        rollback_errors = rollback(created, backups, manifest_path, previous_manifest)
-        # Also rollback legacy cleanup if profile install failed
         if legacy_backup is not None:
-            legacy_errors = rollback_legacy_cleanup(codex_home, legacy_backup)
-            rollback_errors.extend(legacy_errors)
+            cleanup_messages, cleanup_warnings = commit_legacy_cleanup(codex_home, legacy_backup)
+            for msg in cleanup_messages:
+                print(f"  {msg}")
+            for warning in cleanup_warnings:
+                print(f"  WARNING: {warning}")
+
+        profiles_exact = agents_dir.is_dir() and all(
+            (agents_dir / filename).is_file()
+            and not (agents_dir / filename).is_symlink()
+            and (agents_dir / filename).read_bytes() == (PROFILE_SOURCE / filename).read_bytes()
+            for filename in PROFILE_FILES
+        )
+
+        if not (profiles_exact and manifest == desired_manifest()):
+            codex_home.mkdir(parents=True, exist_ok=True)
+            agents_dir.mkdir(parents=True, exist_ok=True)
+            current_mutation_started = True
+            apply_profile_changes(agents_dir, upgrades, created, backups)
+            verify_profiles(agents_dir)
+            write_manifest(manifest_path, desired_manifest())
+            verify_profiles(agents_dir)
+        else:
+            verify_profiles(agents_dir)
+            print("Managed Agent profiles already installed exactly; no current-profile changes made.")
+    except BaseException as exc:
+        rollback_errors: list[str] = []
+        if current_mutation_started:
+            rollback_errors.extend(rollback(created, backups, manifest_path, previous_manifest))
+        if legacy_backup is not None:
+            rollback_errors.extend(rollback_legacy_cleanup(codex_home, legacy_backup))
         if rollback_errors:
             fail(f"INSTALL FAILED: {exc}\nROLLBACK INCOMPLETE:\n- " + "\n- ".join(rollback_errors))
         raise
@@ -482,6 +504,21 @@ def install(codex_home: Path, check_only: bool, migrate_legacy: bool = False) ->
     if codex_home.is_symlink():
         fail(f"Refusing symlinked Codex home: {codex_home}")
     codex_home = codex_home.resolve()
+
+    if migrate_legacy and not check_only:
+        # Deterministic cross-generation order: legacy first, then current.
+        # Old codex-delegate installers only know the legacy lock, so this makes
+        # migration wait for them before touching shared CODEX_HOME/agents state.
+        with named_installer_lock(
+            codex_home,
+            LEGACY_LOCK_NAME,
+            check_only=False,
+            label="legacy compatibility",
+        ):
+            with installer_lock(codex_home, check_only=False):
+                install_locked(codex_home, check_only, migrate_legacy)
+        return
+
     with installer_lock(codex_home, check_only=check_only):
         install_locked(codex_home, check_only, migrate_legacy)
 
@@ -501,6 +538,8 @@ def show_legacy_status(codex_home: Path) -> None:
     print(f"  Current only: {legacy_state.current_only}")
     print(f"  Mixed: {legacy_state.mixed}")
     print(f"  Legacy modified: {legacy_state.legacy_modified}")
+    print(f"  Legacy ownership unknown: {legacy_state.legacy_ownership_unknown}")
+    print(f"  Preserved legacy: {legacy_state.preserved_legacy}")
     print(f"  Migration complete: {legacy_state.migration_complete}")
 
     if legacy_state.legacy_only or legacy_state.mixed:
