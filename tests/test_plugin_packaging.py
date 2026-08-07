@@ -28,10 +28,7 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
     assert payload["homepage"] == "https://github.com/R-jed/subagents-dispatch#readme"
     assert payload["interface"]["displayName"] == "subagents-dispatch"
     assert payload["interface"]["websiteURL"] == "https://github.com/R-jed/subagents-dispatch"
-    assert {path.name for path in SKILLS_ROOT.iterdir() if path.is_dir()} == {
-        "dispatch",
-        "doctor",
-    }
+    assert {path.name for path in SKILLS_ROOT.iterdir() if path.is_dir()} == {"dispatch", "doctor"}
     assert (MAIN_SKILL / "SKILL.md").is_file()
     assert (DOCTOR_SKILL / "SKILL.md").is_file()
 
@@ -52,6 +49,17 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
             }
         ],
     }
+
+
+def test_root_plugin_layout_and_release_verifiers_do_not_use_removed_subdirectory():
+    assert PLUGIN.is_file()
+    assert (ROOT / "skills" / "dispatch" / "SKILL.md").is_file()
+    stale = "plugins/subagents-dispatch"
+    for path in [ROOT / ".github" / "workflows" / "ci.yml", ROOT / "scripts" / "pre-push-ci.sh"]:
+        text = path.read_text(encoding="utf-8")
+        assert stale not in text, f"{path} still targets the removed plugin subdirectory"
+        assert ".codex-plugin/plugin.json" in text
+        assert "scripts/install-agents.py" in text
 
 
 def test_plugin_brand_assets_and_supported_components():
@@ -88,7 +96,7 @@ def test_third_party_mit_notice_is_packaged_without_repository_pointer():
         "MIT-licensed third-party material",
         "Copyright (c) 2026 Zhijian AI / Dapeng",
         "Permission is hereby granted",
-        "THE SOFTWARE IS PROVIDED \"AS IS\"",
+        'THE SOFTWARE IS PROVIDED "AS IS"',
     ]:
         assert phrase in text
     assert "github.com/" not in text
@@ -125,7 +133,7 @@ def test_doctor_reuses_supported_diagnostics_and_existing_installer():
     assert "start a fresh Codex session" in text
 
 
-def test_install_doc_contains_the_two_current_install_and_update_paths():
+def test_install_doc_contains_the_current_install_and_update_contract():
     text = INSTALL_DOC.read_text(encoding="utf-8")
     for phrase in [
         CANONICAL_MARKETPLACE,
@@ -139,14 +147,13 @@ def test_install_doc_contains_the_two_current_install_and_update_paths():
 
 
 def test_readmes_and_ai_reference_share_the_current_install_contract():
-    payload = json.loads(PLUGIN.read_text(encoding="utf-8"))
-    version = payload["version"]
+    version = json.loads(PLUGIN.read_text(encoding="utf-8"))["version"]
     for name in ["README.md", "README_EN.md", "README_AI.md"]:
         text = (ROOT / name).read_text(encoding="utf-8")
         assert version in text
         assert USER_COMMAND_DISPATCH in text
         assert USER_COMMAND_DOCTOR in text
-        assert "/plugins" in text
         assert CANONICAL_MARKETPLACE in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
+    assert "/plugins" in (ROOT / "README_AI.md").read_text(encoding="utf-8")
