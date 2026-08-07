@@ -186,6 +186,85 @@ def can_safely_remove_legacy(
     return result
 
 
+class LegacyBackup(NamedTuple):
+    """Snapshot of legacy files before destructive migration."""
+    files: dict[str, bytes]
+    removal_map: dict[str, bool]
+
+
+def backup_legacy_files(
+    codex_home: Path,
+) -> tuple[LegacyBackup, list[str]]:
+    """Phase 1: Snapshot all legacy files without mutation.
+
+    Returns (backup, warnings).
+    """
+    agents_dir = codex_home / "agents"
+    legacy_manifest_path = codex_home / LEGACY_MANIFEST_NAME
+    legacy_manifest = load_legacy_manifest(legacy_manifest_path)
+
+    removal_map = can_safely_remove_legacy(codex_home, legacy_manifest)
+    files = collect_legacy_files(codex_home)
+
+    warnings: list[str] = []
+    for relative_path, can_remove in removal_map.items():
+        if not can_remove and (codex_home / relative_path).exists():
+            warnings.append(f"Will preserve modified legacy file: {relative_path}")
+
+    return LegacyBackup(files=files, removal_map=removal_map), warnings
+
+
+def commit_legacy_cleanup(
+    codex_home: Path,
+    backup: LegacyBackup,
+) -> tuple[list[str], list[str]]:
+    """Phase 2: Remove legacy files. Returns (messages, warnings).
+
+    Only files marked removable AND present in the backup snapshot are touched.
+    """
+    messages: list[str] = []
+    warnings: list[str] = []
+    agents_dir = codex_home / "agents"
+
+    for relative_path, can_remove in backup.removal_map.items():
+        if relative_path not in backup.files:
+            continue
+        target = codex_home / relative_path
+        if not target.exists():
+            continue
+        if can_remove:
+            target.unlink(missing_ok=True)
+            messages.append(f"Removed legacy file: {relative_path}")
+        else:
+            warnings.append(f"Preserved modified legacy file: {relative_path}")
+
+    if agents_dir.is_dir() and not any(agents_dir.iterdir()):
+        agents_dir.rmdir()
+        messages.append("Removed empty agents directory")
+
+    return messages, warnings
+
+
+def rollback_legacy_cleanup(
+    codex_home: Path,
+    backup: LegacyBackup,
+) -> list[str]:
+    """Restore legacy files from backup snapshot. Returns errors."""
+    errors: list[str] = []
+
+    for relative_path, data in backup.files.items():
+        target = codex_home / relative_path
+        if target.exists():
+            continue
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        except OSError as exc:
+            errors.append(f"could not restore {relative_path}: {exc}")
+
+    return errors
+
+
 def migrate_legacy_to_current(
     codex_home: Path,
     current_profile_source: Path,
@@ -197,34 +276,14 @@ def migrate_legacy_to_current(
 
     Returns (messages, warnings).
     """
-    messages: list[str] = []
-    warnings: list[str] = []
+    if dry_run:
+        backup, warnings = backup_legacy_files(codex_home)
+        messages = [f"Would remove: {p}" for p in backup.files if backup.removal_map.get(p, False)]
+        return messages, warnings
 
-    agents_dir = codex_home / "agents"
-    legacy_manifest_path = codex_home / LEGACY_MANIFEST_NAME
-    legacy_manifest = load_legacy_manifest(legacy_manifest_path)
-
-    # Determine what can be safely removed
-    removal_map = can_safely_remove_legacy(codex_home, legacy_manifest)
-
-    # Remove legacy files that are safe to remove
-    for relative_path, can_remove in removal_map.items():
-        target = codex_home / relative_path
-        if not target.exists():
-            continue
-        if can_remove:
-            if not dry_run:
-                target.unlink(missing_ok=True)
-            messages.append(f"Removed legacy file: {relative_path}")
-        else:
-            warnings.append(f"Preserved modified legacy file: {relative_path}")
-
-    # Clean up empty agents directory if it's empty
-    if agents_dir.is_dir() and not any(agents_dir.iterdir()):
-        if not dry_run:
-            agents_dir.rmdir()
-        messages.append("Removed empty agents directory")
-
+    backup, warnings = backup_legacy_files(codex_home)
+    messages, commit_warnings = commit_legacy_cleanup(codex_home, backup)
+    warnings.extend(commit_warnings)
     return messages, warnings
 
 

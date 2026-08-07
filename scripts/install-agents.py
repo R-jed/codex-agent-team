@@ -19,10 +19,12 @@ from legacy_migration import (
     LEGACY_MANIFEST_NAME,
     LEGACY_LOCK_NAME,
     LEGACY_PROFILE_FILES,
+    backup_legacy_files,
+    commit_legacy_cleanup,
     detect_legacy_state,
     format_migration_state,
     load_legacy_manifest,
-    migrate_legacy_to_current,
+    rollback_legacy_cleanup,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -253,8 +255,10 @@ def preflight_profiles(
     *,
     check_only: bool,
     managed_hashes: dict[str, str],
+    pending_cleanup: set[str] | None = None,
 ) -> set[str]:
     upgrades: set[str] = set()
+    skip_names = pending_cleanup or set()
 
     for filename in PROFILE_FILES:
         source = PROFILE_SOURCE / filename
@@ -281,6 +285,8 @@ def preflight_profiles(
     if agents_dir.exists():
         for existing in agents_dir.glob("*.toml"):
             if existing.name in PROFILE_FILES or existing.is_symlink() or not existing.is_file():
+                continue
+            if existing.name in skip_names:
                 continue
             existing_name = parse_profile_name(existing)
             if existing_name in current_roles:
@@ -384,32 +390,31 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
     agents_dir = codex_home / "agents"
     manifest_path = codex_home / MANIFEST_NAME
 
-    # Handle legacy migration BEFORE preflight checks to avoid role name conflicts
+    # Phase 1: Legacy backup (snapshot only, no mutation)
+    legacy_backup = None
+    legacy_state = None
     if migrate_legacy and not check_only:
         legacy_state = detect_legacy_state(codex_home)
         if legacy_state.legacy_only or legacy_state.mixed:
             print(f"Legacy state detected: {format_migration_state(legacy_state)}")
-            migration_messages, migration_warnings = migrate_legacy_to_current(
-                codex_home,
-                PROFILE_SOURCE,
-                PROFILE_FILES,
-            )
-            for msg in migration_messages:
-                print(f"  {msg}")
-            for warning in migration_warnings:
+            legacy_backup, legacy_warnings = backup_legacy_files(codex_home)
+            for warning in legacy_warnings:
                 print(f"  WARNING: {warning}")
         elif legacy_state.migration_complete:
             print("Legacy migration already complete; no legacy files found.")
         else:
             print("No legacy installation detected.")
 
+    # Phase 2: All preflight checks (BEFORE any destructive operations)
     validate_sources()
     preflight_agents_dir(agents_dir, check_only=check_only)
     manifest = load_manifest(manifest_path)
+    pending_cleanup = {Path(p).name for p in legacy_backup.files} if legacy_backup else None
     upgrades = preflight_profiles(
         agents_dir,
         check_only=check_only,
         managed_hashes=manifest_hashes(manifest),
+        pending_cleanup=pending_cleanup,
     )
 
     if check_only:
@@ -418,6 +423,14 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
             fail(f"Current managed-profile manifest is missing or stale: {manifest_path}")
         print("CHECK PASSED: subagents-dispatch managed Agent profiles and ownership state are exact.")
         return
+
+    # Phase 3: Commit legacy cleanup (after preflight, before profile install)
+    if legacy_backup is not None:
+        cleanup_messages, cleanup_warnings = commit_legacy_cleanup(codex_home, legacy_backup)
+        for msg in cleanup_messages:
+            print(f"  {msg}")
+        for warning in cleanup_warnings:
+            print(f"  WARNING: {warning}")
 
     profiles_exact = agents_dir.is_dir() and all(
         (agents_dir / filename).is_file()
@@ -429,6 +442,7 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
         print("Managed Agent profiles already installed exactly; no changes made.")
         return
 
+    # Phase 4: Install current profiles (with rollback on failure)
     codex_home.mkdir(parents=True, exist_ok=True)
     agents_dir.mkdir(parents=True, exist_ok=True)
     previous_manifest = manifest_path.read_bytes() if manifest_path.is_file() else None
@@ -442,6 +456,10 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
         verify_profiles(agents_dir)
     except BaseException as exc:
         rollback_errors = rollback(created, backups, manifest_path, previous_manifest)
+        # Also rollback legacy cleanup if profile install failed
+        if legacy_backup is not None:
+            legacy_errors = rollback_legacy_cleanup(codex_home, legacy_backup)
+            rollback_errors.extend(legacy_errors)
         if rollback_errors:
             fail(f"INSTALL FAILED: {exc}\nROLLBACK INCOMPLETE:\n- " + "\n- ".join(rollback_errors))
         raise
