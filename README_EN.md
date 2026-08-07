@@ -1,9 +1,6 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
-    <img alt="codex delegate" src="docs/logo-dark.svg" width="112">
-  </picture>
+  <img src="plugins/codex-delegate/assets/codex-delegate-logo.svg#gh-light-mode-only" alt="codex delegate" width="112">
+  <img src="plugins/codex-delegate/assets/codex-delegate-logo-dark.svg#gh-dark-mode-only" alt="codex delegate" width="112">
 </p>
 
 <h1 align="center">codex delegate</h1>
@@ -97,6 +94,28 @@ When work has dependencies, Main owns start order, write scope, and final integr
 - codex delegate uses Codex Native Subagents directly and does not run a separate Agent runtime, background daemon, or external routing service.
 
 See [Architecture](docs/architecture.md) for the full coordination, recovery, runtime-evidence, and independent-review rules.
+
+## Repository layout
+
+```text
+.
+├── .agents/plugins/                  # Codex Marketplace registration
+├── plugins/codex-delegate/           # installable Plugin package
+│   ├── .codex-plugin/                # Plugin manifest
+│   ├── agent-profiles/               # five Native Subagent profiles
+│   ├── assets/                       # Plugin icons and README logo
+│   ├── policy-contract.json          # machine-readable roles and hard constraints
+│   ├── scripts/                      # deterministic validators and runtime evidence tools
+│   └── skills/codex-delegate/
+│       ├── SKILL.md                  # Plugin entry point and main control loop
+│       └── references/               # routing, TeamPlan, recovery, safety, and Final Review
+├── docs/                             # installation, architecture, and runtime documentation
+├── evals/                            # static and behavioral evaluation data
+├── scripts/                          # repository-level validation tools
+└── tests/                            # regression, packaging, and cross-platform tests
+```
+
+The runtime core lives under `plugins/codex-delegate/`. Root-level `docs/`, `evals/`, `scripts/`, and `tests/` support documentation, validation, and release quality.
 
 ## Documentation
 
