@@ -1,9 +1,6 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
-    <img alt="codex delegate" src="docs/logo-dark.svg" width="112">
-  </picture>
+  <img src="plugins/codex-delegate/assets/codex-delegate-logo.svg#gh-light-mode-only" alt="codex delegate" width="112">
+  <img src="plugins/codex-delegate/assets/codex-delegate-logo-dark.svg#gh-dark-mode-only" alt="codex delegate" width="112">
 </p>
 
 <h1 align="center">codex delegate</h1>
@@ -97,6 +94,28 @@ codex plugin add codex-delegate@codex-delegate
 - codex delegate 直接使用 Codex 原生 Subagents，不运行独立 Agent runtime、后台 daemon 或外部路由服务。
 
 更完整的协调、恢复、运行证据和独立复核规则见 [架构说明](docs/architecture.md)。
+
+## 项目结构
+
+```text
+.
+├── .agents/plugins/                  # Codex Marketplace 注册
+├── plugins/codex-delegate/           # 可安装的 Plugin 包
+│   ├── .codex-plugin/                # Plugin manifest
+│   ├── agent-profiles/               # 五个原生 Subagent 配置
+│   ├── assets/                       # Plugin 图标与 README Logo
+│   ├── policy-contract.json          # 机器可读的角色与核心约束
+│   ├── scripts/                      # 确定性校验器与运行证据工具
+│   └── skills/codex-delegate/
+│       ├── SKILL.md                  # Plugin 入口与主控制循环
+│       └── references/               # 路由、TeamPlan、恢复、安全与 Final Review
+├── docs/                             # 安装、架构与运行边界文档
+├── evals/                            # 静态与行为评估数据
+├── scripts/                          # 仓库级验证工具
+└── tests/                            # 回归、打包与跨平台测试
+```
+
+Plugin 的运行核心集中在 `plugins/codex-delegate/`。根目录的 `docs/`、`evals/`、`scripts/` 和 `tests/` 主要服务于说明、验证和发布质量。
 
 ## 文档
 
