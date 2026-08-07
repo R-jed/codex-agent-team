@@ -24,6 +24,8 @@ The following control intents are recognized before ordinary task routing:
 
 `status` is a control intent only when it is the complete remaining request. A task such as `status page is broken` is ordinary work. `steer` and `takeover` require a resolvable current unit id. When one lightweight delegated responsibility exists without TeamPlan, Main still gives it a stable unit id and may surface that id in status output.
 
+If there is no current dispatch state in the conversation, Status reports that there are no current delegated responsibilities. Steer and Takeover stop with an exact target-not-found/current-state-unavailable message. They do not reconstruct an old task from memory, invent an Agent id, or search unrelated sessions to guess the target.
+
 Control intents never widen the original user scope, permissions, mutation authority, external-impact authorization, or quality gates.
 
 ## Preview
@@ -62,6 +64,8 @@ current blocker, when known
 
 Prefer native host state when it is exposed. When host evidence is insufficient, report `UNKNOWN` exactly. Status must not convert `UNKNOWN` to failure, trigger a retry, create replacement work, or mutate artifacts.
 
+When there is no current delegated responsibility, say so directly. Absence of an active unit is different from an existing unit whose runtime state is `UNKNOWN`.
+
 Do not busy-poll the host to manufacture certainty.
 
 ## Steer
@@ -85,7 +89,7 @@ external impact
 
 If the requested guidance would materially change one of those facts, do not label it steering. Return the change to Main and use the ordinary TeamPlan revision, reroute, takeover, or user-authorization path as appropriate.
 
-If the target cannot be resolved to one current child, report the ambiguity instead of guessing.
+If the target cannot be resolved to one current child, report the ambiguity or missing target instead of guessing.
 
 ## Takeover
 
@@ -107,6 +111,8 @@ user requests takeover
 For a writing child, Main must not begin mutation until the previous writer is confirmed no longer active. This preserves one-writer safety.
 
 `UNKNOWN` does not authorize forced ownership transfer. If the host cannot establish that the old owner has stopped, keep the same responsibility blocked for conflicting mutation and report the exact uncertainty. Main may continue unrelated safe work, but it must not duplicate the unresolved owned responsibility under a false takeover claim.
+
+If the unit/current attempt cannot be resolved at all, takeover does not proceed. Missing identity and uncertain runtime state are reported separately.
 
 A takeover does not reset the unit's history or erase valid evidence. If TeamPlan is active, Main records the ownership/role change in a new revision when required by `team-plan.md`.
 
