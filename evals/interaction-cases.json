@@ -26,6 +26,16 @@
       }
     },
     {
+      "id": "status-with-no-current-dispatch-does-not-invent-state",
+      "input": {"request": "/dispatch status", "current_dispatch": null},
+      "expected": {
+        "mode": "status",
+        "active_responsibilities": 0,
+        "reported_unknown_unit": false,
+        "search_other_sessions": false
+      }
+    },
+    {
       "id": "status-page-task-is-not-control-status",
       "input": {"request": "/dispatch status page is broken"},
       "expected": {
@@ -51,6 +61,16 @@
         "mode": "steer_rejected_as_scope_change",
         "requires_main_reclassification": true,
         "silent_authority_expansion": false
+      }
+    },
+    {
+      "id": "control-target-missing-fails-closed",
+      "input": {"request": "/dispatch takeover U99", "known_units": ["U1", "U2"]},
+      "expected": {
+        "target_resolved": false,
+        "ownership_transferred": false,
+        "invent_agent_id": false,
+        "search_other_sessions": false
       }
     },
     {
