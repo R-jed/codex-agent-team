@@ -162,14 +162,12 @@ def detect_legacy_state(codex_home: Path) -> MigrationState:
 
 
 def collect_legacy_files(codex_home: Path) -> dict[str, bytes]:
+    """Snapshot migration payload. Lock files are coordination primitives, not payload."""
     agents_dir = codex_home / "agents"
     files: dict[str, bytes] = {}
     manifest_path = codex_home / LEGACY_MANIFEST_NAME
     if manifest_path.is_file() and not manifest_path.is_symlink():
         files[LEGACY_MANIFEST_NAME] = manifest_path.read_bytes()
-    lock_path = codex_home / LEGACY_LOCK_NAME
-    if lock_path.is_file() and not lock_path.is_symlink():
-        files[LEGACY_LOCK_NAME] = lock_path.read_bytes()
     if agents_dir.is_dir() and not agents_dir.is_symlink():
         for filename in LEGACY_PROFILE_FILES:
             path = agents_dir / filename
