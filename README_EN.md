@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.3.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-Native%20Subagents-111827.svg" alt="Codex Native Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
@@ -45,11 +45,19 @@ Start a new Codex session after installation.
 
 ## Quick start
 
-Give the task directly to the Plugin:
+Use the main Skill for development work:
 
 ```text
 $codex-delegate:codex-delegate Deep review this change, fix the issues you find, and run the relevant tests.
 ```
+
+Use the Doctor for installation, configuration, Marketplace, and managed Agent profile diagnostics:
+
+```text
+$codex-delegate:codex-delegate-doctor Check my Codex Delegate installation and configuration.
+```
+
+Doctor is read-only by default. It changes state only when the user explicitly asks to repair, install, or upgrade.
 
 You can also use `/skills` to open the Skill picker. The Plugin does not invoke implicitly by default.
 
@@ -64,6 +72,12 @@ Open **Plugins**, find **Codex Delegate** in your installed plugins, apply the a
 ```bash
 codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
+```
+
+You can also ask Doctor to perform the upgrade and check what remains afterward:
+
+```text
+$codex-delegate:codex-delegate-doctor Upgrade Codex Delegate and tell me what I need to do after the upgrade.
 ```
 
 Start a new Codex session after updating.
@@ -91,6 +105,7 @@ When work has dependencies, Main owns start order, write scope, and final integr
 - Only one actor writes to the same physical Git checkout at a time.
 - Child Agents cannot widen permissions, mutation scope, or external impact on their own.
 - An Agent saying “done” is not verification; final acceptance depends on actual files, code, and relevant checks.
+- Doctor is read-only by default; repair, installation, and upgrade require an explicit user request.
 - codex delegate uses Codex Native Subagents directly and does not run a separate Agent runtime, background daemon, or external routing service.
 
 See [Architecture](docs/architecture.md) for the full coordination, recovery, runtime-evidence, and independent-review rules.
@@ -105,10 +120,10 @@ See [Architecture](docs/architecture.md) for the full coordination, recovery, ru
 │   ├── agent-profiles/               # five Native Subagent profiles
 │   ├── assets/                       # Plugin icons and README logo
 │   ├── policy-contract.json          # machine-readable roles and hard constraints
-│   ├── scripts/                      # deterministic validators and runtime evidence tools
-│   └── skills/codex-delegate/
-│       ├── SKILL.md                  # Plugin entry point and main control loop
-│       └── references/               # routing, TeamPlan, recovery, safety, and Final Review
+│   ├── scripts/                      # installer, validators, and runtime evidence tools
+│   └── skills/
+│       ├── codex-delegate/           # main delegation Skill and runtime rules
+│       └── codex-delegate-doctor/    # install, config, profile, and upgrade diagnostics
 ├── docs/                             # installation, architecture, and runtime documentation
 ├── evals/                            # static and behavioral evaluation data
 ├── scripts/                          # repository-level validation tools
