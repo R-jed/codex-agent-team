@@ -1,98 +1,88 @@
 # subagents-dispatch Release Candidate Deep Review
 
-> Review date: 2026-08-07  
+> Review date: 2026-08-08  
 > Plugin version: `2.0.0`  
-> Reviewed code baseline: `196bf862fea35f4e054d46f546c03e91e05c7d4d`  
-> Evidence run: GitHub Actions `31196076765`  
+> Verified implementation baseline: `2d60ec3785691b6cb0e9bc7e9157393d4bc5fe0f`  
+> Implementation evidence run: GitHub Actions `31200620004`  
 > Scope: packaging, routing policy, Agent profiles, installation, legacy migration, Doctor, runtime evidence, tests, CI, documentation, security and release governance.
 
-This report replaces the earlier rolling review notes. Historical findings that were superseded by later repository changes are not release truth.
+This report is the current release-candidate assessment. Earlier rolling review notes and findings tied to the removed nested Plugin layout are superseded.
+
+## Verdict
+
+**Code and policy verdict: GO.**
+
+No open code-level release blocker was identified after the final adversarial closure. Formal release remains on HOLD until repository governance and external host smoke evidence are completed:
+
+```text
+main branch protection/ruleset
+clean Codex Marketplace install/update smoke on the final main candidate
+explicit user authorization for any version tag or GitHub Release
+```
+
+This report does not authorize creating, moving, or deleting a tag and does not authorize creating a GitHub Release.
 
 ## Current architecture
 
-The repository is a single Plugin rooted at `.`:
+The repository is a single root-level Codex Plugin:
 
 ```text
-.codex-plugin/
-.agents/plugins/
-agent-profiles/
-assets/
-policy-contract.json
-scripts/
-skills/
-docs/
-evals/
-tests/
+.
+├── .agents/plugins/marketplace.json
+├── .codex-plugin/plugin.json
+├── agent-profiles/
+├── assets/
+├── policy-contract.json
+├── scripts/
+├── skills/
+├── docs/
+├── evals/
+└── tests/
 ```
 
-Marketplace uses a Git URL source because the Plugin manifest is at repository root. User commands are `/dispatch` and `/doctor`; Plugin/host metadata may use the internal namespaced identities `/subagents-dispatch:dispatch` and `/subagents-dispatch:doctor`.
+Marketplace uses a Git URL source because the Plugin manifest is at repository root. The previous `git-subdir` concern no longer applies.
 
-`policy-contract.json` is the machine source for the five native role routes and hard delegation limits. `skills/dispatch/SKILL.md` owns the control loop. Router, TeamPlan, recovery, guardrails and Final Review remain separated by responsibility rather than duplicated into another orchestration runtime.
-
-## Release findings
-
-| Area | Status | Evidence / disposition |
-| --- | --- | --- |
-| Root Plugin packaging | CLOSED | CI validates root `.codex-plugin/plugin.json`; official OpenAI validator passes against `.`. |
-| Marketplace source | CLOSED | Plugin is at repo root, so current `url` source matches the root-Plugin layout. |
-| User command surface | CLOSED | Public docs use `/dispatch` and `/doctor`; namespaced identities remain internal metadata. Real Codex UI evidence supplied during review showed Dispatch and Doctor in the command picker. |
-| Current profile install/upgrade | CLOSED | Exact shipped profile bytes, manifest ownership, collision checks, symlink refusal, staged writes and rollback remain enforced by `scripts/install-agents.py`. |
-| Doctor profile truth | CLOSED | Doctor reuses `install-agents.py --check`; it does not maintain a weaker second managed-profile validator. |
-| Legacy/current mutual exclusion | CLOSED | Migration acquires the legacy OS lock before the current installer lock. A real second process holds `.codex-delegate-agents.lock` in the cross-generation contention test. |
-| Legacy migration transaction | CLOSED | Preflight precedes destructive cleanup. Cleanup verifies snapshot drift, restores earlier deletions when cleanup itself fails, and restores legacy state if current installation subsequently fails. |
-| Modified/unowned legacy state | CLOSED | Modified or unowned files are preserved with ownership evidence and produce terminal `current_with_preserved_legacy*` states instead of an infinite migration loop. |
-| Corrupt/missing legacy ownership | CLOSED | Automatic migration fails closed when ownership metadata is invalid, unsafe or missing while legacy profiles remain. |
-| Reserved-role collision | CLOSED | Only files proven removable are excluded from collision preflight; preserved legacy files cannot silently duplicate a current reserved Agent role. |
-| Windows lock compatibility | CLOSED | Legacy lock is a coordination primitive and is never snapshotted or deleted. Windows CI exercises the migration/lock path successfully. |
-| Runtime Sol alias | CLOSED | Runtime evidence recognizes the official `gpt-5.6` alias as Sol capability without treating Luna/Terra names as aliases. |
-| Local pre-push gate | CLOSED | Root-aware, strict exit semantics, full pytest, official validator and installer/Doctor lifecycle. No ignored core tests or swallowed pytest exit code. |
-| Development dependency drift | CLOSED | Verification dependencies are pinned in `requirements-dev.txt`. |
-| Stale local skill lock | CLOSED | `skills-lock.json` is excluded from the release tree. |
-| Historical tag conflict | CLOSED | Current repository tag list is empty; no GitHub Release exists. |
-| Branch protection | OPEN GOVERNANCE | `main` remains unprotected. This repository-setting action is intentionally separate from code correctness and must be enabled before formal release. |
-
-## CI evidence for reviewed code baseline
-
-GitHub Actions run `31196076765` completed successfully for `196bf862fea35f4e054d46f546c03e91e05c7d4d`.
+User commands are:
 
 ```text
-Ubuntu 24.04 / Python 3.11   PASS
-Ubuntu 24.04 / Python 3.12   PASS
-macOS / Python 3.11          PASS
-Windows / Python 3.11        PASS
-
-Full pytest on Ubuntu 3.11   163 passed
-Official OpenAI validator    PASS
-Managed profile install      PASS
-Managed profile --check      PASS
-Doctor --check               PASS
-Idempotent reinstall         PASS
+/dispatch
+/doctor
 ```
 
-The Windows job also completed the full test suite and managed-profile lifecycle, which is material because legacy lock semantics differ between `fcntl` and `msvcrt`.
+Plugin/host metadata may use the internal namespaced identities:
 
-## Adversarial migration acceptance
+```text
+/subagents-dispatch:dispatch
+/subagents-dispatch:doctor
+```
 
-The safety-focused suite covers the failure modes that matter to persistent user state:
+`/skills` remains an alternate Skill picker.
 
-- real OS-level old-lock holder versus new migrator;
-- clean migration and idempotent rerun;
-- user modification after the legacy manifest recorded the original hash;
-- unowned legacy profile preservation;
-- corrupt or missing ownership manifest;
-- reserved current-role collision from a preserved legacy profile;
-- symlinked legacy manifest;
-- snapshot drift between planning and deletion;
-- injected partial-cleanup failure with restoration;
-- injected current-install failure after legacy cleanup with legacy restoration.
+## Native optimized routing contract
 
-The migration contract is fail-closed where ownership cannot be proven. Preserved user state is reported as a terminal warning state, not silently removed and not repeatedly auto-migrated.
+`policy-contract.json` owns the machine-readable native role routes and capability-dedup constants.
 
-## Runtime and product-policy review
+| Role | Model | Effort | Mutation intent |
+| --- | --- | --- | --- |
+| Reader | `gpt-5.6-luna` | `max` | read-only |
+| Worker | `gpt-5.6-luna` | `max` | workspace-write |
+| Solver | `gpt-5.6-sol` | `high` | workspace-write |
+| Investigator | `gpt-5.6-terra` | `xhigh` | read-only |
+| Advisor | `gpt-5.6-sol` | `high` | read-only |
 
-No release-blocking defect was found in the core Dispatch policy during the final review. Stable invariants remain coherent:
+Capability dedup also owns the accepted Sol-equivalent runtime alias:
 
-- Main owns user intent, authorization, integration, acceptance and final response.
+```text
+gpt-5.6-sol
+alias: gpt-5.6
+reference effort: high
+```
+
+`runtime-evidence.py` reads this alias from the policy contract. It no longer hardcodes a special `gpt-5.6` branch in the verifier.
+
+Stable runtime invariants remain coherent:
+
+- Main owns user intent, authorization, team composition, integration, acceptance and final response.
 - Delegation depth is one.
 - Zero child Agents is normal; fan-out must add concrete value.
 - Each child has one distinct responsibility.
@@ -102,24 +92,126 @@ No release-blocking defect was found in the core Dispatch policy during the fina
 - Child completion claims require artifact/evidence verification.
 - Final Review is consequence-driven and bound to the exact candidate.
 
-Luna Reader/Worker, Sol Solver/Advisor and Terra Investigator remain the native optimized role routes for the current product contract.
+There is no fixed Luna -> Terra -> Sol pipeline.
 
-## Evidence that remains external
+## Release closure findings
 
-A clean install of this exact candidate through a fresh local Codex Marketplace instance was not executable from the review environment, so that specific end-to-end step remains `UNKNOWN`, not `PASS`. Existing real Codex UI evidence confirms the installed product exposes `/dispatch` and `/doctor`, but it is not a clean-install proof for this exact SHA.
+| Area | Status | Evidence / disposition |
+| --- | --- | --- |
+| Root Plugin packaging | CLOSED | CI validates root `.codex-plugin/plugin.json`; official OpenAI validator passes against `.`. |
+| Marketplace source | CLOSED | Plugin is at repo root, so the current `url` source matches the root Plugin layout. |
+| User command surface | CLOSED | Public docs use `/dispatch` and `/doctor`; namespaced identities remain internal metadata. |
+| Current profile install/upgrade | CLOSED | Exact shipped bytes, ownership manifest, collision checks, symlink refusal, staged writes and rollback are enforced. |
+| Doctor profile truth | CLOSED | Doctor reuses `install-agents.py --check`; no weaker second managed-profile validator remains. |
+| Legacy/current mutual exclusion | CLOSED | Migration acquires the legacy OS lock before the current installer lock; a real process test holds the old lock. |
+| Legacy migration transaction | CLOSED | Preflight precedes cleanup; snapshot drift is checked; cleanup self-rolls back; later current-install failure restores legacy state. |
+| Modified/unowned legacy state | CLOSED | User-modified and unowned files are preserved with ownership evidence and stable terminal states. |
+| Corrupt/missing legacy ownership | CLOSED | Automatic migration fails closed when ownership cannot be proven. |
+| Reserved-role collision | CLOSED | Only ownership-proven removable files bypass collision preflight. |
+| Windows lock compatibility | CLOSED | Legacy lock remains a coordination primitive and is excluded from migration payload snapshots. |
+| Runtime Sol alias | CLOSED | Alias semantics are policy-owned and regression-tested. |
+| Local pre-push gate | CLOSED | Root-aware, strict exit semantics, full pytest, official validator, installer and Doctor lifecycle. |
+| Development dependency drift | CLOSED | Verification dependencies are pinned in `requirements-dev.txt`. |
+| Stale local skill lock | CLOSED | `skills-lock.json` is excluded from the release tree. |
+| Historical tag conflict | CLOSED | Current tag list is empty and no GitHub Release exists. |
+| Branch protection | OPEN GOVERNANCE | `main` remains unprotected; this is a repository-setting gate, not a code defect. |
 
-Before a formal tag/Release, perform one clean Codex install/update smoke against the final `main` candidate and record the result. Do not infer this from JSON validity alone.
+## Legacy migration acceptance
+
+Migration uses deterministic cross-generation lock ordering:
+
+```text
+.codex-delegate-agents.lock
+        ↓
+.subagents-dispatch-agents.lock
+```
+
+The legacy lock remains present during the compatibility period. It is coordination state and is never treated as migration payload.
+
+Safety-focused tests cover:
+
+- a real old-generation OS lock holder versus the new migrator;
+- clean migration and idempotent rerun;
+- modification after the legacy ownership hash was recorded;
+- unowned legacy profile preservation;
+- corrupt or missing ownership manifest;
+- reserved current-role collision from a preserved legacy profile;
+- symlinked legacy manifest;
+- snapshot drift before deletion;
+- injected partial cleanup failure with restoration;
+- injected current-install failure after cleanup with legacy restoration.
+
+Automatic migration fails closed when ownership is unknown. Preserved user state is reported as a terminal state and is not repeatedly auto-migrated in an attempt to force deletion.
+
+## Verified CI evidence
+
+Implementation baseline:
+
+```text
+SHA: 2d60ec3785691b6cb0e9bc7e9157393d4bc5fe0f
+Run: 31200620004
+Conclusion: success
+```
+
+Matrix:
+
+```text
+Ubuntu Python 3.11  PASS
+Ubuntu Python 3.12  PASS
+macOS Python 3.11   PASS
+Windows Python 3.11 PASS
+```
+
+The run verifies:
+
+```text
+root manifest JSON validation
+Marketplace JSON validation
+pinned official OpenAI Plugin validator
+full pytest suite
+managed Agent profile install
+managed Agent profile --check
+Doctor --check
+idempotent reinstall lifecycle
+```
+
+The predecessor `main` candidate `5079a285797c3f44c9801afc9ec9789b6451969c` also passed the same four-platform workflow in run `31196628767`, with `163 passed` on Ubuntu Python 3.11. The final implementation change only moved the already-supported `gpt-5.6` Sol alias from verifier-specific code into `policy-contract.json` and expanded the corresponding regression contract.
+
+This report itself is documentation-only. The final `main` SHA containing this report must also pass the repository workflow before it is treated as the release candidate.
+
+## Runtime evidence still external
+
+Existing real Codex UI evidence confirms that an installed Plugin exposes Dispatch and Doctor in the command picker and that `/dispatch` selection produces the host namespaced Skill prompt. The exact Codex version for that earlier observation was not recorded.
+
+A clean installation of the final candidate through a fresh Codex Marketplace instance cannot be proven from repository CI. Record this separately before formal release:
+
+```text
+Codex version
+marketplace add/install result
+plugin add result
+fresh session
+Dispatch present
+Doctor present
+/dispatch selection result
+/doctor selection result
+```
+
+Until that is run against the final candidate, this specific clean-install evidence remains `UNKNOWN`, not `PASS`.
 
 ## Release governance
 
+Current repository governance still requires branch protection/ruleset configuration for `main`, with the complete `policy-tests` workflow required for release candidates.
+
 No tag or GitHub Release was created during this closure.
 
-The remaining repository-level governance action is branch protection/ruleset configuration for `main`, with the full `policy-tests` workflow required before release changes are accepted. After this report-only documentation update is merged, rerun CI on the final `main` SHA because release evidence must match the final tree.
+Before formal release:
 
-## Verdict
+```text
+1. Confirm the final main SHA is green on all four CI jobs.
+2. Enable main branch protection/ruleset with required CI.
+3. Run one clean Codex Marketplace install/update smoke on the final main candidate.
+4. Re-check tags and GitHub Releases.
+5. Create a version tag or GitHub Release only after explicit user authorization.
+```
 
-**Code and policy verdict: GO for Release Candidate merge to `main`.**
-
-**Formal release verdict: HOLD until the final `main` SHA is green, `main` protection is enabled, and the clean Codex Marketplace install smoke is recorded.**
-
-There are no known open code-level release blockers in the reviewed baseline. Do not create a tag or GitHub Release from an unverified or unprotected `main` state.
+Any implementation change after the verified baseline creates a new candidate and requires the complete evidence chain again.
