@@ -36,6 +36,7 @@ jobs:
 
           python - <<'PY'
           from pathlib import Path
+          import re
           import subprocess
 
           files = subprocess.check_output(["git", "ls-files", "-z"]).split(b"\0")
@@ -92,6 +93,24 @@ jobs:
               text = path.read_text(encoding="utf-8")
               text = text.replace('SKILLS_ROOT / "subagents-dispatch"', 'SKILLS_ROOT / "dispatch"')
               text = text.replace('/ "skills" / "subagents-dispatch"', '/ "skills" / "dispatch"')
+              text = re.sub(
+                  r'(/ "skills"\s*\n\s*/ )"subagents-dispatch"',
+                  r'\1"dispatch"',
+                  text,
+              )
+              text = text.replace(
+                  'assert frontmatter["name"] == "subagents-dispatch"',
+                  'assert frontmatter["name"] == "dispatch"',
+              )
+              text = text.replace(
+                  'assert openai["interface"]["display_name"] == "subagents-dispatch"',
+                  'assert openai["interface"]["display_name"] == "Dispatch"',
+              )
+              if path.name == "test_plugin_packaging.py":
+                  text = text.replace(
+                      '        "subagents-dispatch",\n        "doctor",',
+                      '        "dispatch",\n        "doctor",',
+                  )
               path.write_text(text, encoding="utf-8")
 
           ai = Path("README_AI.md")
