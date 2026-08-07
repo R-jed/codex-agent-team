@@ -8,7 +8,8 @@ AI = (ROOT / "README_AI.md").read_text(encoding="utf-8")
 EVALS = (ROOT / "evals" / "README.md").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "plugins" / "subagents-dispatch" / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
 VERSION = MANIFEST["version"]
-DIRECTIVE = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
+DIRECTIVE_EN = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
+DIRECTIVE_ZH = "如果你是 AI Agent，请跳转到 [README_AI.md](README_AI.md) 并严格按照说明操作。"
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
@@ -20,21 +21,29 @@ DARK_LOGO = "plugins/subagents-dispatch/assets/subagents-dispatch-logo-dark.svg#
 
 
 def test_public_readmes_keep_product_identity_install_use_and_update():
-    for text in [ZH, EN]:
-        assert "subagents-dispatch" in text
-        assert VERSION in text
-        assert DIRECTIVE in text
-        assert MAIN_SKILL in text
-        assert DOCTOR_SKILL in text
-        assert "/plugins" in text
-        assert "/skills" in text
-        assert CANONICAL_MARKETPLACE in text
-        assert PLUGIN_ADD in text
-        assert UPGRADE in text
-        for role in ROLE_LABELS:
-            assert role in text
+    assert "subagents-dispatch" in ZH
+    assert VERSION in ZH
+    assert DIRECTIVE_ZH in ZH
+    assert MAIN_SKILL in ZH
+    assert DOCTOR_SKILL in ZH
+    assert CANONICAL_MARKETPLACE in ZH
+    assert PLUGIN_ADD in ZH
+    assert UPGRADE in ZH
+    for role in ROLE_LABELS:
+        assert role in ZH
 
-    assert "## 安装" in ZH and "## 开始使用" in ZH and "## 更新" in ZH
+    assert "subagents-dispatch" in EN
+    assert VERSION in EN
+    assert DIRECTIVE_EN in EN
+    assert MAIN_SKILL in EN
+    assert DOCTOR_SKILL in EN
+    assert CANONICAL_MARKETPLACE in EN
+    assert PLUGIN_ADD in EN
+    assert UPGRADE in EN
+    for role in ROLE_LABELS:
+        assert role in EN
+
+    assert "## 安装" in ZH and "## 使用" in ZH and "## 更新" in ZH
     assert "## Install" in EN and "## Quick start" in EN and "## Update" in EN
 
 

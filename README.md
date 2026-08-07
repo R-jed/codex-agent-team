@@ -5,7 +5,7 @@
 
 <h1 align="center">subagents-dispatch</h1>
 
-<p align="center"><strong>Codex 子代理调度框架。</strong></p>
+<p align="center"><strong>主会话带队，需要时叫人。</strong></p>
 
 <p align="center">
   <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT License</a>
@@ -17,11 +17,28 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
-> **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
+> **如果你是 AI Agent，请跳转到 [README_AI.md](README_AI.md) 并严格按照说明操作。**
 
-subagents-dispatch 是一个 Codex Plugin。你给出开发目标，主会话判断哪些自己做、哪些交给专门的 Agent，最后负责整合和验证。
+你给目标，主会话决定怎么做。简单的自己来，复杂的叫人帮忙，最后负责整合和验证。
 
-模型选择、Agent 数量、执行顺序都由主会话决定。
+## 效果对比
+
+你让 Agent 做一个用户列表页面。没有 subagents-dispatch，它可能：
+
+- 自己写所有代码
+- 一个一个文件改
+- 遇到问题卡住
+
+有了 subagents-dispatch：
+
+```text
+/subagents-dispatch:dispatch 实现用户列表页面，支持分页和搜索
+```
+
+主会话会：
+1. 判断任务需要几个 Agent
+2. 分配职责（读代码、写实现、跑测试）
+3. 协调依赖，整合结果
 
 ## 安装
 
@@ -30,74 +47,59 @@ codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-执行后插件即安装完成，开启新的 Codex 会话即可使用。
+开启新的 Codex 会话即可使用。
 
-## 开始使用
+## 使用
 
-开发任务使用主 Skill：
-
-```text
-/subagents-dispatch:dispatch 深度检查这个改动，修复发现的问题并运行相关测试。
-```
-
-安装、配置、Marketplace 和 Agent profile 诊断使用 Doctor：
+开发任务：
 
 ```text
-/subagents-dispatch:doctor 检查我的 subagents-dispatch 安装和配置。
+/subagents-dispatch:dispatch <你的任务描述>
 ```
 
-Doctor 默认只诊断。只有用户明确要求修复、安装或升级时才会修改状态。
+诊断和维护：
 
-也可以输入 `/skills` 打开 Skill 选择器。Plugin 默认不会隐式触发。
+```text
+/subagents-dispatch:doctor <诊断或维护请求>
+```
+
+Doctor 默认只读，不会主动修改状态。也可以输入 `/skills` 打开 Skill 选择器。
 
 ## 更新
 
-### 插件市场
-
-打开 **Plugins**，在已安装插件中找到 **subagents-dispatch** 并安装可用更新，然后开启新的 Codex 会话。
-
-### 命令行
-
 ```bash
-codex plugin marketplace upgrade subagents-dispatch && \
+codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-也可以让 Doctor 执行升级并检查升级后的状态：
+也可以让 Doctor 执行升级：
 
 ```text
 /subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还需要做什么。
 ```
 
-更新后开启新的 Codex 会话。
+## 工作原理
 
-## 它怎么带队
+主会话是技术负责人，按需分配任务：
 
-主会话是技术负责人。它先判断任务是否需要委托，再分配职责。
+| 角色 | 干什么 |
+|------|--------|
+| Luna Reader | 读代码、追调用链、收集事实 |
+| Luna Worker | 写实现、修 bug、跑测试 |
+| Sol Solver | 处理需要持续判断的复杂工作 |
+| Terra Investigator | 大范围技术调查 |
+| Sol Advisor | 重要技术判断或独立复核 |
 
-| 角色 | 主要工作 |
-| --- | --- |
-| Luna Reader | 读代码、追调用链、找测试、收集事实，不改文件 |
-| Luna Worker | 完成需求和边界已经明确的实现、修复和测试 |
-| Sol Solver | 处理实现过程中仍需要持续技术判断的复杂工作 |
-| Terra Investigator | 做更大范围的只读技术调查和证据整理 |
-| Sol Advisor | 做重要技术判断，或对高影响结果进行独立复核 |
+不是每个任务都需要 Agent。简单的主会话自己来，复杂的才会叫人。
 
-有些任务完全由主会话完成，有些会同时用多个 Agent。不会为了填满并发而强行创建 Agent。
+## 安全规则
 
-有依赖的任务，主会话决定启动顺序和写入范围。改不同文件也不一定安全并行。
+- 主会话负责用户目标、权限和最终结果
+- 子 Agent 不能创建自己的团队
+- 同一个 Git checkout 同一时间只有一个写入者
+- Agent 说"完成"不算数，要看实际文件和测试结果
 
-## 安全边界
-
-- 主会话始终负责用户目标、权限、团队组成、结果验收和最终回复。
-- 子 Agent 不能继续创建自己的 Agent 团队。
-- 同一个实际 Git checkout 同一时间只允许一个写入者。
-- 子 Agent 不能自行扩大权限、修改范围或外部影响。
-- Agent 自己说“完成了”不算验证，最终以实际文件、代码和测试结果为准。
-- Doctor 默认只读诊断；修复、安装和升级必须来自用户明确请求。
-- subagents-dispatch 直接使用 Codex 原生 Subagents，不运行独立 Agent runtime、后台 daemon 或外部路由服务。
-
-更完整的协调、恢复、运行证据和独立复核规则见 [架构说明](docs/architecture.md)。
+完整规则见 [架构说明](docs/architecture.md)。
 
 ## 项目结构
 
@@ -118,8 +120,6 @@ codex plugin add subagents-dispatch@subagents-dispatch
 ├── scripts/                          # 仓库级验证工具
 └── tests/                            # 回归、打包与跨平台测试
 ```
-
-Plugin 的运行核心集中在 `plugins/subagents-dispatch/`。根目录的 `docs/`、`evals/`、`scripts/` 和 `tests/` 主要服务于说明、验证和发布质量。
 
 ## 文档
 
