@@ -25,12 +25,16 @@ Model selection, agent count, and execution order are all decided by the main se
 
 ## Install
 
+Open **Plugins** in Codex, or enter `/plugins` in Codex CLI, search for `subagents-dispatch`, and install it.
+
+You can also use the command line:
+
 ```bash
 codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-The plugin is installed after running the command. Start a new Codex session to use it.
+Start a new Codex session after installation.
 
 ## Quick start
 
@@ -95,7 +99,7 @@ When work has dependencies, Main decides start order and write scope. Different 
 - Child Agents cannot widen permissions or scope on their own.
 - An Agent saying “done” is not verification; acceptance depends on actual files, code, and checks.
 - Doctor is read-only by default; changes require explicit user request.
-- Uses Codex Native Subagents directly — no separate runtime, daemon, or routing service.
+- Uses Codex Native Subagents directly, with no separate runtime, daemon, or routing service.
 
 See [Architecture](docs/architecture.md) for coordination, recovery, and review rules.
 
