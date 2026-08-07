@@ -12,6 +12,8 @@ DIRECTIVE = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and fo
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/codex-delegate@main"
 PLUGIN_ADD = "codex plugin add codex-delegate@codex-delegate"
 UPGRADE = "codex plugin marketplace upgrade codex-delegate"
+MAIN_SKILL = "$codex-delegate:codex-delegate"
+DOCTOR_SKILL = "$codex-delegate:codex-delegate-doctor"
 ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator", "Sol Advisor"]
 LIGHT_LOGO = "plugins/codex-delegate/assets/codex-delegate-logo.svg#gh-light-mode-only"
 DARK_LOGO = "plugins/codex-delegate/assets/codex-delegate-logo-dark.svg#gh-dark-mode-only"
@@ -22,7 +24,8 @@ def test_public_readmes_keep_product_identity_install_use_and_update():
         assert "codex delegate" in text
         assert VERSION in text
         assert DIRECTIVE in text
-        assert "$codex-delegate:codex-delegate" in text
+        assert MAIN_SKILL in text
+        assert DOCTOR_SKILL in text
         assert "/plugins" in text
         assert "/skills" in text
         assert CANONICAL_MARKETPLACE in text
@@ -51,7 +54,8 @@ def test_public_readmes_explain_the_current_repository_layout():
             "plugins/codex-delegate/",
             "agent-profiles/",
             "policy-contract.json",
-            "skills/codex-delegate/",
+            "skills/",
+            "codex-delegate-doctor/",
             "docs/",
             "evals/",
             "scripts/",
@@ -79,7 +83,8 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
     for phrase in [
         "R-jed/codex-delegate",
         "Repo marketplace id: codex-delegate",
-        "Explicit invocation: $codex-delegate:codex-delegate",
+        "Main invocation:     $codex-delegate:codex-delegate",
+        "Doctor invocation:   $codex-delegate:codex-delegate-doctor",
         f"Current version:     {VERSION}",
         "Distribution:        Codex Plugin",
         "codex_delegate_reader",
@@ -93,6 +98,7 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
         "guardrails.md",
         "final-review.md",
         "policy-contract.json",
+        "codex-delegate-doctor/SKILL.md",
         CANONICAL_MARKETPLACE,
         "--sparse .agents/plugins",
         "--sparse plugins/codex-delegate",
