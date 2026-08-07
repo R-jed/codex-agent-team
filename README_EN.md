@@ -115,15 +115,15 @@ See [Architecture](docs/architecture.md) for the full coordination, recovery, ru
 ```text
 .
 ├── .agents/plugins/                  # Codex Marketplace registration
-├── plugins/subagents-dispatch/           # installable Plugin package
+├── plugins/subagents-dispatch/       # installable Plugin package
 │   ├── .codex-plugin/                # Plugin manifest
 │   ├── agent-profiles/               # five Native Subagent profiles
 │   ├── assets/                       # Plugin icons and README logo
 │   ├── policy-contract.json          # machine-readable roles and hard constraints
 │   ├── scripts/                      # installer, validators, and runtime evidence tools
 │   └── skills/
-│       ├── subagents-dispatch/           # main delegation Skill and runtime rules
-│       └── doctor/    # install, config, profile, and upgrade diagnostics
+│       ├── dispatch/                 # main delegation Skill and runtime rules
+│       └── doctor/                   # install, config, profile, and upgrade diagnostics
 ├── docs/                             # installation, architecture, and runtime documentation
 ├── evals/                            # static and behavioral evaluation data
 ├── scripts/                          # repository-level validation tools
