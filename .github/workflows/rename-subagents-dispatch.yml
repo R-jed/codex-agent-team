@@ -113,7 +113,7 @@ jobs:
               packaging.write_text(text + guard, encoding="utf-8")
           PY
 
-          git rm .github/workflows/rename-subagents-dispatch.yml
+          git rm -f .github/workflows/rename-subagents-dispatch.yml
 
           if git grep -nE 'codex-delegate|codex_delegate|Codex Delegate|codex delegate'; then
             echo 'retired identity remains in tracked tree' >&2
