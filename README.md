@@ -44,6 +44,10 @@
 
 ## 安装
 
+在 Codex 中打开 **Plugins**，或在 CLI 输入 `/plugins`，搜索 `subagents-dispatch` 后安装。
+
+也可以使用命令行：
+
 ```bash
 codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
