@@ -24,7 +24,7 @@ handoff-capsule.md
 -> compact Main-accepted evidence transfer between responsibilities
 
 team-plan.md
--> multi-responsibility identity, dependency DAG, ownership, revisions, integration order
+-> multi-responsibility identity, dependency DAG, delegated role assignment, ownership scope, revisions, integration order
 
 recovery.md
 -> attempt identity, UNKNOWN, failure classification, bounded recovery, Main takeover semantics
@@ -99,6 +99,8 @@ Main may perform bounded read-only inspection when needed to make the preview us
 
 Status is one-shot state inspection. It reports only the state that current task/native evidence supports. Missing runtime state stays `UNKNOWN`. Status does not poll in the background, retry work, reassign ownership, or mutate artifacts.
 
+When no current dispatch state exists, Status reports no active delegated responsibilities. It does not reconstruct old tasks or search unrelated sessions to invent current state.
+
 ### Steer
 
 Steering gives focused guidance to one current attempt while preserving responsibility identity, role, ownership, authority, and acceptance. A requested change that materially alters those facts returns to Main for normal reroute, TeamPlan revision, takeover, or authorization handling.
@@ -108,6 +110,8 @@ Steering gives focused guidance to one current attempt while preserving responsi
 Takeover is the user-visible form of `main_takeover`. The user may request it before automatic recovery is exhausted.
 
 A responsibility transfers to Main only after the previous child owner is established as no longer active. For writing work this is a hard one-writer boundary: Main remains read-only until the previous writer is confirmed stopped/terminal/closed. `UNKNOWN` never authorizes a conflicting ownership transfer.
+
+Takeover is represented as Recovery state rather than a new TeamPlan role. TeamPlan's `role` field remains limited to delegated Subagent roles. A pure takeover keeps the unit's last valid delegated role and stable structural plan truth; Main continues the responsibility after delegated execution ends. TeamPlan is revised only when takeover also changes structural facts such as dependency, ownership scope, deliverable, scope, or acceptance.
 
 ## Execution Receipt
 
@@ -192,21 +196,21 @@ revision and planning source
 root goal
 units:
   unit_id
-  role
+  delegated role
   goal
   output
   depends_on
-  ownership
+  ownership scope
   done_when
 integration owner/order
 final verification
 ```
 
-TeamPlan does not choose models or team size. `router-core.md` chooses capabilities; TeamPlan records current assignment and coordination truth.
+TeamPlan does not choose models or team size. `router-core.md` chooses capabilities; TeamPlan records delegated assignment and coordination truth.
 
-Steering that stays inside one unchanged responsibility does not revise TeamPlan. Takeover or any other material role/ownership/dependency/scope/acceptance change requires the ordinary revision rules.
+Steering that stays inside one unchanged responsibility does not revise TeamPlan. A pure Main takeover also does not invent `role: main` or require a revision. Delegated role reassignment, dependency changes, ownership-scope changes, deliverable changes, scope changes, or acceptance changes use the ordinary revision rules.
 
-`validate_team_plan.py` derives allowed roles from `policy-contract.json` and validates exact plan shape, unit identity, dependency references/cycles, safe relative ownership paths, read-only write violations, same-ready-layer write overlap, revision shape, and integration order.
+`validate_team_plan.py` derives allowed delegated roles from `policy-contract.json` and validates exact plan shape, unit identity, dependency references/cycles, safe relative ownership paths, read-only write violations, same-ready-layer write overlap, revision shape, and integration order.
 
 ## Mutation authority and writer safety
 
@@ -264,7 +268,7 @@ semantic blocker
 
 One unchanged unit gets at most two Agent attempts and one focused follow-up on an existing attempt. Failure never implies a Luna → Terra → Sol ladder.
 
-User-requested takeover uses the same `main_takeover` action and does not reset delegated attempt history.
+User-requested takeover uses the same `main_takeover` action and does not reset delegated attempt history. The old child being stopped does not satisfy a TeamPlan dependency; Main must complete and accept the stable responsibility before downstream units become ready.
 
 ## Runtime truth
 
