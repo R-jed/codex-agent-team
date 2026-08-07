@@ -105,6 +105,16 @@
       }
     },
     {
+      "id": "blocked-delegated-outcome-still-has-receipt",
+      "input": {"children_spawned": 1, "terminal_result": "blocked", "state": "UNKNOWN", "final_review": "not_reached"},
+      "expected": {
+        "receipt": true,
+        "default_lines": 1,
+        "may_report_blocker": true,
+        "must_preserve_unknown": true
+      }
+    },
+    {
       "id": "zero-child-completion-has-no-receipt",
       "input": {"children_spawned": 0},
       "expected": {"receipt": false}
