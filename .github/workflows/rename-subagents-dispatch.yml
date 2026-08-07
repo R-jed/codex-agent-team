@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   rename:
-    if: github.event.head_commit.message == 'chore: prepare subagents-dispatch rename'
     runs-on: ubuntu-latest
     env:
       OPENAI_CODEX_PLUGIN_VALIDATOR_REF: 7750465934d97dd3cbcb3b1655d2f622744010d3
@@ -73,7 +72,6 @@ jobs:
               if new != text:
                   path.write_text(new, encoding="utf-8")
 
-          # Main Skill leaf identity is intentionally shorter than the Plugin id.
           skill = Path("plugins/subagents-dispatch/skills/dispatch/SKILL.md")
           text = skill.read_text(encoding="utf-8")
           text = text.replace("name: subagents-dispatch\n", "name: dispatch\n", 1)
@@ -90,7 +88,6 @@ jobs:
           text = text.replace('display_name: "subagents-dispatch Doctor"', 'display_name: "Doctor"')
           doctor_yaml.write_text(text, encoding="utf-8")
 
-          # Test constants that point to the main Skill leaf, not the Plugin id.
           for path in Path("tests").glob("*.py"):
               text = path.read_text(encoding="utf-8")
               text = text.replace('SKILLS_ROOT / "subagents-dispatch"', 'SKILLS_ROOT / "dispatch"')
@@ -109,7 +106,6 @@ jobs:
               text = text.replace('<h1 align="center">subagents-dispatch-Plugin</h1>', '<h1 align="center">subagents-dispatch</h1>')
               path.write_text(text, encoding="utf-8")
 
-          # Add a regression without spelling the retired identity literally.
           packaging = Path("tests/test_plugin_packaging.py")
           text = packaging.read_text(encoding="utf-8")
           guard = '''\n\ndef test_retired_public_identity_is_absent_from_current_tree():\n    retired_hyphen = "codex" + "-delegate"\n    retired_snake = "codex" + "_delegate"\n    for path in ROOT.rglob("*"):\n        if not path.is_file() or ".git" in path.parts:\n            continue\n        try:\n            content = path.read_text(encoding="utf-8")\n        except (UnicodeDecodeError, OSError):\n            continue\n        assert retired_hyphen not in content, path\n        assert retired_snake not in content, path\n'''
@@ -119,7 +115,6 @@ jobs:
 
           git rm .github/workflows/rename-subagents-dispatch.yml
 
-          # The final tracked tree must not contain the retired identity.
           if git grep -nE 'codex-delegate|codex_delegate|Codex Delegate|codex delegate'; then
             echo 'retired identity remains in tracked tree' >&2
             exit 1
