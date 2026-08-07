@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import os
@@ -12,10 +13,13 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 INSTALLER = ROOT / "scripts" / "install-agents.py"
+LEGACY_PROFILE = "codex-delegate-reader.toml"
+LEGACY_MANIFEST = ".codex-delegate-agents.json"
+LEGACY_LOCK = ".codex-delegate-agents.lock"
+CURRENT_MANIFEST = ".subagents-dispatch-agents.json"
 
 
 def load_installer():
-    # Add scripts directory to sys.path so legacy_migration can be found
     scripts_dir = str(INSTALLER.parent)
     if scripts_dir not in sys.path:
         sys.path.insert(0, scripts_dir)
@@ -36,116 +40,130 @@ def run_installer(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_migration_handles_legacy_lock_contention(tmp_path: Path):
-    """Verify migration handles legacy lock contention gracefully."""
-    home = tmp_path / "codex-home"
-    home.mkdir(parents=True)
-
-    # Create legacy state
-    legacy_manifest = {
+def create_minimal_legacy(home: Path) -> bytes:
+    agents = home / "agents"
+    agents.mkdir(parents=True, exist_ok=True)
+    content = b'name = "codex_delegate_reader"\n'
+    (agents / LEGACY_PROFILE).write_bytes(content)
+    manifest = {
         "schema_version": 1,
         "managed_by": "codex-delegate",
-        "profile_hashes": {}
+        "profile_hashes": {LEGACY_PROFILE: hashlib.sha256(content).hexdigest()},
     }
-    (home / ".codex-delegate-agents.json").write_text(
-        json.dumps(legacy_manifest), encoding="utf-8"
-    )
+    (home / LEGACY_MANIFEST).write_text(json.dumps(manifest), encoding="utf-8")
+    (home / LEGACY_LOCK).write_bytes(b"\0")
+    return content
 
-    # Create legacy lock file
-    legacy_lock = home / ".codex-delegate-agents.lock"
-    legacy_lock.write_bytes(b"\0")
 
-    # Simulate holding the lock by making it exclusive
-    # (In real scenario, another process would hold flock)
-    # For this test, we just verify the migration proceeds
-    # even when legacy lock exists
+def wait_for_path(path: Path, timeout: float = 5.0) -> None:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if path.exists():
+            return
+        time.sleep(0.02)
+    raise AssertionError(f"Timed out waiting for {path}")
 
-    installer = subprocess.run(
-        [sys.executable, str(INSTALLER), "--codex-home", str(home), "--migrate-legacy"],
+
+LOCK_HOLDER = r'''
+import os
+from pathlib import Path
+import sys
+import time
+
+lock_path = Path(sys.argv[1])
+ready_path = Path(sys.argv[2])
+release_path = Path(sys.argv[3])
+lock_path.parent.mkdir(parents=True, exist_ok=True)
+fd = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+if os.fstat(fd).st_size == 0:
+    os.write(fd, b"\0")
+    os.fsync(fd)
+if os.name == "nt":
+    import msvcrt
+    os.lseek(fd, 0, os.SEEK_SET)
+    msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+else:
+    import fcntl
+    fcntl.flock(fd, fcntl.LOCK_EX)
+ready_path.write_text("ready", encoding="utf-8")
+while not release_path.exists():
+    time.sleep(0.02)
+if os.name == "nt":
+    os.lseek(fd, 0, os.SEEK_SET)
+    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+else:
+    fcntl.flock(fd, fcntl.LOCK_UN)
+os.close(fd)
+'''
+
+
+def test_migration_waits_for_real_legacy_os_lock(tmp_path: Path):
+    """An old-generation lock holder must serialize the new migrator."""
+    home = tmp_path / "codex-home"
+    create_minimal_legacy(home)
+    ready = tmp_path / "legacy-lock-ready"
+    release = tmp_path / "legacy-lock-release"
+
+    holder = subprocess.Popen(
+        [sys.executable, "-c", LOCK_HOLDER, str(home / LEGACY_LOCK), str(ready), str(release)],
         cwd=ROOT,
         text=True,
-        capture_output=True,
-        timeout=30,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
+    try:
+        wait_for_path(ready)
+        migrator = subprocess.Popen(
+            [sys.executable, str(INSTALLER), "--codex-home", str(home), "--migrate-legacy"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        time.sleep(0.3)
+        assert migrator.poll() is None, "migration should wait while the legacy OS lock is held"
+        assert (home / LEGACY_MANIFEST).exists(), "migration mutated legacy state before acquiring legacy lock"
+        assert not (home / CURRENT_MANIFEST).exists(), "migration installed current state before acquiring legacy lock"
 
-    # Migration should succeed
-    assert installer.returncode == 0, installer.stdout + installer.stderr
-    assert "Legacy state detected" in installer.stdout or "No legacy installation" in installer.stdout
+        release.write_text("release", encoding="utf-8")
+        holder_stdout, holder_stderr = holder.communicate(timeout=10)
+        migrate_stdout, migrate_stderr = migrator.communicate(timeout=30)
+        assert holder.returncode == 0, holder_stdout + holder_stderr
+        assert migrator.returncode == 0, migrate_stdout + migrate_stderr
+        assert (home / LEGACY_LOCK).exists(), "legacy compatibility lock must be preserved"
+        assert (home / CURRENT_MANIFEST).exists()
+    finally:
+        if holder.poll() is None:
+            release.write_text("release", encoding="utf-8")
+            holder.kill()
+            holder.wait(timeout=5)
 
 
-def test_cross_generation_lock_both_exist_after_migration(tmp_path: Path):
-    """Legacy lock is preserved after migration; current installer acquires its own lock."""
+def test_partial_legacy_cleanup_failure_rolls_back_snapshot(tmp_path: Path):
+    """A failure inside legacy cleanup must restore earlier destructive steps."""
     home = tmp_path / "codex-home"
-    home.mkdir(parents=True)
+    original_profile = create_minimal_legacy(home)
+    original_manifest = (home / LEGACY_MANIFEST).read_bytes()
+    installer = load_installer()
 
-    # Create legacy state with lock
-    legacy_manifest = {
-        "schema_version": 1,
-        "managed_by": "codex-delegate",
-        "profile_hashes": {}
-    }
-    (home / ".codex-delegate-agents.json").write_text(
-        json.dumps(legacy_manifest), encoding="utf-8"
-    )
-    (home / ".codex-delegate-agents.lock").write_bytes(b"\0")
+    def fail_mid_cleanup(codex_home, backup):
+        (codex_home / "agents" / LEGACY_PROFILE).unlink()
+        raise RuntimeError("injected partial legacy cleanup failure")
 
-    # Run migration
-    result = run_installer(home, "--migrate-legacy")
-    assert result.returncode == 0, result.stdout + result.stderr
+    installer.commit_legacy_cleanup = fail_mid_cleanup
+    with pytest.raises(RuntimeError, match="partial legacy cleanup"):
+        installer.install(home, False, True)
 
-    # Both lock files must coexist
-    assert (home / ".codex-delegate-agents.lock").exists(), "legacy lock should be preserved"
-    assert (home / ".subagents-dispatch-agents.lock").exists(), "current lock should exist"
-
-    # Current installer must still work with legacy lock present
-    check = run_installer(home, "--check")
-    assert check.returncode == 0, check.stdout + check.stderr
+    assert (home / "agents" / LEGACY_PROFILE).read_bytes() == original_profile
+    assert (home / LEGACY_MANIFEST).read_bytes() == original_manifest
+    assert not (home / CURRENT_MANIFEST).exists()
 
 
-@pytest.mark.skipif(not hasattr(os, "fork"), reason="requires fork")
-def test_cross_generation_lock_no_deadlock_between_processes(tmp_path: Path):
-    """Two real processes: one migrating legacy, one installing current. No deadlock."""
-    home = tmp_path / "codex-home"
-    home.mkdir(parents=True)
-
-    # Create legacy state
-    legacy_manifest = {
-        "schema_version": 1,
-        "managed_by": "codex-delegate",
-        "profile_hashes": {}
-    }
-    (home / ".codex-delegate-agents.json").write_text(
-        json.dumps(legacy_manifest), encoding="utf-8"
-    )
-    (home / ".codex-delegate-agents.lock").write_bytes(b"\0")
-
-    # Spawn both processes simultaneously
-    migrate_proc = subprocess.Popen(
-        [sys.executable, str(INSTALLER), "--codex-home", str(home), "--migrate-legacy"],
-        cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    )
-    install_proc = subprocess.Popen(
-        [sys.executable, str(INSTALLER), "--codex-home", str(home)],
-        cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    )
-
-    # Neither should hang — both must complete within 30s
-    migrate_out, migrate_err = migrate_proc.communicate(timeout=30)
-    install_out, install_err = install_proc.communicate(timeout=30)
-
-    # At least one must succeed (the other may fail due to lock contention, but no deadlock)
-    assert migrate_proc.returncode == 0 or install_proc.returncode == 0, (
-        f"Both failed — possible deadlock:\n"
-        f"migrate({migrate_proc.returncode}): {migrate_out}{migrate_err}\n"
-        f"install({install_proc.returncode}): {install_out}{install_err}"
-    )
-
-    # Legacy lock must still exist regardless of which succeeded
-    assert (home / ".codex-delegate-agents.lock").exists(), "legacy lock must be preserved"
-
-
-@pytest.mark.skipif(not hasattr(os, "fork"), reason="fault-injection harness requires fork")
 def test_failed_installer_cannot_rollback_a_successful_peer(tmp_path: Path):
+    """Current-generation lock serializes a faulting installer and a successful peer."""
+    if not hasattr(os, "fork"):
+        pytest.skip("fault-injection harness requires fork")
+
     home = tmp_path / "codex-home"
     installer = load_installer()
     ready_read, ready_write = os.pipe()
