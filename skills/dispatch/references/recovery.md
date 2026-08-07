@@ -2,7 +2,7 @@
 
 Recovery owns what happens to one delegated responsibility after dispatch. It distinguishes uncertain runtime state from confirmed failure and keeps retries bounded without turning failure into a model ladder.
 
-`router-core.md` decides which capability the unresolved work needs. `team-plan.md` owns dependency, assigned role, ownership, and integration truth when TeamPlan is active. `interaction.md` owns the user-facing status, steer, and takeover controls. This file owns attempt identity, lifecycle, failure classification, retry bounds, and the underlying Main takeover semantics.
+`router-core.md` decides which capability the unresolved work needs. `team-plan.md` owns dependency, delegated role, ownership scope, and integration truth when TeamPlan is active. `interaction.md` owns the user-facing status, steer, and takeover controls. This file owns attempt identity, lifecycle, failure classification, retry bounds, and the underlying Main takeover semantics.
 
 ## Identity
 
@@ -55,7 +55,7 @@ no conflicting ownership reassignment
 no claim that the attempt failed
 ```
 
-A user takeover request does not convert `UNKNOWN` into a settled state. Main may ask the host to stop the target, but responsibility ownership transfers only after the previous owner is known to be no longer active.
+A user takeover request does not convert `UNKNOWN` into a settled state. Main may ask the host to stop the target, but responsibility execution transfers only after the previous owner is known to be no longer active.
 
 Wait for useful native evidence when available. If the runtime never exposes enough evidence to resolve the ambiguity, preserve the uncertainty and avoid duplicate mutation risk. Do not build a private scheduler or busy-poll to manufacture state.
 
@@ -158,7 +158,7 @@ stalled -> same-role retry only if the role remains correct; otherwise Main take
 
 Failure itself never means Luna -> Terra -> Sol.
 
-If TeamPlan is active and semantic rerouting changes the unit's assigned role, create a new TeamPlan revision before the replacement attempt. Keep the same `unit_id` only when its goal and output remain the same. Role reassignment does not reset the attempt budget.
+If TeamPlan is active and semantic rerouting changes the unit's delegated Agent role, create a new TeamPlan revision before the replacement Agent attempt. Keep the same `unit_id` only when its goal and output remain the same. Role reassignment does not reset the attempt budget.
 
 ### main_takeover
 
@@ -179,20 +179,23 @@ resolve the current attempt
 -> stop the child when it is still running and native control is available
 -> establish that the previous owner is no longer active
 -> inspect and preserve any valid returned evidence
--> transfer responsibility to Main
+-> end delegated execution for that unit
+-> continue the same responsibility in Main
 ```
 
 For a writing child, Main must remain read-only until the previous writing owner is confirmed stopped/terminal/closed. If state remains `UNKNOWN`, takeover remains pending and Main does not start conflicting mutation.
 
-Takeover does not create another Agent attempt and does not reset attempt history. It ends delegated ownership for the responsibility and continues the work in Main under the same user authority.
+Takeover does not create another Agent attempt and does not reset attempt history. It ends delegated execution for the responsibility and continues the same work in Main under the same user authority.
 
 ## TeamPlan revisions
 
 A retry by itself does not create a new TeamPlan revision.
 
-Revise TeamPlan only when coordination truth changes materially, including assigned role, dependency, ownership, deliverable, scope, or acceptance. A materially redefined goal/output is a new responsibility and requires a new `unit_id`.
+TeamPlan's `role` vocabulary contains delegated Subagent roles only. `main_takeover` therefore does not rewrite a unit to an invented `role: main`. The unit keeps the last valid delegated role recorded in the plan revision; Recovery records that delegated execution ended and Main continued the stable responsibility.
 
-A takeover may require a TeamPlan revision because the assigned owner/role changes to Main. Already-dispatched work remains bound to the revision it received. If a revision affects active work, pause new dispatch until affected attempts are safely settled or invalidated.
+A takeover alone does not require a TeamPlan revision when goal, output, dependencies, ownership scope, deliverable, scope, and acceptance remain unchanged. Create a new TeamPlan revision only if takeover also changes one of those structural facts. A materially redefined goal/output is a new responsibility and requires a new `unit_id`.
+
+Already-dispatched work remains bound to the revision it received. If a structural revision affects active work, pause new dispatch until affected attempts are safely settled or invalidated.
 
 ## Adoption and close
 
@@ -210,6 +213,6 @@ When machine-checkable recovery state is genuinely useful, validate it with:
 python scripts/validate_team_ledger.py /path/to/ledger.json
 ```
 
-The validator checks exact record shape, policy-owned role bindings, TeamPlan revision binding, stable unit goal/output identity, unique task and Agent identity, attempt sequence, the two-attempt bound, follow-up bound, UNKNOWN replacement suppression, and lifecycle/adoption consistency.
+The validator checks exact record shape, policy-owned delegated role bindings, TeamPlan revision binding, stable unit goal/output identity, unique task and Agent identity, attempt sequence, the two-attempt bound, follow-up bound, UNKNOWN replacement suppression, and lifecycle/adoption consistency.
 
 Do not create a persistent ledger for ordinary short work merely because a validator exists. Keep state in context unless cross-session recovery, multiple long-lived worktrees, strict audit, or another real need justifies durable state. Reuse an upstream state source when one already owns the task.
