@@ -160,7 +160,7 @@ The recovery contract owns attempt identity, host-state ambiguity, follow-up/ret
 
 An explicit user takeover request is handled through `references/interaction.md` and the same `main_takeover` recovery semantics. User intent may request an earlier takeover, but it does not bypass lifecycle settlement or one-writer safety.
 
-If TeamPlan is active and blocker-driven rerouting changes the assigned role, create a new TeamPlan revision while keeping the same `UNIT ID` only when the responsibility goal/output remain the same. A materially redefined responsibility gets a new unit ID.
+If TeamPlan is active and blocker-driven rerouting changes the assigned delegated role, create a new TeamPlan revision while keeping the same `UNIT ID` only when the responsibility goal/output remain the same. A pure Main takeover is Recovery state and does not create a `role: main`. A materially redefined responsibility gets a new unit ID.
 
 Use `../../scripts/runtime-evidence.py` only when exact runtime route, ancestry, permission enforcement, or Main capability evidence materially affects acceptance or routing. It is diagnostic, not an every-child hot-path dependency.
 
@@ -172,16 +172,16 @@ Prior Terra/Solver use, recovery, TeamPlan use, file count, or diff size is not 
 
 When review is required, bind the exact candidate and use a fresh `subagents_dispatch_advisor`. Only a valid `ship` verdict for the unchanged candidate satisfies required independent review.
 
-### 8. Report the result
+### 8. Report the result or blocker
 
-Normal completion focuses on:
+The terminal response focuses on:
 
 ```text
-what changed
+what changed or what remains blocked
 verification performed
 remaining material risk, if any
 ```
 
-If at least one child was actually spawned, append one compact execution receipt using `references/interaction.md`. Keep it factual and short. Do not emit a receipt for zero-child completion, preview, or status-only requests.
+If at least one child was actually spawned, append one compact execution receipt using `references/interaction.md`, even when the dispatch ends blocked or partial. Keep it factual and short. Do not emit a receipt for zero-child completion, preview, or status-only requests.
 
 Do not expose hidden reasoning or guess model/token/cost telemetry that the host did not report.
