@@ -8,10 +8,12 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_ROOT = ROOT / "plugins" / "codex-delegate"
 PLUGIN = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
-SKILL = PLUGIN_ROOT / "skills" / "codex-delegate"
+SKILLS_ROOT = PLUGIN_ROOT / "skills"
+MAIN_SKILL = SKILLS_ROOT / "codex-delegate"
+DOCTOR_SKILL = SKILLS_ROOT / "codex-delegate-doctor"
 INSTALL_DOC = ROOT / "docs" / "plugin-installation.md"
 POLICY = PLUGIN_ROOT / "policy-contract.json"
-EXPECTED_VERSION = "1.2.0"
+EXPECTED_VERSION = "1.3.0"
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/codex-delegate@main"
 PLUGIN_ADD = "codex plugin add codex-delegate@codex-delegate"
 UPGRADE = "codex plugin marketplace upgrade codex-delegate"
@@ -26,7 +28,12 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
     assert payload["homepage"] == "https://github.com/R-jed/codex-delegate#readme"
     assert payload["interface"]["displayName"] == "Codex Delegate"
     assert payload["interface"]["websiteURL"] == "https://github.com/R-jed/codex-delegate"
-    assert SKILL.is_dir()
+    assert {path.name for path in SKILLS_ROOT.iterdir() if path.is_dir()} == {
+        "codex-delegate",
+        "codex-delegate-doctor",
+    }
+    assert (MAIN_SKILL / "SKILL.md").is_file()
+    assert (DOCTOR_SKILL / "SKILL.md").is_file()
 
     market = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
     assert market == {
@@ -55,6 +62,7 @@ def test_plugin_brand_assets_and_supported_components():
     for field in ["homepage", "repository"]:
         parsed = urlparse(payload[field])
         assert parsed.scheme == "https" and parsed.netloc
+    assert any("$codex-delegate:codex-delegate-doctor" in prompt for prompt in interface["defaultPrompt"])
 
 
 def test_policy_contract_owns_the_five_packaged_profiles():
@@ -82,13 +90,35 @@ def test_third_party_mit_notice_is_packaged_without_repository_pointer():
     assert "github.com/" not in text
 
 
-def test_skill_owns_profile_readiness_before_delegated_execution():
-    text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+def test_main_skill_owns_profile_readiness_before_delegated_execution():
+    text = (MAIN_SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert "../../scripts/install-agents.py" in text
     assert 'python "$installer"' in text
     assert 'python "$installer" --check' in text
     assert "Exact role mismatch fails closed" in text
     assert "stop before delegated code execution" in text
+
+
+def test_doctor_reuses_supported_diagnostics_and_existing_installer():
+    text = (DOCTOR_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    for phrase in [
+        "codex --version",
+        "codex doctor --json",
+        "codex plugin marketplace list --json",
+        "codex plugin list --available --json",
+        "../../scripts/install-agents.py",
+        'python "$installer" --check',
+        CANONICAL_MARKETPLACE,
+        PLUGIN_ADD,
+        UPGRADE,
+        "$codex-delegate:codex-delegate-doctor",
+    ]:
+        assert phrase in text
+    assert "Diagnosis is read-only by default" in text
+    assert "explicitly asks" in text
+    assert "Never edit Codex config files directly" in text
+    assert "Do not use `marketplace remove` as a generic reset" in text
+    assert "start a fresh Codex session" in text
 
 
 def test_install_doc_contains_the_two_current_install_and_update_paths():
@@ -118,6 +148,7 @@ def test_readmes_and_ai_reference_share_the_current_install_contract():
         text = (ROOT / name).read_text(encoding="utf-8")
         assert version in text
         assert "$codex-delegate:codex-delegate" in text
+        assert "$codex-delegate:codex-delegate-doctor" in text
         assert "/plugins" in text
         assert CANONICAL_MARKETPLACE in text
         assert "--sparse .agents/plugins" in text
