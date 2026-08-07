@@ -28,7 +28,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 After installation, start a new Codex session and invoke:
 
 ```text
-$subagents-dispatch:dispatch <task>
+/subagents-dispatch:dispatch <task>
 ```
 
 You can also use `/skills` to open the Codex Skill picker.

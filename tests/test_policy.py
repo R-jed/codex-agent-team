@@ -36,7 +36,7 @@ def test_skill_and_openai_metadata_keep_one_explicit_entrypoint():
 
     openai = yaml.safe_load((SKILL / "agents" / "openai.yaml").read_text(encoding="utf-8"))
     assert openai["interface"]["display_name"] == "Dispatch"
-    assert "$subagents-dispatch:dispatch" in openai["interface"]["default_prompt"]
+    assert "/subagents-dispatch:dispatch" in openai["interface"]["default_prompt"]
     assert openai["policy"]["allow_implicit_invocation"] is False
 
 
@@ -145,7 +145,7 @@ def test_public_docs_keep_product_identity_while_ai_reference_points_to_policy_o
     for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text(encoding="utf-8")
         assert directive in text
-        assert "$subagents-dispatch:dispatch" in text
+        assert "/subagents-dispatch:dispatch" in text
         assert version in text
         assert "Sol Solver" in text
 

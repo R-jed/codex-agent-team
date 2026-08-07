@@ -66,7 +66,7 @@ Do not claim cross-session locking unless a real mechanism has been observed and
 
 ## 4. Adaptive fan-out still requires discipline
 
-Explicit `$subagents-dispatch:dispatch` invocation authorizes adaptive delegation for the requested task under the user's existing scope and permissions.
+Explicit `/subagents-dispatch:dispatch` invocation authorizes adaptive delegation for the requested task under the user's existing scope and permissions.
 
 Project policy does not impose an ordinary numeric child ceiling. The main session may use as many simultaneously useful children as the task genuinely supports and the native runtime allows, provided every child has a distinct ready responsibility and the overall orchestration remains within the ordinary compute shape implied by the task.
 
@@ -102,7 +102,7 @@ Do not evade consent by serializing expensive calls that would be material if ru
 The product's supported user entrypoint is:
 
 ```text
-$subagents-dispatch:dispatch <task>
+/subagents-dispatch:dispatch <task>
 ```
 
 Users may also open the Codex Skill picker with `/skills`.

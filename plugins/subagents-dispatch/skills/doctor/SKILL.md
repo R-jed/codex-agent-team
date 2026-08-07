@@ -7,7 +7,7 @@ description: Diagnose subagents-dispatch installation, Codex host and marketplac
 
 Use this Skill to diagnose subagents-dispatch installation and configuration, repair its managed Agent profiles, or upgrade the Plugin.
 
-This Skill is operational maintenance for subagents-dispatch. It does not route development work, create a Subagent team, or redefine the runtime policy owned by `$subagents-dispatch:dispatch`.
+This Skill is operational maintenance for subagents-dispatch. It does not route development work, create a Subagent team, or redefine the runtime policy owned by `/subagents-dispatch:dispatch`.
 
 ## Safety model
 
@@ -22,8 +22,8 @@ Treat command output as evidence. Do not claim a component is installed, enabled
 ```text
 marketplace: subagents-dispatch
 plugin:      subagents-dispatch@subagents-dispatch
-main skill:  $subagents-dispatch:dispatch
-doctor:      $subagents-dispatch:doctor
+main skill:  /subagents-dispatch:dispatch
+doctor:      /subagents-dispatch:doctor
 ```
 
 The bundled managed-profile installer is:
@@ -143,7 +143,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 Do not continue by running the old package's installer as if it were the upgraded package. After a successful Plugin upgrade:
 
 1. ask the user to start a fresh Codex session;
-2. invoke `$subagents-dispatch:doctor` again;
+2. invoke `/subagents-dispatch:doctor` again;
 3. let the new Doctor run `python "$installer" --check` against the newly selected package;
 4. if the new package reports stale managed profiles, repair them through its own installer and verify again.
 

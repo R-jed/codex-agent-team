@@ -11,9 +11,9 @@ Repo marketplace id: subagents-dispatch
 Plugin id:           subagents-dispatch
 Plugin directory:    plugins/subagents-dispatch
 Main Skill:          dispatch
-Main invocation:     $subagents-dispatch:dispatch
+Main invocation:     /subagents-dispatch:dispatch
 Doctor Skill:        doctor
-Doctor invocation:   $subagents-dispatch:doctor
+Doctor invocation:   /subagents-dispatch:doctor
 Current version:     2.0.0
 Distribution:        Codex Plugin
 License:             MIT
@@ -140,13 +140,13 @@ After installation or update, start a new Codex session.
 Development work uses:
 
 ```text
-$subagents-dispatch:dispatch <task>
+/subagents-dispatch:dispatch <task>
 ```
 
 Installation/configuration/profile diagnosis and explicit maintenance use:
 
 ```text
-$subagents-dispatch:doctor <diagnostic or maintenance request>
+/subagents-dispatch:doctor <diagnostic or maintenance request>
 ```
 
 `/skills` opens the Skill picker. Implicit invocation is disabled.
@@ -186,7 +186,7 @@ Lead with the product model: the main Codex session acts as technical lead and d
 
 For installation questions, give the Plugin Marketplace path and the command-line path. For update questions, give the matching Marketplace and command-line update paths or point users to the Doctor Skill when they want guided diagnosis/upgrade.
 
-Tell users to invoke development work with `$subagents-dispatch:dispatch` and maintenance with `$subagents-dispatch:doctor`.
+Tell users to invoke development work with `/subagents-dispatch:dispatch` and maintenance with `/subagents-dispatch:doctor`.
 
 Do not claim benchmark wins, token savings, speedups, quality gains, exact runtime routes, or public directory availability unless current evidence supports the claim.
 

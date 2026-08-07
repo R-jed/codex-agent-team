@@ -60,7 +60,7 @@ def test_plugin_brand_assets_and_supported_components():
     for field in ["homepage", "repository"]:
         parsed = urlparse(payload[field])
         assert parsed.scheme == "https" and parsed.netloc
-    assert any("$subagents-dispatch:doctor" in prompt for prompt in interface["defaultPrompt"])
+    assert any("/subagents-dispatch:doctor" in prompt for prompt in interface["defaultPrompt"])
 
 
 def test_policy_contract_owns_the_five_packaged_profiles():
@@ -109,7 +109,7 @@ def test_doctor_reuses_supported_diagnostics_and_existing_installer():
         CANONICAL_MARKETPLACE,
         PLUGIN_ADD,
         UPGRADE,
-        "$subagents-dispatch:doctor",
+        "/subagents-dispatch:doctor",
     ]:
         assert phrase in text
     assert "Diagnosis is read-only by default" in text
@@ -132,7 +132,7 @@ def test_install_doc_contains_the_two_current_install_and_update_paths():
         PLUGIN_ADD,
         "## Update",
         UPGRADE,
-        "$subagents-dispatch:dispatch",
+        "/subagents-dispatch:dispatch",
         "/skills",
     ]:
         assert phrase in text
@@ -145,8 +145,8 @@ def test_readmes_and_ai_reference_share_the_current_install_contract():
     for name in ["README.md", "README_EN.md", "README_AI.md"]:
         text = (ROOT / name).read_text(encoding="utf-8")
         assert version in text
-        assert "$subagents-dispatch:dispatch" in text
-        assert "$subagents-dispatch:doctor" in text
+        assert "/subagents-dispatch:dispatch" in text
+        assert "/subagents-dispatch:doctor" in text
         assert "/plugins" in text
         assert CANONICAL_MARKETPLACE in text
         assert "--sparse .agents/plugins" in text
