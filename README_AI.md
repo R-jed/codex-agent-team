@@ -10,9 +10,11 @@ Repository:          R-jed/codex-delegate
 Repo marketplace id: codex-delegate
 Plugin id:           codex-delegate
 Plugin directory:    plugins/codex-delegate
-Skill:               codex-delegate
-Explicit invocation: $codex-delegate:codex-delegate
-Current version:     1.2.0
+Main Skill:          codex-delegate
+Main invocation:     $codex-delegate:codex-delegate
+Doctor Skill:        codex-delegate-doctor
+Doctor invocation:   $codex-delegate:codex-delegate-doctor
+Current version:     1.3.0
 Distribution:        Codex Plugin
 License:             MIT
 ```
@@ -26,6 +28,8 @@ The current Codex main session is the team leader. The user supplies the goal. M
 Do not ask the user to design an Agent team for an ordinary task. Zero child Agents is normal. Several may run when distinct ready responsibilities genuinely benefit from parallelism or specialization.
 
 There is no fixed Luna → Terra → Sol pipeline and no project-level ordinary numeric child ceiling. Native Codex capacity is an upper bound, never a target to fill.
+
+`codex-delegate-doctor` is operational maintenance. It diagnoses installation/configuration/Marketplace/profile state and may repair or upgrade only when the user explicitly asks. It does not own development routing or runtime delegation policy.
 
 ## Current roles
 
@@ -68,6 +72,16 @@ plugins/codex-delegate/policy-contract.json
 -> stable machine constants, role routes, hard delegation limits, Final Review reason codes
 ```
 
+Operational maintenance is owned separately by:
+
+```text
+plugins/codex-delegate/skills/codex-delegate-doctor/SKILL.md
+-> host/plugin/Marketplace/profile diagnosis, supported repair paths, and Plugin upgrade flow
+
+plugins/codex-delegate/scripts/install-agents.py
+-> deterministic managed-profile install/check lifecycle
+```
+
 `evals/` is a regression and measurement surface. It does not define runtime policy.
 
 ## Non-negotiable project boundaries
@@ -86,8 +100,9 @@ These are stable product facts:
 - `UNKNOWN` execution state is not `FAILED` and does not authorize replacement work.
 - Final Review is consequence-driven and applies only to the exact candidate reviewed.
 - Another active Skill or accepted plan that already owns domain workflow truth remains authoritative; codex delegate coordinates around it.
+- Doctor diagnosis is read-only by default. Installation, profile repair, and Plugin upgrade require explicit user intent.
 
-For details or edge cases, read the relevant runtime owner instead of adding another rule here.
+For details or edge cases, read the relevant owner instead of adding another rule here.
 
 ## Install and update
 
@@ -120,13 +135,44 @@ codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
 ```
 
-After installation or update, start a new Codex session and invoke:
+After installation or update, start a new Codex session.
+
+Development work uses:
 
 ```text
 $codex-delegate:codex-delegate <task>
 ```
 
+Installation/configuration/profile diagnosis and explicit maintenance use:
+
+```text
+$codex-delegate:codex-delegate-doctor <diagnostic or maintenance request>
+```
+
 `/skills` opens the Skill picker. Implicit invocation is disabled.
+
+## Doctor contract
+
+Doctor should prefer structured host evidence:
+
+```bash
+codex --version
+codex doctor --json
+codex plugin marketplace list --json
+codex plugin list --available --json
+```
+
+For managed Agent profiles it must reuse:
+
+```bash
+python "$installer" --check
+```
+
+where `installer = skill_dir/../../scripts/install-agents.py`.
+
+Doctor must not implement a second profile validator, manually copy managed TOML files, edit Codex config directly when the supported CLI owns the operation, or use `marketplace remove` as a generic reset.
+
+For Plugin upgrade, use the canonical marketplace upgrade + plugin add path. After a successful upgrade, require a fresh Codex session and invoke the new Doctor again before repairing profiles, so an older running package cannot overwrite newer shipped Agent templates.
 
 ## Managed Agent profiles
 
@@ -138,10 +184,10 @@ The Plugin uses five native custom-Agent profiles under the active Codex home. T
 
 Lead with the product model: the main Codex session acts as technical lead and delegates only when specialists add value.
 
-For installation questions, give the Plugin Marketplace path and the command-line path. For update questions, give the matching Marketplace and command-line update paths.
+For installation questions, give the Plugin Marketplace path and the command-line path. For update questions, give the matching Marketplace and command-line update paths or point users to the Doctor Skill when they want guided diagnosis/upgrade.
 
-Tell users to invoke the installed Plugin with `$codex-delegate:codex-delegate`.
+Tell users to invoke development work with `$codex-delegate:codex-delegate` and maintenance with `$codex-delegate:codex-delegate-doctor`.
 
 Do not claim benchmark wins, token savings, speedups, quality gains, exact runtime routes, or public directory availability unless current evidence supports the claim.
 
-For deeper technical questions, follow the runtime owner map above rather than treating this README as normative policy.
+For deeper technical questions, follow the owner map above rather than treating this README as normative policy.
