@@ -25,7 +25,7 @@
     "screenshots": [],
     "defaultPrompt": [
       "Use /subagents-dispatch:dispatch to complete this task. Lead the work and delegate only when it adds value.",
-      "Use /subagents-dispatch:dispatch to preview, inspect, steer, or safely take back delegated work when the user explicitly asks for dispatch control.",
+      "Use /subagents-dispatch:dispatch when the user asks to preview, inspect, steer, or take back delegated work.",
       "Use /subagents-dispatch:doctor to diagnose this subagents-dispatch installation and configuration."
     ]
   }
