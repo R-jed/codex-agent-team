@@ -74,6 +74,8 @@ Steering keeps the same responsibility, role, task attempt, authority, and owner
 
 Use the native Codex subagent control surface when available. A valid steer may add evidence, clarify an existing instruction, narrow attention, or tell the child what not to redo.
 
+If the current Host cannot steer that active child, report the capability limitation. Do not simulate steering by spawning a replacement Agent, converting the request into a retry, or pretending a post-completion follow-up changed the running attempt.
+
 Steering must not silently change:
 
 ```text
@@ -112,13 +114,17 @@ For a writing child, Main must not begin mutation until the previous writer is c
 
 `UNKNOWN` does not authorize forced ownership transfer. If the host cannot establish that the old owner has stopped, keep the same responsibility blocked for conflicting mutation and report the exact uncertainty. Main may continue unrelated safe work, but it must not duplicate the unresolved owned responsibility under a false takeover claim.
 
+If the current Host cannot stop or otherwise establish a safe terminal state for an active child, report takeover as pending/unavailable rather than fabricating settlement.
+
 If the unit/current attempt cannot be resolved at all, takeover does not proceed. Missing identity and uncertain runtime state are reported separately.
+
+When takeover includes `: <guidance>`, treat that suffix as guidance for Main after safe transfer. Do not send it to the old child unless the user explicitly requested Steering instead.
 
 A takeover does not reset the unit's history or erase valid evidence. With TeamPlan, a pure takeover stays in Recovery state: TeamPlan keeps the last valid delegated role and does not create an invalid `role: main`. Revise TeamPlan only when takeover also changes structural truth such as dependency, ownership scope, deliverable, scope, or acceptance.
 
 ## Execution Receipt
 
-When at least one child was actually spawned, normal successful completion includes one compact execution receipt after the ordinary result summary.
+When at least one child was actually spawned, the terminal response for that dispatch includes one compact execution receipt after the ordinary result or blocker summary. This applies whether the requested work completed successfully or ended blocked/partial.
 
 Default shape:
 
@@ -130,6 +136,7 @@ Examples:
 
 ```text
 Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
+Dispatch: Worker blocked · takeover pending on UNKNOWN writer · Final Review not reached
 Dispatch: Investigator analysis -> Main takeover · Final Review completed
 ```
 
