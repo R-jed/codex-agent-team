@@ -114,7 +114,7 @@ For a writing child, Main must not begin mutation until the previous writer is c
 
 If the unit/current attempt cannot be resolved at all, takeover does not proceed. Missing identity and uncertain runtime state are reported separately.
 
-A takeover does not reset the unit's history or erase valid evidence. If TeamPlan is active, Main records the ownership/role change in a new revision when required by `team-plan.md`.
+A takeover does not reset the unit's history or erase valid evidence. With TeamPlan, a pure takeover stays in Recovery state: TeamPlan keeps the last valid delegated role and does not create an invalid `role: main`. Revise TeamPlan only when takeover also changes structural truth such as dependency, ownership scope, deliverable, scope, or acceptance.
 
 ## Execution Receipt
 
