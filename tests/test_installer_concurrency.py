@@ -12,10 +12,11 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 INSTALLER = ROOT / "scripts" / "install-agents.py"
+LEGACY_LOCK = ".codex-delegate-agents.lock"
+CURRENT_LOCK = ".subagents-dispatch-agents.lock"
 
 
 def load_installer():
-    # Add scripts directory to sys.path so legacy_migration can be found
     scripts_dir = str(INSTALLER.parent)
     if scripts_dir not in sys.path:
         sys.path.insert(0, scripts_dir)
@@ -36,112 +37,93 @@ def run_installer(home: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_migration_handles_legacy_lock_contention(tmp_path: Path):
-    """Verify migration handles legacy lock contention gracefully."""
-    home = tmp_path / "codex-home"
-    home.mkdir(parents=True)
-
-    # Create legacy state
-    legacy_manifest = {
-        "schema_version": 1,
-        "managed_by": "codex-delegate",
-        "profile_hashes": {}
-    }
+def create_minimal_legacy_state(home: Path) -> None:
+    home.mkdir(parents=True, exist_ok=True)
     (home / ".codex-delegate-agents.json").write_text(
-        json.dumps(legacy_manifest), encoding="utf-8"
+        json.dumps({"schema_version": 1, "managed_by": "codex-delegate", "profile_hashes": {}}),
+        encoding="utf-8",
     )
+    (home / LEGACY_LOCK).write_bytes(b"\0")
 
-    # Create legacy lock file
-    legacy_lock = home / ".codex-delegate-agents.lock"
-    legacy_lock.write_bytes(b"\0")
 
-    # Simulate holding the lock by making it exclusive
-    # (In real scenario, another process would hold flock)
-    # For this test, we just verify the migration proceeds
-    # even when legacy lock exists
+def start_real_lock_holder(lock_path: Path) -> subprocess.Popen[str]:
+    code = r'''
+import os
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+path.parent.mkdir(parents=True, exist_ok=True)
+fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+if os.fstat(fd).st_size == 0:
+    os.write(fd, b"\0")
+    os.fsync(fd)
+if os.name == "nt":
+    import msvcrt
+    os.lseek(fd, 0, os.SEEK_SET)
+    msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+else:
+    import fcntl
+    fcntl.flock(fd, fcntl.LOCK_EX)
+print("LOCKED", flush=True)
+sys.stdin.readline()
+if os.name == "nt":
+    os.lseek(fd, 0, os.SEEK_SET)
+    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+else:
+    fcntl.flock(fd, fcntl.LOCK_UN)
+os.close(fd)
+'''
+    proc = subprocess.Popen(
+        [sys.executable, "-c", code, str(lock_path)],
+        cwd=ROOT,
+        text=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert proc.stdout is not None
+    assert proc.stdout.readline().strip() == "LOCKED"
+    return proc
 
-    installer = subprocess.run(
+
+def test_real_legacy_lock_holder_blocks_new_migrator(tmp_path: Path):
+    """Old-generation lock ownership must serialize the new migrator."""
+    home = tmp_path / "codex-home"
+    create_minimal_legacy_state(home)
+    holder = start_real_lock_holder(home / LEGACY_LOCK)
+    migrator = subprocess.Popen(
         [sys.executable, str(INSTALLER), "--codex-home", str(home), "--migrate-legacy"],
         cwd=ROOT,
         text=True,
-        capture_output=True,
-        timeout=30,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
+    try:
+        time.sleep(0.4)
+        assert migrator.poll() is None, "migrator bypassed the held legacy OS lock"
+        assert holder.stdin is not None
+        holder.stdin.write("release\n")
+        holder.stdin.flush()
+        holder_out, holder_err = holder.communicate(timeout=10)
+        assert holder.returncode == 0, holder_out + holder_err
+        out, err = migrator.communicate(timeout=30)
+        assert migrator.returncode == 0, out + err
+    finally:
+        if holder.poll() is None:
+            holder.kill()
+        if migrator.poll() is None:
+            migrator.kill()
 
-    # Migration should succeed
-    assert installer.returncode == 0, installer.stdout + installer.stderr
-    assert "Legacy state detected" in installer.stdout or "No legacy installation" in installer.stdout
 
-
-def test_cross_generation_lock_both_exist_after_migration(tmp_path: Path):
-    """Legacy lock is preserved after migration; current installer acquires its own lock."""
+def test_both_generation_lock_files_remain_after_migration(tmp_path: Path):
     home = tmp_path / "codex-home"
-    home.mkdir(parents=True)
-
-    # Create legacy state with lock
-    legacy_manifest = {
-        "schema_version": 1,
-        "managed_by": "codex-delegate",
-        "profile_hashes": {}
-    }
-    (home / ".codex-delegate-agents.json").write_text(
-        json.dumps(legacy_manifest), encoding="utf-8"
-    )
-    (home / ".codex-delegate-agents.lock").write_bytes(b"\0")
-
-    # Run migration
+    create_minimal_legacy_state(home)
     result = run_installer(home, "--migrate-legacy")
     assert result.returncode == 0, result.stdout + result.stderr
-
-    # Both lock files must coexist
-    assert (home / ".codex-delegate-agents.lock").exists(), "legacy lock should be preserved"
-    assert (home / ".subagents-dispatch-agents.lock").exists(), "current lock should exist"
-
-    # Current installer must still work with legacy lock present
+    assert (home / LEGACY_LOCK).exists()
+    assert (home / CURRENT_LOCK).exists()
     check = run_installer(home, "--check")
     assert check.returncode == 0, check.stdout + check.stderr
-
-
-@pytest.mark.skipif(not hasattr(os, "fork"), reason="requires fork")
-def test_cross_generation_lock_no_deadlock_between_processes(tmp_path: Path):
-    """Two real processes: one migrating legacy, one installing current. No deadlock."""
-    home = tmp_path / "codex-home"
-    home.mkdir(parents=True)
-
-    # Create legacy state
-    legacy_manifest = {
-        "schema_version": 1,
-        "managed_by": "codex-delegate",
-        "profile_hashes": {}
-    }
-    (home / ".codex-delegate-agents.json").write_text(
-        json.dumps(legacy_manifest), encoding="utf-8"
-    )
-    (home / ".codex-delegate-agents.lock").write_bytes(b"\0")
-
-    # Spawn both processes simultaneously
-    migrate_proc = subprocess.Popen(
-        [sys.executable, str(INSTALLER), "--codex-home", str(home), "--migrate-legacy"],
-        cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    )
-    install_proc = subprocess.Popen(
-        [sys.executable, str(INSTALLER), "--codex-home", str(home)],
-        cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    )
-
-    # Neither should hang — both must complete within 30s
-    migrate_out, migrate_err = migrate_proc.communicate(timeout=30)
-    install_out, install_err = install_proc.communicate(timeout=30)
-
-    # At least one must succeed (the other may fail due to lock contention, but no deadlock)
-    assert migrate_proc.returncode == 0 or install_proc.returncode == 0, (
-        f"Both failed — possible deadlock:\n"
-        f"migrate({migrate_proc.returncode}): {migrate_out}{migrate_err}\n"
-        f"install({install_proc.returncode}): {install_out}{install_err}"
-    )
-
-    # Legacy lock must still exist regardless of which succeeded
-    assert (home / ".codex-delegate-agents.lock").exists(), "legacy lock must be preserved"
 
 
 @pytest.mark.skipif(not hasattr(os, "fork"), reason="fault-injection harness requires fork")
@@ -151,16 +133,13 @@ def test_failed_installer_cannot_rollback_a_successful_peer(tmp_path: Path):
     ready_read, ready_write = os.pipe()
     release_read, release_write = os.pipe()
     pid = os.fork()
-
     if pid == 0:
         os.close(ready_read)
         os.close(release_write)
-
         def fail_after_profile_mutation(path, payload):
             os.write(ready_write, b"1")
             os.read(release_read, 1)
             raise RuntimeError("injected failure after profile mutation")
-
         installer.write_manifest = fail_after_profile_mutation
         try:
             installer.install(home, False)
@@ -179,12 +158,10 @@ def test_failed_installer_cannot_rollback_a_successful_peer(tmp_path: Path):
         stderr=subprocess.PIPE,
     )
     time.sleep(0.2)
-    peer_was_serialized = peer.poll() is None
+    assert peer.poll() is None
     os.write(release_write, b"1")
     _, fault_status = os.waitpid(pid, 0)
     peer_stdout, peer_stderr = peer.communicate(timeout=10)
-
-    assert peer_was_serialized
     assert os.waitstatus_to_exitcode(fault_status) == 23
     assert peer.returncode == 0, peer_stdout + peer_stderr
     check = run_installer(home, "--check")
