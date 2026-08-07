@@ -16,7 +16,7 @@ Internal identity:   /subagents-dispatch:dispatch
 Doctor Skill:        doctor
 Doctor command:      /doctor
 Internal identity:   /subagents-dispatch:doctor
-Current version:     2.0.0
+Current version:     2.1.0
 Distribution:        Codex Plugin
 License:             MIT
 ```
@@ -27,9 +27,19 @@ Use these names exactly.
 
 The current Codex main session is the team leader. The user supplies the goal. Main decides what to keep, what is worth delegating, which specialist role fits, how delegated work is coordinated, and when the final result is ready.
 
-Do not ask the user to design an Agent team for an ordinary task. Zero child Agents is normal. Several may run when distinct ready responsibilities genuinely benefit from parallelism or specialization.
+Zero child Agents is normal. Several may run when distinct ready responsibilities genuinely benefit from parallelism or specialization. There is no fixed Luna → Terra → Sol pipeline and no project-level ordinary numeric child ceiling. Native Codex capacity is an upper bound, never a target to fill.
 
-There is no fixed Luna → Terra → Sol pipeline and no project-level ordinary numeric child ceiling. Native Codex capacity is an upper bound, never a target to fill.
+Version 2.1 adds a user control surface around the same orchestration kernel:
+
+```text
+/dispatch preview <task>
+/dispatch status
+/dispatch steer <unit_id>: <guidance>
+/dispatch takeover <unit_id>
+/dispatch takeover <unit_id>: <guidance>
+```
+
+These controls never widen the user's original scope, permissions, mutation authority, acceptance, or external-impact authorization.
 
 `doctor` is operational maintenance. It diagnoses installation/configuration/Marketplace/profile state and may repair or upgrade only when the user explicitly asks. It does not own development routing or runtime delegation policy.
 
@@ -55,23 +65,29 @@ Do not reconstruct runtime policy from README prose. Read the canonical owner fo
 skills/dispatch/SKILL.md
 -> execution entry point and control loop
 
-references/router-core.md
+skills/dispatch/references/interaction.md
+-> preview, status, steering, user-requested takeover, execution receipt, usage/cost evidence boundary
+
+skills/dispatch/references/router-core.md
 -> delegation value, role choice, responsibility packets, adaptive scheduling
 
-references/team-plan.md
+skills/dispatch/references/handoff-capsule.md
+-> compact Main-accepted evidence transfer between responsibilities
+
+skills/dispatch/references/team-plan.md
 -> multi-responsibility identity, dependency DAG, ownership, revisions, integration order
 
-references/recovery.md
--> attempt identity, UNKNOWN, failure classification, bounded recovery
+skills/dispatch/references/recovery.md
+-> attempt identity, UNKNOWN, failure classification, bounded recovery and Main takeover semantics
 
-references/guardrails.md
+skills/dispatch/references/guardrails.md
 -> authority, mutation permissions, one-writer safety, consent, trust boundaries, provisioning, runtime evidence
 
-references/final-review.md
+skills/dispatch/references/final-review.md
 -> consequence-driven, artifact-bound independent review
 
 policy-contract.json
--> stable machine constants, role routes, hard delegation limits, Final Review reason codes
+-> stable machine constants, native optimized role routes, hard delegation limits, Final Review reason codes
 ```
 
 Operational maintenance is owned separately by:
@@ -86,6 +102,90 @@ scripts/install-agents.py
 
 `evals/` is a regression and measurement surface. It does not define runtime policy.
 
+## Interaction contract
+
+### Preview
+
+`/dispatch preview <task>` produces a provisional likely delegation shape.
+
+Preview must not:
+
+```text
+spawn a child Agent
+provision managed Agent profiles
+mutate source
+perform an external action
+create persistent TeamPlan state
+```
+
+Bounded Main read-only inspection is allowed when useful. Real execution may change the route when new evidence appears.
+
+### Status
+
+`/dispatch status` is a one-shot inspection of the current delegated work. It may show unit id, semantic role, known lifecycle state, write ownership, and current blocker.
+
+Do not busy-poll. Missing native state remains `UNKNOWN`. Status alone does not retry, reroute, replace, or mutate work.
+
+Only treat `status` as the control intent when it is the complete request after `/dispatch`. A task such as `/dispatch status page is broken` is normal work.
+
+### Steer
+
+`/dispatch steer <unit_id>: <guidance>` keeps the same unit, attempt, role, authority, and ownership while sending focused guidance through the native Codex control surface when available.
+
+If the requested change materially alters goal/output, role, write ownership, mutation authority, user scope, permissions, acceptance, or external impact, return it to Main for ordinary reclassification/revision. Do not disguise the change as steering.
+
+### Takeover
+
+`/dispatch takeover <unit_id>` is the user-facing form of the existing `main_takeover` recovery action. The user may request it before automatic retry exhaustion.
+
+Safe sequence:
+
+```text
+resolve current attempt
+-> request native stop when needed
+-> establish previous owner is no longer active
+-> verify and preserve usable evidence
+-> transfer responsibility to Main
+-> continue under the same user authority
+```
+
+For a writing child, Main stays read-only until the previous writer is confirmed stopped/terminal/closed. `UNKNOWN` never authorizes conflicting ownership transfer.
+
+Takeover does not create another Agent attempt and does not reset unit history or attempt budget.
+
+### Execution Receipt
+
+After a task that actually spawned at least one child, append one compact factual receipt. Do not add a receipt for zero-child work, Preview, or Status-only requests.
+
+The default receipt may report semantic roles used, retries, steering/takeover when material, and Final Review state. Keep it one line unless the user asks for detail.
+
+Concrete model or effort may be named only when current runtime evidence actually observed it. Never present configured/requested model identity as runtime observation. Do not expose hidden reasoning or raw child transcripts.
+
+Do not estimate token usage or currency cost. Exact usage may be surfaced only when a supported host/client interface supplies attributable thread usage.
+
+## Handoff Capsule contract
+
+A Handoff Capsule is optional, ephemeral context passed from Main to a later responsibility when it prevents meaningful repeated discovery.
+
+Semantic fields:
+
+```text
+SOURCE UNITS
+ARTIFACT REFS
+ACCEPTED FACTS
+ACCEPTED EVIDENCE
+INTERFACES / INVARIANTS
+DO NOT REDO
+OPEN QUESTIONS
+STALE IF
+```
+
+Only Main-accepted facts/evidence may enter `ACCEPTED FACTS` or `ACCEPTED EVIDENCE`. Child claims remain claims until Main verifies actual artifacts or other valid evidence.
+
+New project children still use `fork_turns: none`. Do not forward an earlier child transcript or the full Main history as inherited task truth.
+
+Relevant drift invalidates affected capsule facts until narrow re-verification. A capsule cannot grant ownership, mutation authority, permissions, wider scope, external actions, role escalation, or acceptance changes.
+
 ## Non-negotiable project boundaries
 
 These are stable product facts:
@@ -99,10 +199,11 @@ These are stable product facts:
 - Child reports are claims until actual artifact state and relevant verification support them.
 - Requested, accepted, and runtime-observed route facts remain separate; missing evidence stays missing.
 - Failure does not imply a model ladder. The canonical semantic blocker vocabulary is `contract | judgment | investigation | stalled`.
-- `UNKNOWN` execution state is not `FAILED` and does not authorize replacement work.
+- `UNKNOWN` execution state is not `FAILED` and does not authorize replacement or unsafe takeover.
 - Final Review is consequence-driven and applies only to the exact candidate reviewed.
 - Another active Skill or accepted plan that already owns domain workflow truth remains authoritative; subagents-dispatch coordinates around it.
 - Doctor diagnosis is read-only by default. Installation, profile repair, and Plugin upgrade require explicit user intent.
+- Interaction controls operate through Main and Codex Native Subagents. They do not introduce another scheduler, daemon, event bus, or lifecycle service.
 
 For details or edge cases, read the relevant owner instead of adding another rule here.
 
@@ -137,19 +238,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 After installation or update, start a new Codex session.
 
-Development work uses:
-
-```text
-/dispatch <task>
-```
-
-Installation/configuration/profile diagnosis and explicit maintenance use:
-
-```text
-/doctor <diagnostic or maintenance request>
-```
-
-`/skills` opens the Skill picker. Implicit invocation is disabled.
+Development work and interaction controls use `/dispatch`. Installation/configuration/profile diagnosis and explicit maintenance use `/doctor`. `/skills` opens the Skill picker. Implicit invocation is disabled.
 
 ## Doctor contract
 
@@ -178,16 +267,16 @@ For Plugin upgrade, use the canonical marketplace upgrade + plugin add path. Aft
 
 The Plugin uses five native custom-Agent profiles under the active Codex home. The canonical filenames, Agent types, models, efforts, and sandbox intents come from `policy-contract.json`; the shipped TOML files must match that contract exactly.
 
-`scripts/install-agents.py` owns provisioning and collision-safe lifecycle behavior. Do not describe installer internals from memory; inspect that script and `references/guardrails.md` when the exact behavior matters.
+`scripts/install-agents.py` owns provisioning and collision-safe lifecycle behavior. Do not describe installer internals from memory; inspect that script and `skills/dispatch/references/guardrails.md` when the exact behavior matters.
 
 ## Answering users
 
 Lead with the product model: the main Codex session acts as technical lead and delegates only when specialists add value.
 
+For interaction questions, explain Preview, one-shot Status, focused Steering, safe Takeover, compact Receipts, and evidence-bound Handoff Capsules without exposing internal reasoning.
+
 For installation questions, give the Plugin Marketplace path and the command-line path. For update questions, give the matching Marketplace and command-line update paths or point users to the Doctor Skill when they want guided diagnosis/upgrade.
 
-Tell users to invoke development work with `/dispatch` and maintenance with `/doctor`.
-
-Do not claim benchmark wins, token savings, speedups, quality gains, exact runtime routes, or public directory availability unless current evidence supports the claim.
+Do not claim benchmark wins, token savings, speedups, quality gains, exact runtime routes, token/cost attribution, or public directory availability unless current evidence supports the claim.
 
 For deeper technical questions, follow the owner map above rather than treating this README as normative policy.
