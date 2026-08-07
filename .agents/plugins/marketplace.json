@@ -7,8 +7,9 @@
     {
       "name": "subagents-dispatch",
       "source": {
-        "source": "local",
-        "path": "./plugins/subagents-dispatch"
+        "source": "url",
+        "url": "https://github.com/R-jed/subagents-dispatch.git",
+        "ref": "main"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -3,9 +3,7 @@
 Copy and run:
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch@main \
-  --sparse .agents/plugins \
-  --sparse plugins/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
@@ -22,7 +20,7 @@ You can also use `/skills` to open the Codex Skill picker.
 Copy and run:
 
 ```bash
-codex plugin marketplace upgrade subagents-dispatch && \
+codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 

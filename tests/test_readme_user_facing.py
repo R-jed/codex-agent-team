@@ -9,7 +9,7 @@ EVALS = (ROOT / "evals" / "README.md").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "plugins" / "subagents-dispatch" / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
 VERSION = MANIFEST["version"]
 DIRECTIVE = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
-CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch@main"
+CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
 MAIN_SKILL = "/subagents-dispatch:dispatch"
@@ -29,11 +29,8 @@ def test_public_readmes_keep_product_identity_install_use_and_update():
         assert "/plugins" in text
         assert "/skills" in text
         assert CANONICAL_MARKETPLACE in text
-        assert "--sparse .agents/plugins" in text
-        assert "--sparse plugins/subagents-dispatch" in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
-        assert "--ref main" not in text
         for role in ROLE_LABELS:
             assert role in text
 
@@ -99,8 +96,6 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
         "policy-contract.json",
         "doctor/SKILL.md",
         CANONICAL_MARKETPLACE,
-        "--sparse .agents/plugins",
-        "--sparse plugins/subagents-dispatch",
         PLUGIN_ADD,
         UPGRADE,
     ]:

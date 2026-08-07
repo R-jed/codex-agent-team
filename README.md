@@ -26,9 +26,7 @@ subagents-dispatch 是一个 Codex Plugin。你给出开发目标，主会话判
 ## 安装
 
 ```bash
-codex plugin marketplace add R-jed/subagents-dispatch@main \
-  --sparse .agents/plugins \
-  --sparse plugins/subagents-dispatch && \
+codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 

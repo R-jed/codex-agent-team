@@ -13,7 +13,7 @@ MAIN_SKILL = SKILLS_ROOT / "dispatch"
 DOCTOR_SKILL = SKILLS_ROOT / "doctor"
 INSTALL_DOC = ROOT / "docs" / "plugin-installation.md"
 POLICY = PLUGIN_ROOT / "policy-contract.json"
-CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch@main"
+CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
 
@@ -40,7 +40,11 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
         "plugins": [
             {
                 "name": "subagents-dispatch",
-                "source": {"source": "local", "path": "./plugins/subagents-dispatch"},
+                "source": {
+                    "source": "url",
+                    "url": "https://github.com/R-jed/subagents-dispatch.git",
+                    "ref": "main",
+                },
                 "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
                 "category": "Productivity",
             }
@@ -123,8 +127,6 @@ def test_install_doc_contains_the_two_current_install_and_update_paths():
     text = INSTALL_DOC.read_text(encoding="utf-8")
     for phrase in [
         CANONICAL_MARKETPLACE,
-        "--sparse .agents/plugins",
-        "--sparse plugins/subagents-dispatch",
         PLUGIN_ADD,
         "## Update",
         UPGRADE,
@@ -132,7 +134,6 @@ def test_install_doc_contains_the_two_current_install_and_update_paths():
         "/skills",
     ]:
         assert phrase in text
-    assert "--ref main" not in text
 
 
 def test_readmes_and_ai_reference_share_the_current_install_contract():
@@ -145,7 +146,5 @@ def test_readmes_and_ai_reference_share_the_current_install_contract():
         assert "/subagents-dispatch:doctor" in text
         assert "/plugins" in text
         assert CANONICAL_MARKETPLACE in text
-        assert "--sparse .agents/plugins" in text
-        assert "--sparse plugins/subagents-dispatch" in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
