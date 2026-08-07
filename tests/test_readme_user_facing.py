@@ -18,11 +18,12 @@ DOCTOR_SKILL = "/doctor"
 MAIN_SKILL_NAMESPACED = "/subagents-dispatch:dispatch"
 DOCTOR_SKILL_NAMESPACED = "/subagents-dispatch:doctor"
 ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator", "Sol Advisor"]
+CONTROL_FORMS = ["/dispatch preview", "/dispatch status", "/dispatch steer", "/dispatch takeover"]
 LIGHT_LOGO = "assets/subagents-dispatch-logo.svg#gh-light-mode-only"
 DARK_LOGO = "assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only"
 
 
-def test_public_readmes_keep_product_identity_install_use_and_update():
+def test_public_readmes_keep_product_identity_install_use_update_and_controls():
     assert "subagents-dispatch" in ZH
     assert VERSION in ZH
     assert DIRECTIVE_ZH in ZH
@@ -33,6 +34,8 @@ def test_public_readmes_keep_product_identity_install_use_and_update():
     assert UPGRADE in ZH
     for role in ROLE_LABELS:
         assert role in ZH
+    for form in CONTROL_FORMS:
+        assert form in ZH
 
     assert "subagents-dispatch" in EN
     assert VERSION in EN
@@ -44,9 +47,13 @@ def test_public_readmes_keep_product_identity_install_use_and_update():
     assert UPGRADE in EN
     for role in ROLE_LABELS:
         assert role in EN
+    for form in CONTROL_FORMS:
+        assert form in EN
 
-    assert "## 安装" in ZH and "## 使用" in ZH and "## 更新" in ZH
+    assert "## 安装" in ZH and "## 快速开始" in ZH and "## 更新" in ZH
+    assert "## 运行中控制" in ZH and "## 执行摘要" in ZH and "## 减少重复扫描" in ZH
     assert "## Install" in EN and "## Quick start" in EN and "## Update" in EN
+    assert "## Control active work" in EN and "## Compact execution receipt" in EN and "## Evidence-bound handoffs" in EN
 
 
 def test_public_readmes_explain_the_current_repository_layout():
@@ -84,6 +91,18 @@ def test_public_readmes_keep_runtime_detail_bounded_and_link_deeper_docs():
         assert "TeamPlan revision" not in text
         assert "failure_origin" not in text
         assert "task_blocker" not in text
+        assert "chain-of-thought" not in text.lower()
+
+
+def test_public_readmes_describe_safe_takeover_receipt_and_handoff_boundaries():
+    for text in [ZH, EN]:
+        assert "UNKNOWN" in text
+        assert "Handoff Capsule" in text
+        assert "Token" in text or "token" in text
+    assert "原写入者没有确认停止前" in ZH
+    assert "不会根据模型名称或运行时长猜 Token 和费用" in ZH
+    assert "previous writer is confirmed stopped or terminal" in EN
+    assert "does not estimate token usage or currency cost" in EN
 
 
 def test_ai_reference_is_an_index_to_canonical_policy_owners():
@@ -101,7 +120,9 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
         "subagents_dispatch_solver",
         "subagents_dispatch_investigator",
         "subagents_dispatch_advisor",
+        "interaction.md",
         "router-core.md",
+        "handoff-capsule.md",
         "team-plan.md",
         "recovery.md",
         "guardrails.md",
@@ -123,9 +144,12 @@ def test_evals_readme_identifies_measurement_boundary_and_canonical_owners():
         "behavioral-result.schema.json",
         "routing-cases.json",
         "coordination-cases.json",
+        "interaction-cases.json",
         "runtime-assurance-cases.json",
         "do not control how the plugin routes or coordinates work",
+        "interaction.md",
         "router-core.md",
+        "handoff-capsule.md",
         "team-plan.md",
         "recovery.md",
         "guardrails.md",
