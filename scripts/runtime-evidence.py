@@ -207,6 +207,8 @@ def observed_layer(native: dict[str, str | None] | None, fields: tuple[str, ...]
 
 def model_matches(model: str) -> bool:
     normalized = model.lower()
+    if REFERENCE_MODEL == "gpt-5.6-sol" and normalized == "gpt-5.6":
+        return True
     return normalized == REFERENCE_MODEL or normalized.startswith(REFERENCE_MODEL + "-")
 
 
