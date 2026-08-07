@@ -115,15 +115,15 @@ $subagents-dispatch:doctor 升级 subagents-dispatch，并告诉我升级后还�
 ```text
 .
 ├── .agents/plugins/                  # Codex Marketplace 注册
-├── plugins/subagents-dispatch/           # 可安装的 Plugin 包
+├── plugins/subagents-dispatch/       # 可安装的 Plugin 包
 │   ├── .codex-plugin/                # Plugin manifest
 │   ├── agent-profiles/               # 五个原生 Subagent 配置
 │   ├── assets/                       # Plugin 图标与 README Logo
 │   ├── policy-contract.json          # 机器可读的角色与核心约束
 │   ├── scripts/                      # installer、校验器与运行证据工具
 │   └── skills/
-│       ├── subagents-dispatch/           # 主委托 Skill 与运行规则
-│       └── doctor/    # 安装、配置、profiles 与升级诊断
+│       ├── dispatch/                 # 主委托 Skill 与运行规则
+│       └── doctor/                   # 安装、配置、profiles 与升级诊断
 ├── docs/                             # 安装、架构与运行边界文档
 ├── evals/                            # 静态与行为评估数据
 ├── scripts/                          # 仓库级验证工具
