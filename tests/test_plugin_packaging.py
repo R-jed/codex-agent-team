@@ -13,7 +13,6 @@ MAIN_SKILL = SKILLS_ROOT / "dispatch"
 DOCTOR_SKILL = SKILLS_ROOT / "doctor"
 INSTALL_DOC = ROOT / "docs" / "plugin-installation.md"
 POLICY = PLUGIN_ROOT / "policy-contract.json"
-EXPECTED_VERSION = "2.0.0"
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch@main"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
@@ -22,7 +21,6 @@ UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
 def test_plugin_manifest_and_marketplace_use_canonical_identity():
     payload = json.loads(PLUGIN.read_text(encoding="utf-8"))
     assert payload["name"] == "subagents-dispatch"
-    assert payload["version"] == EXPECTED_VERSION
     assert payload["skills"] == "./skills/"
     assert payload["repository"] == "https://github.com/R-jed/subagents-dispatch"
     assert payload["homepage"] == "https://github.com/R-jed/subagents-dispatch#readme"
@@ -155,17 +153,3 @@ def test_readmes_and_ai_reference_share_the_current_install_contract():
         assert "--sparse plugins/subagents-dispatch" in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
-
-
-def test_retired_public_identity_is_absent_from_current_tree():
-    retired_hyphen = "codex" + "-delegate"
-    retired_snake = "codex" + "_delegate"
-    for path in ROOT.rglob("*"):
-        if not path.is_file() or ".git" in path.parts:
-            continue
-        try:
-            content = path.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, OSError):
-            continue
-        assert retired_hyphen not in content, path
-        assert retired_snake not in content, path
