@@ -2,7 +2,7 @@
 
 Static tests prove repository contracts, packaging, profile lifecycle, schemas, deterministic tooling, and policy wiring. They do not prove model quality, cost, native runtime behavior, onboarding quality, interaction usability, or the real value of a routing choice.
 
-The live suite uses controlled workloads to test product hypotheses without turning experimental labels into runtime policy.
+The live suite uses controlled paired workloads where a meaningful paired comparison exists, plus controlled single-surface interaction workloads where pairing would distort the question. Experimental labels remain measurement vocabulary and never become runtime policy.
 
 ## Measurement boundary
 
@@ -356,7 +356,7 @@ Do not score preview against the later actual route as if disagreement were auto
 
 Status workload verifies one-shot inspection and exact preservation of `UNKNOWN` when native state is absent.
 
-Steer workload sends focused guidance that stays inside the same responsibility. A second negative-control steer requests a material scope/role/authority change and should return to Main reclassification rather than silently updating the child contract.
+Steer workload sends focused guidance that stays inside the same responsibility. A negative-control steer requests a material scope/role/authority change and should return to Main reclassification rather than silently updating the child contract.
 
 Takeover workload includes a writing child. Verify that Main does not perform a conflicting write before the native child is settled. Add a Host-ambiguity case where stop/terminal state cannot be established; the expected result is pending/UNKNOWN rather than forced ownership transfer.
 
