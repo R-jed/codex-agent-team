@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.0-green.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.3.0-green.svg" alt="Version">
   <img src="https://img.shields.io/badge/Codex-%E5%8E%9F%E7%94%9F%20Subagents-111827.svg" alt="Codex 原生 Subagents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
@@ -45,11 +45,19 @@ codex plugin add codex-delegate@codex-delegate
 
 ## 开始使用
 
-直接把任务交给 Plugin：
+开发任务使用主 Skill：
 
 ```text
 $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题并运行相关测试。
 ```
+
+安装、配置、Marketplace 和 Agent profile 诊断使用 Doctor：
+
+```text
+$codex-delegate:codex-delegate-doctor 检查我的 Codex Delegate 安装和配置。
+```
+
+Doctor 默认只诊断。只有用户明确要求修复、安装或升级时才会修改状态。
 
 也可以输入 `/skills` 打开 Skill 选择器。Plugin 默认不会隐式触发。
 
@@ -64,6 +72,12 @@ $codex-delegate:codex-delegate 深度检查这个改动，修复发现的问题�
 ```bash
 codex plugin marketplace upgrade codex-delegate && \
 codex plugin add codex-delegate@codex-delegate
+```
+
+也可以让 Doctor 执行升级并检查升级后的状态：
+
+```text
+$codex-delegate:codex-delegate-doctor 升级 Codex Delegate，并告诉我升级后还需要做什么。
 ```
 
 更新后开启新的 Codex 会话。
@@ -91,6 +105,7 @@ codex plugin add codex-delegate@codex-delegate
 - 同一个实际 Git checkout 同一时间只允许一个写入者。
 - 子 Agent 不能自行扩大权限、修改范围或外部影响。
 - Agent 自己说“完成了”不算验证，最终以实际文件、代码和测试结果为准。
+- Doctor 默认只读诊断；修复、安装和升级必须来自用户明确请求。
 - codex delegate 直接使用 Codex 原生 Subagents，不运行独立 Agent runtime、后台 daemon 或外部路由服务。
 
 更完整的协调、恢复、运行证据和独立复核规则见 [架构说明](docs/architecture.md)。
@@ -105,10 +120,10 @@ codex plugin add codex-delegate@codex-delegate
 │   ├── agent-profiles/               # 五个原生 Subagent 配置
 │   ├── assets/                       # Plugin 图标与 README Logo
 │   ├── policy-contract.json          # 机器可读的角色与核心约束
-│   ├── scripts/                      # 确定性校验器与运行证据工具
-│   └── skills/codex-delegate/
-│       ├── SKILL.md                  # Plugin 入口与主控制循环
-│       └── references/               # 路由、TeamPlan、恢复、安全与 Final Review
+│   ├── scripts/                      # installer、校验器与运行证据工具
+│   └── skills/
+│       ├── codex-delegate/           # 主委托 Skill 与运行规则
+│       └── codex-delegate-doctor/    # 安装、配置、profiles 与升级诊断
 ├── docs/                             # 安装、架构与运行边界文档
 ├── evals/                            # 静态与行为评估数据
 ├── scripts/                          # 仓库级验证工具
