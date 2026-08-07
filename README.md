@@ -32,9 +32,7 @@ codex plugin marketplace add R-jed/subagents-dispatch@main \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-安装后开启新的 Codex 会话。
-
-安装完成后，可以在 Codex 的 **Plugins** 中找到 **subagents-dispatch**。
+执行后插件即安装完成，开启新的 Codex 会话即可使用。
 
 ## 开始使用
 

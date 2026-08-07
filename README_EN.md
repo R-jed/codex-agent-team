@@ -32,9 +32,7 @@ codex plugin marketplace add R-jed/subagents-dispatch@main \
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-Start a new Codex session after installation.
-
-After installation, you can find **subagents-dispatch** in Codex **Plugins**.
+The plugin is installed after running the command. Start a new Codex session to use it.
 
 ## Quick start
 
