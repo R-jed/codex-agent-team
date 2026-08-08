@@ -60,5 +60,7 @@ def test_router_and_guardrails_own_adaptive_scheduling_and_writer_safety():
 def test_installer_lock_is_a_local_profile_lifecycle_mechanism():
     installer = (PLUGIN / "scripts" / "install-agents.py").read_text().lower()
     assert 'lock_name = ".subagents-dispatch-agents.lock"' in installer
-    assert "def installer_lock(" in installer
+    assert "def managed_lock(" in installer
+    assert "def installation_locks(" in installer
+    assert "def installer_lock(" not in installer
     assert "lock_file(fd)" in installer
