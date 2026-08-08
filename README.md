@@ -92,6 +92,8 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 安装后开启新的 Codex 会话。
 
+第一次执行确实需要子 Agent 的 `/dispatch` 任务时，如果五个项目 Agent profiles 尚未安装，Dispatch 会先说明要管理的本地配置并请求许可，然后运行内置 installer 和检查。某些 Codex 版本可能需要再开启一次新的 Codex 会话才能识别刚安装的 profiles；在此之前不会启动委派写入。
+
 开发任务使用：
 
 ```text
@@ -139,7 +141,7 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 - 主会话负责用户目标、权限、团队组成和最终结果
 - 子 Agent 不能创建自己的项目团队
-- 同一个 Git checkout 同一时间最多一个写入者
+- 在同一次 subagents-dispatch 调度内，同一个物理 Git checkout 同一时间最多一个活跃写入者；其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内
 - Steering 不能偷偷扩大职责、写入权限或用户范围
 - Takeover 必须先结清原所有者，`UNKNOWN` 不会被当成可安全抢占
 - Handoff Capsule 只能传播主会话已经验证接受的事实
