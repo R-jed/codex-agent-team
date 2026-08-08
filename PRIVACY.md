@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: 2026-08-05
+Last updated: 2026-08-08
 
 subagents-dispatch is a skills-only Codex plugin. The project does not operate a developer-controlled server, analytics service, account system, advertising system, or telemetry endpoint.
 
@@ -12,7 +12,9 @@ The plugin runs inside the user's Codex environment and may work with files, rep
 
 ## Local configuration
 
-When delegation requires the plugin's managed custom Agent roles, subagents-dispatch may ask for permission to install five TOML Agent profiles plus an ownership receipt and installer lock under the user's `CODEX_HOME`. These local files contain plugin configuration and ownership/synchronization metadata. They do not contain project-operated credentials, conversation transcripts, or usage telemetry, and they are not sent to the project maintainer.
+When an explicit `/dispatch` task actually needs delegation and the plugin's managed custom Agent roles are absent, subagents-dispatch may automatically provision five fixed TOML Agent profiles plus an ownership manifest and installer lock under the user's `CODEX_HOME`. Routine provisioning is limited to those plugin-owned paths. It does not modify `config.toml`, credentials, MCP configuration, repositories, or unrelated Agent profiles, and unsafe or unowned conflicting state is not overwritten automatically.
+
+These local files contain plugin configuration and ownership/synchronization metadata. They do not contain project-operated credentials, conversation transcripts, or usage telemetry, and they are not sent to the project maintainer.
 
 ## Recipients
 
@@ -24,7 +26,7 @@ The project retains no user data collected through the plugin. Managed local con
 
 ## User controls
 
-Users can disable or uninstall subagents-dispatch, decline managed Agent profile provisioning, and remove the plugin's managed local configuration. Because the project does not operate a user account or remote data store, there is no project-held personal data account to delete.
+Users can disable or uninstall subagents-dispatch and remove the plugin's managed local configuration. Repair, migration, upgrade, broader configuration changes, and resolution of conflicting or unowned state remain explicit user-controlled actions. Because the project does not operate a user account or remote data store, there is no project-held personal data account to delete.
 
 ## Security and privacy reports
 

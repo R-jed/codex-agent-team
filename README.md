@@ -107,7 +107,9 @@ codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-装完开新的 Codex 会话。首次需要 Agent 时，如果五个项目 Agent profiles 还没装，系统会说明要装什么、问你同意，然后自动装好。有些 Codex 版本装完后可能需要再开启一次新的 Codex 会话才能识别。
+装完先开一个新的 Codex 会话。第一次 `/dispatch` 真正需要子 Agent 时，subagents-dispatch 会自动准备自己的 5 个 Agent profiles，不会要求你理解或确认 TOML 配置。由于 Codex 在任务启动时加载 Agent 注册表，这次首次准备完成后会请你再开一个新任务并重跑原来的 `/dispatch`；当前任务不会先尝试一次注定不可见的新 Agent。以后 profiles 已经存在，正常任务可直接委托。
+
+如果发现同名文件存在冲突、被修改、所有权无法证明或路径不安全，系统不会覆盖，会停止并让 `/doctor` 给出具体处理建议。
 
 ## 卸载
 

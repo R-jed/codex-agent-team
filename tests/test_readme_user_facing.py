@@ -133,14 +133,18 @@ def test_public_readmes_describe_safe_takeover_receipt_handoff_writer_and_first_
     assert "不会根据模型名称或运行时长猜 Token 和费用" in ZH
     assert "同一次 subagents-dispatch 调度内" in ZH
     assert "其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内" in ZH
-    assert "五个项目 Agent profiles" in ZH
-    assert "再开启一次新的 Codex 会话" in ZH
+    assert "自动准备自己的 5 个 Agent profiles" in ZH
+    assert "不会要求你理解或确认 TOML 配置" in ZH
+    assert "再开一个新任务并重跑原来的 `/dispatch`" in ZH
+    assert "不会先尝试一次注定不可见的新 Agent" in ZH
     assert "previous writer is confirmed stopped or terminal" in EN
     assert "does not estimate token usage or currency cost" in EN
     assert "within one subagents-dispatch orchestration" in EN
     assert "Other Codex sessions, editors, hooks, and external processes are outside this guarantee" in EN
-    assert "five managed Agent profiles" in EN
-    assert "one additional fresh Codex session" in EN
+    assert "automatically prepares subagents-dispatch's five managed Agent profiles" in EN
+    assert "without asking you to make a TOML-level setup decision" in EN
+    assert "open one fresh task and rerun the original `/dispatch`" in EN
+    assert "does not first attempt to spawn a role that the current task cannot see" in EN
 
 
 def test_ai_reference_is_an_index_to_canonical_policy_owners():

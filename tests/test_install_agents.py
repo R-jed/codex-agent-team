@@ -165,3 +165,15 @@ def test_check_missing_home_does_not_create_it(tmp_path: Path):
     result = run(home, "--check")
     assert result.returncode != 0
     assert not home.exists()
+
+
+def test_not_installed_guidance_matches_automatic_first_use_restart_contract(tmp_path: Path):
+    home = tmp_path / "codex-home"
+    home.mkdir()
+    result = run(home, "--check")
+    combined = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Not installed" in combined
+    assert "provision these plugin-owned profiles automatically" in combined
+    assert "fresh Codex task/session before spawn" in combined
+    assert "ask permission" not in combined

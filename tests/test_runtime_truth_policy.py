@@ -32,7 +32,8 @@ def test_runtime_verifier_supports_main_and_child_subjects_and_policy_reference(
 def test_exact_project_roles_have_no_cross_role_fallback():
     policy = json.loads(POLICY.read_text(encoding="utf-8"))
     skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
-    assert "Exact role mismatch fails closed" in skill
+    assert "fail closed as a Host/configuration limitation" in skill
+    assert "do not substitute another role" in skill
     assert set(spec["agent_type"] for spec in policy["roles"].values()) == {
         "subagents_dispatch_reader",
         "subagents_dispatch_worker",
@@ -58,6 +59,7 @@ def test_consent_writer_and_explicit_invocation_are_guardrail_owned():
         "One writer per canonical checkout",
         "main session when mutating the checkout",
         "Explicit invocation only",
+        "Routine first-use provisioning is not a separate consent prompt",
     ]:
         assert phrase in guardrails
 
@@ -69,8 +71,10 @@ def test_first_use_readiness_occurs_before_delegated_execution():
     guardrails = (SKILL / "references" / "guardrails.md").read_text(encoding="utf-8")
     skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert "First-use readiness before delegated execution" in guardrails
-    assert "stop before delegated code execution" in skill
-    assert "ensure required native roles are ready before delegated execution" in skill.lower()
+    assert "Ensure required native roles are ready before delegated execution" in skill
+    assert "RESTART_REQUIRED" in skill
+    assert "do not attempt spawn_agent in this task" in skill
+    assert "No Agent attempt exists yet" in skill
 
 
 def test_profile_lifecycle_comes_from_policy_and_installer_not_user_docs():

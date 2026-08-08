@@ -104,7 +104,7 @@ Terra is not an escalation rung, and one failed Luna attempt does not imply Terr
 
 ### 3. Ensure required native roles are ready before delegated execution
 
-Only do this after the task actually justifies delegation. Preview never provisions roles.
+Only do this after the task actually justifies delegation. Preview, Status, and other non-spawning control operations never provision roles.
 
 The bundled installer is:
 
@@ -112,16 +112,41 @@ The bundled installer is:
 installer = skill_dir/../../scripts/install-agents.py
 ```
 
-If the required project role is unavailable, explain that the installer manages subagents-dispatch's five native custom-Agent profiles plus its ownership receipt and lock, request permission, then run:
+First inspect whether the exact required project role is available to the current Codex task. If it is available, continue normally.
+
+If the exact role is unavailable, run the non-mutating managed-profile check:
 
 ```bash
-python "$installer"
 python "$installer" --check
 ```
 
-If the current Codex session still cannot discover the required role, stop before delegated code execution and ask the user to start a fresh session. Exact role mismatch fails closed; do not substitute another role merely to keep moving.
+Handle the result conservatively:
 
-Provisioning and permission details live in `references/guardrails.md`.
+```text
+--check passes, but the role is unavailable
+-> the on-disk profiles are exact while the current task cannot use that role
+-> readiness outcome: RESTART_REQUIRED
+-> do not attempt spawn_agent in this task
+-> ask for one fresh Codex task/session and rerun the original /dispatch request
+
+--check reports a clean Not installed state
+-> explicit /dispatch already authorizes routine first-use provisioning of only the plugin-owned managed paths
+-> run the installer, then --check
+-> if both succeed: RESTART_REQUIRED
+-> do not attempt spawn_agent in this task
+-> ask for one fresh Codex task/session and rerun the original /dispatch request
+
+--check reports collision, unsafe path, modified/unowned state, invalid ownership metadata, or another non-clean failure
+-> USER_ACTION_REQUIRED
+-> do not overwrite, repair, substitute a role, or spawn a child
+-> report the exact failure and direct the user to /doctor when useful
+```
+
+Routine provisioning may manage only subagents-dispatch's five fixed native custom-Agent profiles plus its ownership manifest and installer lock. It does not authorize `config.toml`, credentials, MCP configuration, repositories, unrelated Agent profiles, broader repair, migration, or upgrade mutation. Those boundaries live in `references/guardrails.md`.
+
+`RESTART_REQUIRED` is a pre-dispatch readiness outcome, not a Recovery/Agent lifecycle state. No Agent attempt exists yet, and no execution receipt is emitted because no child was spawned.
+
+On the fresh task, inspect exact role availability again. If the role remains unavailable despite exact installed profiles, fail closed as a Host/configuration limitation; do not substitute another role merely to keep moving.
 
 ### 4. Coordinate only when coordination complexity is real
 

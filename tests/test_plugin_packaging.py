@@ -107,10 +107,12 @@ def test_third_party_mit_notice_is_packaged_without_repository_pointer():
 def test_main_skill_owns_profile_readiness_before_delegated_execution():
     text = (MAIN_SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert "../../scripts/install-agents.py" in text
-    assert 'python "$installer"' in text
     assert 'python "$installer" --check' in text
-    assert "Exact role mismatch fails closed" in text
-    assert "stop before delegated code execution" in text
+    assert "RESTART_REQUIRED" in text
+    assert "do not attempt spawn_agent in this task" in text
+    assert "USER_ACTION_REQUIRED" in text
+    assert "On the fresh task, inspect exact role availability again" in text
+    assert "do not substitute another role" in text
 
 
 def test_doctor_reuses_supported_diagnostics_and_existing_installer():
@@ -142,9 +144,11 @@ def test_install_doc_contains_the_current_install_update_uninstall_and_first_run
         PLUGIN_ADD,
         "## First delegated run",
         "five managed custom-Agent profiles",
-        "asks permission",
-        "another fresh Codex session",
-        "stops before delegated writing",
+        "automatically provisions",
+        "RESTART_REQUIRED",
+        "does not attempt to spawn",
+        "fresh Codex task/session",
+        "fails closed",
         "## Update",
         UPGRADE,
         "## Uninstall",
@@ -154,6 +158,7 @@ def test_install_doc_contains_the_current_install_update_uninstall_and_first_run
         "/skills",
     ]:
         assert phrase in text
+    assert "asks permission" not in text
 
 
 def test_public_readmes_keep_commands_while_ai_reference_points_to_install_owner():
@@ -174,5 +179,6 @@ def test_public_readmes_keep_commands_while_ai_reference_points_to_install_owner
     assert USER_COMMAND_DISPATCH in ai
     assert USER_COMMAND_DOCTOR in ai
     assert "docs/plugin-installation.md" in ai
+    assert "RESTART_REQUIRED" in ai
     for command in [CANONICAL_MARKETPLACE, PLUGIN_ADD, UPGRADE, PLUGIN_REMOVE]:
         assert command not in ai

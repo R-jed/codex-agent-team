@@ -53,7 +53,7 @@ Do not reconstruct runtime policy from README prose. Read the canonical owner fo
 
 ```text
 skills/dispatch/SKILL.md
--> execution entry point, bootstrap command recognition, and control loop
+-> execution entry point, bootstrap command recognition, control loop, and pre-dispatch readiness outcome
 
 skills/dispatch/references/interaction.md
 -> preview, status, steering, user-requested takeover, execution receipt, usage/cost evidence boundary
@@ -71,7 +71,7 @@ skills/dispatch/references/recovery.md
 -> attempt identity, UNKNOWN, failure classification, bounded recovery and Main takeover semantics
 
 skills/dispatch/references/guardrails.md
--> authority, mutation permissions, one-writer safety, consent, trust boundaries, provisioning, runtime evidence
+-> authority, mutation permissions, one-writer safety, consent, trust boundaries, first-use provisioning, runtime evidence
 
 skills/dispatch/references/final-review.md
 -> consequence-driven, artifact-bound independent review
@@ -84,7 +84,7 @@ Operational ownership is separate:
 
 ```text
 docs/plugin-installation.md
--> install, first delegated run, update, and uninstall instructions
+-> install, deterministic first delegated run, update, and uninstall instructions
 
 skills/doctor/SKILL.md
 -> host/plugin/Marketplace/profile diagnosis and supported repair or upgrade flow
@@ -109,7 +109,10 @@ Keep only these orientation-level facts here; use the owners above for exact sem
 - Missing runtime evidence stays missing; `UNKNOWN` is not silently converted into failure or replacement work.
 - Final Review is consequence-driven and bound to the exact candidate reviewed.
 - Interaction controls operate through Main and Codex Native Subagents. They do not add another scheduler, daemon, event bus, or lifecycle service.
-- Doctor diagnosis is read-only by default; installation, repair, upgrade, and other mutations require explicit user intent.
+- Explicit `/dispatch` authorizes routine first-use provisioning only for subagents-dispatch's fixed managed profiles, ownership manifest, and installer lock when real delegation needs them. Unsafe, conflicting, or unowned state still fails closed.
+- Profiles provisioned during the current live task are treated as unavailable to that task's already-loaded Agent registry. Successful first-use provisioning ends pre-dispatch readiness as `RESTART_REQUIRED`; no child is spawned until a fresh Codex task/session reruns the request.
+- `RESTART_REQUIRED` is a pre-dispatch readiness outcome, not a Recovery/Agent lifecycle state.
+- Doctor diagnosis is read-only by default; repair, upgrade, migration, and broader mutations require explicit mutation intent.
 
 ## Where to answer common questions
 
@@ -121,7 +124,7 @@ For Handoff Capsules, read `skills/dispatch/references/handoff-capsule.md`.
 
 For `UNKNOWN`, retries, replacement attempts, or Main takeover, read `skills/dispatch/references/recovery.md` and `skills/dispatch/references/guardrails.md`.
 
-For install, update, first-run provisioning, or uninstall commands, read `docs/plugin-installation.md`. For guided diagnosis or repair, read `skills/doctor/SKILL.md`.
+For install, update, first-run provisioning, `RESTART_REQUIRED`, or uninstall commands, read `docs/plugin-installation.md`. For guided diagnosis or repair, read `skills/doctor/SKILL.md`.
 
 For managed profile filenames, models, efforts, and sandbox intents, use `policy-contract.json`; inspect `scripts/install-agents.py` when lifecycle behavior matters.
 

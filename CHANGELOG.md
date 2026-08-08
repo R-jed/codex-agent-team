@@ -15,6 +15,7 @@
 
 - README 重写为直接人类语音风格，去除 AI 写作痕迹
 - 补充所有 README 的卸载说明
+- **首次委托准备流程**：当显式 `/dispatch` 确认需要子 Agent 且项目 profiles 干净缺失时，自动进行仅限插件自有文件的 provisioning；成功后当前任务直接进入 `RESTART_REQUIRED`，不尝试 stale-session spawn，并要求从一个 fresh Codex task/session 重跑原请求。冲突、未证明所有权或不安全状态继续 fail closed
 
 ## [2.0.0] - 2026-07-22
 
