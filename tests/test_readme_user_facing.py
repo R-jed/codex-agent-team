@@ -19,7 +19,7 @@ MAIN_SKILL_NAMESPACED = "/subagents-dispatch:dispatch"
 DOCTOR_SKILL_NAMESPACED = "/subagents-dispatch:doctor"
 ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator", "Sol Advisor"]
 CONTROL_FORMS = ["/dispatch preview", "/dispatch status", "/dispatch steer", "/dispatch takeover"]
-README_LOGO = "assets/subagents-dispatch-banner.svg"
+README_LOGO = "assets/subagents-dispatch-banner.png"
 
 
 def test_public_readmes_keep_product_identity_install_use_update_and_controls():
@@ -218,7 +218,7 @@ def test_evals_readme_identifies_measurement_boundary_and_canonical_owners():
 
 def test_public_readme_visual_surface_uses_canonical_plugin_assets():
     plugin_assets = ROOT / "assets"
-    assert (plugin_assets / "subagents-dispatch-banner.svg").is_file()
+    assert (plugin_assets / "subagents-dispatch-banner.png").is_file()
     assert not (ROOT / "docs" / "logo-light.svg").exists()
     assert not (ROOT / "docs" / "logo-dark.svg").exists()
 
