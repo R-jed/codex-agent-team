@@ -510,8 +510,10 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
 
     try:
         apply_profile_changes(agents_dir, upgrades, created, backups)
+        # Pre-commit consistency check: publish ownership only for exact profiles.
         verify_profiles(agents_dir)
         write_manifest(manifest_path, desired_manifest())
+        # Post-commit consistency check: fail and roll back if profiles drift during manifest publication.
         verify_profiles(agents_dir)
     except BaseException as exc:
         rollback_errors = rollback(created, backups, manifest_path, previous_manifest)
