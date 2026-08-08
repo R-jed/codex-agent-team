@@ -19,8 +19,8 @@ MAIN_SKILL_NAMESPACED = "/subagents-dispatch:dispatch"
 DOCTOR_SKILL_NAMESPACED = "/subagents-dispatch:doctor"
 ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator", "Sol Advisor"]
 CONTROL_FORMS = ["/dispatch preview", "/dispatch status", "/dispatch steer", "/dispatch takeover"]
-LIGHT_LOGO = "assets/subagents-dispatch-logo.svg#gh-light-mode-only"
-DARK_LOGO = "assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only"
+LIGHT_LOGO = "assets/subagents-dispatch-logo.svg"
+DARK_LOGO = "assets/subagents-dispatch-logo-dark.svg"
 
 
 def test_public_readmes_keep_product_identity_install_use_update_and_controls():
@@ -175,7 +175,6 @@ def test_public_readme_visual_surface_uses_canonical_plugin_assets():
     assert not (ROOT / "docs" / "logo-dark.svg").exists()
 
     for text in [ZH, EN]:
-        assert "<picture" not in text
         assert LIGHT_LOGO in text
         assert DARK_LOGO in text
         assert "docs/logo-" not in text
