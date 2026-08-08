@@ -40,6 +40,7 @@ Do not recreate these rules in another ledger or local taxonomy.
 12. Children do not create project Subagents. Delegation depth is one.
 13. Preview, status, steer, and takeover never widen user scope, permissions, mutation authority, or external-impact authorization.
 14. Handoff Capsules carry only Main-accepted facts/evidence; raw child claims never become inherited task truth automatically.
+15. Every new project child is a fresh-context spawn: `fork_turns` is present and exactly `none` before `spawn_agent` is invoked.
 
 ## Control loop
 
@@ -162,9 +163,20 @@ Use progressive fan-out from the ready work. Do not create fixed waves, poll to 
 
 Responsibility packet shape, mutation authority, decision rights, evidence reuse, and stop conditions are owned by `references/router-core.md` and `references/guardrails.md`.
 
-Spawn each new project child with `fork_turns: none`; the responsibility packet is the child's task context. Do not omit `fork_turns` and accidentally inherit the host's full-history default.
+Before every `spawn_agent` call for a new project child, inspect the call itself and require all of the following:
 
-When a downstream responsibility would otherwise repeat material discovery that Main has already verified, add one compact Handoff Capsule under `references/handoff-capsule.md`. Keep fresh child context; do not forward the previous child's transcript.
+```text
+agent_type = the exact required subagents-dispatch project role
+fork_turns is present
+fork_turns = none
+the bounded responsibility packet is the child's task context
+```
+
+If any item is false, correct the call before invoking the Host. Never send `fork_turns: all` for a project child and never omit `fork_turns`. Do not use a rejected full-history spawn as a capability probe.
+
+A Host rejection before child identity exists is not an Agent attempt and does not increment the retry count. Correct a pre-attempt call error without relabeling it as delegated recovery; exact attempt and retry semantics live in `references/recovery.md`.
+
+When a downstream responsibility would otherwise repeat material discovery that Main has already verified, add one compact Handoff Capsule under `references/handoff-capsule.md`. Keep fresh child context; do not forward the previous child's transcript or full Main history.
 
 When a child returns:
 

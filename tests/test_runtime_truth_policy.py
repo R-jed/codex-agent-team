@@ -46,8 +46,9 @@ def test_exact_project_roles_have_no_cross_role_fallback():
 def test_new_project_children_use_explicit_fresh_context():
     skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     runtime = (ROOT / "docs" / "native-subagent-runtime.md").read_text(encoding="utf-8")
-    assert "fork_turns: none" in skill
-    assert "Do not omit `fork_turns`" in skill
+    assert "`fork_turns` is present and exactly `none`" in skill
+    assert "Never send `fork_turns: all` for a project child" in skill
+    assert "never omit `fork_turns`" in skill
     assert "fork_turns=none" in runtime
 
 

@@ -112,7 +112,7 @@ def test_ledger_derives_role_agent_bindings_from_policy_contract():
 
 
 def test_recovery_contract_owns_lifecycle_blockers_and_bounds():
-    text = RECOVERY.read_text()
+    text = RECOVERY.read_text(encoding="utf-8")
     assert VALIDATOR.FAILURE_ORIGINS == {
         "none",
         "runtime_unavailable",

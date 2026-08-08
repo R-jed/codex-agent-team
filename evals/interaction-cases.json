@@ -63,6 +63,19 @@
       }
     },
     {
+      "id": "custom-role-spawn-requires-fork-turns-none",
+      "input": {
+        "agent_type": "subagents_dispatch_reader",
+        "fork_turns": "all"
+      },
+      "expected": {
+        "spawn_call_valid": false,
+        "required_fork_turns": "none",
+        "full_history_allowed": false,
+        "omitted_fork_turns_allowed": false
+      }
+    },
+    {
       "id": "status-is-one-shot-and-preserves-unknown",
       "input": {"request": "/dispatch status", "native_state": "not_reported"},
       "expected": {
@@ -150,6 +163,20 @@
         "may_report_roles": true,
         "may_report_retries": true,
         "may_report_review_state": true
+      }
+    },
+    {
+      "id": "pre-child-spawn-rejection-does-not-count-as-retry",
+      "input": {
+        "first_spawn_rejected": true,
+        "first_spawn_child_identity": null,
+        "corrected_spawn_child_identity": "agent-1"
+      },
+      "expected": {
+        "materialized_agent_attempts": 1,
+        "retry_count": 0,
+        "receipt_retry": "no_retry",
+        "consume_attempt_budget_on_rejection": false
       }
     },
     {
