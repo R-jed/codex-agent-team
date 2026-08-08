@@ -294,8 +294,8 @@ def preflight_agents_dir(path: Path, *, check_only: bool) -> None:
         fail(
             f"Not installed: managed Agent profiles have not been provisioned yet "
             f"(agents directory missing: {path}). "
-            "The first /dispatch task that needs an Agent will explain what it manages "
-            "and ask permission before installing them."
+            "An explicit /dispatch task that needs delegation can provision these plugin-owned profiles automatically; "
+            "newly provisioned roles require a fresh Codex task/session before spawn."
         )
 
 
@@ -326,8 +326,8 @@ def preflight_profiles(
             if check_only:
                 fail(
                     f"Not installed: managed Agent profile is missing ({target}). "
-                    "The first /dispatch task that needs an Agent will explain what it manages "
-                    "and ask permission before installing them."
+                    "An explicit /dispatch task that needs delegation can provision this plugin-owned profile automatically; "
+                    "newly provisioned roles require a fresh Codex task/session before spawn."
                 )
             continue
         if not target.is_file():
@@ -553,8 +553,9 @@ def install_locked(codex_home: Path, check_only: bool, migrate_legacy: bool = Fa
             "review it explicitly instead of repeating automatic migration."
         )
     print(
-        "Profile files are ready. Re-check the native spawn_agent role surface; "
-        "start a fresh Codex task only if the current task still cannot discover these roles."
+        "Profile files are ready. If the current /dispatch task could not see the required role before this install, "
+        "its readiness outcome is RESTART_REQUIRED: do not attempt spawn_agent in that task; "
+        "start a fresh Codex task/session and rerun the request."
     )
 
 
