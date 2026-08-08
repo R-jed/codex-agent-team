@@ -34,16 +34,9 @@
 
 主会话拆成多个职责：Reader 查现有实现，Worker 改代码，Worker 写测试——并行推进，最后整合。
 
-## 四条核心约束
+## 运行中控制
 
-- **一个写入者** — 同一时间只有一个 Agent 能写代码。同一次 subagents-dispatch 调度内，同一个 Git checkout 同一时间最多一个写入者，写入者只能是 Main、Worker 或 Solver。原写入者没有确认停止前，Main 不开始冲突写入。其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内。
-- **一层委托深度** — 子 Agent 不能再创建子 Agent。用户目标、权限、团队组成和最终结果始终由 Main 负责。
-- **UNKNOWN 不猜测** — 状态不明就不乱动。不创建替代 Agent、不重试、不语义重路由。
-- **摘要只报事实** — 不猜 Token，不猜费用。不会根据模型名称或运行时长猜 Token 和费用。
-
-## 2.1 运行中控制
-
-执行前预览：
+执行前预览分工方案：
 
 ```
 /dispatch preview 给 /api/users 加分页参数，补上测试
@@ -86,6 +79,27 @@ Dispatch: Reader 查代码 -> Worker 实现 · 未重试 · 无需 Final Review
 - **Main 是验收边界**：子 Agent 的自我声明不能直接成为已知事实
 - **自带 `STALE IF` 条件**：文件变化可以使旧证据失效
 
+## 四条核心约束
+
+不管任务拆成多少职责，这四条规则始终成立：
+
+- **一个写入者** — 同一次 subagents-dispatch 调度内，同一 Git checkout 同一时间最多一个写入者，写入者只能是 Main、Worker 或 Solver。原写入者没有确认停止前，Main 不开始冲突写入。其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内。
+- **一层委托深度** — 子 Agent 不能再创建子 Agent。用户目标、权限、团队组成和最终结果始终由 Main 负责。
+- **UNKNOWN 不猜测** — 状态不明就不乱动。不创建替代 Agent、不重试、不语义重路由。
+- **摘要只报事实** — 不会根据模型名称或运行时长猜 Token 和费用。
+
+## 角色
+
+| 角色 | 干什么 |
+|------|--------|
+| Luna Reader | 读代码、追调用链、收集事实 |
+| Luna Worker | 边界已经清楚的实现和测试 |
+| Sol Solver | 实现过程中还要做判断的工作 |
+| Terra Investigator | 大范围只读调查，整理证据 |
+| Sol Advisor | 独立的技术判断或最终复核 |
+
+简单任务主会话自己来。需要并行、隔离、专门能力或独立判断时才叫人。没有固定人数，没有固定流程。
+
 ## 安装
 
 ```bash
@@ -115,25 +129,13 @@ codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-或者：
+或者让 Doctor 来：
 
 ```
 /doctor 升级 subagents-dispatch
 ```
 
 更新后开新的 Codex 会话。
-
-## 角色
-
-| 角色 | 干什么 |
-|------|--------|
-| Luna Reader | 读代码、追调用链、收集事实 |
-| Luna Worker | 边界已经清楚的实现和测试 |
-| Sol Solver | 实现过程中还要做判断的工作 |
-| Terra Investigator | 大范围只读调查，整理证据 |
-| Sol Advisor | 独立的技术判断或最终复核 |
-
-简单任务主会话自己来。需要并行、隔离、专门能力或独立判断时才叫人。没有固定人数，没有固定流程。
 
 ## 项目结构
 

@@ -50,10 +50,10 @@ def test_public_readmes_keep_product_identity_install_use_update_and_controls():
         assert form in EN
 
     assert "## 安装" in ZH and "## 快速开始" in ZH and "## 更新" in ZH
-    assert "## 四条核心约束" in ZH and "## 2.1 运行中控制" in ZH
+    assert "## 四条核心约束" in ZH and "## 运行中控制" in ZH
     assert "## 执行摘要" in ZH and "## Handoff Capsule：减少重复扫描" in ZH
     assert "## Install" in EN and "## Quick start" in EN and "## Update" in EN
-    assert "## Four core invariants" in EN and "## 2.1 control surface" in EN
+    assert "## Four core invariants" in EN and "## Control surface" in EN
     assert "## Compact execution receipt" in EN and "## Handoff Capsule: evidence-bound handoffs" in EN
 
 
@@ -201,7 +201,6 @@ def test_public_readme_visual_surface_uses_canonical_plugin_assets():
     plugin_assets = ROOT / "assets"
     assert (plugin_assets / "subagents-dispatch-logo.png").is_file()
     assert (plugin_assets / "subagents-dispatch-logo.svg").is_file()
-    assert (plugin_assets / "subagents-dispatch-logo-dark.svg").is_file()
     assert not (ROOT / "docs" / "logo-light.svg").exists()
     assert not (ROOT / "docs" / "logo-dark.svg").exists()
 

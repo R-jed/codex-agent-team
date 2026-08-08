@@ -34,16 +34,9 @@ With subagents-dispatch:
 
 Main splits it into responsibilities: Reader inspects the code, Worker changes implementation, Worker writes tests — in parallel, then integrated.
 
-## Four core invariants
+## Control surface
 
-- **One writer** — within one subagents-dispatch orchestration, the same Git checkout has at most one active writer. The writer can be Main, Worker, or Solver. Main stays read-only until the previous writer is confirmed stopped or terminal. Other Codex sessions, editors, hooks, and external processes are outside this guarantee.
-- **One delegation layer** — child Agents cannot create further Subagents. Main keeps ownership of the user goal, permissions, team composition, and final response.
-- **UNKNOWN means do not guess** — when state cannot be established, there is no replacement Agent, retry, or semantic reroute.
-- **Receipts report facts** — does not estimate token usage or currency cost from model names, elapsed time, or output length.
-
-## 2.1 control surface
-
-Preview before execution:
+Preview the delegation plan:
 
 ```
 /dispatch preview Add pagination to /api/users, with tests
@@ -86,6 +79,27 @@ Each child receives fresh context. A Handoff Capsule provides a small evidence-b
 - **Main is the acceptance boundary**: a child claim does not become inherited task truth by itself
 - **Carry `STALE IF` conditions**: source changes can invalidate previously accepted evidence
 
+## Four core invariants
+
+These hold no matter how many responsibilities a task splits into:
+
+- **One writer** — within one subagents-dispatch orchestration, the same Git checkout has at most one active writer. The writer can be Main, Worker, or Solver. Main stays read-only until the previous writer is confirmed stopped or terminal. Other Codex sessions, editors, hooks, and external processes are outside this guarantee.
+- **One delegation layer** — child Agents cannot create further Subagents. Main keeps ownership of the user goal, permissions, team composition, and final response.
+- **UNKNOWN means do not guess** — when state cannot be established, there is no replacement Agent, retry, or semantic reroute.
+- **Receipts report facts** — does not estimate token usage or currency cost from model names, elapsed time, or output length.
+
+## Roles
+
+| Role | What it does |
+|------|-------------|
+| Luna Reader | read code, trace call paths, gather facts |
+| Luna Worker | implementation and tests when the behavior is already decided |
+| Sol Solver | implementation that needs judgment calls along the way |
+| Terra Investigator | broad read-only investigation, evidence synthesis |
+| Sol Advisor | independent technical judgment or final review |
+
+Simple work stays in Main. Delegation happens when parallelism, isolation, or specialist capability justifies the cost. No fixed team size, no fixed pipeline.
+
 ## Install
 
 ```bash
@@ -115,25 +129,13 @@ codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-Or:
+Or ask Doctor:
 
 ```
 /doctor Upgrade subagents-dispatch
 ```
 
 Start a new Codex session after updating.
-
-## Roles
-
-| Role | What it does |
-|------|-------------|
-| Luna Reader | read code, trace call paths, gather facts |
-| Luna Worker | implementation and tests when the behavior is already decided |
-| Sol Solver | implementation that needs judgment calls along the way |
-| Terra Investigator | broad read-only investigation, evidence synthesis |
-| Sol Advisor | independent technical judgment or final review |
-
-Simple work stays in Main. Delegation happens when parallelism, isolation, or specialist capability justifies the cost. No fixed team size, no fixed pipeline.
 
 ## Repository layout
 
