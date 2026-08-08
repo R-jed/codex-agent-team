@@ -107,7 +107,9 @@ codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-Start a new Codex session after installing. On the first task that needs an Agent, if the five managed Agent profiles aren't installed yet, the system explains what it needs, asks permission, and installs them. Some Codex versions may require one additional fresh Codex session before the profiles are visible.
+Start a new Codex session after installing the Plugin. The first `/dispatch` task that actually needs a child automatically prepares subagents-dispatch's five managed Agent profiles without asking you to make a TOML-level setup decision. Codex loads custom-Agent registrations when a task starts, so that first setup task ends by asking you to open one fresh task and rerun the original `/dispatch`; it does not first attempt to spawn a role that the current task cannot see. After the profiles were present before task startup, later tasks can delegate normally.
+
+If an existing managed path is conflicting, modified without proven ownership, or unsafe, subagents-dispatch does not overwrite it and stops with `/doctor` guidance.
 
 ## Uninstall
 
