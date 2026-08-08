@@ -59,6 +59,40 @@ def test_preview_is_strictly_non_executing():
     }
 
 
+def test_first_use_auto_provisions_only_clean_absence_then_requires_fresh_task():
+    skill = SKILL.read_text(encoding="utf-8")
+    guardrails = GUARDRAILS.read_text(encoding="utf-8")
+    assert "readiness outcome: RESTART_REQUIRED" in skill
+    assert "do not attempt spawn_agent in this task" in skill
+    assert "Routine first-use provisioning is not a separate consent prompt" in guardrails
+    assert "`RESTART_REQUIRED` is a pre-dispatch readiness outcome" in guardrails
+    assert "Do not overwrite or repair that state under routine first-use authority" in guardrails
+
+    clean = cases()["first-use-clean-absence-auto-provisions-then-restarts"]["expected"]
+    assert clean == {
+        "routine_provisioning": True,
+        "separate_provisioning_prompt": False,
+        "run_installer": True,
+        "run_installer_check": True,
+        "readiness_outcome": "RESTART_REQUIRED",
+        "spawn_children_current_task": False,
+        "fresh_task_required": True,
+    }
+
+    exact = cases()["first-use-exact-profiles-but-role-unavailable-restarts-without-spawn"]["expected"]
+    assert exact["routine_provisioning"] is False
+    assert exact["readiness_outcome"] == "RESTART_REQUIRED"
+    assert exact["spawn_children_current_task"] is False
+
+    conflict = cases()["first-use-conflicting-managed-state-requires-user-action"]["expected"]
+    assert conflict == {
+        "routine_overwrite": False,
+        "readiness_outcome": "USER_ACTION_REQUIRED",
+        "spawn_children_current_task": False,
+        "doctor_guidance": True,
+    }
+
+
 def test_status_preserves_unknown_and_does_not_busy_poll():
     text = INTERACTION.read_text(encoding="utf-8")
     assert "one-shot state inspection" in text
