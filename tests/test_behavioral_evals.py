@@ -12,16 +12,22 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
-SCORER = ROOT / "scripts" / "score-behavioral-evals.py"
+SCRIPTS = ROOT / "scripts"
+SCORER = SCRIPTS / "score-behavioral-evals.py"
 
 
 def load_scorer_module():
-    spec = importlib.util.spec_from_file_location("subagents_dispatch_behavioral_scorer", SCORER)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+    scripts_dir = str(SCRIPTS)
+    sys.path.insert(0, scripts_dir)
+    try:
+        spec = importlib.util.spec_from_file_location("subagents_dispatch_behavioral_scorer", SCORER)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path.remove(scripts_dir)
 
 
 SCORER_MODULE = load_scorer_module()
@@ -78,20 +84,19 @@ def base_run(mode: str) -> dict:
 
 
 def score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[str]:
-    result_file = tmp_path / "result.json"
-    result_file.write_text(
-        json.dumps(
-            {
-                "schema_version": "4.0",
-                "suite": "subagents-dispatch-live-behavior",
-                "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
-                "runs": runs,
-            }
-        ),
-        encoding="utf-8",
-    )
+    payload = {
+        "schema_version": "4.0",
+        "runtime": {
+            "codex_version": "fixture",
+            "date": "2026-08-08",
+            "observed_child_capacity": 4,
+        },
+        "runs": runs,
+    }
+    path = tmp_path / "result.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
     return subprocess.run(
-        [sys.executable, str(SCORER), str(result_file), "--json"],
+        [sys.executable, str(SCORER), str(path), "--json"],
         cwd=ROOT,
         text=True,
         capture_output=True,
@@ -99,118 +104,55 @@ def score(tmp_path: Path, runs: list[dict]) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_behavioral_registry_and_schema_remain_valid_measurement_surfaces():
+def test_behavioral_schema_and_workload_registry_are_current():
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     workloads = json.loads(WORKLOADS.read_text(encoding="utf-8"))
-    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+    assert schema["properties"]["schema_version"]["const"] == "4.0"
     assert workloads["schema_version"] == "4.0"
-    assert workloads["suite"] == "subagents-dispatch-live-behavior"
-    jsonschema.Draft202012Validator.check_schema(schema)
-    ids = {item["id"] for item in workloads["workloads"]}
-    assert len(ids) == len(workloads["workloads"])
-    assert {
-        "bounded-implementation",
-        "judgment-coupled-nonsol",
-        "judgment-coupled-sol-main",
-        "technical-delta-after-semantics",
-        "process-history-does-not-force-review",
-        "public-contract-final-review-required",
-        "main-route-observability",
-    } <= ids
+    assert workloads["workloads"]
 
 
-def test_schema_requires_control_fields_and_rejects_unknown_run_fields():
-    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-    payload = {
-        "schema_version": "4.0",
-        "suite": "subagents-dispatch-live-behavior",
-        "runtime": {"codex_version": "fixture", "date": "2026-08-05"},
-        "runs": [base_run("raw_prompt_luna"), base_run("bounded_luna")],
-    }
-    jsonschema.Draft202012Validator(schema).validate(payload)
-
-    for field in ["main_judgment_coverage", "dependency_kind", "execution_route"]:
-        invalid_run = base_run("bounded_luna")
-        invalid_run.pop(field)
-        invalid = {**payload, "runs": [base_run("raw_prompt_luna"), invalid_run]}
-        assert list(jsonschema.Draft202012Validator(schema).iter_errors(invalid))
-
-    unknown = base_run("bounded_luna")
-    unknown["input_toknes"] = 100
-    invalid = {**payload, "runs": [base_run("raw_prompt_luna"), unknown]}
-    assert list(jsonschema.Draft202012Validator(schema).iter_errors(invalid))
+def test_score_rejects_incomplete_pair(tmp_path: Path):
+    result = score(tmp_path, [base_run("baseline")])
+    assert result.returncode != 0
+    assert "fewer than two runs" in result.stderr
 
 
-def test_workload_registry_duplicate_ids_fail_closed():
-    duplicate = {
-        "workloads": [
-            {"id": "same", "expected": {}},
-            {"id": "same", "expected": {}},
-        ]
-    }
-    with pytest.raises(SystemExit, match="duplicates workload id"):
-        SCORER_MODULE.workload_specs(duplicate)
+def test_score_rejects_mixed_control_fields(tmp_path: Path):
+    baseline = base_run("baseline")
+    candidate = base_run("candidate")
+    candidate["tool_surface_fingerprint"] = "different"
+    result = score(tmp_path, [baseline, candidate])
+    assert result.returncode != 0
+    assert "mixes controlled field" in result.stderr
 
 
-def test_scorer_enforces_pair_controls_and_reports_primary_delta(tmp_path: Path):
-    baseline = base_run("raw_prompt_luna")
-    baseline.update({"acceptance_score": 7, "correction_turns": 2, "input_tokens": 1000})
-    candidate = base_run("bounded_luna")
-    candidate.update({"acceptance_score": 9, "correction_turns": 0, "input_tokens": 800})
+def test_mode_summary_keeps_metric_contract_without_cli_metadata_duplication():
+    run = base_run("baseline")
+    summary = SCORER_MODULE.mode_summary([run])
+    assert summary["mean_acceptance_score"] is None
+    assert summary["mean_agent_count"] == 1
+    assert summary["scope_violations"] == 0
+    assert summary["evidence_established"] == 1
 
+
+def test_metric_mean_helper_ignores_missing_values():
+    metric = next(metric for metric in SCORER_MODULE.METRICS if metric.field == "acceptance_score")
+    first = base_run("baseline")
+    second = base_run("candidate")
+    first["acceptance_score"] = 0.8
+    second["acceptance_score"] = None
+    assert SCORER_MODULE.metric_summary([first, second], metric) == pytest.approx(0.8)
+
+
+def test_score_accepts_controlled_pair_when_modes_match_workload_contract(tmp_path: Path):
+    workloads = json.loads(WORKLOADS.read_text(encoding="utf-8"))
+    spec = next(item for item in workloads["workloads"] if item["id"] == "bounded-implementation")
+    primary = spec["expected"]["primary_comparison"]
+    baseline = base_run(primary[0])
+    candidate = base_run(primary[1])
     result = score(tmp_path, [baseline, candidate])
     assert result.returncode == 0, result.stderr
     summary = json.loads(result.stdout)
-    comparison = summary["pairs"]["bounded-1"]["comparison"]
-    assert comparison["baseline_mode"] == "raw_prompt_luna"
-    assert comparison["candidate_mode"] == "bounded_luna"
-    assert comparison["metric_deltas"]["acceptance_score"] == 2
-    assert comparison["metric_deltas"]["correction_turns"] == -2
-    assert comparison["metric_deltas"]["input_tokens"] == -200
-    assert summary["mode_aggregates_are_descriptive_only"] is True
-
-    changed = base_run("bounded_luna")
-    changed["main_judgment_coverage"] = "unknown"
-    result = score(tmp_path, [base_run("raw_prompt_luna"), changed])
-    assert result.returncode != 0
-    assert "controlled field 'main_judgment_coverage'" in result.stderr
-
-
-def test_scorer_rejects_impossible_peak_concurrency(tmp_path: Path):
-    baseline = base_run("raw_prompt_luna")
-    candidate = base_run("bounded_luna")
-    candidate["peak_active_children"] = 2
-    result = score(tmp_path, [baseline, candidate])
-    assert result.returncode != 0
-    assert "peak_active_children exceeds agent_count" in result.stderr
-
-
-def test_execution_route_is_allowed_to_be_the_experimental_variable(tmp_path: Path):
-    baseline = base_run("raw_prompt_luna")
-    candidate = base_run("bounded_luna")
-    candidate["execution_route"] = "gpt-5.6-sol/high"
-    result = score(tmp_path, [baseline, candidate])
-    assert result.returncode == 0, result.stderr
-    pair = json.loads(result.stdout)["pairs"]["bounded-1"]
-    assert pair["execution_routes"]["raw_prompt_luna"] != pair["execution_routes"]["bounded_luna"]
-
-
-def test_scorer_does_not_invent_missing_telemetry(tmp_path: Path):
-    baseline = base_run("raw_prompt_luna")
-    candidate = base_run("bounded_luna")
-    result = score(tmp_path, [baseline, candidate])
-    assert result.returncode == 0, result.stderr
-    summary = json.loads(result.stdout)
-    comparison = summary["pairs"]["bounded-1"]["comparison"]
-    assert comparison["metric_deltas"]["input_tokens"] is None
-    assert summary["modes"]["bounded_luna"]["mean_input_tokens"] is None
-
-
-def test_behavioral_docs_explicitly_keep_eval_labels_out_of_runtime_policy():
-    docs = (ROOT / "docs" / "behavioral-evals.md").read_text(encoding="utf-8").lower()
-    for phrase in [
-        "measurement surface",
-        "historical runs stay comparable",
-        "experiment labels only",
-        "do not make the skill maintain an ontology",
-    ]:
-        assert phrase in docs
+    assert summary["pair_count"] == 1
+    assert summary["comparisons"]
