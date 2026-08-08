@@ -12,7 +12,7 @@ Consult the current OpenAI documentation when platform behavior, Plugin packagin
 - Codex App Server, including thread events and token-usage notifications available to clients: https://developers.openai.com/codex/app-server
 - Codex Hooks, including Subagent lifecycle events: https://developers.openai.com/codex/hooks
 - Codex configuration reference: https://developers.openai.com/codex/config-reference
-- Model catalog: https://developers.openai.com/api/docs/models
+- Codex model guidance: https://developers.openai.com/codex/models
 
 Platform surfaces can change independently of this repository. Re-check the current documentation and actual Codex behavior before changing platform-facing claims.
 

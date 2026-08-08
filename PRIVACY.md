@@ -2,7 +2,7 @@
 
 Last updated: 2026-08-08
 
-subagents-dispatch is a skills-only Codex plugin. The project does not operate a developer-controlled server, analytics service, account system, advertising system, or telemetry endpoint.
+subagents-dispatch is a local Codex plugin built around Skills. It also ships local helper scripts and managed custom-Agent templates used by those Skills. The project does not operate a developer-controlled server, analytics service, account system, advertising system, or telemetry endpoint.
 
 ## Data collected by the project
 
