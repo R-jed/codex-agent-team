@@ -23,7 +23,8 @@ def test_implicit_invocation_is_disabled_instead_of_needing_extra_consent_policy
     ).read_text()
     guardrails = (REFERENCES / "guardrails.md").read_text()
     assert "allow_implicit_invocation: false" in openai
-    assert "/dispatch <task>" in guardrails
+    assert "supported user entrypoint is explicit `/dispatch`" in guardrails
+    assert "Exact task and control forms are owned by `interaction.md`" in guardrails
     assert "Explicit invocation only" in guardrails
 
 
