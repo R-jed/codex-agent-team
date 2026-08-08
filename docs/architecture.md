@@ -12,7 +12,7 @@ Runtime policy is deliberately split by responsibility:
 
 ```text
 SKILL.md
--> thin execution control loop and control-intent entry point
+-> thin execution control loop, control-intent entry point, and pre-dispatch role readiness
 
 interaction.md
 -> Preview, Status, Steer, Takeover, Execution Receipt, usage/cost evidence boundary
@@ -30,7 +30,7 @@ recovery.md
 -> attempt identity, UNKNOWN, failure classification, bounded recovery, Main takeover semantics
 
 guardrails.md
--> authority, mutation permissions, writer safety, consent, trust, provisioning, runtime evidence
+-> authority, mutation permissions, writer safety, consent, trust, first-use provisioning, runtime evidence
 
 final-review.md
 -> consequence-driven artifact-bound independent assurance
@@ -51,6 +51,10 @@ understand outcome + acceptance
 -> decide whether delegation adds value
 -> choose the capability actually needed
 -> ensure required native role readiness
+   -> exact role available: continue
+   -> cleanly missing managed profiles: auto provision + --check -> RESTART_REQUIRED -> stop before spawn
+   -> exact profiles present but role unavailable: RESTART_REQUIRED -> stop before spawn
+   -> unsafe/conflicting/unowned state: USER_ACTION_REQUIRED
 -> keep zero/one delegated responsibility on the lightweight path
 -> use TeamPlan only when multi-responsibility coordination needs it
 -> run the smallest useful ready set
@@ -64,6 +68,8 @@ understand outcome + acceptance
 -> deliver or report the exact blocker
 -> append one compact factual execution receipt when a child was actually spawned
 ```
+
+`RESTART_REQUIRED` is a pre-dispatch readiness outcome. It is not part of the Agent attempt lifecycle because no child exists yet. Codex currently loads custom-Agent role declarations into the task/session configuration at startup; subagents-dispatch therefore does not attempt a known-stale spawn after first-use provisioning.
 
 There is no fixed Luna → Terra → Sol path and no fixed Agent count.
 
@@ -128,7 +134,7 @@ A receipt may summarize semantic roles, retry/recovery/takeover facts, blocker s
 
 Configured/requested model identity is not reported as observed runtime identity. Token and currency cost are not estimated. Exact model or usage information may appear only when a supported host surface supplies attributable evidence.
 
-Zero-child tasks, Preview, and Status-only requests do not add a receipt.
+Zero-child tasks, Preview, Status-only requests, and `RESTART_REQUIRED` first-use setup do not add a receipt because no child was spawned.
 
 ## Handoff Capsule
 
@@ -297,7 +303,9 @@ The five TOML profiles are native Codex custom-Agent definitions. `install-agent
 
 The installer derives expected profile names/routes from `policy-contract.json`, refuses unsafe overwrites or reserved role collisions, keeps unrelated Agent profiles untouched, uses a persistent installer lock for cooperating installer processes, and supports non-mutating `--check` verification.
 
-Role readiness is established before delegated execution. Preview and Status do not provision roles simply to produce richer output.
+Explicit `/dispatch` provides routine first-use authority only when real delegation needs a role and the managed profiles are cleanly absent. That automatic path is limited to the five fixed profiles, ownership manifest, and installer lock. Repair, migration, upgrade, unsafe collisions, and unowned state remain user-controlled.
+
+Because the current Host loads custom-Agent declarations when a task/session starts, profiles installed while a task is already live do not make a newly missing role selectable in that same task. Successful first-use provisioning therefore ends with `RESTART_REQUIRED`, performs zero child spawns in the current task, and asks for one fresh task/session. Preview and Status never provision roles simply to produce richer output.
 
 ## Final Review
 
