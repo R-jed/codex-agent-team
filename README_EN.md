@@ -113,7 +113,7 @@ Development:
 /dispatch <task>
 ```
 
-Diagnostics and maintenance:
+Plugin diagnostics, maintenance, and upgrade:
 
 ```
 /doctor <request>

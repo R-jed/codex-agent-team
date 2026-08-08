@@ -113,7 +113,7 @@ rm ~/.codex/.subagents-dispatch-agents.json
 /dispatch <任务描述>
 ```
 
-诊断和维护：
+插件诊断、维护和升级：
 
 ```
 /doctor <请求>
