@@ -21,8 +21,6 @@
 
 > **如果你是 AI Agent，请跳转到 [README_AI.md](README_AI.md) 并严格按照说明操作。**
 
-> **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
-
 你描述要什么。主会话决定自己干还是叫人帮忙。
 
 改一个组件，主会话自己来。要同时查代码、写实现、跑测试，它会分配给专门的 Agent 各干各的，最后整合结果。
