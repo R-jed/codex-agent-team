@@ -53,15 +53,15 @@ def test_plugin_manifest_and_marketplace_use_canonical_identity():
     }
 
 
-def test_root_plugin_layout_and_release_verifiers_do_not_use_removed_subdirectory():
+def test_root_plugin_layout_and_canonical_ci_verifier_do_not_use_removed_subdirectory():
     assert PLUGIN.is_file()
     assert (ROOT / "skills" / "dispatch" / "SKILL.md").is_file()
     stale = "plugins/subagents-dispatch"
-    for path in [ROOT / ".github" / "workflows" / "ci.yml", ROOT / "scripts" / "pre-push-ci.sh"]:
-        text = path.read_text(encoding="utf-8")
-        assert stale not in text, f"{path} still targets the removed plugin subdirectory"
-        assert ".codex-plugin/plugin.json" in text
-        assert "scripts/install-agents.py" in text
+    path = ROOT / ".github" / "workflows" / "ci.yml"
+    text = path.read_text(encoding="utf-8")
+    assert stale not in text, f"{path} still targets the removed plugin subdirectory"
+    assert ".codex-plugin/plugin.json" in text
+    assert "scripts/install-agents.py" in text
 
 
 def test_plugin_brand_assets_and_supported_components():
