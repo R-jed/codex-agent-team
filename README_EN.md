@@ -119,8 +119,6 @@ Plugin diagnostics, maintenance, and upgrade:
 /doctor <request>
 ```
 
-Doctor is read-only by default. `/skills` opens the picker. Dispatch doesn't auto-activate on regular tasks.
-
 ## Update
 
 ```bash

@@ -119,8 +119,6 @@ rm ~/.codex/.subagents-dispatch-agents.json
 /doctor <请求>
 ```
 
-Doctor 默认只读。`/skills` 打开选择器。Dispatch 不会自动介入普通任务。
-
 ## 更新
 
 ```bash
