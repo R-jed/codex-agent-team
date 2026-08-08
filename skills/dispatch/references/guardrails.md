@@ -154,6 +154,20 @@ A successful first-use install in the current task is not evidence that the curr
 
 If a fresh task still cannot discover an exact role despite exact installed profiles, treat that as a Host/configuration limitation and fail closed. Do not substitute another role merely to keep moving.
 
+## 7A. Fresh-context spawn invariant
+
+Every new project child uses a fresh context. Treat this as a tool-call precondition, not a preference:
+
+```text
+new project child + exact project agent_type -> fork_turns: none
+```
+
+Before invoking `spawn_agent`, Main must inspect the pending call and verify that `fork_turns` is present and exactly `none`. Full-history (`all`) and omitted `fork_turns` are forbidden for project children. The bounded responsibility packet is the child's complete task context; full Main history and previous child transcripts are not forwarded.
+
+If the call is malformed, correct it before invoking the Host. Do not intentionally send a known-invalid full-history custom-role combination to discover what the Host will reject.
+
+A Host rejection before it returns any inspectable child identity is a pre-attempt spawn rejection. It does not create an Agent attempt, does not consume the two-attempt recovery budget, and does not increment the execution receipt retry count. If Host evidence is ambiguous about whether a child was created, preserve `UNKNOWN` and do not issue replacement work.
+
 ## 8. Runtime evidence is on demand
 
 Configuration intent and observed runtime fact are different.
