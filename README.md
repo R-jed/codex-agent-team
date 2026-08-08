@@ -113,12 +113,20 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 ```bash
 # 移除插件注册
-codex plugin remove subagents-dispatch
+codex plugin remove subagents-dispatch@subagents-dispatch
+```
 
-# 删除 5 个 Agent profile（reader/worker/solver/investigator/advisor）
-rm ~/.codex/agents/subagents-dispatch-*.toml
+如果之前运行过需要 Agent 的任务，还需删除相关文件：
 
-# 删除安装 manifest（记录哪些文件由本插件管理）
+```bash
+# 删除 5 个 Agent profile
+rm ~/.codex/agents/subagents-dispatch-reader.toml
+rm ~/.codex/agents/subagents-dispatch-worker.toml
+rm ~/.codex/agents/subagents-dispatch-solver.toml
+rm ~/.codex/agents/subagents-dispatch-investigator.toml
+rm ~/.codex/agents/subagents-dispatch-advisor.toml
+
+# 删除安装 manifest
 rm ~/.codex/.subagents-dispatch-agents.json
 ```
 

@@ -113,12 +113,20 @@ Start a new Codex session after installing. On the first task that needs an Agen
 
 ```bash
 # Remove plugin registration
-codex plugin remove subagents-dispatch
+codex plugin remove subagents-dispatch@subagents-dispatch
+```
 
-# Delete 5 Agent profiles (reader/worker/solver/investigator/advisor)
-rm ~/.codex/agents/subagents-dispatch-*.toml
+If you previously ran tasks that needed Agents, also delete these files:
 
-# Delete install manifest (tracks which files this plugin manages)
+```bash
+# Delete 5 Agent profiles
+rm ~/.codex/agents/subagents-dispatch-reader.toml
+rm ~/.codex/agents/subagents-dispatch-worker.toml
+rm ~/.codex/agents/subagents-dispatch-solver.toml
+rm ~/.codex/agents/subagents-dispatch-investigator.toml
+rm ~/.codex/agents/subagents-dispatch-advisor.toml
+
+# Delete install manifest
 rm ~/.codex/.subagents-dispatch-agents.json
 ```
 
