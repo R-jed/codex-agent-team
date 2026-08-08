@@ -143,9 +143,12 @@ def test_static_routing_cases_match_policy_owned_role_routes():
 
 
 def test_public_docs_keep_product_identity_while_ai_reference_points_to_policy_owners():
-    directive = "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly."
+    directives = {
+        "README.md": "如果你是 AI Agent，请跳转到 [README_AI.md](README_AI.md) 并严格按照说明操作。",
+        "README_EN.md": "If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.",
+    }
     version = current_version()
-    for name in ["README.md", "README_EN.md"]:
+    for name, directive in directives.items():
         text = (ROOT / name).read_text(encoding="utf-8")
         assert directive in text
         assert "/dispatch" in text
