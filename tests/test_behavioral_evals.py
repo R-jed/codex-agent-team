@@ -12,16 +12,22 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
-SCORER = ROOT / "scripts" / "score-behavioral-evals.py"
+SCRIPTS = ROOT / "scripts"
+SCORER = SCRIPTS / "score-behavioral-evals.py"
 
 
 def load_scorer_module():
-    spec = importlib.util.spec_from_file_location("subagents_dispatch_behavioral_scorer", SCORER)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+    scripts_dir = str(SCRIPTS)
+    sys.path.insert(0, scripts_dir)
+    try:
+        spec = importlib.util.spec_from_file_location("subagents_dispatch_behavioral_scorer", SCORER)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path.remove(scripts_dir)
 
 
 SCORER_MODULE = load_scorer_module()

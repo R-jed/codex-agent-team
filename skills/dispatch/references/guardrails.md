@@ -110,20 +110,7 @@ A user-requested takeover is not authorization for broader scope or permissions.
 
 ## 6. Explicit invocation only
 
-The product's supported user entrypoint is:
-
-```text
-/dispatch <task>
-```
-
-The same explicit Skill invocation also supports the control forms owned by `interaction.md`:
-
-```text
-/dispatch preview <task>
-/dispatch status
-/dispatch steer <unit_id>: <guidance>
-/dispatch takeover <unit_id>
-```
+The product's supported user entrypoint is explicit `/dispatch`. Exact task and control forms are owned by `interaction.md`; `SKILL.md` keeps the minimum bootstrap grammar needed to recognize those intents before ordinary routing.
 
 Users may also open the Codex Skill picker with `/skills`.
 

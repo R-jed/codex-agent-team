@@ -16,6 +16,7 @@ POLICY = PLUGIN_ROOT / "policy-contract.json"
 CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
+PLUGIN_REMOVE = "codex plugin remove subagents-dispatch@subagents-dispatch"
 USER_COMMAND_DISPATCH = "/dispatch"
 USER_COMMAND_DOCTOR = "/doctor"
 
@@ -133,7 +134,7 @@ def test_doctor_reuses_supported_diagnostics_and_existing_installer():
     assert "start a fresh Codex session" in text
 
 
-def test_install_doc_contains_the_current_install_update_and_first_run_contract():
+def test_install_doc_contains_the_current_install_update_uninstall_and_first_run_contract():
     text = INSTALL_DOC.read_text(encoding="utf-8")
     for phrase in [
         CANONICAL_MARKETPLACE,
@@ -145,15 +146,17 @@ def test_install_doc_contains_the_current_install_update_and_first_run_contract(
         "stops before delegated writing",
         "## Update",
         UPGRADE,
+        "## Uninstall",
+        PLUGIN_REMOVE,
         USER_COMMAND_DISPATCH,
         "/skills",
     ]:
         assert phrase in text
 
 
-def test_readmes_and_ai_reference_share_the_current_install_contract():
+def test_public_readmes_keep_commands_while_ai_reference_points_to_install_owner():
     version = json.loads(PLUGIN.read_text(encoding="utf-8"))["version"]
-    for name in ["README.md", "README_EN.md", "README_AI.md"]:
+    for name in ["README.md", "README_EN.md"]:
         text = (ROOT / name).read_text(encoding="utf-8")
         assert version in text
         assert USER_COMMAND_DISPATCH in text
@@ -161,4 +164,12 @@ def test_readmes_and_ai_reference_share_the_current_install_contract():
         assert CANONICAL_MARKETPLACE in text
         assert PLUGIN_ADD in text
         assert UPGRADE in text
-    assert "/plugins" in (ROOT / "README_AI.md").read_text(encoding="utf-8")
+        assert PLUGIN_REMOVE in text
+
+    ai = (ROOT / "README_AI.md").read_text(encoding="utf-8")
+    assert version in ai
+    assert USER_COMMAND_DISPATCH in ai
+    assert USER_COMMAND_DOCTOR in ai
+    assert "docs/plugin-installation.md" in ai
+    for command in [CANONICAL_MARKETPLACE, PLUGIN_ADD, UPGRADE, PLUGIN_REMOVE]:
+        assert command not in ai

@@ -325,31 +325,6 @@ def rollback_legacy_cleanup(codex_home: Path, backup: LegacyBackup) -> list[str]
     return _restore_removed_paths(codex_home, backup, removed_paths)
 
 
-def migrate_legacy_to_current(
-    codex_home: Path,
-    current_profile_source: Path,
-    current_profile_files: tuple[str, ...],
-    *,
-    dry_run: bool = False,
-) -> tuple[list[str], list[str]]:
-    del current_profile_source, current_profile_files
-    state = detect_legacy_state(codex_home)
-    if state.ownership_unknown:
-        return [], [
-            "Refusing automatic legacy cleanup because ownership metadata is missing, invalid, or unsafe."
-        ]
-    backup, warnings = backup_legacy_files(codex_home)
-    if dry_run:
-        return [
-            f"Would remove: {path}"
-            for path, can_remove in backup.removal_map.items()
-            if can_remove and path in backup.files
-        ], warnings
-    messages, commit_warnings = commit_legacy_cleanup(codex_home, backup)
-    warnings.extend(commit_warnings)
-    return messages, warnings
-
-
 def format_migration_state(state: MigrationState) -> str:
     if state.preserved_legacy:
         if state.ownership_unknown:

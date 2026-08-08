@@ -77,11 +77,13 @@ def test_profile_lifecycle_comes_from_policy_and_installer_not_user_docs():
     policy = json.loads(POLICY.read_text(encoding="utf-8"))
     profiles = PLUGIN / "agent-profiles"
     installer = (PLUGIN / "scripts" / "install-agents.py").read_text(encoding="utf-8")
+    policy_loader = (PLUGIN / "scripts" / "policy.py").read_text(encoding="utf-8")
     expected_files = {spec["profile_file"] for spec in policy["roles"].values()}
     assert {path.name for path in profiles.glob("*.toml")} == expected_files
     assert 'MANIFEST_NAME = ".subagents-dispatch-agents.json"' in installer
     assert 'LOCK_NAME = ".subagents-dispatch-agents.lock"' in installer
-    assert "policy-contract.json" in installer
+    assert "from policy import load_policy_contract" in installer
+    assert 'POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"' in policy_loader
 
 
 def test_process_history_is_not_a_final_review_trigger():

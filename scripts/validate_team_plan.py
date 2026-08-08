@@ -11,9 +11,9 @@ import sys
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
+from policy import load_policy_contract
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-POLICY_CONTRACT_PATH = PLUGIN_ROOT / "policy-contract.json"
+
 CURRENT_SCHEMA_VERSION = "1.0"
 PLANNING_SOURCES = {"ad_hoc", "accepted_plan", "codex_plan", "upstream_skill"}
 UNIT_ID_PATTERN = re.compile(r"^U[1-9][0-9]*$")
@@ -44,9 +44,8 @@ UNIT_FIELDS = {
 
 def load_role_policy() -> tuple[set[str], set[str]]:
     try:
-        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
-        roles = payload["roles"]
-    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        roles = load_policy_contract()["roles"]
+    except (RuntimeError, KeyError, TypeError) as exc:
         raise RuntimeError(f"invalid policy contract: {exc}") from exc
     if not isinstance(roles, dict) or not roles:
         raise RuntimeError("policy contract must define TeamPlan roles")
