@@ -90,6 +90,8 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 Start a new Codex session after installation.
 
+On the first `/dispatch` task that actually needs a child, Dispatch checks the five managed Agent profiles. If they are missing, it explains the local files it manages and asks permission before running the bundled installer and check. Some Codex builds may require one additional fresh Codex session before newly installed profiles become visible; delegated writing does not start until the required roles are available.
+
 Development work uses:
 
 ```text
@@ -143,7 +145,7 @@ Simple work can remain entirely in Main. Delegation is used when parallelism, is
 
 - Main owns the user's goal, permissions, team composition, and final response.
 - Child Agents cannot create their own project teams.
-- Only one actor writes to the same Git checkout at a time.
+- Within one subagents-dispatch orchestration, the same physical Git checkout has at most one active writer; other Codex sessions, editors, hooks, and external processes are outside this guarantee.
 - Steering cannot silently widen responsibility, permission, mutation authority, or user scope.
 - Takeover must settle the previous owner before conflicting work continues; `UNKNOWN` is preserved.
 - Handoff Capsules carry only Main-accepted evidence and cannot grant write authority.

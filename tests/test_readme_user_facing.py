@@ -94,15 +94,23 @@ def test_public_readmes_keep_runtime_detail_bounded_and_link_deeper_docs():
         assert "chain-of-thought" not in text.lower()
 
 
-def test_public_readmes_describe_safe_takeover_receipt_and_handoff_boundaries():
+def test_public_readmes_describe_safe_takeover_receipt_handoff_writer_and_first_run_boundaries():
     for text in [ZH, EN]:
         assert "UNKNOWN" in text
         assert "Handoff Capsule" in text
         assert "Token" in text or "token" in text
     assert "原写入者没有确认停止前" in ZH
     assert "不会根据模型名称或运行时长猜 Token 和费用" in ZH
+    assert "同一次 subagents-dispatch 调度内" in ZH
+    assert "其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内" in ZH
+    assert "五个项目 Agent profiles" in ZH
+    assert "再开启一次新的 Codex 会话" in ZH
     assert "previous writer is confirmed stopped or terminal" in EN
     assert "does not estimate token usage or currency cost" in EN
+    assert "Within one subagents-dispatch orchestration" in EN
+    assert "other Codex sessions, editors, hooks, and external processes are outside this guarantee" in EN
+    assert "five managed Agent profiles" in EN
+    assert "one additional fresh Codex session" in EN
 
 
 def test_ai_reference_is_an_index_to_canonical_policy_owners():

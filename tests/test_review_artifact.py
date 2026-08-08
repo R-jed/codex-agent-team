@@ -35,6 +35,30 @@ def init_repo(tmp_path: Path) -> Path:
     return repo
 
 
+def init_repo_with_submodule(tmp_path: Path) -> tuple[Path, Path]:
+    source = tmp_path / "submodule-source"
+    source.mkdir()
+    git(source, "init")
+    git(source, "config", "user.email", "subagents-dispatch@example.invalid")
+    git(source, "config", "user.name", "subagents-dispatch Test")
+    (source / "dep.txt").write_text("VALUE = 1\n", encoding="utf-8")
+    git(source, "add", "dep.txt")
+    git(source, "commit", "-m", "test: submodule base")
+
+    repo = init_repo(tmp_path)
+    git(
+        repo,
+        "-c",
+        "protocol.file.allow=always",
+        "submodule",
+        "add",
+        str(source),
+        "vendor/dep",
+    )
+    git(repo, "commit", "-m", "test: add submodule")
+    return repo, repo / "vendor" / "dep"
+
+
 def artifact(repo: Path, *extra: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(SCRIPT), "--repo", str(repo), *extra],
@@ -162,6 +186,32 @@ def test_head_change_invalidates_artifact_even_with_clean_worktree(tmp_path: Pat
     git(repo, "commit", "-m", "test: change head")
     after = artifact_id(repo)
     assert after != before
+
+
+def test_clean_submodule_is_bindable_but_dirty_or_mismatched_checkout_fails_closed(tmp_path: Path):
+    repo, submodule = init_repo_with_submodule(tmp_path)
+    clean = artifact_id(repo)
+    assert artifact_id(repo) == clean
+
+    (submodule / "dep.txt").write_text("VALUE = 2\n", encoding="utf-8")
+    dirty = artifact(repo)
+    assert dirty.returncode != 0
+    assert "dirty submodule cannot be bound exactly" in dirty.stderr
+
+    verified = artifact(repo, "--verify", clean)
+    assert verified.returncode != 0
+    assert "dirty submodule cannot be bound exactly" in verified.stderr
+
+    git(submodule, "reset", "--hard", "HEAD")
+    git(submodule, "config", "user.email", "subagents-dispatch@example.invalid")
+    git(submodule, "config", "user.name", "subagents-dispatch Test")
+    (submodule / "dep.txt").write_text("VALUE = 3\n", encoding="utf-8")
+    git(submodule, "add", "dep.txt")
+    git(submodule, "commit", "-m", "test: local submodule commit")
+
+    mismatched = artifact(repo)
+    assert mismatched.returncode != 0
+    assert "submodule checkout does not match the indexed gitlink" in mismatched.stderr
 
 
 def test_unborn_repository_is_supported(tmp_path: Path):
