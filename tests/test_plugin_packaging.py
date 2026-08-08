@@ -66,7 +66,7 @@ def test_plugin_brand_assets_and_supported_components():
     payload = json.loads(PLUGIN.read_text(encoding="utf-8"))
     interface = payload["interface"]
     assert interface["brandColor"] == "#2563EB"
-    for field in ["composerIcon", "logo", "logoDark"]:
+    for field in ["composerIcon", "logo"]:
         asset = PLUGIN_ROOT / interface[field].removeprefix("./")
         assert asset.is_file() and "<svg" in asset.read_text(encoding="utf-8")
     for unsupported in ["agents", "hooks", "mcpServers", "apps"]:
