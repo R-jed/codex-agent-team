@@ -18,8 +18,8 @@ from pathlib import Path
 import sys
 from typing import Any, NoReturn
 
-ROOT = Path(__file__).resolve().parents[1]
-POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
+from policy import load_policy_contract
+
 CHILD_ROUTE_FIELDS = ("agent_role", "model", "effort")
 MAIN_ROUTE_FIELDS = ("model", "effort")
 IDENTITY_FIELDS = ("thread_id", "parent_thread_id")
@@ -34,7 +34,7 @@ def fail(message: str) -> NoReturn:
 
 def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...], tuple[str, ...]]:
     try:
-        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
+        payload = load_policy_contract()
         dedup = payload["capability_dedup"]
         role = dedup["reference_role"]
         order = dedup["reasoning_effort_order"]
@@ -42,7 +42,7 @@ def load_main_coverage_policy() -> tuple[str, str, tuple[str, ...], tuple[str, .
         reference = payload["roles"][role]
         model = reference["model"]
         effort = reference["effort"]
-    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+    except (RuntimeError, KeyError, TypeError) as exc:
         fail(f"invalid policy contract for capability dedup: {exc}")
     if not isinstance(model, str) or not model.strip() or not isinstance(effort, str) or not effort.strip():
         fail("capability dedup reference route is invalid")
@@ -169,46 +169,63 @@ def requested_layer(requested: dict[str, Any] | None, fields: tuple[str, ...]) -
     }
 
 
+def reported_layer(
+    observation: dict[str, str | None] | None,
+    fields: tuple[str, ...],
+    *,
+    conflict: bool,
+    missing_status: str,
+) -> dict[str, Any]:
+    present_fields = seen(observation, fields)
+    if conflict:
+        status = "conflict"
+    elif not present_fields:
+        status = missing_status
+    elif all(observation and observation.get(field) is not None for field in fields):
+        status = "matched"
+    else:
+        status = "partial"
+    return {
+        "status": status,
+        "fields": {field: observation[field] for field in present_fields} if observation is not None else {},
+    }
+
+
 def accepted_layer(
     accepted: dict[str, str | None] | None,
     fields: tuple[str, ...],
     violations: list[str],
 ) -> dict[str, Any]:
-    accepted_fields = seen(accepted, fields)
-    if any(item.startswith("accepted:") or item.startswith("accepted_observed_conflict:") for item in violations):
-        status = "conflict"
-    elif not accepted_fields:
-        status = "not_reported"
-    elif all(accepted and accepted.get(field) is not None for field in fields):
-        status = "matched"
-    else:
-        status = "partial"
-    return {
-        "status": status,
-        "fields": {field: accepted[field] for field in accepted_fields} if accepted is not None else {},
-    }
+    conflict = any(
+        item.startswith("accepted:") or item.startswith("accepted_observed_conflict:")
+        for item in violations
+    )
+    return reported_layer(
+        accepted,
+        fields,
+        conflict=conflict,
+        missing_status="not_reported",
+    )
 
 
-def observed_layer(native: dict[str, str | None] | None, fields: tuple[str, ...], violations: list[str]) -> dict[str, Any]:
-    native_fields = seen(native, fields)
-    if any(
+def observed_layer(
+    native: dict[str, str | None] | None,
+    fields: tuple[str, ...],
+    violations: list[str],
+) -> dict[str, Any]:
+    conflict = any(
         item.startswith("native:")
         or item.startswith("accepted_observed_conflict:")
         or item == f"source_conflict:{field}"
         for item in violations
         for field in fields
-    ):
-        status = "conflict"
-    elif not native_fields:
-        status = "not_observed"
-    elif all(native and native.get(field) is not None for field in fields):
-        status = "matched"
-    else:
-        status = "partial"
-    return {
-        "status": status,
-        "fields": {field: native[field] for field in native_fields} if native is not None else {},
-    }
+    )
+    return reported_layer(
+        native,
+        fields,
+        conflict=conflict,
+        missing_status="not_observed",
+    )
 
 
 def model_matches(model: str) -> bool:
