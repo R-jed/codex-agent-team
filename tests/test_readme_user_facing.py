@@ -50,9 +50,40 @@ def test_public_readmes_keep_product_identity_install_use_update_and_controls():
         assert form in EN
 
     assert "## 安装" in ZH and "## 快速开始" in ZH and "## 更新" in ZH
-    assert "## 运行中控制" in ZH and "## 执行摘要" in ZH and "## 减少重复扫描" in ZH
+    assert "## 四条核心约束" in ZH and "## 2.1 运行中控制" in ZH
+    assert "## 执行摘要" in ZH and "## Handoff Capsule：减少重复扫描" in ZH
     assert "## Install" in EN and "## Quick start" in EN and "## Update" in EN
-    assert "## Control active work" in EN and "## Compact execution receipt" in EN and "## Evidence-bound handoffs" in EN
+    assert "## Four core invariants" in EN and "## 2.1 control surface" in EN
+    assert "## Compact execution receipt" in EN and "## Handoff Capsule: evidence-bound handoffs" in EN
+
+
+def test_public_readmes_surface_core_product_differentiators():
+    for phrase in [
+        "一个写入者",
+        "一层委托深度",
+        "UNKNOWN 不猜测",
+        "摘要只报事实",
+        "不创建替代 Agent",
+        "不重试",
+        "不语义重路由",
+        "Main 是验收边界",
+        "DO NOT REDO",
+        "STALE IF",
+    ]:
+        assert phrase in ZH
+
+    for phrase in [
+        "One writer",
+        "One delegation layer",
+        "UNKNOWN means do not guess",
+        "Receipts report facts",
+        "no replacement Agent",
+        "semantic reroute",
+        "Main is the acceptance boundary",
+        "DO NOT REDO",
+        "STALE IF",
+    ]:
+        assert phrase in EN
 
 
 def test_public_readmes_explain_the_current_repository_layout():
@@ -106,8 +137,8 @@ def test_public_readmes_describe_safe_takeover_receipt_handoff_writer_and_first_
     assert "再开启一次新的 Codex 会话" in ZH
     assert "previous writer is confirmed stopped or terminal" in EN
     assert "does not estimate token usage or currency cost" in EN
-    assert "Within one subagents-dispatch orchestration" in EN
-    assert "other Codex sessions, editors, hooks, and external processes are outside this guarantee" in EN
+    assert "within one subagents-dispatch orchestration" in EN
+    assert "Other Codex sessions, editors, hooks, and external processes are outside this guarantee" in EN
     assert "five managed Agent profiles" in EN
     assert "one additional fresh Codex session" in EN
 
