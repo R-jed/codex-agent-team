@@ -13,7 +13,6 @@ LEGACY_MANIFEST_NAME = ".codex-delegate-agents.json"
 LEGACY_LOCK_NAME = ".codex-delegate-agents.lock"
 CURRENT_MANAGED_BY = "subagents-dispatch"
 CURRENT_MANIFEST_NAME = ".subagents-dispatch-agents.json"
-CURRENT_LOCK_NAME = ".subagents-dispatch-agents.lock"
 LEGACY_PROFILE_FILES = (
     "codex-delegate-reader.toml",
     "codex-delegate-worker.toml",
