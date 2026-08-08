@@ -20,23 +20,27 @@
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
+subagents-dispatch is a Codex plugin that hands the right work to a specialist Agent while Main keeps the goal, the permissions, and the final answer. It does not delegate for show. Work Main can finish alone stays in Main.
+
 ## Quick start
 
-You ask Codex to add pagination to an API and write tests.
+You ask Codex to add pagination to `/api/users` and write the tests.
 
-Without subagents-dispatch, the main session does everything: reads code, changes implementation, writes tests. One step at a time.
+Without the plugin, the main session does everything itself: reads the code, changes the implementation, writes the tests, one step at a time.
 
-With subagents-dispatch:
+With it, one line is enough:
 
 ```
 /dispatch Add pagination to /api/users, with tests
 ```
 
-Main splits it into responsibilities: Reader inspects the code, Worker changes implementation, Worker writes tests — in parallel, then integrated.
+Main decides what is worth splitting. A Reader checks the existing code, a Worker makes the change, another Worker adds the tests. Parallel work moves together, then Main checks, integrates, and delivers.
+
+Simple tasks are not force-split to look collaborative. A subagent only starts when it is genuinely faster, safer, or a better fit.
 
 ## Control surface
 
-Preview the delegation plan:
+Preview the delegation plan without spawning:
 
 ```
 /dispatch preview Add pagination to /api/users, with tests
@@ -68,25 +72,27 @@ When a task spawns Agents, it ends with a one-line receipt:
 Dispatch: Reader inspect -> Worker implement · no retry · Final Review not required
 ```
 
-The receipt covers verifiable facts only, exposes no hidden reasoning.
+The receipt covers verifiable facts only: which roles ran, whether anything retried, whether a final review happened. It exposes no hidden reasoning and does not estimate token usage or currency cost.
 
 ## Handoff Capsule: evidence-bound handoffs
 
-Each child receives fresh context. A Handoff Capsule provides a small evidence-bound bridge between responsibilities.
+Each child receives fresh context. With nothing passed on, the next Agent often re-checks what the previous one already established.
 
-- **Pass verified facts**: only facts that Main has checked and accepted can enter the capsule
-- **Mark `DO NOT REDO`**: work already satisfied by valid evidence can be marked as do not repeat
-- **Main is the acceptance boundary**: a child claim does not become inherited task truth by itself
-- **Carry `STALE IF` conditions**: source changes can invalidate previously accepted evidence
+A Handoff Capsule is a small bridge. Main packs the facts it has verified and accepted into it, then hands them to the next responsibility.
+
+- **Pass verified facts**. Only facts Main has checked and accepted can enter the capsule
+- **Mark `DO NOT REDO`**. Work already satisfied by valid evidence can be marked as do not repeat
+- **Main is the acceptance boundary**. A child claim does not become inherited task truth by itself
+- **Carry `STALE IF` conditions**. Source changes can invalidate previously accepted evidence
 
 ## Four core invariants
 
 These hold no matter how many responsibilities a task splits into:
 
-- **One writer** — within one subagents-dispatch orchestration, the same Git checkout has at most one active writer. The writer can be Main, Worker, or Solver. Main stays read-only until the previous writer is confirmed stopped or terminal. Other Codex sessions, editors, hooks, and external processes are outside this guarantee.
-- **One delegation layer** — child Agents cannot create further Subagents. Main keeps ownership of the user goal, permissions, team composition, and final response.
-- **UNKNOWN means do not guess** — when state cannot be established, there is no replacement Agent, retry, or semantic reroute.
-- **Receipts report facts** — does not estimate token usage or currency cost from model names, elapsed time, or output length.
+- **One writer** — within one subagents-dispatch orchestration, the same Git checkout has at most one active writer. The writer can be Main, Worker, or Solver. Main stays read-only until the previous writer is confirmed stopped or terminal. Other Codex sessions, editors, hooks, and external processes are outside this guarantee
+- **One delegation layer** — child Agents cannot create further Subagents. Main keeps ownership of the user goal, permissions, team composition, and final response
+- **UNKNOWN means do not guess** — when state cannot be established, there is no replacement Agent, retry, or semantic reroute
+- **Receipts report facts** — does not estimate token usage or currency cost from model names, elapsed time, or output length
 
 ## Roles
 
