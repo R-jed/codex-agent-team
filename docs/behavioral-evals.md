@@ -23,7 +23,7 @@ policy-contract.json
 
 Do not make the Skill maintain an ontology merely because an eval field exists.
 
-`evals/interaction-cases.json` is the deterministic policy fixture for Preview, Status, Steer, Takeover, Execution Receipt, and Handoff Capsule boundaries. Live evaluation still matters for Host behavior and user-value questions that static fixtures cannot establish.
+`evals/interaction-cases.json` is the deterministic policy fixture for Preview, first-use readiness, Status, Steer, Takeover, Execution Receipt, and Handoff Capsule boundaries. Live evaluation still matters for Host behavior and user-value questions that static fixtures cannot establish.
 
 ## Primary product questions
 
@@ -36,7 +36,7 @@ The live suite asks:
 5. When Luna encounters a material semantic blocker, does correct rerouting reduce wrong edits/rework compared with simply continuing Luna?
 6. For stable semantics and read-only work, does Terra provide useful quality/context depth at lower total cost than a Sol judgment lane, and when does narrow Luna Reader remain sufficient?
 7. Does consequence-driven Final Review catch material issues while avoiding decorative review caused only by process history?
-8. Does explicit `/dispatch` invocation plus pre-execution role readiness reduce onboarding interruption compared with discovering missing roles mid-task?
+8. Does explicit `/dispatch` plus automatic bounded first-use provisioning produce a clean one-time `RESTART_REQUIRED` handoff, with zero stale-session spawn attempts and no unnecessary setup prompt?
 9. Does a one-line factual Execution Receipt improve delegation transparency without cluttering zero-child work or encouraging unsupported model/cost claims?
 10. Does Preview help users understand likely delegation without accidentally spawning, provisioning, mutating, or creating false route certainty?
 11. Do Status, Steer, and Takeover improve user control while preserving `UNKNOWN`, stable responsibility identity, and one-writer safety?
@@ -139,6 +139,17 @@ takeover_settlement_ms
 takeover_unknown_preserved
 receipt_lines
 receipt_unsupported_claims
+```
+
+For first-use readiness also record:
+
+```text
+first_use_provisioning_prompts
+first_use_profiles_provisioned
+first_use_spawn_attempts_before_restart
+first_use_restart_required
+first_use_conflict_overwrites
+fresh_task_role_available
 ```
 
 These may remain external worksheet fields until the result schema has a demonstrated need to persist them.
@@ -291,22 +302,46 @@ For the process-history negative control, use a candidate where Terra/Solver/rec
 
 ## Experiment H: first-use readiness
 
-Measure the first explicit `/dispatch` experience when project Agent profiles are absent.
+Measure the first explicit `/dispatch` experience when project Agent profiles are absent from both disk and the current task's loaded Agent registry.
 
 The current candidate should:
 
 ```text
 identify that delegation will be useful
--> check required role readiness
--> request provisioning permission
--> install + --check
--> if restart is needed, stop before child write
--> resume delegated task in fresh thread
+-> check exact required role availability
+-> run non-mutating installer --check
+-> observe clean Not installed state
+-> automatically provision only the plugin-owned managed profiles/manifest/lock
+-> run --check successfully
+-> set readiness outcome RESTART_REQUIRED
+-> perform 0 child spawns in the current task
+-> show one concise fresh-task handoff
+-> rerun the original /dispatch in a fresh task/session
+-> verify exact role availability there before spawning
 ```
 
-Also verify Preview does not provision missing roles.
+There is no separate routine provisioning confirmation prompt in this clean first-use path. The explicit `/dispatch` request is the narrow authorization for plugin-owned provisioning after delegation is already justified.
 
-Record user prompts, interrupted work, repeated discovery, and whether any implementation had to be abandoned because setup occurred too late.
+Hard negative controls:
+
+```text
+Preview or Status with profiles absent
+-> 0 provisioning
+
+profile collision / symlink / modified-unowned state
+-> 0 overwrite
+-> USER_ACTION_REQUIRED
+
+profiles exact but role unavailable in current task
+-> RESTART_REQUIRED
+-> 0 child spawns before restart
+
+fresh task still lacks the exact role
+-> fail closed as Host/config limitation
+-> no role substitution
+```
+
+Record onboarding interruptions, first-use provisioning prompts, stale-session spawn attempts, whether the user understood the single fresh-task instruction, and whether any unrelated state was modified. The release target is one unavoidable fresh-task handoff caused by Host registration timing, not an additional plugin-generated setup prompt plus a failed spawn.
 
 ## Experiment I: Execution Receipt clarity
 
@@ -405,6 +440,6 @@ Interaction experiments may initially use structured notes alongside existing re
 
 Do not claim improved quality, lower cost, reduced rework, Solver superiority, Terra value, onboarding improvement, receipt usability, takeover usability, or Handoff Capsule efficiency until named live workloads on named runtime versions support that claim.
 
-Static contract tests can prove that Preview is instructed to avoid spawning, that UNKNOWN takeover is prohibited, and that capsules require accepted evidence. Only a real Codex Host run can prove the native steer/stop/control surface behaves as expected in a particular build.
+Static contract tests can prove that Preview is instructed to avoid spawning, that clean first-use absence maps to bounded automatic provisioning plus `RESTART_REQUIRED`, that unsafe first-use state fails closed, that UNKNOWN takeover is prohibited, and that capsules require accepted evidence. Only a real Codex Host run can prove the native task/session registration boundary, fresh-task role availability, steer/stop/control surface, and user experience on a particular build.
 
 The runtime mechanism defines where each role and control is allowed to operate. Behavioral evidence determines whether those choices create user value in practice.
