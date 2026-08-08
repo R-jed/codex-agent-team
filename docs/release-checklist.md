@@ -64,7 +64,7 @@ no extra routine provisioning confirmation is requested
 no unrelated Codex state is modified
 ```
 
-### Fresh-task role discovery
+### Fresh-task role discovery and spawn context
 
 Open one fresh Codex task/session and rerun the same request. Confirm the exact required custom Agent role is available before spawning.
 
@@ -74,6 +74,18 @@ At minimum, prove real Host spawn for:
 subagents_dispatch_reader
 subagents_dispatch_worker
 ```
+
+For each new project child, inspect the first actual `spawn_agent` call and confirm:
+
+```text
+exact required agent_type
+fork_turns is present
+fork_turns = none
+0 full-history (`all`) custom-role spawn calls
+0 omitted-fork_turns project-child spawn calls
+```
+
+A Host/tool rejection before any child identity is returned is a pre-attempt spawn rejection. It must not consume the two-attempt Agent recovery budget and must not increment the execution receipt retry count. If a corrected first valid child then succeeds, the receipt still reports `no retry` / `未重试` unless a materialized Agent attempt was actually retried.
 
 If configured/requested model information is available but observed runtime model identity is not, record the observation as unavailable rather than inferring it from TOML.
 
@@ -109,6 +121,8 @@ Do not release if any of these are observed on the supported Host candidate:
 fresh task cannot resolve the exact required custom Agent role
 Luna Reader or Worker cannot be spawned on the supported Host
 first-use stale task attempts a child spawn after provisioning
+normal project-child spawn uses fork_turns other than none or omits fork_turns
+pre-child spawn rejection is counted as an Agent retry or receipt retry
 UNKNOWN is treated as FAILED
 Main writes before a previous writer is proven settled during takeover
 modified or unowned Agent configuration is overwritten automatically
