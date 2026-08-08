@@ -167,12 +167,13 @@ def test_ai_reference_is_an_index_to_canonical_policy_owners():
         "final-review.md",
         "policy-contract.json",
         "doctor/SKILL.md",
-        CANONICAL_MARKETPLACE,
-        PLUGIN_ADD,
-        UPGRADE,
+        "docs/plugin-installation.md",
+        "scripts/policy.py",
     ]:
         assert phrase in AI
     assert "not a second copy of runtime policy" in AI
+    for command in [CANONICAL_MARKETPLACE, PLUGIN_ADD, UPGRADE, "/dispatch preview <task>"]:
+        assert command not in AI
 
 
 def test_evals_readme_identifies_measurement_boundary_and_canonical_owners():
