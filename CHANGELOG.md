@@ -10,6 +10,8 @@
 - **当前会话角色不可见**：如果磁盘上的 managed profiles 已经精确存在，但当前任务启动时没有加载对应 Agent role，同样返回 `RESTART_REQUIRED`，不会用其他 role 替代或继续猜测
 - **安全失败边界**：同名冲突、symlink、未证明所有权、被修改或其他不安全状态继续 fail closed，并转由用户与 `/doctor` 处理，不自动覆盖
 - **安装器诊断**：首次 `--check` 对未安装状态给出明确的 `Not installed` 引导，并将安装成功后的提示与 `RESTART_REQUIRED` 行为保持一致
+- **Custom Agent fresh-context spawn**：所有新 project child 在调用 `spawn_agent` 前必须显式使用 `fork_turns: none`；禁止 full-history (`all`) 或省略 `fork_turns`，避免 exact custom role 与 full-history 组合被 Host 拒绝
+- **重试计数准确性**：Host 在返回任何 child identity 前拒绝的 spawn tool call 定义为 pre-attempt rejection，不消耗 Agent attempt budget，也不会让 Execution Receipt 错误显示一次 Agent retry
 
 ### Changed
 
@@ -17,6 +19,7 @@
 - **文档与评估同步**：README、AI reference、Privacy、安装/架构/原生运行文档、Behavioral Eval H、interaction fixtures 与回归测试统一到新的 first-use contract
 - `RESTART_REQUIRED` 明确定义为 pre-dispatch readiness outcome，不属于 Recovery/Agent lifecycle 状态；由于没有实际 spawn child，也不产生 Execution Receipt
 - **发布前工程收口**：README 示例明确只读工作可并行、同一代码目录只保留一个写入者；新增 first-use、Status、Steer 的真实 Host workload，Ruff lint、正式发布清单，以及版本号/Changelog 一致性回归检查
+- **Host 回归门**：新增 custom-role fresh-context spawn workload，固定检查首次 spawn 直接使用 `fork_turns: none`，并验证 pre-child rejection 不会被记作 Agent retry
 
 ## [2.1.0] - 2026-08-07
 
