@@ -143,6 +143,8 @@ retry          no retry | retried N
 final review   not required | ship | fix-first | rethink | INSUFFICIENT_EVIDENCE | not reached
 ```
 
+The retry slot counts only replacement Agent attempts after a materialized prior attempt was confirmed `FAILED` under `recovery.md`. A `spawn_agent` call rejected before the Host returns any child identity is not an Agent retry, does not consume an attempt, and must leave the receipt at `no retry` / `未重试` unless a later real Agent attempt is actually retried.
+
 `pending` here means takeover pending. `main takeover` is the state-slot spelling of the existing `main_takeover` recovery action. Slot coherence: a `fix-first`, `rethink`, or `INSUFFICIENT_EVIDENCE` final review must not pair with state `complete`; `not reached` pairs with `blocked`, `pending`, or `main takeover`. When a blocker or `UNKNOWN` writer is material, append a short closing note (for example `takeover pending on UNKNOWN writer`); never convert `UNKNOWN` into failure or replacement work.
 
 ### Language
