@@ -2,6 +2,21 @@
 
 本文件记录 subagents-dispatch 的重要变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
+## [2.1.1] - 2026-08-08
+
+### Fixed
+
+- **首次委托状态机**：当显式 `/dispatch` 确认需要子 Agent 且项目 profiles 干净缺失时，自动进行仅限插件自有文件的 provisioning；安装与 `--check` 成功后，当前任务直接进入 `RESTART_REQUIRED`，不再尝试一次 stale-session `spawn_agent`，要求从 fresh Codex task/session 重跑原请求
+- **当前会话角色不可见**：如果磁盘上的 managed profiles 已经精确存在，但当前任务启动时没有加载对应 Agent role，同样返回 `RESTART_REQUIRED`，不会用其他 role 替代或继续猜测
+- **安全失败边界**：同名冲突、symlink、未证明所有权、被修改或其他不安全状态继续 fail closed，并转由用户与 `/doctor` 处理，不自动覆盖
+- **安装器诊断**：首次 `--check` 对未安装状态给出明确的 `Not installed` 引导，并将安装成功后的提示与 `RESTART_REQUIRED` 行为保持一致
+
+### Changed
+
+- **首次使用体验**：routine first-use provisioning 不再要求用户理解或额外确认 TOML/profile 级安装细节；自动授权严格限制在 5 个 managed Agent profiles、ownership manifest 和 installer lock
+- **文档与评估同步**：README、AI reference、Privacy、安装/架构/原生运行文档、Behavioral Eval H、interaction fixtures 与回归测试统一到新的 first-use contract
+- `RESTART_REQUIRED` 明确定义为 pre-dispatch readiness outcome，不属于 Recovery/Agent lifecycle 状态；由于没有实际 spawn child，也不产生 Execution Receipt
+
 ## [2.1.0] - 2026-08-07
 
 ### Added
@@ -15,7 +30,6 @@
 
 - README 重写为直接人类语音风格，去除 AI 写作痕迹
 - 补充所有 README 的卸载说明
-- **首次委托准备流程**：当显式 `/dispatch` 确认需要子 Agent 且项目 profiles 干净缺失时，自动进行仅限插件自有文件的 provisioning；成功后当前任务直接进入 `RESTART_REQUIRED`，不尝试 stale-session spawn，并要求从一个 fresh Codex task/session 重跑原请求。冲突、未证明所有权或不安全状态继续 fail closed
 
 ## [2.0.0] - 2026-07-22
 
