@@ -9,6 +9,12 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 After installation, start a new Codex session.
 
+## First delegated run
+
+The Plugin package and its five managed custom-Agent profiles have separate local lifecycle state. On the first `/dispatch` task that actually needs a child, Dispatch checks those five profiles before delegated execution. If they are missing, it explains the local files it manages and asks permission before running the bundled installer and `--check`.
+
+Some Codex builds may require another fresh Codex session before newly installed profiles become visible. When that happens, Dispatch stops before delegated writing and asks you to continue the task in the fresh session.
+
 Normal development work:
 
 ```text
