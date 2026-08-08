@@ -2,6 +2,17 @@
 
 本文件记录 subagents-dispatch 的重要变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
+## [Unreleased]
+
+### Changed
+
+- Quick Start 改为“只读职责可并行，一个 Worker 统一写入”，与单 checkout 单写入者约束保持一致
+
+### Removed
+
+- 删除无人使用的 legacy current-lock 常量
+- 删除过时且重复的 `CLAUDE.md` 工程说明，工程入口继续由 `README_AI.md` 和 canonical owner 文档维护
+
 ## [2.1.0] - 2026-08-07
 
 ### Added
