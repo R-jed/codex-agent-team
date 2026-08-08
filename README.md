@@ -1,8 +1,6 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/subagents-dispatch-logo-dark.svg">
-    <img src="assets/subagents-dispatch-logo.svg" alt="subagents-dispatch" width="112">
-  </picture>
+  <img src="assets/subagents-dispatch-logo.svg#gh-light-mode-only" alt="subagents-dispatch" width="112">
+  <img src="assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only" alt="subagents-dispatch" width="112">
 </p>
 
 <h1 align="center">subagents-dispatch</h1>
