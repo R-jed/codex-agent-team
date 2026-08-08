@@ -56,11 +56,40 @@ For a writing child, Main remains read-only until the previous writer is confirm
 
 The exact project roles use Codex's native custom-Agent TOML mechanism. Personal custom Agents are stored under the active Codex home `agents` directory, normally `~/.codex/agents/`.
 
-When an explicit task actually needs a child, role readiness is checked before delegated implementation starts. If profiles are missing, subagents-dispatch asks permission, runs the bundled installer and `--check`, then verifies the role surface. The installer is a project-specific lifecycle and ownership layer around native custom Agent files; it is not a second runtime.
+The current supported Host behavior loads custom-Agent role declarations into the task/session configuration when that task starts. A role file written after startup does not become a newly selectable `agent_type` for the already-running task merely because the TOML now exists on disk.
+
+When an explicit `/dispatch` task actually needs a child, role readiness is checked before delegated implementation starts:
+
+```text
+exact required role already available
+-> delegate normally
+
+role unavailable + managed profiles cleanly absent
+-> automatically provision only the five plugin-owned profiles + ownership manifest + installer lock
+-> run installer --check
+-> readiness outcome RESTART_REQUIRED
+-> do not attempt spawn_agent in the current task
+-> ask for one fresh Codex task/session and rerun the original /dispatch
+
+role unavailable + managed profiles already exact
+-> current task still cannot use the role
+-> readiness outcome RESTART_REQUIRED
+-> do not probe by spawning
+-> retry from one fresh task/session
+
+role unavailable + unsafe/conflicting/unowned managed state
+-> USER_ACTION_REQUIRED
+-> do not overwrite, substitute a role, or spawn
+-> use /doctor for the exact diagnosis when useful
+```
+
+`RESTART_REQUIRED` is a pre-dispatch readiness outcome, not a native child lifecycle state. No child attempt exists yet. On the fresh task, exact role availability is checked again; if it still fails despite exact installed profiles, the condition is treated as a Host/configuration limitation and fails closed.
+
+Routine first-use provisioning is bounded to the Plugin's fixed managed paths and is covered by the explicit `/dispatch` request once real delegation is already justified. It does not authorize `config.toml`, credentials, MCP configuration, repositories, unrelated Agent profiles, repair of unowned conflicts, migration, or upgrade changes.
 
 Preview and Status do not provision missing profiles solely to make a read-only answer richer.
 
-If the current Codex thread cannot discover newly provisioned roles until restart, the task stops before child writing and resumes in a fresh thread.
+The installer is a project-specific lifecycle and ownership layer around native custom Agent files; it is not a second runtime.
 
 ## Current exact roles
 
@@ -282,4 +311,4 @@ If a runtime shows stale slots, blocking close operations, missing completion si
 
 subagents-dispatch lets the main session lead a specialist team whose size follows the task. The user can preview the likely delegation, inspect or steer active responsibilities, and safely take work back into Main. Reusable context stays small and evidence-bound.
 
-Native Codex still owns thread execution and native control. This separation adds daily usability without turning the Plugin into a second orchestration runtime.
+Native Codex still owns thread execution, custom-Agent registration timing, and native control. subagents-dispatch handles the first-use registration boundary by provisioning cleanly missing plugin-owned profiles, returning `RESTART_REQUIRED`, and continuing only from a fresh task/session instead of attempting a known-stale spawn.
