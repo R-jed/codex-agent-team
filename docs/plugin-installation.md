@@ -11,9 +11,15 @@ After installation, start a new Codex session.
 
 ## First delegated run
 
-The Plugin package and its five managed custom-Agent profiles have separate local lifecycle state. On the first `/dispatch` task that actually needs a child, Dispatch checks those five profiles before delegated execution. If they are missing, it explains the local files it manages and asks permission before running the bundled installer and `--check`.
+The Plugin package and its five managed custom-Agent profiles have separate local lifecycle state. On the first explicit `/dispatch` task that actually needs a child, Dispatch checks those five profiles before delegated execution.
 
-Some Codex builds may require another fresh Codex session before newly installed profiles become visible. When that happens, Dispatch stops before delegated writing and asks you to continue the task in the fresh session.
+If the profiles are absent and the managed paths are safe, Dispatch automatically provisions only subagents-dispatch's five fixed Agent profiles plus its ownership manifest and installer lock, then runs the bundled installer `--check`. This routine first-use provisioning is covered by the explicit `/dispatch` request; it does not modify `config.toml`, credentials, MCP configuration, repositories, or unrelated Agent profiles.
+
+Codex loads custom-Agent role declarations when a task/session starts. Profiles created during the current live task are therefore not available to that task's in-memory Agent registry. After successful first-use provisioning, Dispatch enters `RESTART_REQUIRED`, does not attempt to spawn the newly installed roles in the current task, and asks you to start one fresh Codex task/session and rerun the original `/dispatch` request. Once the profiles were present before task startup, later tasks can delegate normally.
+
+If a managed path is symlinked, conflicting, modified without proven ownership, or otherwise unsafe, automatic provisioning fails closed. Nothing unrelated is overwritten; use `/doctor` for the exact diagnosis and next action.
+
+Preview, Status, and other non-spawning control operations do not provision missing profiles.
 
 Normal development work:
 
