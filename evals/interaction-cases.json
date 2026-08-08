@@ -15,6 +15,54 @@
       }
     },
     {
+      "id": "first-use-clean-absence-auto-provisions-then-restarts",
+      "input": {
+        "request": "/dispatch implement the bounded cache fix",
+        "delegation_worthwhile": true,
+        "required_role_available": false,
+        "managed_profile_check": "not_installed"
+      },
+      "expected": {
+        "routine_provisioning": true,
+        "separate_provisioning_prompt": false,
+        "run_installer": true,
+        "run_installer_check": true,
+        "readiness_outcome": "RESTART_REQUIRED",
+        "spawn_children_current_task": false,
+        "fresh_task_required": true
+      }
+    },
+    {
+      "id": "first-use-exact-profiles-but-role-unavailable-restarts-without-spawn",
+      "input": {
+        "request": "/dispatch implement the bounded cache fix",
+        "delegation_worthwhile": true,
+        "required_role_available": false,
+        "managed_profile_check": "exact"
+      },
+      "expected": {
+        "routine_provisioning": false,
+        "readiness_outcome": "RESTART_REQUIRED",
+        "spawn_children_current_task": false,
+        "fresh_task_required": true
+      }
+    },
+    {
+      "id": "first-use-conflicting-managed-state-requires-user-action",
+      "input": {
+        "request": "/dispatch implement the bounded cache fix",
+        "delegation_worthwhile": true,
+        "required_role_available": false,
+        "managed_profile_check": "unowned_conflict"
+      },
+      "expected": {
+        "routine_overwrite": false,
+        "readiness_outcome": "USER_ACTION_REQUIRED",
+        "spawn_children_current_task": false,
+        "doctor_guidance": true
+      }
+    },
+    {
       "id": "status-is-one-shot-and-preserves-unknown",
       "input": {"request": "/dispatch status", "native_state": "not_reported"},
       "expected": {
