@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/subagents-dispatch-logo.png" alt="subagents-dispatch" width="112">
+  <img src="assets/subagents-dispatch-banner.svg" alt="subagents-dispatch" width="900">
 </p>
 
 <h1 align="center">subagents-dispatch</h1>
