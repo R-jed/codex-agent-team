@@ -166,6 +166,12 @@
       "expected": {"profile_provisioning": 1, "routine_provisioning_prompts": 0, "child_spawns_before_restart": 0, "restart_required": true, "fresh_task_role_check_required": true, "conflict_overwrites": 0}
     },
     {
+      "id": "dispatch-custom-role-fresh-context-spawn",
+      "category": "interaction_spawn_context",
+      "prompt": "With exact managed profiles already available in a fresh Codex task, run a bounded /dispatch Reader responsibility and inspect the first custom-role spawn call plus the terminal receipt.",
+      "expected": {"first_spawn_agent_type": "subagents_dispatch_reader", "first_spawn_fork_turns": "none", "full_history_spawn_calls": 0, "omitted_fork_turns_calls": 0, "pre_child_rejections_count_as_agent_attempt": false, "pre_child_rejections_increment_receipt_retry": false}
+    },
+    {
       "id": "dispatch-status-preserves-unknown",
       "category": "interaction_status",
       "prompt": "While a delegated responsibility is active but the Host cannot establish its exact current state, run /dispatch status once.",
