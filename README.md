@@ -7,7 +7,7 @@
 <p align="center"><em>一个指令，多人并行，结果可控。</em></p>
 
 <p align="center">
-  <a href="README_EN.md">English</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT</a>
+  <a href="README_EN.md">英文</a> · <a href="README_AI.md">AI Agent</a> · <a href="docs/plugin-installation.md">安装</a> · <a href="docs/architecture.md">架构</a> · <a href="LICENSE">MIT</a>
 </p>
 
 <p align="center">
@@ -22,83 +22,89 @@
 
 ## 快速开始
 
-你让 Codex 改一个 API 接口并加测试。
+比如你让 Codex 给一个 API 加分页，并把测试补上。
 
-没有 subagents-dispatch，主会话一个人干：先读代码，再改实现，最后写测试。一步一步来。
+没有 subagents-dispatch 时，主会话通常要自己一步步做完：先读代码，再改实现，最后写测试。
 
-有了 subagents-dispatch：
+有了 subagents-dispatch，只要这样说：
 
 ```
 /dispatch 给 /api/users 加分页参数，补上测试
 ```
 
-主会话拆成多个职责：Reader 查现有实现，Worker 改代码，Worker 写测试——并行推进，最后整合。
+主会话会判断哪些工作适合分开做。比如让 Reader 先查清现有代码，让 Worker 负责修改，再让另一个 Worker 补测试。能并行的工作会同时推进，最后仍由主会话负责检查、整合和给出最终结果。
+
+简单任务不会为了“多人协作”硬拆。只有确实能更快、更稳或更适合分工时，才会启动子 Agent。
 
 ## 运行中控制
 
-执行前预览分工方案：
+想先看看准备怎么分工，不真正启动 Agent：
 
 ```
 /dispatch preview 给 /api/users 加分页参数，补上测试
 ```
 
-执行中查看状态：
+任务已经在跑，想看看现在做到哪一步：
 
 ```
 /dispatch status
 ```
 
-给正在跑的 Agent 补充指导：
+想给正在工作的 Agent 补一句新要求：
 
 ```
 /dispatch steer U2: 先看现有的分页中间件
 ```
 
-拿回控制权：
+想停止某个职责，改由主会话接手：
 
 ```
 /dispatch takeover U2
 ```
 
-## 执行摘要
+## 执行摘要：最后告诉你刚才做了什么
 
-启动过子 Agent 的任务，结束时附一行摘要：
+只要这次任务真的启动过子 Agent，结束时会多一行简单说明，例如：
 
 ```
-Dispatch: Reader 查代码 -> Worker 实现 · 未重试 · 无需 Final Review
+Dispatch: Reader 查代码 -> Worker 实现 · 未重试 · 无需最终复核
 ```
 
-摘要只报可验证的事实，不暴露推理过程。
+这行摘要只写系统能确认的事实，比如用了哪些角色、有没有重试、有没有做最终复核。它不会把 Agent 的内部思考过程写出来，也不会根据模型名称或运行时长猜 Token 用量和费用。
 
-## Handoff Capsule：减少重复扫描
+## 交接包（Handoff Capsule）：避免后一个 Agent 从头再查一遍
 
-每个子 Agent 使用全新上下文。Handoff Capsule 用一个很小的、证据绑定的交接包减少重复 discovery。
+每个子 Agent 都从一份新的上下文开始。如果什么都不传，后一个 Agent 很可能又把前一个 Agent 已经查清的内容重新检查一遍。
 
-- **传递已验证的事实**：只把 Main 已经检查并接受的事实传给下一个职责
-- **明确 `DO NOT REDO`**：已有有效证据的扫描可以标记为无需重复
-- **Main 是验收边界**：子 Agent 的自我声明不能直接成为已知事实
-- **自带 `STALE IF` 条件**：文件变化可以使旧证据失效
+Handoff Capsule 就是一份很小的“交接便签”。主会话会把已经核实过、后面还能继续用的信息整理进去，再交给下一个职责。
 
-## 四条核心约束
+- **已经确认的事实可以直接接着用**：只有主会话检查并接受过的内容，才会放进交接包
+- **`DO NOT REDO` 表示“这部分不用重做”**：已经有可靠证据的检查，可以明确告诉下一个 Agent 不要重复
+- **主会话负责把关**：子 Agent 自己说“我完成了”还不够，主会话要检查证据后才会把它当成已知事实
+- **`STALE IF` 表示“出现这些变化后，旧结论要作废”**：比如相关文件后来被改了，就需要重新检查
 
-不管任务拆成多少职责，这四条规则始终成立：
+你不需要记住 `DO NOT REDO` 和 `STALE IF` 这些英文标签。它们只是系统内部用来减少重复工作的标记。
 
-- **一个写入者** — 同一次 subagents-dispatch 调度内，同一 Git checkout 同一时间最多一个写入者，写入者只能是 Main、Worker 或 Solver。原写入者没有确认停止前，Main 不开始冲突写入。其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内。
-- **一层委托深度** — 子 Agent 不能再创建子 Agent。用户目标、权限、团队组成和最终结果始终由 Main 负责。
-- **UNKNOWN 不猜测** — 状态不明就不乱动。不创建替代 Agent、不重试、不语义重路由。
-- **摘要只报事实** — 不会根据模型名称或运行时长猜 Token 和费用。
+## 四条必须守住的规则
+
+系统可以并行干活，但不会为了并行把安全规则丢掉。核心就是下面四条：
+
+- **同一份代码，同一时间只让一个写入者修改**：同一次 subagents-dispatch 调度里，同一个 Git 工作目录同一时间最多只有一个写入者真正改文件，这个写入者只能是主会话、Worker 或 Solver。前一个写入者还没有确认停止，主会话不会抢着改同一份代码。其他独立的 Codex 会话、编辑器、自动化脚本和外部程序不受这个规则控制
+- **子 Agent 不能继续叫更多子 Agent**：所有分工都只由主会话安排。用户的目标、权限、团队组成和最终结果始终由主会话负责
+- **`UNKNOWN` 就停下来确认，不靠猜**：`UNKNOWN` 表示系统现在无法确认某个职责的真实状态。遇到这种情况，不会随便换一个 Agent 顶上，不会自动重试，也不会偷偷改变任务路线
+- **只报告确认过的事实**：执行摘要不会根据模型名称、运行时间或输出长度去猜 Token 用量和费用
 
 ## 角色
 
 | 角色 | 干什么 |
 |------|--------|
 | Luna Reader | 读代码、追调用链、收集事实 |
-| Luna Worker | 边界已经清楚的实现和测试 |
-| Sol Solver | 实现过程中还要做判断的工作 |
-| Terra Investigator | 大范围只读调查，整理证据 |
-| Sol Advisor | 独立的技术判断或最终复核 |
+| Luna Worker | 需求和做法已经清楚时，负责实现和测试 |
+| Sol Solver | 一边实现、一边还需要做技术判断的工作 |
+| Terra Investigator | 范围较大的只读调查和证据整理 |
+| Sol Advisor | 独立技术判断，或需要时做最终复核 |
 
-简单任务主会话自己来。需要并行、隔离、专门能力或独立判断时才叫人。没有固定人数，没有固定流程。
+简单任务由主会话自己完成。需要并行、隔离、专门能力或独立判断时才会叫不同角色来帮忙。没有固定人数，也没有固定流水线。
 
 ## 安装
 
@@ -107,9 +113,13 @@ codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-装完先开一个新的 Codex 会话。第一次 `/dispatch` 真正需要子 Agent 时，subagents-dispatch 会自动准备自己的 5 个 Agent profiles，不会要求你理解或确认 TOML 配置。由于 Codex 在任务启动时加载 Agent 注册表，这次首次准备完成后会请你再开一个新任务并重跑原来的 `/dispatch`；当前任务不会先尝试一次注定不可见的新 Agent。以后 profiles 已经存在，正常任务可直接委托。
+插件装好后，先开一个新的 Codex 会话。
 
-如果发现同名文件存在冲突、被修改、所有权无法证明或路径不安全，系统不会覆盖，会停止并让 `/doctor` 给出具体处理建议。
+第一次 `/dispatch` 真正需要子 Agent 时，subagents-dispatch 会自动准备自己的 5 个 Agent 配置文件。你不需要理解 TOML，也不用为这些内部配置多点一次确认。
+
+Codex 会在任务启动时读取可用的 Agent 列表，所以刚刚新建的配置不能在当前任务里立刻生效。第一次准备完成后，系统会请你新开一个任务，再运行刚才那条 `/dispatch`。当前任务不会先做一次明知道看不到新 Agent 的失败尝试。以后这些配置已经提前存在，正常任务就可以直接委托。
+
+如果发现同名文件有冲突、文件被改过、无法确认文件归谁管理，或者路径本身不安全，系统不会直接覆盖，而会停止并让 `/doctor` 告诉你该怎么处理。
 
 ## 卸载
 
@@ -117,21 +127,21 @@ codex plugin add subagents-dispatch@subagents-dispatch
 # 移除插件注册
 codex plugin remove subagents-dispatch@subagents-dispatch
 
-# 移除 marketplace 注册与快照缓存
+# 移除插件市场注册和缓存
 codex plugin marketplace remove subagents-dispatch
 ```
 
-如果之前运行过需要 Agent 的任务，还需删除相关文件：
+如果之前运行过需要 Agent 的任务，还需要删除相关文件：
 
 ```bash
-# 删除 5 个 Agent profile
+# 删除 5 个 Agent 配置文件
 rm ~/.codex/agents/subagents-dispatch-reader.toml
 rm ~/.codex/agents/subagents-dispatch-worker.toml
 rm ~/.codex/agents/subagents-dispatch-solver.toml
 rm ~/.codex/agents/subagents-dispatch-investigator.toml
 rm ~/.codex/agents/subagents-dispatch-advisor.toml
 
-# 删除安装 manifest
+# 删除安装记录文件
 rm ~/.codex/.subagents-dispatch-agents.json
 ```
 
@@ -142,35 +152,35 @@ codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-或者让 Doctor 来：
+也可以让 Doctor 帮你升级：
 
 ```
 /doctor 升级 subagents-dispatch
 ```
 
-更新后开新的 Codex 会话。
+更新后开一个新的 Codex 会话。
 
 ## 项目结构
 
 ```
 .
-├── .agents/plugins/                  # Codex Marketplace 注册
+├── .agents/plugins/                  # Codex 插件市场注册
 ├── .codex-plugin/                    # 插件清单
-├── agent-profiles/                   # 五个 Agent 配置
-├── policy-contract.json              # 角色定义和核心约束
-├── scripts/                          # 安装、校验、运行证据工具
+├── agent-profiles/                   # 五个 Agent 配置文件
+├── policy-contract.json              # 角色定义和核心规则
+├── scripts/                          # 安装、检查和运行记录工具
 ├── skills/
-│   ├── dispatch/                     # 主 Skill、交互控制、运行规则
+│   ├── dispatch/                     # 主调度功能、运行中控制和运行规则
 │   └── doctor/                       # 安装诊断和升级
 ├── docs/                             # 架构和运行边界文档
-├── evals/                            # 静态与行为评估数据
+├── evals/                            # 评估用例
 └── tests/                            # 回归测试
 ```
 
 ## 文档
 
-- [安装](docs/plugin-installation.md)
-- [架构](docs/architecture.md)
+- [安装说明](docs/plugin-installation.md)
+- [架构说明](docs/architecture.md)
 - [Codex 原生 Subagent 运行边界](docs/native-subagent-runtime.md)
 - [AI Agent 项目参考](README_AI.md)
 

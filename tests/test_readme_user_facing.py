@@ -50,8 +50,9 @@ def test_public_readmes_keep_product_identity_install_use_update_and_controls():
         assert form in EN
 
     assert "## 安装" in ZH and "## 快速开始" in ZH and "## 更新" in ZH
-    assert "## 四条核心约束" in ZH and "## 运行中控制" in ZH
-    assert "## 执行摘要" in ZH and "## Handoff Capsule：减少重复扫描" in ZH
+    assert "## 四条必须守住的规则" in ZH and "## 运行中控制" in ZH
+    assert "## 执行摘要：最后告诉你刚才做了什么" in ZH
+    assert "## 交接包（Handoff Capsule）：避免后一个 Agent 从头再查一遍" in ZH
     assert "## Install" in EN and "## Quick start" in EN and "## Update" in EN
     assert "## Four core invariants" in EN and "## Control surface" in EN
     assert "## Compact execution receipt" in EN and "## Handoff Capsule: evidence-bound handoffs" in EN
@@ -59,14 +60,14 @@ def test_public_readmes_keep_product_identity_install_use_update_and_controls():
 
 def test_public_readmes_surface_core_product_differentiators():
     for phrase in [
-        "一个写入者",
-        "一层委托深度",
-        "UNKNOWN 不猜测",
-        "摘要只报事实",
-        "不创建替代 Agent",
-        "不重试",
-        "不语义重路由",
-        "Main 是验收边界",
+        "同一份代码，同一时间只让一个写入者修改",
+        "子 Agent 不能继续叫更多子 Agent",
+        "`UNKNOWN` 就停下来确认，不靠猜",
+        "只报告确认过的事实",
+        "不会随便换一个 Agent 顶上",
+        "不会自动重试",
+        "不会偷偷改变任务路线",
+        "主会话负责把关",
         "DO NOT REDO",
         "STALE IF",
     ]:
@@ -84,6 +85,19 @@ def test_public_readmes_surface_core_product_differentiators():
         "STALE IF",
     ]:
         assert phrase in EN
+
+
+def test_chinese_readme_avoids_unnecessary_english_prose():
+    for stale_phrase in [
+        "重复 discovery",
+        "Git checkout",
+        "hook 和外部进程",
+        "Agent profiles",
+        "安装 manifest",
+        "marketplace 注册",
+        "主 Skill",
+    ]:
+        assert stale_phrase not in ZH
 
 
 def test_public_readmes_explain_the_current_repository_layout():
@@ -129,14 +143,14 @@ def test_public_readmes_describe_safe_takeover_receipt_handoff_writer_and_first_
         assert "UNKNOWN" in text
         assert "Handoff Capsule" in text
         assert "Token" in text or "token" in text
-    assert "原写入者没有确认停止前" in ZH
-    assert "不会根据模型名称或运行时长猜 Token 和费用" in ZH
-    assert "同一次 subagents-dispatch 调度内" in ZH
-    assert "其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内" in ZH
-    assert "自动准备自己的 5 个 Agent profiles" in ZH
-    assert "不会要求你理解或确认 TOML 配置" in ZH
-    assert "再开一个新任务并重跑原来的 `/dispatch`" in ZH
-    assert "不会先尝试一次注定不可见的新 Agent" in ZH
+    assert "前一个写入者还没有确认停止" in ZH
+    assert "不会根据模型名称、运行时间或输出长度去猜 Token 用量和费用" in ZH
+    assert "同一次 subagents-dispatch 调度里" in ZH
+    assert "其他独立的 Codex 会话、编辑器、自动化脚本和外部程序不受这个规则控制" in ZH
+    assert "自动准备自己的 5 个 Agent 配置文件" in ZH
+    assert "你不需要理解 TOML，也不用为这些内部配置多点一次确认" in ZH
+    assert "新开一个任务，再运行刚才那条 `/dispatch`" in ZH
+    assert "不会先做一次明知道看不到新 Agent 的失败尝试" in ZH
     assert "previous writer is confirmed stopped or terminal" in EN
     assert "does not estimate token usage or currency cost" in EN
     assert "within one subagents-dispatch orchestration" in EN
