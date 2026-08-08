@@ -64,10 +64,6 @@ def check_current_installation(codex_home: Path) -> tuple[bool, list[str]]:
     return True, []
 
 
-def check_legacy_state(codex_home: Path) -> MigrationState:
-    return detect_legacy_state(codex_home)
-
-
 def print_legacy_recommendation(state: MigrationState) -> None:
     if state.migration_complete or state.current_only:
         print("  ✓ Migration complete. No legacy cleanup is needed.")
@@ -134,7 +130,7 @@ def main() -> None:
         return
 
     current_ok, current_issues = check_current_installation(codex_home)
-    legacy_state = check_legacy_state(codex_home)
+    legacy_state = detect_legacy_state(codex_home)
     print("=== Installation Diagnostics ===" if args.check else "=== subagents-dispatch Doctor ===")
     print()
     print("Current installation:")
