@@ -34,7 +34,7 @@ With it, one line is enough:
 /dispatch Add pagination to /api/users, with tests
 ```
 
-Main decides what is worth splitting. A Reader checks the existing code, a Worker makes the change, another Worker adds the tests. Parallel work moves together, then Main checks, integrates, and delivers.
+Main decides what is worth splitting. For example, one Reader can inspect the existing API while another Reader inspects the related tests, so those read-only tasks can run in parallel. Once the evidence is clear, one Worker can make the implementation and test changes. Read-only discovery may run concurrently, but the same checkout never has two active writers. Main then checks, integrates, and delivers.
 
 Simple tasks are not force-split to look collaborative. A subagent only starts when it is genuinely faster, safer, or a better fit.
 

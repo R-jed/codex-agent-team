@@ -160,6 +160,24 @@
       "expected": {"child_spawns": 0, "profile_provisioning": 0, "source_mutations": 0, "external_actions": 0, "provisional_plan": true}
     },
     {
+      "id": "dispatch-first-use-restart-required",
+      "category": "interaction_first_use",
+      "prompt": "With subagents-dispatch Agent profiles absent before task startup, run an explicit /dispatch task that genuinely requires a Reader and validate the first-use readiness handoff.",
+      "expected": {"profile_provisioning": 1, "routine_provisioning_prompts": 0, "child_spawns_before_restart": 0, "restart_required": true, "fresh_task_role_check_required": true, "conflict_overwrites": 0}
+    },
+    {
+      "id": "dispatch-status-preserves-unknown",
+      "category": "interaction_status",
+      "prompt": "While a delegated responsibility is active but the Host cannot establish its exact current state, run /dispatch status once.",
+      "expected": {"one_shot": true, "child_spawns": 0, "retries": 0, "source_mutations": 0, "unknown_preserved": true}
+    },
+    {
+      "id": "dispatch-steer-preserves-responsibility",
+      "category": "interaction_steer",
+      "prompt": "While a read-only delegated responsibility is running, steer it toward the existing tests first; then use a negative control that asks the same Reader to edit source.",
+      "expected": {"same_unit": true, "same_attempt": true, "replacement_children": 0, "authority_unchanged": true, "unsupported_host_reports_limitation": true, "scope_change_requires_reclassification": true}
+    },
+    {
       "id": "dispatch-takeover-running-writer",
       "category": "interaction_takeover",
       "prompt": "While U2 is a running writing child, request /dispatch takeover U2 and continue the responsibility in Main.",

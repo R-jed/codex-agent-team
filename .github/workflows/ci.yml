@@ -45,6 +45,8 @@ jobs:
             "https://raw.githubusercontent.com/openai/codex/${OPENAI_CODEX_PLUGIN_VALIDATOR_REF}/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py" \
             --output "$validator"
           python "$validator" .
+      - name: Lint Python
+        run: python -m ruff check scripts tests --ignore E402
       - name: Run full test suite
         run: python -m pytest -q
       - name: Verify managed Agent profile lifecycle
