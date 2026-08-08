@@ -110,20 +110,7 @@ A user-requested takeover is not authorization for broader scope or permissions.
 
 ## 6. Explicit invocation only
 
-The product's supported user entrypoint is:
-
-```text
-/dispatch <task>
-```
-
-The same explicit Skill invocation also supports the control forms owned by `interaction.md`:
-
-```text
-/dispatch preview <task>
-/dispatch status
-/dispatch steer <unit_id>: <guidance>
-/dispatch takeover <unit_id>
-```
+The product's supported user entrypoint is explicit `/dispatch`. The exact control forms and their parsing rules are owned by `interaction.md`.
 
 Users may also open the Codex Skill picker with `/skills`.
 
@@ -218,13 +205,3 @@ Use inspectable evidence:
 Preserve `unknown`, `partial`, or `not_observed` when facts are missing. Quarantine material route, permission, identity, ancestry, ownership, or takeover-settlement conflicts instead of guessing.
 
 A Handoff Capsule is valid only for the artifact/evidence state Main accepted. When mutation may invalidate it, re-read the narrow evidence before relying on it again.
-
-## 13. User-visible output
-
-Normal completion focuses on what changed, verification, and remaining risk.
-
-When at least one child was actually spawned, append one compact factual execution receipt under `interaction.md`. Do not emit a receipt for a zero-child task, preview, or status-only request.
-
-Keep the default receipt to one line. Mention only inspectable orchestration facts such as roles used, retries, takeover, or Final Review state. Do not print raw task ledgers, child transcripts, chain-of-thought, hidden reasoning, or guessed token/cost figures.
-
-Expand into a short per-unit summary only when the user asks for delegation details or when a material routing/recovery limitation must be explained.
