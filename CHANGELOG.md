@@ -16,6 +16,7 @@
 - **首次使用体验**：routine first-use provisioning 不再要求用户理解或额外确认 TOML/profile 级安装细节；自动授权严格限制在 5 个 managed Agent profiles、ownership manifest 和 installer lock
 - **文档与评估同步**：README、AI reference、Privacy、安装/架构/原生运行文档、Behavioral Eval H、interaction fixtures 与回归测试统一到新的 first-use contract
 - `RESTART_REQUIRED` 明确定义为 pre-dispatch readiness outcome，不属于 Recovery/Agent lifecycle 状态；由于没有实际 spawn child，也不产生 Execution Receipt
+- **发布前工程收口**：README 示例明确只读工作可并行、同一代码目录只保留一个写入者；新增 first-use、Status、Steer 的真实 Host workload，Ruff lint、正式发布清单，以及版本号/Changelog 一致性回归检查
 
 ## [2.1.0] - 2026-08-07
 
