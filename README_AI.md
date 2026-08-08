@@ -238,6 +238,19 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 After installation or update, start a new Codex session.
 
+### Uninstall
+
+```bash
+# Remove plugin registration
+codex plugin remove subagents-dispatch
+
+# Delete 5 Agent profiles (reader/worker/solver/investigator/advisor)
+rm ~/.codex/agents/subagents-dispatch-*.toml
+
+# Delete install manifest (tracks which files this plugin manages)
+rm ~/.codex/.subagents-dispatch-agents.json
+```
+
 Development work and interaction controls use `/dispatch`. Installation/configuration/profile diagnosis and explicit maintenance use `/doctor`. `/skills` opens the Skill picker. Implicit invocation is disabled.
 
 ## Doctor contract

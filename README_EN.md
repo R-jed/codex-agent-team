@@ -96,6 +96,19 @@ Start a new Codex session after installing.
 
 On the first task that needs an Agent, if the five managed Agent profiles aren't installed yet, the system explains what it needs, asks permission, and installs them. Some Codex versions may require one additional fresh Codex session before the profiles are visible.
 
+## Uninstall
+
+```bash
+# Remove plugin registration
+codex plugin remove subagents-dispatch
+
+# Delete 5 Agent profiles (reader/worker/solver/investigator/advisor)
+rm ~/.codex/agents/subagents-dispatch-*.toml
+
+# Delete install manifest (tracks which files this plugin manages)
+rm ~/.codex/.subagents-dispatch-agents.json
+```
+
 Development:
 
 ```

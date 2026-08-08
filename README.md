@@ -96,6 +96,19 @@ codex plugin add subagents-dispatch@subagents-dispatch
 
 首次跑需要 Agent 的任务时，如果五个项目 Agent profiles 还没装，系统会说明要装什么、问你同意，然后自动装好。有些 Codex 版本装完后可能需要再开启一次新的 Codex 会话才能识别。
 
+## 卸载
+
+```bash
+# 移除插件注册
+codex plugin remove subagents-dispatch
+
+# 删除 5 个 Agent profile（reader/worker/solver/investigator/advisor）
+rm ~/.codex/agents/subagents-dispatch-*.toml
+
+# 删除安装 manifest（记录哪些文件由本插件管理）
+rm ~/.codex/.subagents-dispatch-agents.json
+```
+
 开发任务：
 
 ```
