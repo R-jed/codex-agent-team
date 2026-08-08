@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -24,11 +23,12 @@ from legacy_migration import (
     format_migration_state,
     load_legacy_manifest,
     rollback_legacy_cleanup,
+    sha256_bytes,
 )
+from policy import load_policy_contract
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_SOURCE = ROOT / "agent-profiles"
-POLICY_CONTRACT_PATH = ROOT / "policy-contract.json"
 MANIFEST_NAME = ".subagents-dispatch-agents.json"
 LOCK_NAME = ".subagents-dispatch-agents.lock"
 MANIFEST_SCHEMA = 1
@@ -108,18 +108,6 @@ def managed_lock(
 
 
 @contextmanager
-def installer_lock(codex_home: Path, *, check_only: bool):
-    """Backward-compatible current-generation lock wrapper."""
-    with managed_lock(
-        codex_home,
-        LOCK_NAME,
-        check_only=check_only,
-        label="installer",
-    ):
-        yield
-
-
-@contextmanager
 def installation_locks(
     codex_home: Path,
     *,
@@ -164,21 +152,15 @@ def installation_locks(
         yield
 
 
-def sha256_bytes(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
-
-
 def file_hash(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
 
 
-def load_policy_contract() -> dict:
+def load_installer_policy() -> dict:
     try:
-        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-        fail(f"Invalid subagents-dispatch policy contract {POLICY_CONTRACT_PATH}: {exc}")
-    if not isinstance(payload, dict):
-        fail(f"Invalid subagents-dispatch policy contract object: {POLICY_CONTRACT_PATH}")
+        payload = load_policy_contract()
+    except RuntimeError as exc:
+        fail(f"Invalid subagents-dispatch policy contract: {exc}")
     roles = payload.get("roles")
     if not isinstance(roles, dict) or set(roles) != ROLE_KEYS:
         fail("Policy contract must define reader, worker, solver, investigator, and advisor roles")
@@ -198,7 +180,7 @@ def load_policy_contract() -> dict:
     return payload
 
 
-POLICY_CONTRACT = load_policy_contract()
+POLICY_CONTRACT = load_installer_policy()
 ROLE_SPECS = POLICY_CONTRACT["roles"]
 PROFILE_FILES = tuple(spec["profile_file"] for spec in ROLE_SPECS.values())
 EXPECTED_PROFILES = {
