@@ -32,7 +32,7 @@ With subagents-dispatch:
 /dispatch Add pagination to /api/users, with tests
 ```
 
-Main splits it into responsibilities: Reader inspects the code, Worker changes implementation, Worker writes tests — in parallel, then integrated.
+Main can run two read-only Reader responsibilities in parallel: one inspects the existing implementation and one maps the relevant tests. After that evidence is accepted, one Worker owns the implementation and test changes, then Main verifies the result.
 
 ## Control surface
 
