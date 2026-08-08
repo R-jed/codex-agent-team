@@ -6,15 +6,17 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
-from pathlib import Path
 from typing import Any
 
-from validate_team_plan import validate_team_plan_payload
+from policy import load_policy_contract
+from validate_team_plan import (
+    load_input,
+    nonempty_string,
+    valid_int,
+    validate_team_plan_payload,
+)
 
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-POLICY_CONTRACT_PATH = PLUGIN_ROOT / "policy-contract.json"
 CURRENT_SCHEMA_VERSION = "1.0"
 TOP_LEVEL_FIELDS = {"schema_version", "team_plans", "active_team_plan_revision", "attempts"}
 CONTROL_STATES = {
@@ -53,9 +55,8 @@ ATTEMPT_FIELDS = {
 
 def load_role_agent_types() -> dict[str, str]:
     try:
-        payload = json.loads(POLICY_CONTRACT_PATH.read_text(encoding="utf-8"))
-        roles = payload["roles"]
-    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        roles = load_policy_contract()["roles"]
+    except (RuntimeError, KeyError, TypeError) as exc:
         raise RuntimeError(f"invalid policy contract: {exc}") from exc
     if not isinstance(roles, dict) or not roles:
         raise RuntimeError("policy contract must define recovery-ledger roles")
@@ -73,20 +74,6 @@ def load_role_agent_types() -> dict[str, str]:
 
 
 ROLE_AGENT_TYPES = load_role_agent_types()
-
-
-def load_input(source: str) -> Any:
-    if source == "-":
-        return json.load(sys.stdin)
-    return json.loads(Path(source).read_text(encoding="utf-8"))
-
-
-def nonempty_string(value: Any) -> bool:
-    return isinstance(value, str) and bool(value.strip())
-
-
-def valid_int(value: Any, *, minimum: int = 0) -> bool:
-    return isinstance(value, int) and not isinstance(value, bool) and value >= minimum
 
 
 def validate_team_ledger_payload(payload: Any) -> dict[str, Any]:
