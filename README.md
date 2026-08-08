@@ -1,6 +1,5 @@
 <p align="center">
-  <img src="assets/subagents-dispatch-logo.svg#gh-light-mode-only" alt="subagents-dispatch" width="112">
-  <img src="assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only" alt="subagents-dispatch" width="112">
+  <img src="assets/subagents-dispatch-logo.png" alt="subagents-dispatch" width="112">
 </p>
 
 <h1 align="center">subagents-dispatch</h1>
