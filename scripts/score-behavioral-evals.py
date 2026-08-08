@@ -13,6 +13,8 @@ from typing import Any, Literal, NoReturn
 
 import jsonschema
 
+from policy import load_policy_contract
+
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "evals" / "behavioral-result.schema.json"
 WORKLOADS = ROOT / "evals" / "behavioral-workloads.json"
@@ -117,12 +119,10 @@ def mean_values(values: list[float | int | None]) -> float | None:
 
 def metric_summary(runs: list[dict[str, Any]], metric: Metric) -> float | int | None:
     values = [number_or_none(run.get(metric.field)) for run in runs]
-    present = [value for value in values if value is not None]
-    if not present:
-        return None
     if metric.aggregate == "mean":
-        return statistics.fmean(present)
-    return sum(present)
+        return mean_values(values)
+    present = [value for value in values if value is not None]
+    return sum(present) if present else None
 
 
 def workload_specs(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -391,8 +391,8 @@ def main() -> None:
         payload = json.loads(args.result.read_text(encoding="utf-8"))
         schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
         workloads_payload = json.loads(WORKLOADS.read_text(encoding="utf-8"))
-        policy = json.loads(POLICY.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        policy = load_policy_contract(POLICY)
+    except (OSError, UnicodeError, json.JSONDecodeError, RuntimeError) as exc:
         fail(str(exc))
 
     try:
