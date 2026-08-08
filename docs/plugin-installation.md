@@ -49,10 +49,11 @@ Doctor can perform the supported upgrade flow when explicitly requested:
 
 ## Uninstall
 
-Remove the Plugin registration:
+Remove the Plugin registration and the Marketplace source:
 
 ```bash
 codex plugin remove subagents-dispatch@subagents-dispatch
+codex plugin marketplace remove subagents-dispatch
 ```
 
 If delegated work previously provisioned the managed Agent profiles, remove those exact files and the install manifest as well:

@@ -17,6 +17,7 @@ CANONICAL_MARKETPLACE = "codex plugin marketplace add R-jed/subagents-dispatch"
 PLUGIN_ADD = "codex plugin add subagents-dispatch@subagents-dispatch"
 UPGRADE = "codex plugin marketplace upgrade subagents-dispatch"
 PLUGIN_REMOVE = "codex plugin remove subagents-dispatch@subagents-dispatch"
+MARKETPLACE_REMOVE = "codex plugin marketplace remove subagents-dispatch"
 USER_COMMAND_DISPATCH = "/dispatch"
 USER_COMMAND_DOCTOR = "/doctor"
 
@@ -148,6 +149,7 @@ def test_install_doc_contains_the_current_install_update_uninstall_and_first_run
         UPGRADE,
         "## Uninstall",
         PLUGIN_REMOVE,
+        MARKETPLACE_REMOVE,
         USER_COMMAND_DISPATCH,
         "/skills",
     ]:
@@ -165,6 +167,7 @@ def test_public_readmes_keep_commands_while_ai_reference_points_to_install_owner
         assert PLUGIN_ADD in text
         assert UPGRADE in text
         assert PLUGIN_REMOVE in text
+        assert MARKETPLACE_REMOVE in text
 
     ai = (ROOT / "README_AI.md").read_text(encoding="utf-8")
     assert version in ai

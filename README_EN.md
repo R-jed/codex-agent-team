@@ -114,6 +114,9 @@ Start a new Codex session after installing. On the first task that needs an Agen
 ```bash
 # Remove plugin registration
 codex plugin remove subagents-dispatch@subagents-dispatch
+
+# Remove marketplace registration and snapshot cache
+codex plugin marketplace remove subagents-dispatch
 ```
 
 If you previously ran tasks that needed Agents, also delete these files:

@@ -114,6 +114,9 @@ codex plugin add subagents-dispatch@subagents-dispatch
 ```bash
 # 移除插件注册
 codex plugin remove subagents-dispatch@subagents-dispatch
+
+# 移除 marketplace 注册与快照缓存
+codex plugin marketplace remove subagents-dispatch
 ```
 
 如果之前运行过需要 Agent 的任务，还需删除相关文件：
