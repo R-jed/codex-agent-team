@@ -102,6 +102,17 @@ Ask before materially expanding:
 - broad speculative fan-out whose value has not been established;
 - repeated expensive Solver, Advisor, Investigator, or correction/re-review loops after the ordinary useful path is exhausted.
 
+Routine first-use provisioning is not a separate consent prompt when all of the following are true:
+
+```text
+explicit /dispatch task
++ real delegation is already justified
++ the managed profiles are cleanly absent
++ mutation is limited to the five fixed subagents-dispatch profiles, its ownership manifest, and installer lock
+```
+
+That narrow authority exists to make first-run setup low-friction. It does not authorize repair of conflicting or unowned files, migration, upgrade, broader Codex configuration mutation, credentials, MCP changes, repository changes, or unrelated Agent profiles. Those remain explicit user-controlled actions.
+
 Judge compute expansion by the actual shape and cost of the orchestration, not by crossing a fixed child-count threshold. A handful of distinct Luna read-only lanes can be cheaper and more appropriate than several repeated Sol calls.
 
 Do not evade consent by serializing expensive calls that would be material if run in parallel. Do not use parallelism to hide material compute expansion either.
@@ -116,23 +127,32 @@ Users may also open the Codex Skill picker with `/skills`.
 
 Do not silently add subagents-dispatch orchestration to an unrelated task through implicit Skill invocation.
 
-Explicit invocation is the signal that the user wants adaptive delegation or explicit dispatch control for this task. Normal task permissions and external-impact boundaries still apply.
+Explicit invocation is the signal that the user wants adaptive delegation or explicit dispatch control for this task. When real delegation is required, that same explicit invocation also authorizes the narrowly bounded routine first-use provisioning defined above. Normal task permissions and external-impact boundaries still apply.
 
 ## 7. First-use readiness before delegated execution
 
 Do not discover missing Agent profiles halfway through a delegated implementation.
 
-After understanding that delegation is likely useful, but before starting delegated work:
+After understanding that delegation is useful, but before starting delegated work:
 
-1. inspect whether the exact required project roles are available;
-2. if provisioning is needed, explain the managed scope and ask permission;
-3. run the bundled installer and non-mutating `--check`;
-4. verify the role surface the current runtime actually exposes;
-5. if a fresh Codex thread is required to see new profiles, stop before delegated code execution and tell the user to restart the task in a fresh thread.
+1. inspect whether the exact required project role is available to the current Codex task;
+2. if it is unavailable, run the bundled non-mutating installer `--check`;
+3. if `--check` reports a clean `Not installed` state, automatically provision only the plugin-owned managed paths and run `--check` again;
+4. if the profiles are exact but the current task still lacks the role, enter `RESTART_REQUIRED` without attempting `spawn_agent`;
+5. ask the user to start one fresh Codex task/session and rerun the original `/dispatch` request;
+6. on the fresh task, check exact role availability again before delegated execution.
+
+`RESTART_REQUIRED` is a pre-dispatch readiness outcome. It is not `UNKNOWN`, `FAILED`, or any other Recovery/Agent lifecycle state because no child attempt has been created yet.
+
+When `--check` reports a symlink, collision, invalid ownership metadata, modified/unowned profile, or another non-clean failure, automatic provisioning stops. Do not overwrite or repair that state under routine first-use authority. Report the exact issue and direct the user to `/doctor` when useful.
 
 Preview, status, and other non-spawning control operations do not provision missing roles merely to make their output more detailed.
 
 The five profiles use Codex's native custom-Agent TOML mechanism. The bundled installer is a project-specific lifecycle and ownership layer. It manages only the five current project profiles, `.subagents-dispatch-agents.json`, and `.subagents-dispatch-agents.lock`. The persistent lock serializes installers targeting the same Codex home so one failed rollback cannot erase a successful peer. It does not modify credentials, MCP configuration, repositories, `config.toml`, or unrelated Agent profiles.
+
+A successful first-use install in the current task is not evidence that the current task's in-memory Agent registry hot-reloaded those new roles. Do not probe that known-stale boundary by attempting a child spawn. A fresh task/session is the supported transition.
+
+If a fresh task still cannot discover an exact role despite exact installed profiles, treat that as a Host/configuration limitation and fail closed. Do not substitute another role merely to keep moving.
 
 ## 8. Runtime evidence is on demand
 
