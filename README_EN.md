@@ -19,67 +19,69 @@
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-subagents-dispatch is a Codex Plugin. You provide the goal. The main session decides what to keep, what is worth delegating, and handles integration and verification.
+You describe what you want. The main session decides whether to do it itself or call for help.
 
-Version 2.1 adds four everyday controls around the existing orchestration kernel: preview before execution, live status/steering/takeover, a compact execution receipt, and evidence-bound handoff context between responsibilities.
+Rename a function? Main handles it. Need to read code, write changes, and run tests at the same time? It hands each piece to a specialist Agent, runs them in parallel, and merges the results.
 
 ## Quick start
 
-Run a task normally:
+You ask Codex to add pagination to an API and write tests.
 
-```text
-/dispatch Deep review this change, fix the issues you find, and run the relevant tests.
+Without subagents-dispatch, the main session does everything: reads code, changes implementation, writes tests. One step at a time.
+
+With subagents-dispatch:
+
+```
+/dispatch Add pagination to /api/users, with tests
 ```
 
-Preview the likely delegation shape without spawning children:
-
-```text
-/dispatch preview Deep review this change, fix the issues you find, and run the relevant tests.
-```
-
-Preview may perform bounded read-only inspection when needed. It does not spawn Subagents, provision profiles, mutate source, or perform external actions. The result is provisional because real execution may uncover new evidence.
+The main session splits it into three responsibilities — Reader inspects the current code, Worker changes the implementation, Worker writes tests — runs them in parallel, then combines the results. You can preview, steer, or take over at any point.
 
 ## Control active work
 
-Inspect current delegated responsibilities once:
+See the plan before it runs:
 
-```text
+```
+/dispatch preview Add pagination to /api/users, with tests
+```
+
+Preview gives you the likely responsibilities and dependencies. No Agents spawned, no code changed.
+
+Check what's running:
+
+```
 /dispatch status
 ```
 
-Give focused guidance to one running responsibility:
+Guide a running responsibility:
 
-```text
-/dispatch steer U2: inspect the crash log before re-reading the parser path
+```
+/dispatch steer U2: check the existing pagination middleware first, don't rewrite from scratch
 ```
 
-Safely take a responsibility back into Main:
+Take a responsibility back:
 
-```text
+```
 /dispatch takeover U2
 ```
 
-Takeover settles the previous owner before Main assumes the responsibility. For writing work, Main stays read-only until the previous writer is confirmed stopped or terminal. If the host cannot establish the old state, it remains `UNKNOWN` and conflicting work is not created.
+Takeover settles the previous Agent first. For writing work, Main stays read-only until the previous writer is confirmed stopped or terminal. If the state can't be determined, it stays `UNKNOWN` — no guessing.
 
 ## Compact execution receipt
 
-When a task actually spawns at least one child, its terminal response ends with one factual line, whether the task completed or stopped blocked/partial. For example:
+When a task actually spawns Agents, it ends with a one-line receipt:
 
-```text
-Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
+```
+Dispatch: Reader inspect -> Worker implement · no retry · Final Review not required
 ```
 
-A blocked task can report the blocker just as compactly, while preserving `UNKNOWN` when runtime state is unresolved.
-
-The receipt reports inspectable orchestration facts. It does not expose hidden reasoning or raw child transcripts. It does not estimate token usage or currency cost from model names or elapsed time. Exact model or usage details require actual host evidence.
-
-Zero-child tasks, Preview, and Status-only requests do not add a receipt.
+Blocked tasks report the reason just as compactly. The receipt covers verifiable facts only — no hidden reasoning, does not estimate token usage or currency cost. Tasks without child Agents skip the receipt.
 
 ## Evidence-bound handoffs
 
-When a later responsibility would otherwise repeat material repository discovery, Main can pass a small Handoff Capsule containing already-verified facts, evidence, interfaces, and `DO NOT REDO` guidance.
+Between consecutive responsibilities, a Handoff Capsule passes already-verified facts and `DO NOT REDO` guidance, so the next Agent doesn't rediscover the same things.
 
-Children still start with fresh context. subagents-dispatch does not forward an earlier child transcript as inherited truth. A child claim enters the capsule only after Main verifies it. Relevant artifact drift invalidates the affected capsule evidence and requires narrow re-verification.
+Each child gets fresh context. No transcript forwarding — only Main-verified claims enter the capsule. If the files change, old capsule facts are invalidated.
 
 ## Install
 
@@ -88,89 +90,79 @@ codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-Start a new Codex session after installation.
+Start a new Codex session after installing.
 
-On the first `/dispatch` task that actually needs a child, Dispatch checks the five managed Agent profiles. If they are missing, it explains the local files it manages and asks permission before running the bundled installer and check. Some Codex builds may require one additional fresh Codex session before newly installed profiles become visible; delegated writing does not start until the required roles are available.
+On the first task that needs an Agent, if the five managed Agent profiles aren't installed yet, the system explains what it needs, asks permission, and installs them. Some Codex versions may require one additional fresh Codex session before the profiles are visible.
 
-Development work uses:
+Development:
 
-```text
+```
 /dispatch <task>
 ```
 
-Installation, configuration, profile, and upgrade diagnostics use:
+Diagnostics and maintenance:
 
-```text
-/doctor <diagnostic or maintenance request>
+```
+/doctor <request>
 ```
 
-Doctor is read-only by default. You can also use `/skills` to open the Skill picker. Dispatch keeps implicit invocation disabled.
+Doctor is read-only by default. `/skills` opens the picker. Dispatch doesn't auto-activate on regular tasks.
 
 ## Update
 
-### Plugin Marketplace
-
-Open **Plugins**, find **subagents-dispatch** in your installed plugins, apply the available update, then start a new Codex session.
-
-### Command line
-
 ```bash
-codex plugin marketplace upgrade subagents-dispatch && \
+codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-You can also ask Doctor to perform the upgrade and check what remains afterward:
+Or ask Doctor:
 
-```text
-/doctor Upgrade subagents-dispatch and tell me what I need to do after the upgrade.
+```
+/doctor Upgrade subagents-dispatch and tell me what to do after
 ```
 
 Start a new Codex session after updating.
 
-## How it leads the team
+## Roles
 
-The main session is the technical lead. It selects responsibilities by capability need.
+| Role | What it does |
+|------|-------------|
+| Luna Reader | read code, trace call paths, gather facts |
+| Luna Worker | implementation and tests when the behavior is already decided |
+| Sol Solver | implementation that needs judgment calls along the way |
+| Terra Investigator | broad read-only investigation, evidence synthesis |
+| Sol Advisor | independent technical judgment or final review |
 
-| Role | Main job |
-| --- | --- |
-| Luna Reader | read code, trace call paths, find tests, and gather facts without editing files |
-| Luna Worker | implement clear changes and tests once material behavior and boundaries are decided |
-| Sol Solver | handle implementation where important technical judgment continues during the work |
-| Terra Investigator | perform broader read-only technical investigation and evidence synthesis |
-| Sol Advisor | make important technical judgments or independently review consequential results |
+Simple work stays in Main. Delegation happens when parallelism, isolation, or specialist capability justifies the cost. No fixed team size, no fixed pipeline.
 
-Simple work can remain entirely in Main. Delegation is used when parallelism, isolation, specialist capability, or independent judgment adds enough value to justify the handoff. There is no fixed Agent count and no fixed Luna → Terra → Sol pipeline.
+## Safety
 
-## Safety boundaries
+- Main owns the user's goal, permissions, team composition, and final response
+- Child Agents can't create their own teams
+- Within one subagents-dispatch orchestration, same Git checkout, one writer at a time; other Codex sessions, editors, hooks, and external processes are outside this guarantee
+- Steering can't widen responsibility, permissions, or mutation authority
+- Takeover must settle the previous owner first
+- Handoff Capsules carry only Main-verified evidence
+- An Agent saying "done" is a claim — artifacts and test results are the proof
+- Model, token, or cost claims need actual runtime evidence
 
-- Main owns the user's goal, permissions, team composition, and final response.
-- Child Agents cannot create their own project teams.
-- Within one subagents-dispatch orchestration, the same physical Git checkout has at most one active writer; other Codex sessions, editors, hooks, and external processes are outside this guarantee.
-- Steering cannot silently widen responsibility, permission, mutation authority, or user scope.
-- Takeover must settle the previous owner before conflicting work continues; `UNKNOWN` is preserved.
-- Handoff Capsules carry only Main-accepted evidence and cannot grant write authority.
-- An Agent saying “done” is a claim until actual artifacts and relevant checks support it.
-- Exact model, token, or cost claims require actual runtime evidence.
-- Uses Codex Native Subagents directly, with no separate runtime, daemon, or routing service.
-
-See [Architecture](docs/architecture.md) for coordination, recovery, interaction-control, handoff, and review rules.
+See [Architecture](docs/architecture.md) for the full rules.
 
 ## Repository layout
 
-```text
+```
 .
 ├── .agents/plugins/                  # Codex Marketplace registration
-├── .codex-plugin/                    # Plugin manifest
-├── agent-profiles/                   # five Native Subagent profiles
-├── assets/                           # Plugin icons and README logo
-├── policy-contract.json              # machine-readable roles and hard constraints
-├── scripts/                          # installer, validators, and runtime evidence tools
+├── .codex-plugin/                    # plugin manifest
+├── agent-profiles/                   # five Agent profiles
+├── policy-contract.json              # role definitions and core constraints
+├── scripts/                          # installer, validators, runtime evidence tools
 ├── skills/
-│   ├── dispatch/                     # delegation Skill, interaction controls, and runtime rules
-│   └── doctor/                       # install, config, profile, and upgrade diagnostics
-├── docs/                             # installation, architecture, and runtime documentation
+│   ├── dispatch/                     # main Skill, interaction controls, runtime rules
+│   └── doctor/                       # install diagnostics and upgrade
+├── docs/                             # architecture and runtime boundary docs
 ├── evals/                            # static and behavioral evaluation data
-└── tests/                            # regression, packaging, and cross-platform tests
+└── tests/                            # regression tests
 ```
 
 ## Documentation
@@ -179,7 +171,6 @@ See [Architecture](docs/architecture.md) for coordination, recovery, interaction
 - [Architecture](docs/architecture.md)
 - [Codex Native Subagent runtime boundaries](docs/native-subagent-runtime.md)
 - [AI Agent project reference](README_AI.md)
-- [Privacy Policy](PRIVACY.md) · [Terms of Use](TERMS.md)
 
 ## License
 

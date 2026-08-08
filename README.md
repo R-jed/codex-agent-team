@@ -21,67 +21,69 @@
 
 > **If you are an AI Agent, jump to [README_AI.md](README_AI.md) and follow the instructions strictly.**
 
-你给目标，主会话负责判断哪些工作自己完成，哪些值得交给原生 Subagent，并负责最终整合和验证。
+你描述要什么。主会话决定自己干还是叫人帮忙。
 
-2.1 增加了四个面向日常使用的能力：执行前预览、运行中查看与控制、完成后的极简执行摘要，以及经过验证的上下文交接。
+改一个组件，主会话自己来。要同时查代码、写实现、跑测试，它会分配给专门的 Agent 各干各的，最后整合结果。
 
 ## 快速开始
 
-直接执行任务：
+你让 Codex 改一个 API 接口并加测试。
 
-```text
-/dispatch 实现用户列表页面，支持分页和搜索
+没有 subagents-dispatch，主会话一个人干：先读代码，再改实现，最后写测试。一步一步来。
+
+有了 subagents-dispatch：
+
+```
+/dispatch 给 /api/users 加分页参数，补上测试
 ```
 
-想先看它准备怎么分工，再决定是否执行：
-
-```text
-/dispatch preview 实现用户列表页面，支持分页和搜索
-```
-
-Preview 只给出可能的职责、依赖和写入安排。它不会启动子 Agent、安装 Agent 配置、修改源码或执行外部操作。
+主会话拆成三个职责——Reader 查现有实现，Worker 改代码，Worker 写测试——并行推进，最后合并。你随时可以预览、干预或接管。
 
 ## 运行中控制
 
-查看当前委派状态：
+跑之前看它打算怎么分工：
 
-```text
+```
+/dispatch preview 给 /api/users 加分页参数，补上测试
+```
+
+Preview 只给职责分工和依赖关系。不启动 Agent，不改代码。
+
+跑起来之后看状态：
+
+```
 /dispatch status
 ```
 
-给某个正在运行的职责补充明确指导：
+给某个正在跑的职责补充指导：
 
-```text
-/dispatch steer U2: 先看 crash log，别重复扫描已经确认过的调用链
+```
+/dispatch steer U2: 先看现有的分页中间件，别从头写
 ```
 
-把某个职责安全地收回主会话：
+把职责拿回来自己干：
 
-```text
+```
 /dispatch takeover U2
 ```
 
-Takeover 会先处理原来的 Agent 所有权。遇到写入任务时，原写入者没有确认停止前，主会话不会开始冲突写入。运行状态无法确认时会保留 `UNKNOWN`，不会为了继续执行而猜测状态。
+Takeover 会先让原来的 Agent 停下来。遇到写入任务时，原写入者没有确认停止前，主会话不会开始冲突写入。状态查不到就保留 `UNKNOWN`，不猜。
 
 ## 执行摘要
 
-只要本次任务确实启动过子 Agent，本轮终态回复都会附上一行简短的 Dispatch 摘要。任务正常完成、部分完成或因阻塞停止时都适用，例如：
+启动过子 Agent 的任务，结束时附一行摘要：
 
-```text
-Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
+```
+Dispatch: Reader 查代码 -> Worker 实现 · 未重试 · 无需 Final Review
 ```
 
-遇到阻塞时也可以用同样简短的方式报告 blocker，并在运行状态无法确认时原样保留 `UNKNOWN`。
-
-摘要只展示可以验证的调度事实，不展示隐藏推理、原始子 Agent 对话，也不会根据模型名称或运行时长猜 Token 和费用。
-
-没有启动子 Agent、只做 Preview、只查 Status 时不会额外显示摘要。
+卡住了也一样简短地报告原因。摘要只报可验证的事实，不暴露推理过程，不会根据模型名称或运行时长猜 Token 和费用。没启动 Agent 的任务不加摘要。
 
 ## 减少重复扫描
 
-连续职责之间可以使用 Handoff Capsule 传递已经由主会话确认过的事实、证据、接口约束和 `DO NOT REDO` 信息。
+连续职责之间用 Handoff Capsule 传递已验证的事实和 `DO NOT REDO` 信息，省掉重复扫描。
 
-子 Agent 仍然使用新鲜上下文。系统不会把上一位 Agent 的整段对话直接塞给下一位，也不会把未经验证的 Agent 结论当成既定事实。相关文件发生变化后，依赖旧状态的交接信息需要重新验证。
+每个子 Agent 都是全新上下文，不继承上一位的对话。只有主会话验证过的结论才会传递。相关文件变了，旧的交接信息作废。
 
 ## 安装
 
@@ -90,23 +92,23 @@ codex plugin marketplace add R-jed/subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-安装后开启新的 Codex 会话。
+装完开新的 Codex 会话。
 
-第一次执行确实需要子 Agent 的 `/dispatch` 任务时，如果五个项目 Agent profiles 尚未安装，Dispatch 会先说明要管理的本地配置并请求许可，然后运行内置 installer 和检查。某些 Codex 版本可能需要再开启一次新的 Codex 会话才能识别刚安装的 profiles；在此之前不会启动委派写入。
+首次跑需要 Agent 的任务时，如果五个项目 Agent profiles 还没装，系统会说明要装什么、问你同意，然后自动装好。有些 Codex 版本装完后可能需要再开启一次新的 Codex 会话才能识别。
 
-开发任务使用：
+开发任务：
 
-```text
-/dispatch <你的任务描述>
+```
+/dispatch <任务描述>
 ```
 
-诊断和维护使用：
+诊断和维护：
 
-```text
-/doctor <诊断或维护请求>
+```
+/doctor <请求>
 ```
 
-Doctor 默认只读。也可以输入 `/skills` 打开 Skill 选择器。Dispatch 保持显式调用，不会在普通任务里自行介入。
+Doctor 默认只读。`/skills` 打开选择器。Dispatch 不会自动介入普通任务。
 
 ## 更新
 
@@ -115,57 +117,54 @@ codex plugin marketplace upgrade subagents-dispatch
 codex plugin add subagents-dispatch@subagents-dispatch
 ```
 
-也可以让 Doctor 执行升级：
+或者让 Doctor 来：
 
-```text
-/doctor 升级 subagents-dispatch，并告诉我升级后还需要做什么。
+```
+/doctor 升级 subagents-dispatch，告诉我之后还要做什么
 ```
 
-更新后开启新的 Codex 会话。
+更新后开新的 Codex 会话。
 
-## 工作原理
-
-主会话是技术负责人，按实际能力需求分配职责：
+## 角色
 
 | 角色 | 干什么 |
 |------|--------|
 | Luna Reader | 读代码、追调用链、收集事实 |
-| Luna Worker | 完成边界已经明确的实现和测试 |
-| Sol Solver | 处理实现过程中仍需要重要技术判断的工作 |
-| Terra Investigator | 大范围只读技术调查和证据整理 |
-| Sol Advisor | 重要技术判断或独立最终复核 |
+| Luna Worker | 边界已经清楚的实现和测试 |
+| Sol Solver | 实现过程中还要做判断的工作 |
+| Terra Investigator | 大范围只读调查，整理证据 |
+| Sol Advisor | 独立的技术判断或最终复核 |
 
-简单任务可以全部留在主会话。需要并行、隔离、专业能力或独立判断时才启动子 Agent。项目没有固定 Agent 数量，也没有固定 Luna → Terra → Sol 流程。
+简单任务主会话自己来。需要并行、隔离、专门能力或独立判断时才叫人。没有固定人数，没有固定流程。
 
-## 安全规则
+## 安全
 
 - 主会话负责用户目标、权限、团队组成和最终结果
-- 子 Agent 不能创建自己的项目团队
-- 在同一次 subagents-dispatch 调度内，同一个物理 Git checkout 同一时间最多一个活跃写入者；其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内
-- Steering 不能偷偷扩大职责、写入权限或用户范围
-- Takeover 必须先结清原所有者，`UNKNOWN` 不会被当成可安全抢占
-- Handoff Capsule 只能传播主会话已经验证接受的事实
-- Agent 说“完成”仍然只是一项声明，最终要看实际文件和验证结果
-- 精确模型、Token 或费用只有在 Host 提供可靠证据时才会报告
+- 子 Agent 不能创建自己的团队
+- 同一次 subagents-dispatch 调度内，同一个 Git checkout 同一时间最多一个写入者；其他 Codex 会话、编辑器、hook 和外部进程不在这个保证范围内
+- Steering 不能扩大职责、权限或写入范围
+- Takeover 必须先结清原所有者
+- Handoff Capsule 只传递主会话已验证的事实
+- Agent 说"完成"是声明，要看文件和测试结果
+- 模型、Token、费用只有 Host 给了证据才报告
 
 完整规则见 [架构说明](docs/architecture.md)。
 
 ## 项目结构
 
-```text
+```
 .
 ├── .agents/plugins/                  # Codex Marketplace 注册
-├── .codex-plugin/                    # Plugin manifest
-├── agent-profiles/                   # 五个原生 Subagent 配置
-├── assets/                           # Plugin 图标与 README Logo
-├── policy-contract.json              # 机器可读的角色与核心约束
-├── scripts/                          # installer、校验器与运行证据工具
+├── .codex-plugin/                    # 插件清单
+├── agent-profiles/                   # 五个 Agent 配置
+├── policy-contract.json              # 角色定义和核心约束
+├── scripts/                          # 安装、校验、运行证据工具
 ├── skills/
-│   ├── dispatch/                     # 主委托 Skill、交互控制和运行规则
-│   └── doctor/                       # 安装、配置、profiles 与升级诊断
-├── docs/                             # 安装、架构与运行边界文档
+│   ├── dispatch/                     # 主 Skill、交互控制、运行规则
+│   └── doctor/                       # 安装诊断和升级
+├── docs/                             # 架构和运行边界文档
 ├── evals/                            # 静态与行为评估数据
-└── tests/                            # 回归、打包与跨平台测试
+└── tests/                            # 回归测试
 ```
 
 ## 文档
@@ -174,7 +173,6 @@ codex plugin add subagents-dispatch@subagents-dispatch
 - [架构](docs/architecture.md)
 - [Codex 原生 Subagent 运行边界](docs/native-subagent-runtime.md)
 - [AI Agent 项目参考](README_AI.md)
-- [Privacy Policy](PRIVACY.md) · [Terms of Use](TERMS.md)
 
 ## 许可证
 
