@@ -19,6 +19,19 @@ attempt
 
 Without TeamPlan, the single delegated responsibility still gets a stable `unit_id` and unique `task_id`; `team_plan_revision` is null/absent as required by the ledger representation.
 
+A prepared responsibility packet may contain a candidate `TASK ID` before the Host call, but an Agent attempt begins only after the Host accepts the spawn and returns an inspectable child identity such as a child task name, Agent id, `agentThreadId`, or equivalent native handle.
+
+If `spawn_agent` is rejected before any child identity exists, treat that as a pre-attempt spawn rejection:
+
+```text
+no Agent attempt created
+no lifecycle FAILED record
+no attempt-budget consumption
+no receipt retry increment
+```
+
+Correct an invalid call before invoking again. A parameter correction after a pre-attempt rejection is not `same_role_retry`. If Host evidence cannot establish whether a child was created, use `UNKNOWN` rather than assuming the rejection was pre-attempt or issuing replacement work.
+
 ## Native lifecycle
 
 Use only:
@@ -116,11 +129,13 @@ One unchanged unit may use at most:
 1 focused follow-up on an existing Agent
 ```
 
+Only materialized Agent attempts count toward the two-attempt budget. A Host/tool rejection before child identity exists does not consume attempt 1 and does not make the next corrected spawn “attempt 2.”
+
 A focused follow-up is only for a complete result that is close enough to acceptance that the same Agent, role, responsibility, and authority still fit. It carries the exact failure and preserves valid evidence and DO NOT REDO facts.
 
 A follow-up stays inside the same attempt and does not create a new `task_id`.
 
-A second Agent attempt is allowed only after the first attempt is confirmed FAILED and Main has a concrete reason that another attempt is policy-compatible. The new attempt gets a new `task_id`.
+A second Agent attempt is allowed only after the first materialized attempt is confirmed FAILED and Main has a concrete reason that another attempt is policy-compatible. The new attempt gets a new `task_id`.
 
 After the second Agent attempt fails, Main takes ownership or reports the exact blocker. Do not create a third Agent attempt for the unchanged unit.
 
@@ -144,6 +159,8 @@ Use once when the result is complete, the role remains correct, and a narrow cor
 ### same_role_retry
 
 Use a new Agent attempt when responsibility and role remain correct and the retry packet is materially improved by new evidence, a concrete correction hypothesis, or a confirmed transient execution problem.
+
+A pre-attempt spawn rejection is not `same_role_retry`; repair the call and make the first valid spawn attempt.
 
 ### semantic_reroute
 
