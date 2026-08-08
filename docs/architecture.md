@@ -126,8 +126,8 @@ Takeover is represented as Recovery state rather than a new TeamPlan role. TeamP
 When real delegation occurred, the terminal response adds one compact factual receipt whether the work completed successfully or ended blocked/partial, for example:
 
 ```text
-Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
-Dispatch: Worker blocked · takeover pending on UNKNOWN writer · Final Review not reached
+Dispatch: Reader → Worker · complete · no retry · not required
+Dispatch: Worker · blocked · no retry · not reached · takeover pending on UNKNOWN writer
 ```
 
 A receipt may summarize semantic roles, retry/recovery/takeover facts, blocker state, and Final Review state. It does not expose private chain-of-thought or raw child transcripts.

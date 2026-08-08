@@ -126,18 +126,58 @@ A takeover does not reset the unit's history or erase valid evidence. With TeamP
 
 When at least one child was actually spawned, the terminal response for that dispatch includes one compact execution receipt after the ordinary result or blocker summary. This applies whether the requested work completed successfully or ended blocked/partial.
 
-Default shape:
+### Unified shape
+
+Emit the receipt as four fixed slots separated by `·`, plus an optional closing note when a blocker or `UNKNOWN` state is material. `→` connects role steps in execution order, and `×N` marks a role used N times. Keep the receipt to one line, with no free-text role descriptors.
 
 ```text
-Dispatch: <roles/responsibilities used> · <recovery/takeover when material> · <Final Review state>
+Dispatch: <role chain> · <state> · <retry> · <final review> [ · <blocker/UNKNOWN note>]
+```
+
+Slot enumerations:
+
+```text
+role chain     Reader×2 → Advisor        roles in execution order; `×N` after the role
+state          complete | blocked | pending | main takeover
+retry          no retry | retried N
+final review   not required | ship | fix-first | rethink | INSUFFICIENT_EVIDENCE | not reached
+```
+
+`pending` here means takeover pending. `main takeover` is the state-slot spelling of the existing `main_takeover` recovery action. Slot coherence: a `fix-first`, `rethink`, or `INSUFFICIENT_EVIDENCE` final review must not pair with state `complete`; `not reached` pairs with `blocked`, `pending`, or `main takeover`. When a blocker or `UNKNOWN` writer is material, append a short closing note (for example `takeover pending on UNKNOWN writer`); never convert `UNKNOWN` into failure or replacement work.
+
+### Language
+
+Emit the receipt in the language of the user's current request/thread. Chinese requests use the localized terms below; English requests keep the native terms above. For mixed-language requests, follow the language of the main clause; when the request language is neither Chinese nor English, fall back to English. This rule applies to the receipt only, not to the rest of the terminal output. Contract keywords stay in English in both languages: `UNKNOWN`, `DO NOT REDO`, `STALE IF`. `Main` stays English when it appears as a standalone keyword (for example `Main takeover`), and is localized only as a state-slot value.
+
+Chinese mapping:
+
+```text
+Reader → 读取               complete → 完成
+Worker → 实现               blocked → 卡住
+Solver → 决策               pending → 待定
+Investigator → 调查         main takeover → 主会话接手
+Advisor → 审核              no retry → 未重试
+                            retried N → 重试 N 次
+
+not required → 无需最终复核
+ship → 最终复核通过
+fix-first → 先修再验
+rethink → 重新设计
+INSUFFICIENT_EVIDENCE → 证据不足
+not reached → 未做最终复核
 ```
 
 Examples:
 
 ```text
-Dispatch: Reader evidence -> Worker implementation · no retry · Final Review not required
-Dispatch: Worker blocked · takeover pending on UNKNOWN writer · Final Review not reached
-Dispatch: Investigator analysis -> Main takeover · Final Review completed
+Chinese: Dispatch: 读取×2 → 审核 · 完成 · 未重试 · 最终复核通过
+English: Dispatch: Reader×2 → Advisor · complete · no retry · ship
+Chinese: Dispatch: 读取 → 实现 · 完成 · 重试 1 次 · 无需最终复核
+English: Dispatch: Reader → Worker · complete · retried 1 · not required
+Chinese: Dispatch: 决策 → 审核 · 卡住 · 未重试 · 先修再验
+English: Dispatch: Solver → Advisor · blocked · no retry · fix-first
+Chinese: Dispatch: 读取 → 决策 · 主会话接手 · 未重试 · 未做最终复核 · 接管待定于 UNKNOWN 写入者
+English: Dispatch: Reader → Solver · main takeover · no retry · not reached · takeover pending on UNKNOWN writer
 ```
 
 Do not emit the receipt for a zero-child task, preview, or status-only request. Do not turn it into a verbose trace.

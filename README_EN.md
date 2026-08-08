@@ -69,7 +69,7 @@ Take back control:
 When a task spawns Agents, it ends with a one-line receipt:
 
 ```
-Dispatch: Reader inspect -> Worker implement · no retry · Final Review not required
+Dispatch: Reader → Worker · complete · no retry · not required
 ```
 
 The receipt covers verifiable facts only: which roles ran, whether anything retried, whether a final review happened. It exposes no hidden reasoning and does not estimate token usage or currency cost.
