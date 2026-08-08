@@ -126,6 +126,52 @@ def test_both_generation_lock_files_remain_after_migration(tmp_path: Path):
     assert check.returncode == 0, check.stdout + check.stderr
 
 
+def test_profile_drift_after_manifest_publication_rolls_back_previous_state(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+):
+    home = tmp_path / "codex-home"
+    installer = load_installer()
+    installer.install(home, False)
+    capsys.readouterr()
+
+    profile_name = installer.PROFILE_FILES[0]
+    profile = home / "agents" / profile_name
+    previous_profile = profile.read_bytes() + b"\n# previous managed generation\n"
+    profile.write_bytes(previous_profile)
+
+    manifest_path = home / installer.MANIFEST_NAME
+    previous_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    previous_manifest["profile_hashes"][profile_name] = installer.sha256_bytes(previous_profile)
+    manifest_path.write_text(
+        json.dumps(previous_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    previous_manifest_bytes = manifest_path.read_bytes()
+
+    original_write_manifest = installer.write_manifest
+
+    def publish_then_drift(path: Path, payload: dict) -> None:
+        original_write_manifest(path, payload)
+        profile.write_bytes(profile.read_bytes() + b"\n# external publication-window drift\n")
+
+    installer.write_manifest = publish_then_drift
+
+    with pytest.raises(SystemExit, match="Installed Agent profile is missing, unsafe, or differs"):
+        installer.install(home, False)
+
+    output = capsys.readouterr().out
+    assert "Managed Agent profiles installed under:" not in output
+    assert profile.read_bytes() == previous_profile
+    assert manifest_path.read_bytes() == previous_manifest_bytes
+    for filename in installer.PROFILE_FILES:
+        if filename == profile_name:
+            continue
+        assert (home / "agents" / filename).read_bytes() == (
+            installer.PROFILE_SOURCE / filename
+        ).read_bytes()
+
+
 @pytest.mark.skipif(not hasattr(os, "fork"), reason="fault-injection harness requires fork")
 def test_failed_installer_cannot_rollback_a_successful_peer(tmp_path: Path):
     home = tmp_path / "codex-home"
