@@ -16,7 +16,7 @@ Internal identity:   /subagents-dispatch:dispatch
 Doctor Skill:        doctor
 Doctor command:      /doctor
 Internal identity:   /subagents-dispatch:doctor
-Current version:     2.1.0
+Current version:     2.1.1
 Distribution:        Codex Plugin
 License:             MIT
 ```
