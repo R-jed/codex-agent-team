@@ -19,8 +19,7 @@ MAIN_SKILL_NAMESPACED = "/subagents-dispatch:dispatch"
 DOCTOR_SKILL_NAMESPACED = "/subagents-dispatch:doctor"
 ROLE_LABELS = ["Luna Reader", "Luna Worker", "Sol Solver", "Terra Investigator", "Sol Advisor"]
 CONTROL_FORMS = ["/dispatch preview", "/dispatch status", "/dispatch steer", "/dispatch takeover"]
-LIGHT_LOGO = "assets/subagents-dispatch-logo.svg#gh-light-mode-only"
-DARK_LOGO = "assets/subagents-dispatch-logo-dark.svg#gh-dark-mode-only"
+README_LOGO = "assets/subagents-dispatch-logo.png"
 
 
 def test_public_readmes_keep_product_identity_install_use_update_and_controls():
@@ -169,6 +168,7 @@ def test_evals_readme_identifies_measurement_boundary_and_canonical_owners():
 
 def test_public_readme_visual_surface_uses_canonical_plugin_assets():
     plugin_assets = ROOT / "assets"
+    assert (plugin_assets / "subagents-dispatch-logo.png").is_file()
     assert (plugin_assets / "subagents-dispatch-logo.svg").is_file()
     assert (plugin_assets / "subagents-dispatch-logo-dark.svg").is_file()
     assert not (ROOT / "docs" / "logo-light.svg").exists()
@@ -176,8 +176,9 @@ def test_public_readme_visual_surface_uses_canonical_plugin_assets():
 
     for text in [ZH, EN]:
         assert "<picture" not in text
-        assert LIGHT_LOGO in text
-        assert DARK_LOGO in text
+        assert README_LOGO in text
+        assert "#gh-light-mode-only" not in text
+        assert "#gh-dark-mode-only" not in text
         assert "docs/logo-" not in text
         for line in text.splitlines():
             if "<img" in line and "subagents-dispatch-logo" not in line and "shields.io" not in line:
