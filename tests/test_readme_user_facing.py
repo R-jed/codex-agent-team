@@ -86,6 +86,16 @@ def test_public_readmes_surface_core_product_differentiators():
         assert phrase in EN
 
 
+def test_quick_start_demonstrates_parallel_reads_then_one_writer():
+    assert "两个只读 Reader" in ZH
+    assert "一个 Worker 统一修改实现和测试" in ZH
+    assert "Worker 改代码，Worker 写测试" not in ZH
+
+    assert "two read-only Reader responsibilities in parallel" in EN
+    assert "one Worker owns the implementation and test changes" in EN
+    assert "Worker changes implementation, Worker writes tests" not in EN
+
+
 def test_public_readmes_explain_the_current_repository_layout():
     assert "## 项目结构" in ZH
     assert "## Repository layout" in EN
