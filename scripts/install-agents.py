@@ -79,6 +79,10 @@ def managed_lock(
         codex_home.mkdir(parents=True, exist_ok=True)
     if lock_path.is_symlink():
         fail(f"Refusing symlinked {label} lock: {lock_path}")
+    if check_only and not lock_path.exists():
+        # Read-only check on a never-provisioned install: no lock has been created yet.
+        yield
+        return
 
     flags = os.O_RDWR | (0 if check_only else os.O_CREAT)
     if hasattr(os, "O_NOFOLLOW"):
@@ -287,7 +291,12 @@ def preflight_agents_dir(path: Path, *, check_only: bool) -> None:
     if path.exists() and not path.is_dir():
         fail(f"Agents destination is not a directory: {path}")
     if check_only and not path.is_dir():
-        fail(f"Required agents directory is missing: {path}")
+        fail(
+            f"Not installed: managed Agent profiles have not been provisioned yet "
+            f"(agents directory missing: {path}). "
+            "The first /dispatch task that needs an Agent will explain what it manages "
+            "and ask permission before installing them."
+        )
 
 
 def parse_profile_name(path: Path) -> str | None:
@@ -315,7 +324,11 @@ def preflight_profiles(
             fail(f"Refusing symlinked Agent profile destination: {target}")
         if not target.exists():
             if check_only:
-                fail(f"Required installed Agent profile is missing: {target}")
+                fail(
+                    f"Not installed: managed Agent profile is missing ({target}). "
+                    "The first /dispatch task that needs an Agent will explain what it manages "
+                    "and ask permission before installing them."
+                )
             continue
         if not target.is_file():
             fail(f"Agent profile destination is not a regular file: {target}")

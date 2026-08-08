@@ -212,3 +212,26 @@ def test_failed_installer_cannot_rollback_a_successful_peer(tmp_path: Path):
     assert peer.returncode == 0, peer_stdout + peer_stderr
     check = run_installer(home, "--check")
     assert check.returncode == 0, check.stdout + check.stderr
+
+
+def test_check_on_fresh_home_reports_not_installed_instead_of_lock_error(tmp_path: Path):
+    """A --check on a never-provisioned install must diagnose "not installed", not a lock error."""
+    home = tmp_path / "codex-home"
+    home.mkdir()
+    result = run_installer(home, "--check")
+    combined = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Could not open installer lock" not in combined
+    assert "Not installed" in combined
+
+
+def test_check_with_agents_dir_but_missing_profiles_reports_not_installed(tmp_path: Path):
+    """A present agents dir without our profiles is still "not installed", not a lock error."""
+    home = tmp_path / "codex-home"
+    home.mkdir()
+    (home / "agents").mkdir()
+    result = run_installer(home, "--check")
+    combined = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Could not open installer lock" not in combined
+    assert "Not installed" in combined
