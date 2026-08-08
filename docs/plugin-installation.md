@@ -21,14 +21,7 @@ Normal development work:
 /dispatch <task>
 ```
 
-Optional 2.1 controls use the same Skill:
-
-```text
-/dispatch preview <task>
-/dispatch status
-/dispatch steer <unit_id>: <guidance>
-/dispatch takeover <unit_id>
-```
+Optional 2.1 controls use the same Skill. Their exact grammar and behavior are owned by `../skills/dispatch/references/interaction.md`.
 
 Use `/doctor` for installation, configuration, managed-profile, and upgrade diagnostics. You can also use `/skills` to open the Codex Skill picker.
 
@@ -46,3 +39,24 @@ Doctor can perform the supported upgrade flow when explicitly requested:
 ```text
 /doctor Upgrade subagents-dispatch and tell me what remains afterward.
 ```
+
+## Uninstall
+
+Remove the Plugin registration:
+
+```bash
+codex plugin remove subagents-dispatch@subagents-dispatch
+```
+
+If delegated work previously provisioned the five managed Agent profiles, remove the files managed by subagents-dispatch as well:
+
+```bash
+rm ~/.codex/agents/subagents-dispatch-reader.toml
+rm ~/.codex/agents/subagents-dispatch-worker.toml
+rm ~/.codex/agents/subagents-dispatch-solver.toml
+rm ~/.codex/agents/subagents-dispatch-investigator.toml
+rm ~/.codex/agents/subagents-dispatch-advisor.toml
+rm ~/.codex/.subagents-dispatch-agents.json
+```
+
+The lock file is a coordination primitive and may remain. Do not delete unrelated Agent profiles or other Codex configuration files.
