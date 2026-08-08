@@ -133,11 +133,16 @@ def test_doctor_reuses_supported_diagnostics_and_existing_installer():
     assert "start a fresh Codex session" in text
 
 
-def test_install_doc_contains_the_current_install_and_update_contract():
+def test_install_doc_contains_the_current_install_update_and_first_run_contract():
     text = INSTALL_DOC.read_text(encoding="utf-8")
     for phrase in [
         CANONICAL_MARKETPLACE,
         PLUGIN_ADD,
+        "## First delegated run",
+        "five managed custom-Agent profiles",
+        "asks permission",
+        "another fresh Codex session",
+        "stops before delegated writing",
         "## Update",
         UPGRADE,
         USER_COMMAND_DISPATCH,
