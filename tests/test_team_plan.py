@@ -3,19 +3,26 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT
-SCRIPT = PLUGIN / "scripts" / "validate_team_plan.py"
+SCRIPTS = PLUGIN / "scripts"
+SCRIPT = SCRIPTS / "validate_team_plan.py"
 POLICY = PLUGIN / "policy-contract.json"
 
 
 def load_validator():
-    spec = importlib.util.spec_from_file_location("subagents_dispatch_team_plan", SCRIPT)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    scripts_dir = str(SCRIPTS)
+    sys.path.insert(0, scripts_dir)
+    try:
+        spec = importlib.util.spec_from_file_location("subagents_dispatch_team_plan", SCRIPT)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path.remove(scripts_dir)
 
 
 VALIDATOR = load_validator()
